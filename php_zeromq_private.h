@@ -54,13 +54,6 @@ typedef struct _php_zeromq_object  {
 } php_zeromq_object;
 /* }}} */
 
-/* {{{ typedef struct _php_zeromq_message_object */
-typedef struct _php_zeromq_message_object  {
-	zend_object zo;
-	zval *message;
-} php_zeromq_message_object;
-/* }}} */
-
 /* {{{ typedef struct _php_zeromq_socket_object */
 typedef struct _php_zeromq_socket_object  {
 	zend_object zo;
@@ -81,8 +74,6 @@ ZEND_EXTERN_MODULE_GLOBALS(zeromq);
 #endif
 
 #define PHP_ZEROMQ_OBJECT (php_zeromq_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
-
-#define PHP_ZEROMQ_MESSAGE_OBJECT (php_zeromq_message_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
 
 #define PHP_ZEROMQ_SOCKET_OBJECT (php_zeromq_socket_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
 
