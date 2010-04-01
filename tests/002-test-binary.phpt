@@ -12,11 +12,7 @@ $queue = new ZeroMQ();
 $queue->setSocket($socket);
 
 $rose = file_get_contents(dirname(__FILE__) . '/rose.jpg');
-
-$message = new ZeroMQMessage($rose);
-$queue->send($message);
-
-$rose_back = $queue->recv()->getMessage();
+$rose_back = $queue->send($rose)->recv();
 
 if ($rose !== $rose_back || strlen($rose) !== strlen($rose_back))
   echo "Fail";

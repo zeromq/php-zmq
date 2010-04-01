@@ -57,7 +57,7 @@ typedef struct _php_zeromq_object  {
 /* {{{ typedef struct _php_zeromq_message_object */
 typedef struct _php_zeromq_message_object  {
 	zend_object zo;
-	zmq_msg_t *message;
+	zval *message;
 } php_zeromq_message_object;
 /* }}} */
 
