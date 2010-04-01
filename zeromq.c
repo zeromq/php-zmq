@@ -494,7 +494,7 @@ static zend_object_value php_zeromq_socket_object_new_ex(zend_class_entry *class
 	php_zeromq_socket_object *intern;
 
 	/* Allocate memory for it */
-	intern = (php_zeromq_socket_object *) emalloc(sizeof(php_zeromq_object));
+	intern = (php_zeromq_socket_object *) emalloc(sizeof(php_zeromq_socket_object));
 	memset(&intern->zo, 0, sizeof(zend_object));
 
 	/* init in constructor */
