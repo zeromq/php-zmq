@@ -100,7 +100,7 @@ PHP_METHOD(zeromq, send)
 	intern_sock = (php_zeromq_socket_object *)zend_object_store_get_object(intern->sock_obj TSRMLS_CC);
 	
 	if (zmq_msg_init_size(&message, message_param_len) != 0) {
-		zend_throw_exception_ex(php_zeromq_exception_sc_entry, errno TSRMLS_CC, "Failed to initialize the message: %s", zmq_strerror(errno));
+		zend_throw_exception_ex(php_zeromq_exception_sc_entry, errno TSRMLS_CC, "Failed to initialize message structure: %s", zmq_strerror(errno));
 		return;
 	}
 	memcpy(zmq_msg_data(&message), message_param, message_param_len);
@@ -109,7 +109,7 @@ PHP_METHOD(zeromq, send)
 	zmq_msg_close(&message);
 	
 	if (rc != 0) {
-		zend_throw_exception_ex(php_zeromq_exception_sc_entry, errno TSRMLS_CC, "Failed to send the message: %s", zmq_strerror(errno));
+		zend_throw_exception_ex(php_zeromq_exception_sc_entry, errno TSRMLS_CC, "Failed to send message: %s", zmq_strerror(errno));
 		return;
 	}
 	ZEROMQ_RETURN_THIS;
@@ -138,13 +138,13 @@ PHP_METHOD(zeromq, recv)
 	intern_sock = (php_zeromq_socket_object *)zend_object_store_get_object(intern->sock_obj TSRMLS_CC);
 
 	if (zmq_msg_init(&message) != 0) {
-		zend_throw_exception(php_zeromq_exception_sc_entry, "Failed to initialise the recv message", 1 TSRMLS_CC);
+		zend_throw_exception_ex(php_zeromq_exception_sc_entry, errno TSRMLS_CC, "Failed to initialize message structure: %s", zmq_strerror(errno));
 		return;
 	}
 	
 	if (zmq_recv(intern_sock->zms->socket, &message, 0) != 0) {
 		zmq_msg_close(&message);
-		zend_throw_exception_ex(php_zeromq_exception_sc_entry, errno TSRMLS_CC, "Failed to receive the message: %s", zmq_strerror(errno));
+		zend_throw_exception_ex(php_zeromq_exception_sc_entry, errno TSRMLS_CC, "Failed to receive message: %s", zmq_strerror(errno));
 		return;
 	}
 
