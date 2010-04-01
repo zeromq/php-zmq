@@ -237,7 +237,6 @@ PHP_METHOD(zeromqsocket, __construct)
 	char *p_id = NULL;
 	int p_id_len = 0;
 	
-	
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l|s!", &type, &p_id, &p_id_len) == FAILURE) {
 		return;
 	}
@@ -264,6 +263,11 @@ PHP_METHOD(zeromqsocket, bind)
 	}
 	
 	intern = PHP_ZEROMQ_SOCKET_OBJECT;
+	
+	if (!intern->zms) {
+		zend_throw_exception(php_zeromq_socket_exception_sc_entry, "The ZeroMQSocket::__construct needs to be called before using the object", 1 TSRMLS_CC);
+		return;
+	}
 	
 	/* already connected ? */
 	if (!force && zend_hash_exists(&(intern->zms->bind), dsn, dsn_len + 1)) {
@@ -297,6 +301,11 @@ PHP_METHOD(zeromqsocket, connect)
 	
 	intern = PHP_ZEROMQ_SOCKET_OBJECT;
 	
+	if (!intern->zms) {
+		zend_throw_exception(php_zeromq_socket_exception_sc_entry, "The ZeroMQSocket::__construct needs to be called before using the object", 1 TSRMLS_CC);
+		return;
+	}
+	
 	/* already connected ? */
 	if (!force && zend_hash_exists(&(intern->zms->connect), dsn, dsn_len + 1)) {
 		ZEROMQ_RETURN_THIS;
@@ -327,6 +336,11 @@ PHP_METHOD(zeromqsocket, setsockopt)
 	}
 	
 	intern = PHP_ZEROMQ_SOCKET_OBJECT;
+	
+	if (!intern->zms) {
+		zend_throw_exception(php_zeromq_socket_exception_sc_entry, "The ZeroMQSocket::__construct needs to be called before using the object", 1 TSRMLS_CC);
+		return;
+	}
 	
 	switch (key) {
 		
@@ -571,12 +585,12 @@ PHP_MINIT_FUNCTION(zeromq)
 	
 	INIT_CLASS_ENTRY(ce, "ZeroMQ", php_zeromq_class_methods);
 	ce.create_object = php_zeromq_object_new;
-	zeromq_object_handlers.clone_obj = php_zeromq_clone_object;
+	zeromq_object_handlers.clone_obj = NULL;
 	php_zeromq_sc_entry = zend_register_internal_class(&ce TSRMLS_CC);
 	
 	INIT_CLASS_ENTRY(ce, "ZeroMQSocket", php_zeromq_socket_class_methods);
 	ce.create_object = php_zeromq_socket_object_new;
-	zeromq_socket_object_handlers.clone_obj = php_zeromq_socket_clone_object;
+	zeromq_socket_object_handlers.clone_obj = NULL;
 	php_zeromq_socket_sc_entry = zend_register_internal_class(&ce TSRMLS_CC);
 
 	INIT_CLASS_ENTRY(ce, "ZeroMQException", NULL);
