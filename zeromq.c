@@ -359,8 +359,10 @@ PHP_METHOD(zeromqsocket, setsockopt)
 		case ZMQ_IDENTITY:
 		case ZMQ_SUBSCRIBE:
 		case ZMQ_UNSUBSCRIBE:
+		{
 			convert_to_string(pz_value);
 			status = zmq_setsockopt(intern->zms->socket, key, Z_STRVAL_P(pz_value), Z_STRLEN_P(pz_value));
+		}
 		break;
 		
 		case ZMQ_RATE:
@@ -377,8 +379,10 @@ PHP_METHOD(zeromqsocket, setsockopt)
 		break;
 		
 		default:
+		{
 			zend_throw_exception(php_zeromq_socket_exception_sc_entry, "Unknown option key", 1 TSRMLS_CC);
 			return;
+		}
 		break;
 	}
 	
@@ -487,6 +491,7 @@ static zend_object_value php_zeromq_object_new_ex(zend_class_entry *class_type, 
 	intern = (php_zeromq_object *) emalloc(sizeof(php_zeromq_object));
 	memset(&intern->zo, 0, sizeof(zend_object));
 	
+	/* Sock object is set in ->setSocket() */
 	intern->sock_obj = NULL;
 	
 	if (ptr) {
