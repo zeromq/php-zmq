@@ -150,7 +150,7 @@ PHP_METHOD(zeromq, recv)
 
 	ZVAL_STRINGL(return_value, zmq_msg_data(&message), zmq_msg_size(&message), 1);	
 	zmq_msg_close(&message);
-	ZEROMQ_RETURN_THIS;
+	return;
 }
 /* }}} */
 
