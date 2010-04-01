@@ -22,7 +22,20 @@
 #include "ext/standard/info.h"
 #include "Zend/zend_exceptions.h"
 
+#include <stdint.h>
 #include <zmq.h>
+
+
+/* {{{ typedef struct _php_zeromq_socket */
+typedef struct _php_zeromq_socket  {
+	void *socket;
+	void *context;
+	zend_bool is_persistent;
+	
+	HashTable connect;
+	HashTable bind;
+} php_zeromq_socket;
+/* }}} */
 
 /* {{{ typedef struct _php_zeromq_object */
 typedef struct _php_zeromq_object  {
@@ -34,19 +47,19 @@ typedef struct _php_zeromq_object  {
 /* {{{ typedef struct _php_zeromq_message_object */
 typedef struct _php_zeromq_message_object  {
 	zend_object zo;
-	zmq_msg_t message;
+	zmq_msg_t *message;
 } php_zeromq_message_object;
 /* }}} */
 
 /* {{{ typedef struct _php_zeromq_socket_object */
 typedef struct _php_zeromq_socket_object  {
 	zend_object zo;
-	void *socket;
+	php_zeromq_socket *zms;
 } php_zeromq_socket_object;
 /* }}} */
 
 ZEND_BEGIN_MODULE_GLOBALS(zeromq)
-	void *context;
+	HashTable sockets;
 ZEND_END_MODULE_GLOBALS(zeromq)
 
 ZEND_EXTERN_MODULE_GLOBALS(zeromq);
@@ -63,5 +76,7 @@ ZEND_EXTERN_MODULE_GLOBALS(zeromq);
 
 #define PHP_ZEROMQ_SOCKET_OBJECT (php_zeromq_socket_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
 
+
+#define ZEROMQ_RETURN_THIS RETURN_ZVAL(getThis(), 1, 0);
 
 #endif /* _PHP_ZEROMQ_PRIVATE_H_ */
