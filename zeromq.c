@@ -161,21 +161,21 @@ PHP_METHOD(zeromqmessage, __construct)
 	php_zeromq_message_object *intern;
 	char *msg;
 	int msg_len;
-
+	
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &msg, &msg_len) == FAILURE) {
 		return;
 	}
 	
 	intern = PHP_ZEROMQ_MESSAGE_OBJECT;
 	intern->message = emalloc(sizeof(zmq_msg_t));
-	
-	if (zmq_msg_init_size(intern->message, msg_len + 1) != 0) {
+
+	if (zmq_msg_init_size(intern->message, msg_len) != 0) {
 		efree(intern->message);
 		zend_throw_exception_ex(php_zeromq_message_exception_sc_entry, errno TSRMLS_CC, "Failed to initialize the ZeroMQMessage: %s", zmq_strerror(errno));
 		return;
 	}
 	
-	memcpy(zmq_msg_data(intern->message), msg, msg_len + 1);
+	memcpy(zmq_msg_data(intern->message), msg, msg_len);
 	ZEROMQ_RETURN_THIS;
 }
 /* }}} */
@@ -199,14 +199,14 @@ PHP_METHOD(zeromqmessage, setmessage)
 	} else {
 		zmq_msg_close(intern->message);
 	}
-	
-	if (zmq_msg_init_size(intern->message, msg_len + 1) != 0) {
+
+	if (zmq_msg_init_size(intern->message, msg_len) != 0) {
 		efree(intern->message);
 		zend_throw_exception_ex(php_zeromq_message_exception_sc_entry, errno TSRMLS_CC, "Failed to initialize the ZeroMQMessage: %s", zmq_strerror(errno));
 		return;
 	}
 	
-	memcpy(zmq_msg_data(intern->message), msg, msg_len + 1);
+	memcpy(zmq_msg_data(intern->message), msg, msg_len);
 	ZEROMQ_RETURN_THIS;
 }
 /* }}} */
@@ -216,9 +216,8 @@ PHP_METHOD(zeromqmessage, setmessage)
 PHP_METHOD(zeromqmessage, getmessage)
 {
 	php_zeromq_message_object *intern;
-	zend_bool binary = 0;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|b", &binary) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "") == FAILURE) {
 		return;
 	}
 	
@@ -227,13 +226,13 @@ PHP_METHOD(zeromqmessage, getmessage)
 	if (!intern->message) {
 		return;
 	}
-	
-	if (binary) {
-		RETURN_STRINGL(zmq_msg_data(intern->message), zmq_msg_size(intern->message), 1);
-	} else {
-		/* Assume it's a null terminated string */
-		RETURN_STRINGL(zmq_msg_data(intern->message), zmq_msg_size(intern->message) - 1, 1);
+
+	if (zmq_msg_size(intern->message) <= 0) {
+		RETURN_STRING("", 1);
 	}
+
+	/* Assume it's a null terminated string */
+	RETURN_STRINGL(zmq_msg_data(intern->message), zmq_msg_size(intern->message), 1);
 }
 /* }}} */
 

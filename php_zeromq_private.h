@@ -36,7 +36,6 @@
 #include <stdint.h>
 #include <zmq.h>
 
-
 /* {{{ typedef struct _php_zeromq_socket */
 typedef struct _php_zeromq_socket  {
 	void *socket;
@@ -86,7 +85,6 @@ ZEND_EXTERN_MODULE_GLOBALS(zeromq);
 #define PHP_ZEROMQ_MESSAGE_OBJECT (php_zeromq_message_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
 
 #define PHP_ZEROMQ_SOCKET_OBJECT (php_zeromq_socket_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
-
 
 #define ZEROMQ_RETURN_THIS RETURN_ZVAL(getThis(), 1, 0);
 
