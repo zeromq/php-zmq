@@ -102,7 +102,7 @@ PHP_METHOD(zeromq, getsocket)
 		return;
 	}
 	
-	*return_value = (*intern->sock_obj);
+	*return_value = *(intern->sock_obj);
 	return;
 }
 /* }}} */
@@ -244,16 +244,18 @@ static php_zeromq_socket *php_zeromq_socket_get(int type, const char *p_id, int 
 	if (persistent) {
 		php_zeromq_socket **zmq_sock_pp;
 		
-		if (zend_hash_find(&(ZEROMQ_G(sockets)), p_id, p_id_len + 1, (void **)&zmq_sock_pp) == SUCCESS) {
+		if (zend_hash_find(&(ZEROMQ_G(sockets)), p_id, p_id_len + 1, (void **) &zmq_sock_pp) == SUCCESS) {
 			return *zmq_sock_pp;
 		}
+		/* Allocate new persistent socket */
 		zmq_sock_p = php_zeromq_socket_new(type, 1 TSRMLS_CC);
 	} else {
+		/* Allocate new normal socket */
 		zmq_sock_p = php_zeromq_socket_new(type, 0 TSRMLS_CC);
 	}
 	
 	if (persistent) {
-		if (zend_hash_update(&(ZEROMQ_G(sockets)), p_id, p_id_len + 1, (void *)&zmq_sock_p, sizeof(php_zeromq_socket *), NULL) != SUCCESS) {
+		if (zend_hash_update(&(ZEROMQ_G(sockets)), p_id, p_id_len + 1, (void *) &zmq_sock_p, sizeof(php_zeromq_socket *), NULL) != SUCCESS) {
 			free(zmq_sock_p);
 			php_error_docref(NULL TSRMLS_CC, E_ERROR, "Failed to store the persistent connection");
 		}
