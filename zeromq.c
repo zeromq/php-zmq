@@ -39,8 +39,6 @@ zend_class_entry *php_zeromq_socket_exception_sc_entry;
 static zend_object_handlers zeromq_object_handlers;
 static zend_object_handlers zeromq_socket_object_handlers;
 
-ZEND_DECLARE_MODULE_GLOBALS(zeromq);
-
 #ifndef Z_ADDREF_P
 # define Z_ADDREF_P(pz) pz->refcount++
 #endif
@@ -48,6 +46,13 @@ ZEND_DECLARE_MODULE_GLOBALS(zeromq);
 #ifndef Z_DELREF_P
 # define Z_DELREF_P(pz) pz->refcount--
 #endif
+
+static int le_zeromq;
+
+static inline int php_zeromq_list_entry(void)
+{
+	return le_zeromq;
+}
 
 /* -- START ZeroMQ --- */
 
@@ -200,17 +205,8 @@ static int php_zeromq_nofree_dtor()
 static php_zeromq_socket *php_zeromq_socket_new(int type, zend_bool persistent TSRMLS_DC)
 {
 	php_zeromq_socket *zmq_sock;
-	
-	if (persistent) {
-		zmq_sock = malloc(sizeof(php_zeromq_socket));
-		
-		if (!zmq_sock) {
-			php_error_docref(NULL TSRMLS_CC, E_ERROR, "Unable to allocate memory for connection");
-		}
-	} else {
-		zmq_sock = emalloc(sizeof(php_zeromq_socket));
-	}
-	
+	zmq_sock = pecalloc(1, sizeof(php_zeromq_socket), persistent);
+
 	zmq_sock->context       = zmq_init(1, 1, 0);
 	zmq_sock->socket        = zmq_socket(zmq_sock->context, (int) type);
 	zmq_sock->is_persistent = persistent;
@@ -228,11 +224,7 @@ static void php_zeromq_socket_destroy(php_zeromq_socket *zmq_sock)
 	(void) zmq_close(zmq_sock->socket);
 	(void) zmq_term(zmq_sock->context);
 	
-	if (zmq_sock->is_persistent) {
-		free(zmq_sock);
-	} else {
-		efree(zmq_sock);
-	}
+	pefree(zmq_sock, zmq_sock->is_persistent);
 }
 
 /* Get a socket. If id = NULL create a new socket */
@@ -241,25 +233,38 @@ static php_zeromq_socket *php_zeromq_socket_get(int type, const char *p_id, int 
 	php_zeromq_socket *zmq_sock_p;
 	zend_bool persistent = (p_id && p_id_len);
 
+	char *plist_key;
+	int plist_key_len;
+
+	plist_key_len  = spprintf(&plist_key, 0, "zeromq:id=%s", p_id);
+	plist_key_len += 1;
+
 	if (persistent) {
-		php_zeromq_socket **zmq_sock_pp;
+		zend_rsrc_list_entry *le = NULL;
 		
-		if (zend_hash_find(&(ZEROMQ_G(sockets)), p_id, p_id_len + 1, (void **) &zmq_sock_pp) == SUCCESS) {
-			return *zmq_sock_pp;
-		}
-		/* Allocate new persistent socket */
-		zmq_sock_p = php_zeromq_socket_new(type, 1 TSRMLS_CC);
-	} else {
-		/* Allocate new normal socket */
-		zmq_sock_p = php_zeromq_socket_new(type, 0 TSRMLS_CC);
+		if (zend_hash_find(&EG(persistent_list), plist_key, plist_key_len, (void *)&le) == SUCCESS) {
+			if (le->type == php_zeromq_list_entry()) {
+				efree(plist_key);
+				zmq_sock_p = (php_zeromq_socket *) le->ptr;
+				return zmq_sock_p;
+			}
+		}	
 	}
+	zmq_sock_p = php_zeromq_socket_new(type, persistent TSRMLS_CC);
 	
 	if (persistent) {
-		if (zend_hash_update(&(ZEROMQ_G(sockets)), p_id, p_id_len + 1, (void *) &zmq_sock_p, sizeof(php_zeromq_socket *), NULL) != SUCCESS) {
-			free(zmq_sock_p);
-			php_error_docref(NULL TSRMLS_CC, E_ERROR, "Failed to store the persistent connection");
+		
+		zend_rsrc_list_entry le;
+
+		le.type = php_zeromq_list_entry();
+		le.ptr  = zmq_sock_p;
+		
+		
+		if (zend_hash_update(&EG(persistent_list), (char *)plist_key, plist_key_len, (void *)&le, sizeof(le), NULL) == FAILURE) {
+			php_error_docref(NULL TSRMLS_CC, E_ERROR, "Could not register persistent entry");
 		}
 	}
+	efree(plist_key);
 	return zmq_sock_p;	
 }
 
@@ -276,7 +281,7 @@ PHP_METHOD(zeromqsocket, __construct)
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l|s!", &type, &p_id, &p_id_len) == FAILURE) {
 		return;
 	}
-	
+
 	intern      = PHP_ZEROMQ_SOCKET_OBJECT;
 	intern->zms = php_zeromq_socket_get((int) type, p_id, p_id_len TSRMLS_CC);
 	return;
@@ -581,23 +586,19 @@ static zend_object_value php_zeromq_socket_object_new(zend_class_entry *class_ty
 	return php_zeromq_socket_object_new_ex(class_type, NULL TSRMLS_CC);
 }
 
-static int php_zeromq_socket_dtor(void **datas TSRMLS_DC) 
+ZEND_RSRC_DTOR_FUNC(php_zeromq_socket_dtor)
 {
-	php_zeromq_socket *zms = (php_zeromq_socket *) *datas;
-	php_zeromq_socket_destroy(zms);
-	return ZEND_HASH_APPLY_REMOVE;
-}
-
-static void php_zeromq_init_globals(zend_zeromq_globals *zeromq_globals)
-{
-	/* ZeroMQ sockets */
-	zend_hash_init(&(zeromq_globals->sockets), 0, NULL, (dtor_func_t)php_zeromq_socket_dtor, 1);
+	if (rsrc->ptr) {
+		php_zeromq_socket *zms = (php_zeromq_socket *)rsrc->ptr;
+		php_zeromq_socket_destroy(zms);
+		rsrc->ptr = NULL;
+	}
 }
 
 PHP_MINIT_FUNCTION(zeromq)
 {
 	zend_class_entry ce;
-	ZEND_INIT_MODULE_GLOBALS(zeromq, php_zeromq_init_globals, NULL);
+	le_zeromq = zend_register_list_destructors_ex(NULL, php_zeromq_socket_dtor, "ZeroMQ persistent socket", module_number);
 
 	memcpy(&zeromq_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
 	memcpy(&zeromq_socket_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
@@ -654,7 +655,6 @@ PHP_MINIT_FUNCTION(zeromq)
 
 PHP_MSHUTDOWN_FUNCTION(zeromq)
 {
-	zend_hash_destroy(&(ZEROMQ_G(sockets)));
 	return SUCCESS;
 }
 
