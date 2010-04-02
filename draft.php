@@ -1,11 +1,19 @@
 <?php
 
+/* Amount of threads*/
+ini_set("zeromq.app_threads", 1);
+ini_set("zeromq.io_threads", 2);
+
 /* Create new queue object */
 $queue = new ZeroMQ();
 
 /* Create persistent socket called 'MySock1' */
 $socket1 = new ZeroMQSocket(ZeroMQ::SOCKET_REQ, "MySock1");
 $socket1->connect("tcp://127.0.0.1:5555");
+
+/* Amount of threads*/
+ini_set("zeromq.app_threads", 1);
+ini_set("zeromq.io_threads", 1);
 
 /* And another persistent socket called 'MySock2' */
 $socket2 = new ZeroMQSocket(ZeroMQ::SOCKET_REQ, "MySock2");
@@ -20,3 +28,6 @@ var_dump($queue->setSocket($socket1)
 var_dump($queue->setSocket($socket2)
          ->send("hello there, using socket 2")
          ->recv());
+         
+var_dump($socket1->getContextOptions());
+var_dump($socket2->getContextOptions());

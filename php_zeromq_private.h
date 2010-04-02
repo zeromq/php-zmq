@@ -45,6 +45,9 @@ typedef struct _php_zeromq_socket  {
 	
 	HashTable connect;
 	HashTable bind;
+	
+	int app_threads;
+	int io_threads;
 } php_zeromq_socket;
 /* }}} */
 

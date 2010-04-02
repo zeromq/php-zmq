@@ -214,6 +214,9 @@ static php_zeromq_socket *php_zeromq_socket_new(int type, zend_bool persistent T
 	zmq_sock->socket        = zmq_socket(zmq_sock->context, (int) type);
 	zmq_sock->is_persistent = persistent;
 	
+	zmq_sock->app_threads   = ZEROMQ_G(app_threads);
+	zmq_sock->io_threads    = ZEROMQ_G(io_threads);
+	
 	zend_hash_init(&(zmq_sock->connect), 0, NULL, (dtor_func_t) php_zeromq_nofree_dtor, persistent);
 	zend_hash_init(&(zmq_sock->bind), 0, NULL, (dtor_func_t) php_zeromq_nofree_dtor, persistent);
 	return zmq_sock;
@@ -436,6 +439,31 @@ PHP_METHOD(zeromqsocket, setsockopt)
 }
 /* }}} */
 
+/** {{{ array ZeroMQSocket::getContextOptions() 
+	Returns the amount of app and io threads in the internal context
+*/
+PHP_METHOD(zeromqsocket, getcontextoptions)
+{
+	php_zeromq_socket_object *intern;
+	
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "") == FAILURE) {
+		return;
+	}
+	
+	intern = PHP_ZEROMQ_SOCKET_OBJECT;
+	
+	if (!intern->zms) {
+		zend_throw_exception(php_zeromq_socket_exception_sc_entry, "The ZeroMQSocket::__construct needs to be called before using the object", 1 TSRMLS_CC);
+		return;
+	}
+	
+	array_init(return_value);
+	add_assoc_long(return_value, "app_threads", intern->zms->app_threads);
+	add_assoc_long(return_value, "io_threads",  intern->zms->io_threads);
+	return;
+}
+/* }}} */
+
 /* -- END ZeroMQSocket --- */
 
 ZEND_BEGIN_ARG_INFO_EX(zeromq_construct_args, 0, 0, 0)
@@ -482,11 +510,15 @@ ZEND_BEGIN_ARG_INFO_EX(zeromq_socket_setsockopt_args, 0, 0, 2)
 	ZEND_ARG_INFO(0, value)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(zeromq_socket_getcontextoptions_args, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
 static function_entry php_zeromq_socket_class_methods[] = {
-	PHP_ME(zeromqsocket, __construct,	zeromq_socket_construct_args,		ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
-	PHP_ME(zeromqsocket, bind,			zeromq_socket_bind_args,			ZEND_ACC_PUBLIC)
-	PHP_ME(zeromqsocket, connect,		zeromq_socket_connect_args,			ZEND_ACC_PUBLIC)
-	PHP_ME(zeromqsocket, setsockopt,	zeromq_socket_setsockopt_args,		ZEND_ACC_PUBLIC)
+	PHP_ME(zeromqsocket, __construct,		zeromq_socket_construct_args,			ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
+	PHP_ME(zeromqsocket, bind,				zeromq_socket_bind_args,				ZEND_ACC_PUBLIC)
+	PHP_ME(zeromqsocket, connect,			zeromq_socket_connect_args,				ZEND_ACC_PUBLIC)
+	PHP_ME(zeromqsocket, setsockopt,		zeromq_socket_setsockopt_args,			ZEND_ACC_PUBLIC)
+	PHP_ME(zeromqsocket, getcontextoptions,	zeromq_socket_getcontextoptions_args,	ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 
