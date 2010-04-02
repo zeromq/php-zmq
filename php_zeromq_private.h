@@ -33,14 +33,22 @@
 
 #include "ext/standard/info.h"
 #include "Zend/zend_exceptions.h"
+#include "php_ini.h"
 
 #include <stdint.h>
 #include <zmq.h>
 
+/* {{{ */
+typedef struct _php_zeromq_context {
+	void *context;
+	zend_bool is_persistent;
+} php_zeromq_context;
+/* }}} */
+
 /* {{{ typedef struct _php_zeromq_socket */
 typedef struct _php_zeromq_socket  {
 	void *socket;
-	void *context;
+	php_zeromq_context *context;
 	zend_bool is_persistent;
 	
 	HashTable connect;
@@ -62,12 +70,16 @@ typedef struct _php_zeromq_object  {
 typedef struct _php_zeromq_socket_object  {
 	zend_object zo;
 	php_zeromq_socket *zms;
+	char *p_id;
+	
+	int type;
+	int app_threads;
+	int io_threads;
 } php_zeromq_socket_object;
 /* }}} */
 
 ZEND_BEGIN_MODULE_GLOBALS(zeromq)
-	long app_threads;
-	long io_threads;
+	zend_bool persist_context;
 ZEND_END_MODULE_GLOBALS(zeromq)
 
 ZEND_EXTERN_MODULE_GLOBALS(zeromq);
