@@ -59,7 +59,8 @@ PHP_METHOD(zeromq, __construct)
 }
 /* }}} */
 
-/* {{{
+/* {{{ ZeroMQ ZeroMQ::setSocket(ZeroMQSocket socket)
+	Set the ZeroMQ socket object
 */
 PHP_METHOD(zeromq, setsocket)
 {
@@ -83,7 +84,8 @@ PHP_METHOD(zeromq, setsocket)
 }
 /* }}} */
 
-/* {{{
+/* {{{ ZeroMQSocket ZeroMQ::getSocket()
+	Get the ZeroMQ socket object
 */
 PHP_METHOD(zeromq, getsocket)
 {
@@ -94,12 +96,19 @@ PHP_METHOD(zeromq, getsocket)
 	}
 	
 	intern = PHP_ZEROMQ_OBJECT;
+	
+	if (!intern->sock_obj) {
+		zend_throw_exception(php_zeromq_exception_sc_entry, "No socket set on the object", 1 TSRMLS_CC);
+		return;
+	}
+	
 	*return_value = (*intern->sock_obj);
 	return;
 }
 /* }}} */
 
-/* {{{
+/* {{{ ZeroMQ ZeroMQ::send(string message)
+	Send a message
 */
 PHP_METHOD(zeromq, send)
 {
@@ -140,7 +149,8 @@ PHP_METHOD(zeromq, send)
 }
 /* }}} */
 
-/* {{{
+/* {{{ string ZeroMQ::recv()
+	Receive a message
 */
 PHP_METHOD(zeromq, recv)
 {
@@ -271,7 +281,7 @@ PHP_METHOD(zeromqsocket, __construct)
 }
 /* }}} */
 
-/* {{{ ZeroMQSocket::bind(string dsn)
+/* {{{ ZeroMQSocket::bind(string dsn[, bool force_new_connection])
 	Bind the socket to an endpoint
 */
 PHP_METHOD(zeromqsocket, bind)
@@ -308,7 +318,7 @@ PHP_METHOD(zeromqsocket, bind)
 }
 /* }}} */
 
-/* {{{ ZeroMQSocket::connect(string dsn)
+/* {{{ ZeroMQSocket::connect(string dsn[, bool force_new_connection])
 	Connect the socket to an endpoint
 */
 PHP_METHOD(zeromqsocket, connect)
@@ -345,7 +355,7 @@ PHP_METHOD(zeromqsocket, connect)
 }
 /* }}} */
 
-/* {{{ ZeroMQSocket::setSockOpt(int key, mixed value)
+/* {{{ ZeroMQSocket::setSockOpt(int ZeroMQ::SOCKOPT_, mixed value)
 	Set a socket option
 */
 PHP_METHOD(zeromqsocket, setsockopt)
