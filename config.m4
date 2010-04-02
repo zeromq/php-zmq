@@ -3,12 +3,12 @@ PHP_ARG_WITH(zeromq, whether to enable ZeroMQ support,
 
 if test "$PHP_ZEROMQ" != "no"; then
 
-  AC_PATH_PROG(PKG_CONFIG, pkg-config, no)
-  if test -z "$PKG_CONFIG"; then
+  AC_PATH_PROG(PKG_CONFIG, pkg-config, not found)
+  if test ! -x "$PKG_CONFIG"; then
     AC_MSG_RESULT([pkg-config not found])
     AC_MSG_ERROR([Please reinstall the pkg-config distribution])
   fi
-	
+
   ORIG_PKG_CONFIG_PATH=$PKG_CONFIG_PATH
 
   AC_MSG_CHECKING(libzmq installation)
@@ -18,7 +18,7 @@ if test "$PHP_ZEROMQ" != "no"; then
     export PKG_CONFIG_PATH=$PHP_ZEROMQ:$PHP_ZEROMQ/lib/pkgconfig
   fi
 
-  if test -x "$PKG_CONFIG" && $PKG_CONFIG --exists libzmq; then
+  if $PKG_CONFIG --exists libzmq; then
     PHP_ZEROMQ_LIBS=`$PKG_CONFIG libzmq --libs`
     PHP_ZEROMQ_INCS=`$PKG_CONFIG libzmq --cflags`
 
@@ -29,8 +29,6 @@ if test "$PHP_ZEROMQ" != "no"; then
   else
     AC_MSG_ERROR(Unable to find libzmq installation)
   fi
-
-  dnl PHP_ADD_LIBRARY_WITH_PATH(uuid, /usr/lib, ZEROMQ_SHARED_LIBADD)
 
   AC_CHECK_HEADERS([stdint.h],[php_zeromq_have_stdint=yes; break;])
   if test $php_zeromq_have_stdint != "yes"; then
