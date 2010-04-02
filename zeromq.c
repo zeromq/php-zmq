@@ -210,6 +210,12 @@ static int php_zeromq_nofree_dtor()
 	return ZEND_HASH_APPLY_REMOVE;
 }
 
+static void php_zeromq_context_destroy(php_zeromq_context *ctx)
+{
+	(void) zmq_term(ctx->context);
+	pefree(ctx, ctx->is_persistent);
+}
+
 static php_zeromq_context *php_zeromq_context_get(int app_threads, int io_threads TSRMLS_DC)
 {
 	php_zeromq_context *ctx;
@@ -629,8 +635,7 @@ static void php_zeromq_socket_object_free_storage(void *object TSRMLS_DC)
 	
 	if (intern->zms && !intern->zms->is_persistent) {
 		if (intern->zms->ctx && !intern->zms->ctx->is_persistent) {
-			(void) zmq_term(intern->zms->ctx->context);
-			pefree(intern->zms->ctx, intern->zms->ctx->is_persistent);
+			php_zeromq_context_destroy(intern->zms->ctx);
 		}
 		php_zeromq_socket_destroy(intern->zms);
 	}
@@ -715,8 +720,7 @@ ZEND_RSRC_DTOR_FUNC(php_zeromq_context_dtor)
 {
 	if (rsrc->ptr) {
 		php_zeromq_context *ctx = (php_zeromq_context *)rsrc->ptr;
-		(void) zmq_term(ctx->context);
-		pefree(ctx, ctx->is_persistent);
+		php_zeromq_context_destroy(ctx);
 		rsrc->ptr = NULL;
 	}
 }
