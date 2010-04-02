@@ -50,6 +50,10 @@ ZEND_DECLARE_MODULE_GLOBALS(zeromq);
 # define Z_DELREF_P(pz) pz->refcount--
 #endif
 
+#ifndef Z_REFCOUNT_P
+# define Z_REFCOUNT_P(pz) pz->refcount
+#endif
+
 static int le_zeromq_socket, le_zeromq_context;
 
 static inline int php_zeromq_socket_list_entry(void)
@@ -87,12 +91,16 @@ PHP_METHOD(zeromq, setsocket)
 	intern = PHP_ZEROMQ_OBJECT;
 	
 	if (intern->sock_obj) {
-		//Z_DELREF_P(intern->sock_obj);
+		Z_DELREF_P(intern->sock_obj);
+
+		if (Z_REFCOUNT_P(intern->sock_obj) == 0) {
+			zval_dtor(intern->sock_obj);
+			FREE_ZVAL(intern->sock_obj);
+		}
 	}
 	
 	intern->sock_obj = sock_param;
-	//Z_ADDREF_P(intern->sock_obj); 
-	
+	Z_ADDREF_P(intern->sock_obj); 
 	ZEROMQ_RETURN_THIS;
 }
 /* }}} */
@@ -611,9 +619,13 @@ static void php_zeromq_object_free_storage(void *object TSRMLS_DC)
 	if (!intern) {
 		return;
 	}
-	
-	if (intern->sock_obj) {
-		//Z_DELREF_P(intern->sock_obj);
+
+	if (intern->sock_obj) {	
+		Z_DELREF_P(intern->sock_obj);
+		if (Z_REFCOUNT_P(intern->sock_obj) == 0) {
+			zval_dtor(intern->sock_obj);
+			FREE_ZVAL(intern->sock_obj);
+		}
 	}
 
 	zend_object_std_dtor(&intern->zo TSRMLS_CC);
@@ -628,7 +640,7 @@ static void php_zeromq_socket_object_free_storage(void *object TSRMLS_DC)
 	if (!intern) {
 		return;
 	}
-	
+
 	if (intern->p_id) {
 		efree(intern->p_id);
 	}

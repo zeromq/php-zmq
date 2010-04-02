@@ -9,19 +9,21 @@ $queue = new ZeroMQ();
 $socket1 = new ZeroMQSocket(ZeroMQ::SOCKET_REQ);
 $socket1->connect("tcp://127.0.0.1:5555");
 
-/* And another persistent socket called 'MySock2' */
-$socket2 = new ZeroMQSocket(ZeroMQ::SOCKET_REQ, "MySock2");
-$socket2->connect("tcp://127.0.0.1:5555");
-
 /* Assign socket 1 to the queue, send and receive */
 var_dump($queue->setSocket($socket1)
          ->send("hello there, using socket 1")
          ->recv());
+         
+$test = $socket1;
+
+/* And another persistent socket called 'MySock2' */
+$socket1 = new ZeroMQSocket(ZeroMQ::SOCKET_REQ, "MySock2");
+$socket1->connect("tcp://127.0.0.1:5555");
+
+
 
 /* Assign socket 2 to the queue, send and receive */
-var_dump($queue->setSocket($socket2)
+var_dump($queue->setSocket($socket1)
          ->send("hello there, using socket 2")
          ->recv());
          
-var_dump($socket1->getContextOptions());
-var_dump($socket2->getContextOptions());
