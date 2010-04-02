@@ -39,6 +39,8 @@ zend_class_entry *php_zeromq_socket_exception_sc_entry;
 static zend_object_handlers zeromq_object_handlers;
 static zend_object_handlers zeromq_socket_object_handlers;
 
+ZEND_DECLARE_MODULE_GLOBALS(zeromq);
+
 #ifndef Z_ADDREF_P
 # define Z_ADDREF_P(pz) pz->refcount++
 #endif
@@ -207,7 +209,7 @@ static php_zeromq_socket *php_zeromq_socket_new(int type, zend_bool persistent T
 	php_zeromq_socket *zmq_sock;
 	zmq_sock = pecalloc(1, sizeof(php_zeromq_socket), persistent);
 
-	zmq_sock->context       = zmq_init(1, 1, 0);
+	zmq_sock->context       = zmq_init(ZEROMQ_G(app_threads), ZEROMQ_G(io_threads), 0);
 	zmq_sock->socket        = zmq_socket(zmq_sock->context, (int) type);
 	zmq_sock->is_persistent = persistent;
 	
@@ -593,9 +595,23 @@ ZEND_RSRC_DTOR_FUNC(php_zeromq_socket_dtor)
 	}
 }
 
+PHP_INI_BEGIN()
+	STD_PHP_INI_ENTRY("zeromq.app_threads", "1", PHP_INI_ALL, OnUpdateLong, app_threads, zend_zeromq_globals, zeromq_globals)
+	STD_PHP_INI_ENTRY("zeromq.io_threads", "1", PHP_INI_ALL, OnUpdateLong, io_threads, zend_zeromq_globals, zeromq_globals)
+PHP_INI_END()
+
+static void php_zeromq_init_globals(zend_zeromq_globals *zeromq_globals)
+{
+	zeromq_globals->app_threads = 1;
+	zeromq_globals->io_threads  = 1;
+}
+
 PHP_MINIT_FUNCTION(zeromq)
 {
 	zend_class_entry ce;
+	ZEND_INIT_MODULE_GLOBALS(zeromq, php_zeromq_init_globals, NULL);
+	REGISTER_INI_ENTRIES();
+	
 	le_zeromq = zend_register_list_destructors_ex(NULL, php_zeromq_socket_dtor, "ZeroMQ persistent socket", module_number);
 
 	memcpy(&zeromq_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
@@ -653,6 +669,7 @@ PHP_MINIT_FUNCTION(zeromq)
 
 PHP_MSHUTDOWN_FUNCTION(zeromq)
 {
+	UNREGISTER_INI_ENTRIES();
 	return SUCCESS;
 }
 

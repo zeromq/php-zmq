@@ -61,6 +61,13 @@ typedef struct _php_zeromq_socket_object  {
 } php_zeromq_socket_object;
 /* }}} */
 
+ZEND_BEGIN_MODULE_GLOBALS(zeromq)
+	long app_threads;
+	long io_threads;
+ZEND_END_MODULE_GLOBALS(zeromq)
+
+ZEND_EXTERN_MODULE_GLOBALS(zeromq);
+
 #ifdef ZTS
 # define ZEROMQ_G(v) TSRMG(zeromq_globals_id, zend_zeromq_globals *, v)
 #else
