@@ -253,12 +253,10 @@ static php_zeromq_socket *php_zeromq_socket_get(int type, const char *p_id, int 
 	zmq_sock_p = php_zeromq_socket_new(type, persistent TSRMLS_CC);
 	
 	if (persistent) {
-		
 		zend_rsrc_list_entry le;
 
 		le.type = php_zeromq_list_entry();
 		le.ptr  = zmq_sock_p;
-		
 		
 		if (zend_hash_update(&EG(persistent_list), (char *)plist_key, plist_key_len, (void *)&le, sizeof(le), NULL) == FAILURE) {
 			php_error_docref(NULL TSRMLS_CC, E_ERROR, "Could not register persistent entry");
