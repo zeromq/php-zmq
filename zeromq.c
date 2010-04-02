@@ -418,6 +418,12 @@ PHP_METHOD(zeromqsocket, setsockopt)
 		{
 			uint64_t value;
 			convert_to_long(pz_value);
+			
+			if (Z_LVAL_P(pz_value) < 0) {
+				zend_throw_exception(php_zeromq_socket_exception_sc_entry, "The option value must be a positive integer", 1 TSRMLS_CC);
+				return;
+			}
+			
 			value  = (uint64_t) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->zms->socket, key, &value, sizeof(uint64_t));
 		}
