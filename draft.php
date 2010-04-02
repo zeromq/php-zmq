@@ -1,12 +1,13 @@
 <?php
 
+//ini_set("zeromq.persist_context", 0);
+
 /* Create new queue object */
 $queue = new ZeroMQ();
 
 /* Create persistent socket called 'MySock1' */
-$socket1 = new ZeroMQSocket(ZeroMQ::SOCKET_REQ, "MySock1");
+$socket1 = new ZeroMQSocket(ZeroMQ::SOCKET_REQ);
 $socket1->connect("tcp://127.0.0.1:5555");
-
 
 /* And another persistent socket called 'MySock2' */
 $socket2 = new ZeroMQSocket(ZeroMQ::SOCKET_REQ, "MySock2");

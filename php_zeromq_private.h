@@ -48,7 +48,7 @@ typedef struct _php_zeromq_context {
 /* {{{ typedef struct _php_zeromq_socket */
 typedef struct _php_zeromq_socket  {
 	void *socket;
-	php_zeromq_context *context;
+	php_zeromq_context *ctx;
 	zend_bool is_persistent;
 	
 	HashTable connect;
