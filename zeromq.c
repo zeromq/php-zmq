@@ -106,7 +106,7 @@ static php_zeromq_context *php_zeromq_context_new(int app_threads, int io_thread
 	ctx->context = zmq_init(app_threads, io_threads, 0);
 	
 	if (!ctx->context) {
-		php_error_docref(NULL TSRMLS_CC, E_ERROR, "Failed to allocate memory for the context");
+		php_error_docref(NULL TSRMLS_CC, E_ERROR, "Error creating context: %s", zmq_strerror(errno));
 	}
 	
 	ctx->is_persistent = persistent;
@@ -167,7 +167,7 @@ static php_zeromq_socket *php_zeromq_socket_new(int type, int app_threads, int i
 	zmq_sock->socket = zmq_socket(zmq_sock->ctx->context, (int) type);
 	
 	if (!zmq_sock->socket) {
-		php_error_docref(NULL TSRMLS_CC, E_ERROR, "Failed to allocate memory for the socket");
+		php_error_docref(NULL TSRMLS_CC, E_ERROR, "Error creating socket: %s", zmq_strerror(errno));
 	}
 	
 	zmq_sock->is_persistent = persistent;
@@ -423,12 +423,23 @@ PHP_METHOD(zeromqsocket, setcontextoptions)
 	intern = PHP_ZEROMQ_SOCKET_OBJECT;
 	
 	if (intern->zms) {
-		zend_throw_exception(php_zeromq_socket_exception_sc_entry, "Context options must be set before connect or bind", 1 TSRMLS_CC);
+		zend_throw_exception(php_zeromq_socket_exception_sc_entry, "Context options must be set before connect, bind or setSockOpt", 1 TSRMLS_CC);
 		return;
 	}
+	
+	if (app_threads <= 0) {
+		zend_throw_exception_ex(php_zeromq_socket_exception_sc_entry, 33 TSRMLS_CC, "The first argument must be positive integer, %ld given", app_threads);
+		return;
+	}
+	
+	if (io_threads <= 0) {
+		zend_throw_exception_ex(php_zeromq_socket_exception_sc_entry, 33 TSRMLS_CC, "The second argument must be positive integer, %ld given", app_threads);
+		return;
+	}
+
 	/* Socket is created on-demand in connect / bind */
-	intern->app_threads = (app_threads <= 0) ? 1 : 0;
-	intern->io_threads  = (io_threads <= 0)  ? 1 : 0;
+	intern->app_threads = app_threads;
+	intern->io_threads  = io_threads;
 	return;
 }
 /* }}} */
@@ -657,12 +668,18 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(zeromq_socket_getcontextoptions_args, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(zeromq_socket_setcontextoptions_args, 0, 0, 2)
+	ZEND_ARG_INFO(0, app_threads)
+	ZEND_ARG_INFO(0, io_threads)
+ZEND_END_ARG_INFO()
+
 static function_entry php_zeromq_socket_class_methods[] = {
 	PHP_ME(zeromqsocket, __construct,		zeromq_socket_construct_args,			ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
 	PHP_ME(zeromqsocket, bind,				zeromq_socket_bind_args,				ZEND_ACC_PUBLIC)
 	PHP_ME(zeromqsocket, connect,			zeromq_socket_connect_args,				ZEND_ACC_PUBLIC)
 	PHP_ME(zeromqsocket, setsockopt,		zeromq_socket_setsockopt_args,			ZEND_ACC_PUBLIC)
 	PHP_ME(zeromqsocket, getcontextoptions,	zeromq_socket_getcontextoptions_args,	ZEND_ACC_PUBLIC)
+	PHP_ME(zeromqsocket, setcontextoptions,	zeromq_socket_setcontextoptions_args,	ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 

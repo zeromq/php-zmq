@@ -5,21 +5,10 @@ Test send / recv
 --FILE--
 <?php
 
-/* Create 'server' */
-$server = new ZeroMQ();
+include dirname(__FILE__) . '/zeromq_test_helper.inc';
 
-/* Create socket */
-$socket = new ZeroMQSocket(ZeroMQ::SOCKET_REP);
-$socket->bind("tcp://127.0.0.1:5566");
-
-/* Assign socket */
-$server->setSocket($socket);
-
-$socket = new ZeroMQSocket(ZeroMQ::SOCKET_REQ);
-$socket->connect("tcp://127.0.0.1:5566");
-
-$client = new ZeroMQ();
-$client->setSocket($socket);
+$server = create_server();
+$client = create_client();
 
 $client->send("Hello world!");
 
