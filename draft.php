@@ -1,7 +1,5 @@
 <?php
 
-ini_set("zeromq.persist_context", 0);
-
 /* Create new queue object */
 $queue = new ZeroMQ();
 
