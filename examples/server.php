@@ -1,6 +1,9 @@
 <?php
 
-/* The server itself */
+/*   
+    The server waits for messages from the client
+    and echoes back the received message
+*/
 $server = new ZeroMQ();
 
 /* Create socket, request-reply pattern (reply socket) */
