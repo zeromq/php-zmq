@@ -4,8 +4,6 @@
     The client connects to the server, sends a message, 
     receives a reply and then exits.
 */
-
-
 $client = new ZeroMQ();
 
 $socket = new ZeroMQSocket(ZeroMQ::SOCKET_REQ);
