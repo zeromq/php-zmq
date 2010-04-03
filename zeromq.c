@@ -43,15 +43,15 @@ static zend_object_handlers zeromq_socket_object_handlers;
 ZEND_DECLARE_MODULE_GLOBALS(zeromq);
 
 #ifndef Z_ADDREF_P
-# define Z_ADDREF_P(pz) pz->refcount++
+# define Z_ADDREF_P(pz) (pz)->refcount++
 #endif
 
 #ifndef Z_DELREF_P
-# define Z_DELREF_P(pz) pz->refcount--
+# define Z_DELREF_P(pz) (pz)->refcount--
 #endif
 
 #ifndef Z_REFCOUNT_P
-# define Z_REFCOUNT_P(pz) pz->refcount
+# define Z_REFCOUNT_P(pz) (pz)->refcount
 #endif
 
 static int le_zeromq_socket, le_zeromq_context;
@@ -220,7 +220,11 @@ static php_zeromq_socket *php_zeromq_socket_get(int type, const char *p_id, int 
 	}
 	return zmq_sock_p;	
 }
+/* }}} */
 
+/* {{{ static void php_zeromq_socket_destroy(php_zeromq_socket *zmq_sock, zend_bool is_persistent)
+	Destroy the socket (note: does not touch context)
+*/
 static void php_zeromq_socket_destroy(php_zeromq_socket *zmq_sock, zend_bool is_persistent)
 {
 	php_zeromq_printf("php_zeromq_socket_destroy(zmq_sock=[%p], persistent=[%d])\n", zmq_sock, is_persistent);
@@ -231,6 +235,7 @@ static void php_zeromq_socket_destroy(php_zeromq_socket *zmq_sock, zend_bool is_
 	(void) zmq_close(zmq_sock->socket);
 	pefree(zmq_sock, is_persistent);
 }
+/* }}} */
 
 /* -- START ZeroMQ --- */
 
@@ -259,7 +264,7 @@ PHP_METHOD(zeromq, setsocket)
 	if (intern->sock_obj) {
 		Z_DELREF_P(intern->sock_obj);
 
-		if (Z_REFCOUNT_P(intern->sock_obj) == 0) {
+		if (Z_REFCOUNT_P(intern->sock_obj) <= 0) {
 			zval_dtor(intern->sock_obj);
 			FREE_ZVAL(intern->sock_obj);
 		}
@@ -422,8 +427,8 @@ PHP_METHOD(zeromqsocket, setcontextoptions)
 		return;
 	}
 	/* Socket is created on-demand in connect / bind */
-	intern->app_threads = (app_threads <= 0) ? 1 : 0;;
-	intern->io_threads  = (io_threads <= 0)  ? 1 : 0;;
+	intern->app_threads = (app_threads <= 0) ? 1 : 0;
+	intern->io_threads  = (io_threads <= 0)  ? 1 : 0;
 	return;
 }
 /* }}} */
@@ -442,13 +447,8 @@ PHP_METHOD(zeromqsocket, getcontextoptions)
 	intern = PHP_ZEROMQ_SOCKET_OBJECT;
 	array_init(return_value);
 	
-	if (intern->zms) {
-		add_assoc_long(return_value, "app_threads", intern->zms->app_threads);
-		add_assoc_long(return_value, "io_threads",  intern->zms->io_threads);
-	} else {
-		add_assoc_long(return_value, "app_threads", intern->app_threads);
-		add_assoc_long(return_value, "io_threads",  intern->io_threads);
-	}
+	add_assoc_long(return_value, "app_threads", ((intern->zms) ? intern->zms->app_threads : intern->app_threads));
+	add_assoc_long(return_value, "io_threads",  ((intern->zms) ? intern->zms->io_threads  : intern->io_threads));
 	return;
 }
 /* }}} */
@@ -680,7 +680,7 @@ static void php_zeromq_object_free_storage(void *object TSRMLS_DC)
 
 	if (intern->sock_obj) {	
 		Z_DELREF_P(intern->sock_obj);
-		if (Z_REFCOUNT_P(intern->sock_obj) == 0) {
+		if (Z_REFCOUNT_P(intern->sock_obj) <= 0) {
 			zval_dtor(intern->sock_obj);
 			FREE_ZVAL(intern->sock_obj);
 		}
@@ -875,13 +875,21 @@ PHP_MSHUTDOWN_FUNCTION(zeromq)
 
 PHP_MINFO_FUNCTION(zeromq)
 {
+	char *version;
+	int major = 0, minor = 0, patch = 0;
+	
+	zmq_version(&major, &minor, &patch);
+	(void) spprintf(&version, 0, "%d.%d.%d", major, minor, patch);
+	
 	php_info_print_table_start();
 
-		php_info_print_table_header(2, "zeromq extension", "enabled");
-		php_info_print_table_row(2, "zeromq extension version", PHP_ZEROMQ_EXTVER);
+		php_info_print_table_header(2, "ZeroMQ extension", "enabled");
+		php_info_print_table_row(2, "ZeroMQ extension version", PHP_ZEROMQ_EXTVER);
+		php_info_print_table_row(2, "libzmq version", version);
 
 	php_info_print_table_end();
 
+	efree(version);
 	DISPLAY_INI_ENTRIES();
 }
 

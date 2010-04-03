@@ -10,13 +10,13 @@ $server = new ZeroMQ();
 
 /* Create socket */
 $socket = new ZeroMQSocket(ZeroMQ::SOCKET_REP);
-$socket->bind("tcp://127.0.0.1:5555");
+$socket->bind("tcp://127.0.0.1:5566");
 
 /* Assign socket */
 $server->setSocket($socket);
 
 $socket = new ZeroMQSocket(ZeroMQ::SOCKET_REQ);
-$socket->connect("tcp://127.0.0.1:5555");
+$socket->connect("tcp://127.0.0.1:5566");
 
 $client = new ZeroMQ();
 $client->setSocket($socket);
