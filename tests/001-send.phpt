@@ -5,14 +5,31 @@ Test send / recv
 --FILE--
 <?php
 
-$socket = new ZeroMQSocket(ZeroMQ::SOCKET_REQ, "MySock1");
+/* Create 'server' */
+$server = new ZeroMQ();
+
+/* Create socket */
+$socket = new ZeroMQSocket(ZeroMQ::SOCKET_REP);
+$socket->bind("tcp://127.0.0.1:5555");
+
+/* Assign socket */
+$server->setSocket($socket);
+
+$socket = new ZeroMQSocket(ZeroMQ::SOCKET_REQ);
 $socket->connect("tcp://127.0.0.1:5555");
 
-$queue = new ZeroMQ();
-$queue->setSocket($socket);
+$client = new ZeroMQ();
+$client->setSocket($socket);
 
-$queue->send("Hello world!");
-var_dump($queue->recv());
+$client->send("Hello world!");
+
+$message = $server->recv();
+var_dump($message);
+$server->send($message);
+
+$message = $client->recv();
+var_dump($message);
 
 --EXPECT--
+string(12) "Hello world!"
 string(12) "Hello world!"

@@ -5,19 +5,37 @@ Test send / recv binary
 --FILE--
 <?php
 
-$socket = new ZeroMQSocket(ZeroMQ::SOCKET_REQ, "MySock1");
+$rose = file_get_contents(dirname(__FILE__) . '/rose.jpg');
+
+/* Create 'server' */
+$server = new ZeroMQ();
+
+/* Create socket */
+$socket = new ZeroMQSocket(ZeroMQ::SOCKET_REP);
+$socket->bind("tcp://127.0.0.1:5555");
+
+/* Assign socket */
+$server->setSocket($socket);
+
+$socket = new ZeroMQSocket(ZeroMQ::SOCKET_REQ);
 $socket->connect("tcp://127.0.0.1:5555");
 
-$queue = new ZeroMQ();
-$queue->setSocket($socket);
+$client = new ZeroMQ();
+$client->setSocket($socket);
 
-$rose = file_get_contents(dirname(__FILE__) . '/rose.jpg');
-$rose_back = $queue->send($rose)->recv();
+$client->send($rose);
 
-if ($rose !== $rose_back || strlen($rose) !== strlen($rose_back))
-  echo "Fail";
-else
-  echo "Success";
+$message = $server->recv();
+var_dump(strlen($message));
+
+$server->send($message);
+
+$message = $client->recv();
+var_dump(strlen($message));
+
+var_dump($message === $rose);
 
 --EXPECT--
-Success
+int(2051)
+int(2051)
+bool(true)

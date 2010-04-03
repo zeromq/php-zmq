@@ -56,14 +56,180 @@ ZEND_DECLARE_MODULE_GLOBALS(zeromq);
 
 static int le_zeromq_socket, le_zeromq_context;
 
+/** {{{ static inline int php_zeromq_socket_list_entry(void)
+*/
 static inline int php_zeromq_socket_list_entry(void)
 {
 	return le_zeromq_socket;
 }
+/* }}} */
 
+/* {{{ static inline int php_zeromq_context_list_entry(void)
+*/
 static inline int php_zeromq_context_list_entry(void)
 {
 	return le_zeromq_context;
+}
+/* }}} */
+
+/* {{{ static int php_zeromq_nofree_dtor()
+	Hash destructor for connection/bind lists
+*/
+static int php_zeromq_nofree_dtor() 
+{
+	return ZEND_HASH_APPLY_REMOVE;
+}
+/* }}} */
+
+/* {{{ static void php_zeromq_context_destroy(php_zeromq_context *ctx, zend_bool is_persistent)
+	Destroy the zeromq context and free memory associated
+*/
+static void php_zeromq_context_destroy(php_zeromq_context *ctx, zend_bool is_persistent)
+{
+	php_zeromq_printf("php_zeromq_context_destroy(ctx=[%p], persistent=[%d])\n", ctx, is_persistent);
+		
+	(void) zmq_term(ctx->context);
+	pefree(ctx, is_persistent);
+}
+/* }}} */
+
+/* {{{ static php_zeromq_context *php_zeromq_context_new(int app_threads, int io_threads, zend_bool persistent TSRMLS_DC)
+	Create a new zeromq context
+*/
+static php_zeromq_context *php_zeromq_context_new(int app_threads, int io_threads, zend_bool persistent TSRMLS_DC)
+{
+	php_zeromq_context *ctx;
+	
+	php_zeromq_printf("php_zeromq_context_new(app_threads=[%d], io_threads=[%d], persistent=[%d])\n", app_threads, io_threads, persistent);
+	
+	ctx          = pecalloc(1, sizeof(php_zeromq_context), persistent);
+	ctx->context = zmq_init(app_threads, io_threads, 0);
+	
+	if (!ctx->context) {
+		php_error_docref(NULL TSRMLS_CC, E_ERROR, "Failed to allocate memory for the context");
+	}
+	
+	ctx->is_persistent = persistent;
+	return ctx;
+}
+/* }}} */
+
+/* {{{ static php_zeromq_context *php_zeromq_context_get(int app_threads, int io_threads, zend_bool persistent TSRMLS_DC)
+	Get a context. If context does not exist in persistent list allocates a new one
+*/
+static php_zeromq_context *php_zeromq_context_get(int app_threads, int io_threads, zend_bool persistent TSRMLS_DC)
+{
+	php_zeromq_context *ctx;
+
+	char *plist_key;
+	int plist_key_len;
+	zend_rsrc_list_entry le, *le_p = NULL;
+	
+	php_zeromq_printf("php_zeromq_context_get(app_threads=[%d], io_threads=[%d], persistent=[%d])\n", app_threads, io_threads, persistent);
+	
+	if (persistent) {
+		plist_key_len  = spprintf(&plist_key, 0, "zeromq_context:[%d]-[%d]", app_threads, io_threads);
+		plist_key_len += 1;
+
+		if (zend_hash_find(&EG(persistent_list), plist_key, plist_key_len, (void *)&le_p) == SUCCESS) {
+			if (le_p->type == php_zeromq_context_list_entry()) {
+				efree(plist_key);
+				return (php_zeromq_context *) le_p->ptr;
+			}
+		}
+	}
+	
+	ctx = php_zeromq_context_new(app_threads, io_threads, persistent);
+
+	if (persistent) {
+		le.type = php_zeromq_context_list_entry();
+		le.ptr  = ctx;
+
+		if (zend_hash_update(&EG(persistent_list), (char *)plist_key, plist_key_len, (void *)&le, sizeof(le), NULL) == FAILURE) {
+			php_error_docref(NULL TSRMLS_CC, E_ERROR, "Could not register persistent entry");
+		}
+		efree(plist_key);
+	}
+	return ctx;
+}
+/* }}} */
+
+/* {{{ static php_zeromq_socket *php_zeromq_socket_new(int type, int app_threads, int io_threads, zend_bool persistent TSRMLS_DC)
+	Create a new zeromq socket
+*/
+static php_zeromq_socket *php_zeromq_socket_new(int type, int app_threads, int io_threads, zend_bool persistent TSRMLS_DC)
+{
+	php_zeromq_socket *zmq_sock = pecalloc(1, sizeof(php_zeromq_socket), persistent);
+
+	php_zeromq_printf("php_zeromq_socket_new(type=[%d], app_threads=[%d], io_threads=[%d], persistent=[%d])\n", type, app_threads, io_threads, persistent);
+
+	zmq_sock->ctx    = php_zeromq_context_get(app_threads, io_threads, ZEROMQ_G(persist_context) TSRMLS_CC);
+	zmq_sock->socket = zmq_socket(zmq_sock->ctx->context, (int) type);
+	
+	if (!zmq_sock->socket) {
+		php_error_docref(NULL TSRMLS_CC, E_ERROR, "Failed to allocate memory for the socket");
+	}
+	
+	zmq_sock->is_persistent = persistent;
+	zmq_sock->app_threads   = app_threads;
+	zmq_sock->io_threads    = io_threads;
+	
+	zend_hash_init(&(zmq_sock->connect), 0, NULL, (dtor_func_t) php_zeromq_nofree_dtor, persistent);
+	zend_hash_init(&(zmq_sock->bind), 0, NULL, (dtor_func_t) php_zeromq_nofree_dtor, persistent);
+	return zmq_sock;
+}
+/* }}} */
+
+/* {{{ static php_zeromq_socket *php_zeromq_socket_get(int type, const char *p_id, int app_threads, int io_threads, zend_bool persistent TSRMLS_DC)
+	Tries to get context from plist and allocates a new context if context does not exist
+*/
+static php_zeromq_socket *php_zeromq_socket_get(int type, const char *p_id, int app_threads, int io_threads, zend_bool persistent TSRMLS_DC)
+{
+	php_zeromq_socket *zmq_sock_p;
+
+	char *plist_key;
+	int plist_key_len;
+	
+	php_zeromq_printf("php_zeromq_socket_get(type=[%d], p_id=[%s], app_threads=[%d], io_threads=[%d], persistent=[%d])\n", type, p_id, app_threads, io_threads, persistent);
+
+	if (persistent) {
+		zend_rsrc_list_entry *le = NULL;
+
+		plist_key_len  = spprintf(&plist_key, 0, "zeromq_socket:id=%s", p_id);
+		plist_key_len += 1;
+		
+		if (zend_hash_find(&EG(persistent_list), plist_key, plist_key_len, (void *)&le) == SUCCESS) {
+			if (le->type == php_zeromq_socket_list_entry()) {
+				efree(plist_key);
+				return (php_zeromq_socket *) le->ptr;
+			}
+		}	
+	}
+	zmq_sock_p = php_zeromq_socket_new(type, app_threads, io_threads, persistent TSRMLS_CC);
+	
+	if (persistent) {
+		zend_rsrc_list_entry le;
+
+		le.type = php_zeromq_socket_list_entry();
+		le.ptr  = zmq_sock_p;
+		
+		if (zend_hash_update(&EG(persistent_list), (char *)plist_key, plist_key_len, (void *)&le, sizeof(le), NULL) == FAILURE) {
+			php_error_docref(NULL TSRMLS_CC, E_ERROR, "Could not register persistent entry");
+		}
+		efree(plist_key);
+	}
+	return zmq_sock_p;	
+}
+
+static void php_zeromq_socket_destroy(php_zeromq_socket *zmq_sock, zend_bool is_persistent)
+{
+	php_zeromq_printf("php_zeromq_socket_destroy(zmq_sock=[%p], persistent=[%d])\n", zmq_sock, is_persistent);
+	
+	zend_hash_destroy(&(zmq_sock->connect));
+	zend_hash_destroy(&(zmq_sock->bind));
+	
+	(void) zmq_close(zmq_sock->socket);
+	pefree(zmq_sock, is_persistent);
 }
 
 /* -- START ZeroMQ --- */
@@ -213,119 +379,6 @@ PHP_METHOD(zeromq, recv)
 
 /* -- START ZeroMQSocket --- */
 
-static int php_zeromq_nofree_dtor() 
-{
-	return ZEND_HASH_APPLY_REMOVE;
-}
-
-static void php_zeromq_context_destroy(php_zeromq_context *ctx)
-{
-	(void) zmq_term(ctx->context);
-	pefree(ctx, ctx->is_persistent);
-}
-
-static php_zeromq_context *php_zeromq_context_get(int app_threads, int io_threads TSRMLS_DC)
-{
-	php_zeromq_context *ctx;
-
-	char *plist_key;
-	int plist_key_len;
-	zend_rsrc_list_entry le, *le_p = NULL;
-	
-	if (ZEROMQ_G(persist_context)) {
-	
-		plist_key_len  = spprintf(&plist_key, 0, "zeromq_context:[%d]-[%d]", app_threads, io_threads);
-		plist_key_len += 1;
-
-		if (zend_hash_find(&EG(persistent_list), plist_key, plist_key_len, (void *)&le_p) == SUCCESS) {
-			if (le_p->type == php_zeromq_context_list_entry()) {
-				efree(plist_key);
-				return (php_zeromq_context *) le_p->ptr;
-			}
-		}
-	}
-	
-	ctx                = pecalloc(1, sizeof(php_zeromq_context), ZEROMQ_G(persist_context));
-	ctx->context       = zmq_init(app_threads, io_threads, 0);
-	ctx->is_persistent = ZEROMQ_G(persist_context);
-	
-	if (ZEROMQ_G(persist_context)) {
-		le.type = php_zeromq_context_list_entry();
-		le.ptr  = ctx;
-
-		if (zend_hash_update(&EG(persistent_list), (char *)plist_key, plist_key_len, (void *)&le, sizeof(le), NULL) == FAILURE) {
-			php_error_docref(NULL TSRMLS_CC, E_ERROR, "Could not register persistent entry");
-		}
-		efree(plist_key);
-	}
-	return ctx;
-}
-
-static php_zeromq_socket *php_zeromq_socket_new(int type, zend_bool persistent, int app_threads, int io_threads TSRMLS_DC)
-{
-	php_zeromq_socket *zmq_sock = pecalloc(1, sizeof(php_zeromq_socket), persistent);
-
-	zmq_sock->ctx           = php_zeromq_context_get(app_threads, io_threads TSRMLS_CC);
-	zmq_sock->socket        = zmq_socket(zmq_sock->ctx->context, (int) type);
-	
-	zmq_sock->is_persistent = persistent;
-	zmq_sock->app_threads   = app_threads;
-	zmq_sock->io_threads    = io_threads;
-	
-	zend_hash_init(&(zmq_sock->connect), 0, NULL, (dtor_func_t) php_zeromq_nofree_dtor, persistent);
-	zend_hash_init(&(zmq_sock->bind), 0, NULL, (dtor_func_t) php_zeromq_nofree_dtor, persistent);
-	return zmq_sock;
-}
-
-static void php_zeromq_socket_destroy(php_zeromq_socket *zmq_sock)
-{
-	zend_hash_destroy(&(zmq_sock->connect));
-	zend_hash_destroy(&(zmq_sock->bind));
-	
-	(void) zmq_close(zmq_sock->socket);
-	pefree(zmq_sock, zmq_sock->is_persistent);
-}
-
-/* Get a socket. If id = NULL create a new socket */
-static php_zeromq_socket *php_zeromq_socket_get(int type, const char *p_id, int app_threads, int io_threads TSRMLS_DC)
-{
-	php_zeromq_socket *zmq_sock_p;
-	zend_bool persistent;
-
-	char *plist_key;
-	int plist_key_len;
-	
-	persistent = (p_id && ZEROMQ_G(persist_context));
-
-	if (persistent) {
-		zend_rsrc_list_entry *le = NULL;
-
-		plist_key_len  = spprintf(&plist_key, 0, "zeromq_socket:id=%s", p_id);
-		plist_key_len += 1;
-		
-		if (zend_hash_find(&EG(persistent_list), plist_key, plist_key_len, (void *)&le) == SUCCESS) {
-			if (le->type == php_zeromq_socket_list_entry()) {
-				efree(plist_key);
-				return (php_zeromq_socket *) le->ptr;
-			}
-		}	
-	}
-	zmq_sock_p = php_zeromq_socket_new(type, persistent, app_threads, io_threads TSRMLS_CC);
-	
-	if (persistent) {
-		zend_rsrc_list_entry le;
-
-		le.type = php_zeromq_socket_list_entry();
-		le.ptr  = zmq_sock_p;
-		
-		if (zend_hash_update(&EG(persistent_list), (char *)plist_key, plist_key_len, (void *)&le, sizeof(le), NULL) == FAILURE) {
-			php_error_docref(NULL TSRMLS_CC, E_ERROR, "Could not register persistent entry");
-		}
-		efree(plist_key);
-	}
-	return zmq_sock_p;	
-}
-
 /* {{{ ZeroMQSocket::__construct(int type[, string persistent_id])
 	Build a new ZeroMQSocket object
 */
@@ -368,7 +421,7 @@ PHP_METHOD(zeromqsocket, setcontextoptions)
 		zend_throw_exception(php_zeromq_socket_exception_sc_entry, "Context options must be set before connect or bind", 1 TSRMLS_CC);
 		return;
 	}
-
+	/* Socket is created on-demand in connect / bind */
 	intern->app_threads = (app_threads <= 0) ? 1 : 0;;
 	intern->io_threads  = (io_threads <= 0)  ? 1 : 0;;
 	return;
@@ -418,7 +471,9 @@ PHP_METHOD(zeromqsocket, bind)
 	intern = PHP_ZEROMQ_SOCKET_OBJECT;
 	
 	if (!intern->zms) {
-		intern->zms = php_zeromq_socket_get(intern->type, intern->p_id, intern->app_threads, intern->io_threads TSRMLS_CC);
+		/* Socket is persisted only if context is persistent */
+		zend_bool persistent = (intern->p_id && ZEROMQ_G(persist_context));
+		intern->zms          = php_zeromq_socket_get(intern->type, intern->p_id, intern->app_threads, intern->io_threads, persistent TSRMLS_CC);
 	}
 	
 	/* already connected ? */
@@ -454,7 +509,9 @@ PHP_METHOD(zeromqsocket, connect)
 	intern = PHP_ZEROMQ_SOCKET_OBJECT;
 	
 	if (!intern->zms) {
-		intern->zms = php_zeromq_socket_get(intern->type, intern->p_id, intern->app_threads, intern->io_threads TSRMLS_CC);
+		/* Socket is persisted only if context is persistent */
+		zend_bool persistent = (intern->p_id && ZEROMQ_G(persist_context));
+		intern->zms          = php_zeromq_socket_get(intern->type, intern->p_id, intern->app_threads, intern->io_threads, persistent TSRMLS_CC);
 	}
 	
 	/* already connected ? */
@@ -489,8 +546,9 @@ PHP_METHOD(zeromqsocket, setsockopt)
 	intern = PHP_ZEROMQ_SOCKET_OBJECT;
 	
 	if (!intern->zms) {
-		zend_throw_exception(php_zeromq_socket_exception_sc_entry, "The ZeroMQSocket::__construct needs to be called before using the object", 1 TSRMLS_CC);
-		return;
+		/* Socket is persisted only if context is persistent */
+		zend_bool persistent = (intern->p_id && ZEROMQ_G(persist_context));
+		intern->zms          = php_zeromq_socket_get(intern->type, intern->p_id, intern->app_threads, intern->io_threads, persistent TSRMLS_CC);
 	}
 	
 	switch (key) {
@@ -647,9 +705,9 @@ static void php_zeromq_socket_object_free_storage(void *object TSRMLS_DC)
 	
 	if (intern->zms && !intern->zms->is_persistent) {
 		if (intern->zms->ctx && !intern->zms->ctx->is_persistent) {
-			php_zeromq_context_destroy(intern->zms->ctx);
+			php_zeromq_context_destroy(intern->zms->ctx, intern->zms->ctx->is_persistent);
 		}
-		php_zeromq_socket_destroy(intern->zms);
+		php_zeromq_socket_destroy(intern->zms, intern->zms->is_persistent);
 	}
 
 	zend_object_std_dtor(&intern->zo TSRMLS_CC);
@@ -692,10 +750,10 @@ static zend_object_value php_zeromq_socket_object_new_ex(zend_class_entry *class
 	memset(&intern->zo, 0, sizeof(zend_object));
 
 	/* init in constructor */
-	intern->zms = NULL;
-	intern->p_id = NULL;
+	intern->zms         = NULL;
+	intern->p_id        = NULL;
 	intern->app_threads = 1;
-	intern->io_threads = 1;
+	intern->io_threads  = 1;
 
 	if (ptr) {
 		*ptr = intern;
@@ -723,7 +781,7 @@ ZEND_RSRC_DTOR_FUNC(php_zeromq_socket_dtor)
 {
 	if (rsrc->ptr) {
 		php_zeromq_socket *zms = (php_zeromq_socket *)rsrc->ptr;
-		php_zeromq_socket_destroy(zms);
+		php_zeromq_socket_destroy(zms, zms->is_persistent);
 		rsrc->ptr = NULL;
 	}
 }
@@ -732,7 +790,7 @@ ZEND_RSRC_DTOR_FUNC(php_zeromq_context_dtor)
 {
 	if (rsrc->ptr) {
 		php_zeromq_context *ctx = (php_zeromq_context *)rsrc->ptr;
-		php_zeromq_context_destroy(ctx);
+		php_zeromq_context_destroy(ctx, ctx->is_persistent);
 		rsrc->ptr = NULL;
 	}
 }
