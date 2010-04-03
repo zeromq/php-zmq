@@ -56,17 +56,17 @@ ZEND_DECLARE_MODULE_GLOBALS(zeromq);
 
 static int le_zeromq_socket, le_zeromq_context;
 
-/** {{{ static inline int php_zeromq_socket_list_entry(void)
+/** {{{ static int php_zeromq_socket_list_entry(void)
 */
-static inline int php_zeromq_socket_list_entry(void)
+static int php_zeromq_socket_list_entry(void)
 {
 	return le_zeromq_socket;
 }
 /* }}} */
 
-/* {{{ static inline int php_zeromq_context_list_entry(void)
+/* {{{ static int php_zeromq_context_list_entry(void)
 */
-static inline int php_zeromq_context_list_entry(void)
+static int php_zeromq_context_list_entry(void)
 {
 	return le_zeromq_context;
 }
