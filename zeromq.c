@@ -566,15 +566,17 @@ PHP_METHOD(zeromqsocket, getendpoints)
 	intern = PHP_ZEROMQ_SOCKET_OBJECT;
 	array_init(return_value);
 	
-	if (!intern->zms) {
-		return; /* No endpoints */
-	}
-	
 	MAKE_STD_ZVAL(connect);
 	MAKE_STD_ZVAL(bind);
 	
 	array_init(connect);
 	array_init(bind);
+	
+	if (!intern->zms) {
+		add_assoc_zval(return_value, "connect", connect);
+		add_assoc_zval(return_value, "bind", bind);
+		return; /* No endpoints */
+	}
 	
 	zend_hash_apply_with_arguments(&(intern->zms->connect) TSRMLS_CC, (apply_func_args_t) php_zeromq_get_keys, 1, connect);
 	zend_hash_apply_with_arguments(&(intern->zms->bind) TSRMLS_CC, (apply_func_args_t) php_zeromq_get_keys, 1, bind);
