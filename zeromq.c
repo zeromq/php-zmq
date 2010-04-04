@@ -164,6 +164,7 @@ static php_zeromq_socket *php_zeromq_socket_new(int type, int app_threads, int i
 	zmq_sock->is_persistent = persistent;
 	zmq_sock->app_threads   = app_threads;
 	zmq_sock->io_threads    = io_threads;
+	zmq_sock->type          = type;
 	
 	zend_hash_init(&(zmq_sock->connect), 0, NULL, NULL, persistent);
 	zend_hash_init(&(zmq_sock->bind), 0, NULL, NULL, persistent);
@@ -186,7 +187,7 @@ static php_zeromq_socket *php_zeromq_socket_get(int type, const char *p_id, int 
 	if (persistent) {
 		zend_rsrc_list_entry *le = NULL;
 
-		plist_key_len  = spprintf(&plist_key, 0, "zeromq_socket:id=%s", p_id);
+		plist_key_len  = spprintf(&plist_key, 0, "zeromq_socket:[%d]-[%s]", type, p_id);
 		plist_key_len += 1;
 		
 		if (zend_hash_find(&EG(persistent_list), plist_key, plist_key_len, (void *)&le) == SUCCESS) {
@@ -389,7 +390,7 @@ PHP_METHOD(zeromqsocket, __construct)
 		return;
 	}
 
-	intern = PHP_ZEROMQ_SOCKET_OBJECT;
+	intern       = PHP_ZEROMQ_SOCKET_OBJECT;
 	intern->type = type;
 	
 	if (p_id) {
@@ -419,12 +420,12 @@ PHP_METHOD(zeromqsocket, setcontextoptions)
 	}
 	
 	if (app_threads <= 0) {
-		zend_throw_exception_ex(php_zeromq_socket_exception_sc_entry, 33 TSRMLS_CC, "The first argument must be positive integer, %ld given", app_threads);
+		zend_throw_exception_ex(php_zeromq_socket_exception_sc_entry, 33 TSRMLS_CC, "The first argument must be greater than zero, %ld given", app_threads);
 		return;
 	}
 	
 	if (io_threads <= 0) {
-		zend_throw_exception_ex(php_zeromq_socket_exception_sc_entry, 33 TSRMLS_CC, "The second argument must be positive integer, %ld given", app_threads);
+		zend_throw_exception_ex(php_zeromq_socket_exception_sc_entry, 33 TSRMLS_CC, "The second argument must greater than zero, %ld given", app_threads);
 		return;
 	}
 
