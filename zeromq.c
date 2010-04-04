@@ -847,6 +847,7 @@ static zend_object_value php_zeromq_socket_object_new_ex(zend_class_entry *class
 	intern->p_id        = NULL;
 	intern->app_threads = 1;
 	intern->io_threads  = 1;
+	intern->type        = -1;
 
 	if (ptr) {
 		*ptr = intern;
