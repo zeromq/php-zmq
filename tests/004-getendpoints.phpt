@@ -10,21 +10,25 @@ include dirname(__FILE__) . '/zeromq_test_helper.inc';
 $server = create_server();
 $client = create_client();
 
-//var_dump($client->getSocket()->getEndpoints());
-$client->send("Hello world!");
-//var_dump($client->getSocket()->getEndpoints());
-
-//var_dump($server->getSocket()->getEndpoints());
-$message = $server->recv();
+var_dump($client->getSocket()->getEndpoints());
 var_dump($server->getSocket()->getEndpoints());
 
-var_dump($message);
+$client->send("Hello world!");
+$message = $server->recv();
 $server->send($message);
-
 $message = $client->recv();
-var_dump($message);
 
---EXPECT--
+--EXPECTF--
+array(2) {
+  ["connect"]=>
+  array(1) {
+    [0]=>
+    string(%d) "tcp://%d.%d.%d.%d:%d"
+  }
+  ["bind"]=>
+  array(0) {
+  }
+}
 array(2) {
   ["connect"]=>
   array(0) {
@@ -32,8 +36,6 @@ array(2) {
   ["bind"]=>
   array(1) {
     [0]=>
-    string(20) "tcp://127.0.0.1:5566"
+    string(%d) "tcp://%d.%d.%d.%d:%d"
   }
 }
-string(12) "Hello world!"
-string(12) "Hello world!"
