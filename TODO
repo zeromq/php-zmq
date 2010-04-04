@@ -1,2 +1,1 @@
-1. Document that context is shared between sockets if it's persisted
-2. Document how persistent connections and contextes work
+1. Add getSockOpt (maybe)

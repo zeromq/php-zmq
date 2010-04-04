@@ -538,6 +538,7 @@ static int php_zeromq_get_keys(zval **ppzval TSRMLS_DC, int num_args, va_list ar
 	zval *retval;
 	
 	if (num_args != 1) {
+		/* Incorrect args ? */
 		return ZEND_HASH_APPLY_KEEP;
 	}
 	
@@ -552,7 +553,7 @@ static int php_zeromq_get_keys(zval **ppzval TSRMLS_DC, int num_args, va_list ar
 }
 /* }}} */
 
-/* {{{ array ZeroMQSocket::getEndPoints()
+/* {{{ array ZeroMQSocket::getEndpoints()
 	Returns endpoints where this socket is connected/bound to. Contains two keys ('bind', 'connect')
 */
 PHP_METHOD(zeromqsocket, getendpoints)
@@ -587,6 +588,25 @@ PHP_METHOD(zeromqsocket, getendpoints)
 	return;
 }
 /* }}} */
+
+/* {{{ int ZeroMQSocket::getSocketType()
+	Returns the socket type
+*/
+PHP_METHOD(zeromqsocket, getsockettype)
+{
+	php_zeromq_socket_object *intern;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "") == FAILURE) {
+		return;
+	}
+	
+	intern = PHP_ZEROMQ_SOCKET_OBJECT;
+	
+	/* intern->type should always match intern->zms->type */
+	RETURN_LONG(intern->type);
+}
+/* }}} */
+
 
 /* {{{ ZeroMQSocket::setSockOpt(int ZeroMQ::SOCKOPT_, mixed value)
 	Set a socket option
@@ -724,6 +744,9 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(zeromq_socket_getendpoints_args, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(zeromq_socket_getsockettype_args, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
 static function_entry php_zeromq_socket_class_methods[] = {
 	PHP_ME(zeromqsocket, __construct,		zeromq_socket_construct_args,			ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
 	PHP_ME(zeromqsocket, bind,				zeromq_socket_bind_args,				ZEND_ACC_PUBLIC)
@@ -732,6 +755,7 @@ static function_entry php_zeromq_socket_class_methods[] = {
 	PHP_ME(zeromqsocket, getcontextoptions,	zeromq_socket_getcontextoptions_args,	ZEND_ACC_PUBLIC)
 	PHP_ME(zeromqsocket, setcontextoptions,	zeromq_socket_setcontextoptions_args,	ZEND_ACC_PUBLIC)
 	PHP_ME(zeromqsocket, getendpoints,		zeromq_socket_getendpoints_args,		ZEND_ACC_PUBLIC)
+	PHP_ME(zeromqsocket, getsockettype,		zeromq_socket_getsockettype_args,		ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 
