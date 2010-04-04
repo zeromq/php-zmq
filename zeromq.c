@@ -72,15 +72,6 @@ static int php_zeromq_context_list_entry(void)
 }
 /* }}} */
 
-/* {{{ static int php_zeromq_nofree_dtor()
-	Hash destructor for connection/bind lists
-*/
-static int php_zeromq_nofree_dtor() 
-{
-	return ZEND_HASH_APPLY_REMOVE;
-}
-/* }}} */
-
 /* {{{ static void php_zeromq_context_destroy(php_zeromq_context *ctx, zend_bool is_persistent)
 	Destroy the zeromq context and free memory associated
 */
@@ -174,8 +165,8 @@ static php_zeromq_socket *php_zeromq_socket_new(int type, int app_threads, int i
 	zmq_sock->app_threads   = app_threads;
 	zmq_sock->io_threads    = io_threads;
 	
-	zend_hash_init(&(zmq_sock->connect), 0, NULL, (dtor_func_t) php_zeromq_nofree_dtor, persistent);
-	zend_hash_init(&(zmq_sock->bind), 0, NULL, (dtor_func_t) php_zeromq_nofree_dtor, persistent);
+	zend_hash_init(&(zmq_sock->connect), 0, NULL, NULL, persistent);
+	zend_hash_init(&(zmq_sock->bind), 0, NULL, NULL, persistent);
 	return zmq_sock;
 }
 /* }}} */
@@ -294,7 +285,7 @@ PHP_METHOD(zeromq, getsocket)
 		return;
 	}
 	
-	*return_value = *(intern->sock_obj);
+	RETVAL_ZVAL(intern->sock_obj, 1, 0);
 	return;
 }
 /* }}} */
@@ -473,7 +464,7 @@ PHP_METHOD(zeromqsocket, bind)
 	char *dsn;
 	int dsn_len;
 	zend_bool force = 0;
-	void *dummy = (void *) 1;
+	void *dummy = (void *)1;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|b", &dsn, &dsn_len, &force) == FAILURE) {
 		return;
@@ -496,8 +487,8 @@ PHP_METHOD(zeromqsocket, bind)
 		zend_throw_exception_ex(php_zeromq_socket_exception_sc_entry, errno TSRMLS_CC, "Failed to bind the ZeroMQSocket: %s", zmq_strerror(errno));
 		return;
 	}
-	
-	zend_hash_add(&(intern->zms->bind), dsn, dsn_len + 1, &dummy, sizeof(void *), NULL);
+
+	zend_hash_add(&(intern->zms->bind), dsn, dsn_len + 1, (void *)&dummy, sizeof(void *), NULL);
 	ZEROMQ_RETURN_THIS;
 }
 /* }}} */
@@ -511,7 +502,7 @@ PHP_METHOD(zeromqsocket, connect)
 	char *dsn;
 	int dsn_len;
 	zend_bool force = 0;
-	void *dummy = (void *) 1;
+	void *dummy = (void *)1;
 	
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|b", &dsn, &dsn_len, &force) == FAILURE) {
 		return;
@@ -534,9 +525,63 @@ PHP_METHOD(zeromqsocket, connect)
 		zend_throw_exception_ex(php_zeromq_socket_exception_sc_entry, errno TSRMLS_CC, "Failed to connect the ZeroMQSocket: %s", zmq_strerror(errno));
 		return;
 	}
-	
-	zend_hash_add(&(intern->zms->connect), dsn, dsn_len + 1, &dummy, sizeof(void *), NULL);
+
+	zend_hash_add(&(intern->zms->connect), dsn, dsn_len + 1, (void *)&dummy, sizeof(void *), NULL);
 	ZEROMQ_RETURN_THIS;
+}
+/* }}} */
+
+/* {{{ static int php_zeromq_get_keys(zval **ppzval TSRMLS_DC, int num_args, va_list args, zend_hash_key *hash_key) */
+static int php_zeromq_get_keys(zval **ppzval TSRMLS_DC, int num_args, va_list args, zend_hash_key *hash_key)
+{
+	zval *retval;
+	
+	if (num_args != 1) {
+		return ZEND_HASH_APPLY_KEEP;
+	}
+	
+	retval = va_arg(args, zval *);
+	
+	if (hash_key->nKeyLength == 0) {
+		return ZEND_HASH_APPLY_REMOVE;
+	}
+	
+	add_next_index_stringl(retval, hash_key->arKey, hash_key->nKeyLength - 1, 1);
+	return ZEND_HASH_APPLY_KEEP;
+}
+/* }}} */
+
+/* {{{ array ZeroMQSocket::getEndPoints()
+	Returns endpoints where this socket is connected/bound to. Contains two keys ('bind', 'connect')
+*/
+PHP_METHOD(zeromqsocket, getendpoints)
+{
+	php_zeromq_socket_object *intern;
+	zval *connect, *bind;
+	
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "") == FAILURE) {
+		return;
+	}
+	
+	intern = PHP_ZEROMQ_SOCKET_OBJECT;
+	array_init(return_value);
+	
+	if (!intern->zms) {
+		return; /* No endpoints */
+	}
+	
+	MAKE_STD_ZVAL(connect);
+	MAKE_STD_ZVAL(bind);
+	
+	array_init(connect);
+	array_init(bind);
+	
+	zend_hash_apply_with_arguments(&(intern->zms->connect) TSRMLS_CC, (apply_func_args_t) php_zeromq_get_keys, 1, connect);
+	zend_hash_apply_with_arguments(&(intern->zms->bind) TSRMLS_CC, (apply_func_args_t) php_zeromq_get_keys, 1, bind);
+
+	add_assoc_zval(return_value, "connect", connect);
+	add_assoc_zval(return_value, "bind", bind);
+	return;
 }
 /* }}} */
 
@@ -673,6 +718,9 @@ ZEND_BEGIN_ARG_INFO_EX(zeromq_socket_setcontextoptions_args, 0, 0, 2)
 	ZEND_ARG_INFO(0, io_threads)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(zeromq_socket_getendpoints_args, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
 static function_entry php_zeromq_socket_class_methods[] = {
 	PHP_ME(zeromqsocket, __construct,		zeromq_socket_construct_args,			ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
 	PHP_ME(zeromqsocket, bind,				zeromq_socket_bind_args,				ZEND_ACC_PUBLIC)
@@ -680,6 +728,7 @@ static function_entry php_zeromq_socket_class_methods[] = {
 	PHP_ME(zeromqsocket, setsockopt,		zeromq_socket_setsockopt_args,			ZEND_ACC_PUBLIC)
 	PHP_ME(zeromqsocket, getcontextoptions,	zeromq_socket_getcontextoptions_args,	ZEND_ACC_PUBLIC)
 	PHP_ME(zeromqsocket, setcontextoptions,	zeromq_socket_setcontextoptions_args,	ZEND_ACC_PUBLIC)
+	PHP_ME(zeromqsocket, getendpoints,		zeromq_socket_getendpoints_args,		ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 
