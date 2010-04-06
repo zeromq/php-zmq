@@ -1,8 +1,13 @@
 <?php
 
+$zmq = new ZeroMQ(ZeroMQ::SOCKET_REQ);
+$zmq->setContextOptions(1, 1, true)
+    ->connect('tcp://127.0.0.1:5555');
+
+
 $q = new ZeroMQ();
 
-$socket = new ZeroMQSocket(ZeroMQ::SOCKET_REQ);
+$zmq = new ZeroMQ(ZeroMQ::SOCKET_REQ);
 $socket->setContextOptions(1, 1, true)
          ->connect('tcp://127.0.0.1:5555');
 

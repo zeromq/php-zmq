@@ -10,8 +10,8 @@ include dirname(__FILE__) . '/zeromq_test_helper.inc';
 $server = create_server();
 $client = create_client();
 
-var_dump($client->getSocket()->getEndpoints());
-var_dump($server->getSocket()->getEndpoints());
+var_dump($client->getEndpoints());
+var_dump($server->getEndpoints());
 
 $client->send("Hello world!");
 $message = $server->recv();

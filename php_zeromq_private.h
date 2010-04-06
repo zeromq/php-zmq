@@ -63,13 +63,6 @@ typedef struct _php_zeromq_socket  {
 /* {{{ typedef struct _php_zeromq_object */
 typedef struct _php_zeromq_object  {
 	zend_object zo;
-	zval *sock_obj;
-} php_zeromq_object;
-/* }}} */
-
-/* {{{ typedef struct _php_zeromq_socket_object */
-typedef struct _php_zeromq_socket_object  {
-	zend_object zo;
 	php_zeromq_socket *zms;
 	char *p_id;
 	
@@ -77,7 +70,7 @@ typedef struct _php_zeromq_socket_object  {
 	int app_threads;
 	int io_threads;
 	zend_bool poll;
-} php_zeromq_socket_object;
+} php_zeromq_object;
 /* }}} */
 
 /* {{{ typedef struct _php_zeromq_poll_object */
@@ -89,7 +82,6 @@ typedef struct _php_zeromq_poll_object  {
 	zval **objects;
 } php_zeromq_poll_object;
 /* }}} */
-
 
 ZEND_BEGIN_MODULE_GLOBALS(zeromq)
 	zend_bool persist_context;
@@ -104,8 +96,6 @@ ZEND_EXTERN_MODULE_GLOBALS(zeromq);
 #endif
 
 #define PHP_ZEROMQ_OBJECT (php_zeromq_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
-
-#define PHP_ZEROMQ_SOCKET_OBJECT (php_zeromq_socket_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
 
 #define PHP_ZEROMQ_POLL_OBJECT (php_zeromq_poll_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
 
