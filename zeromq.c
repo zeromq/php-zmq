@@ -616,7 +616,7 @@ PHP_METHOD(zeromq, setsockopt)
 PHP_METHOD(zeromqpoll, add)
 {
 	php_zeromq_poll_object *intern;
-	php_zeromq_object *socket;
+	php_zeromq_object *item;
 	
 	zval *object;
 	long type;
@@ -625,14 +625,14 @@ PHP_METHOD(zeromqpoll, add)
 		return;
 	}
 
-	socket = (php_zeromq_object *)zend_object_store_get_object(object TSRMLS_CC);
+	item = (php_zeromq_object *)zend_object_store_get_object(object TSRMLS_CC);
 
-	if (!socket->zms) {
+	if (!item->zms) {
 		zend_throw_exception(php_zeromq_poll_exception_sc_entry, "The socket has not been initialized yet", 1 TSRMLS_CC);
 		return;
 	}
 	
-	if (!socket->poll) {
+	if (!item->poll) {
 		zend_throw_exception(php_zeromq_poll_exception_sc_entry, "The socket has not been initialized with polling", 1 TSRMLS_CC);
 		return;
 	}
@@ -644,10 +644,10 @@ PHP_METHOD(zeromqpoll, add)
 	intern->items   = erealloc(intern->items,   (intern->num_items + 1) * sizeof(zmq_pollitem_t));
 	intern->objects = erealloc(intern->objects, (intern->num_items + 1) * sizeof(zval *));
 
-	intern->items[intern->num_items].socket = socket->zms->socket;
+	intern->items[intern->num_items].socket = item->zms->socket;
 	intern->items[intern->num_items].events = type;
 	
-	intern->objects[intern->num_items++]     = object;
+	intern->objects[intern->num_items++]    = object;
 	ZEROMQ_RETURN_THIS;
 }
 
