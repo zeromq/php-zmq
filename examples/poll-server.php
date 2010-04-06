@@ -13,7 +13,7 @@ $pi->add($server, ZeroMQ::POLL_IN);
 $po = new ZeroMQPoll();
 $po->add($server, ZeroMQ::POLL_OUT);
 
-$r = array('sdfsfd');
+$r = array();
 $w = array();
 
 while ($pi->poll($r, $w, -1)) {
