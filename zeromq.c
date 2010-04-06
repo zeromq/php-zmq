@@ -681,15 +681,15 @@ PHP_METHOD(zeromqpoll, poll)
 	array_init(writable);
 	
 	for (i = 0; i < intern->num_items; i++) {
-		if (intern->items[i].events & ZMQ_POLLIN) {
+		if (intern->items[i].revents & ZMQ_POLLIN) {
 			add_next_index_zval(readable, intern->objects[i]);
 		} 
 		
-		if (intern->items[i].events & ZMQ_POLLOUT) {
+		if (intern->items[i].revents & ZMQ_POLLOUT) {
 			add_next_index_zval(writable, intern->objects[i]);
 		}
 		
-		if (intern->items[i].events & ZMQ_POLLERR) {
+		if (intern->items[i].revents & ZMQ_POLLERR) {
 			// todo: errors
 		}
 	}
