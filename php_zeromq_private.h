@@ -38,7 +38,7 @@
 #include <stdint.h>
 #include <zmq.h>
 
-/* {{{ */
+/* {{{ typedef struct _php_zeromq_context */
 typedef struct _php_zeromq_context {
 	void *context;
 	zend_bool is_persistent;
@@ -76,8 +76,20 @@ typedef struct _php_zeromq_socket_object  {
 	int type;
 	int app_threads;
 	int io_threads;
+	zend_bool poll;
 } php_zeromq_socket_object;
 /* }}} */
+
+/* {{{ typedef struct _php_zeromq_poll_object */
+typedef struct _php_zeromq_poll_object  {
+	zend_object zo;
+	zmq_pollitem_t *items;
+	int num_items;
+	
+	zval **objects;
+} php_zeromq_poll_object;
+/* }}} */
+
 
 ZEND_BEGIN_MODULE_GLOBALS(zeromq)
 	zend_bool persist_context;
@@ -94,6 +106,8 @@ ZEND_EXTERN_MODULE_GLOBALS(zeromq);
 #define PHP_ZEROMQ_OBJECT (php_zeromq_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
 
 #define PHP_ZEROMQ_SOCKET_OBJECT (php_zeromq_socket_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
+
+#define PHP_ZEROMQ_POLL_OBJECT (php_zeromq_poll_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
 
 #define ZEROMQ_RETURN_THIS RETURN_ZVAL(getThis(), 1, 0);
 
