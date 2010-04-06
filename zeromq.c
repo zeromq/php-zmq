@@ -165,6 +165,7 @@ static php_zeromq_socket *php_zeromq_socket_new(int type, int app_threads, int i
 	zmq_sock->app_threads   = app_threads;
 	zmq_sock->io_threads    = io_threads;
 	zmq_sock->type          = type;
+	zmq_sock->poll          = poll;
 	
 	zend_hash_init(&(zmq_sock->connect), 0, NULL, NULL, persistent);
 	zend_hash_init(&(zmq_sock->bind), 0, NULL, NULL, persistent);
@@ -374,6 +375,7 @@ PHP_METHOD(zeromq, getcontextoptions)
 	
 	add_assoc_long(return_value, "app_threads", ((intern->zms) ? intern->zms->app_threads : intern->app_threads));
 	add_assoc_long(return_value, "io_threads",  ((intern->zms) ? intern->zms->io_threads  : intern->io_threads));
+	add_assoc_bool(return_value, "poll",  ((intern->zms) ? intern->zms->poll  : intern->poll));
 	return;
 }
 /* }}} */
@@ -722,6 +724,7 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(zeromq_setcontextoptions_args, 0, 0, 2)
 	ZEND_ARG_INFO(0, app_threads)
 	ZEND_ARG_INFO(0, io_threads)
+	ZEND_ARG_INFO(0, poll)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(zeromq_getendpoints_args, 0, 0, 0)

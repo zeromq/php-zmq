@@ -56,6 +56,8 @@ typedef struct _php_zeromq_socket  {
 	
 	int app_threads;
 	int io_threads;
+	zend_bool poll;
+	
 	int type;
 } php_zeromq_socket;
 /* }}} */

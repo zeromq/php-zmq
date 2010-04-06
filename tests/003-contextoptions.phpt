@@ -8,12 +8,12 @@ set/get context options
 
 include dirname(__FILE__) . '/zeromq_test_helper.inc';
 
-$test = new ZeroMQSocket(ZeroMQ::SOCKET_REQ);
+$test = new ZeroMQ(ZeroMQ::SOCKET_REQ);
 $test->setContextOptions(2, 2);
 
 try {
     $test->setContextOptions(-1, -1);
-} catch (ZeroMQSocketException $e) {
+} catch (ZeroMQException $e) {
     echo "incorrect args\n";
 }
 
@@ -22,16 +22,18 @@ $test->bind(ZEROMQ_TEST_DSN);
 
 try {
     $test->setContextOptions(4,2);
-} catch (ZeroMQSocketException $e) {
+} catch (ZeroMQException $e) {
     echo "Got exception\n";
 }
 
 --EXPECT--
 incorrect args
-array(2) {
+array(3) {
   ["app_threads"]=>
   int(2)
   ["io_threads"]=>
   int(2)
+  ["poll"]=>
+  bool(false)
 }
 Got exception
