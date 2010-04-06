@@ -232,7 +232,7 @@ static void php_zeromq_socket_destroy(php_zeromq_socket *zmq_sock, zend_bool is_
 /* -- START ZeroMQ --- */
 
 /* {{{ ZeroMQ::__construct(int type[, string persistent_id])
-	Build a new ZeroMQSocket object
+	Build a new ZeroMQ object
 */
 PHP_METHOD(zeromq, __construct)
 {
@@ -358,7 +358,7 @@ PHP_METHOD(zeromq, setcontextoptions)
 }
 /* }}} */
 
-/** {{{ array ZeroMQSocket::getContextOptions() 
+/** {{{ array ZeroMQ::getContextOptions() 
 	Returns the amount of app and io threads in the internal context
 */
 PHP_METHOD(zeromq, getcontextoptions)
@@ -378,7 +378,7 @@ PHP_METHOD(zeromq, getcontextoptions)
 }
 /* }}} */
 
-/* {{{ ZeroMQSocket::bind(string dsn[, bool force_new_connection])
+/* {{{ ZeroMQ::bind(string dsn[, bool force_new_connection])
 	Bind the socket to an endpoint
 */
 PHP_METHOD(zeromq, bind)
@@ -407,7 +407,7 @@ PHP_METHOD(zeromq, bind)
 	}
 
 	if (zmq_bind(intern->zms->socket, dsn) != 0) {
-		zend_throw_exception_ex(php_zeromq_exception_sc_entry, errno TSRMLS_CC, "Failed to bind the ZeroMQSocket: %s", zmq_strerror(errno));
+		zend_throw_exception_ex(php_zeromq_exception_sc_entry, errno TSRMLS_CC, "Failed to bind the ZeroMQ: %s", zmq_strerror(errno));
 		return;
 	}
 
@@ -416,7 +416,7 @@ PHP_METHOD(zeromq, bind)
 }
 /* }}} */
 
-/* {{{ ZeroMQSocket::connect(string dsn[, bool force_new_connection])
+/* {{{ ZeroMQ::connect(string dsn[, bool force_new_connection])
 	Connect the socket to an endpoint
 */
 PHP_METHOD(zeromq, connect)
@@ -445,7 +445,7 @@ PHP_METHOD(zeromq, connect)
 	}
 
 	if (zmq_connect(intern->zms->socket, dsn) != 0) {
-		zend_throw_exception_ex(php_zeromq_exception_sc_entry, errno TSRMLS_CC, "Failed to connect the ZeroMQSocket: %s", zmq_strerror(errno));
+		zend_throw_exception_ex(php_zeromq_exception_sc_entry, errno TSRMLS_CC, "Failed to connect the ZeroMQ: %s", zmq_strerror(errno));
 		return;
 	}
 
@@ -475,7 +475,7 @@ static int php_zeromq_get_keys(zval **ppzval TSRMLS_DC, int num_args, va_list ar
 }
 /* }}} */
 
-/* {{{ array ZeroMQSocket::getEndpoints()
+/* {{{ array ZeroMQ::getEndpoints()
 	Returns endpoints where this socket is connected/bound to. Contains two keys ('bind', 'connect')
 */
 PHP_METHOD(zeromq, getendpoints)
@@ -511,7 +511,7 @@ PHP_METHOD(zeromq, getendpoints)
 }
 /* }}} */
 
-/* {{{ int ZeroMQSocket::getSocketType()
+/* {{{ int ZeroMQ::getSocketType()
 	Returns the socket type
 */
 PHP_METHOD(zeromq, getsockettype)
@@ -530,7 +530,7 @@ PHP_METHOD(zeromq, getsockettype)
 /* }}} */
 
 
-/* {{{ ZeroMQSocket::setSockOpt(int ZeroMQ::SOCKOPT_, mixed value)
+/* {{{ ZeroMQ::setSockOpt(int ZeroMQ::SOCKOPT_, mixed value)
 	Set a socket option
 */
 PHP_METHOD(zeromq, setsockopt)
@@ -609,7 +609,7 @@ PHP_METHOD(zeromq, setsockopt)
 }
 /* }}} */
 
-/* -- END ZeroMQSocket --- */
+/* -- END ZeroMQ --- */
 
 /* -- START ZeroMQPoll --- */
 
