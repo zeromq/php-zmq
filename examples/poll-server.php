@@ -2,8 +2,8 @@
 
 /* Create socket, request-reply pattern (reply socket) */
 $server = new ZeroMQ(ZeroMQ::SOCKET_REP);
-$server->setContextOptions(1, 1, true);
-$server->bind("tcp://127.0.0.1:5555");
+$server->setContextOptions(1, 1, true)
+       ->bind("tcp://127.0.0.1:5555");
 
 /* Create new pollset for incoming message */
 $pi = new ZeroMQPoll();
