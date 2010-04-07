@@ -662,7 +662,7 @@ PHP_METHOD(zeromqpoll, poll)
 	zval *r_array, *w_array;
 	int rc, i;
 	
-	zend_bool readable = 1, writable = 1;
+	zend_bool readable = 0, writable = 0;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a!a!|l", &r_array, &w_array, &timeout) == FAILURE) {
 		return;
@@ -682,15 +682,14 @@ PHP_METHOD(zeromqpoll, poll)
 		return;
 	}
 	
-	readable = (r_array && Z_TYPE_P(r_array) == IS_ARRAY);
-	writable = (w_array && Z_TYPE_P(w_array) == IS_ARRAY);
-	
-	if (readable) {
+	if (r_array && Z_TYPE_P(r_array) == IS_ARRAY) {
 		zend_hash_clean(Z_ARRVAL_P(r_array));
+		readable = 1;
 	}
 	
-	if (writable) {
+	if (w_array && Z_TYPE_P(w_array) == IS_ARRAY) {
 		zend_hash_clean(Z_ARRVAL_P(w_array));
+		writable = 1;
 	}
 
 	for (i = 0; i < intern->num_items; i++) {
