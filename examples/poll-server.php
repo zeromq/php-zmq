@@ -9,24 +9,20 @@ $server->setContextOptions(1, 1, true)
 $poll = new ZeroMQPoll();
 $poll->add($server, ZeroMQ::POLL_IN | ZeroMQ::POLL_OUT);
 
-$r = array();
-$w = array();
+$readable = array();
+$writable = array();
 
-while ($poll->poll($r, $w, -1)) {
+while ($poll->poll($readable, $writable, -1)) {
 
-    if (count($r) > 0) {
-        try {
-            echo "Received message: " . $server->recv() . "\n";
-        } catch (Exception $e) {
-            echo "Got exception {$e->getMessage()}\n";
+    try {
+        foreach ($readable as $r) {
+            echo "Received message: " . $r->recv() . "\n";
         }
-    }
-    
-    if (count($w) > 0) {
-        try {
-            $server->send("Got it!");
-        } catch (Exception $e) {
-            echo "Got exception {$e->getMessage()}\n";
-        }
+        
+        foreach ($writable as $w) {
+            $w->send("Got it!");
+        }   
+    } catch (Exception $e) {
+        echo "Got exception {$e->getMessage()}\n";
     }
 }

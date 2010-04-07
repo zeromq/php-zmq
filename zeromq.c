@@ -375,7 +375,7 @@ PHP_METHOD(zeromq, getcontextoptions)
 	
 	add_assoc_long(return_value, "app_threads", ((intern->zms) ? intern->zms->app_threads : intern->app_threads));
 	add_assoc_long(return_value, "io_threads",  ((intern->zms) ? intern->zms->io_threads  : intern->io_threads));
-	add_assoc_bool(return_value, "poll",  ((intern->zms) ? intern->zms->poll  : intern->poll));
+	add_assoc_bool(return_value, "poll",        ((intern->zms) ? intern->zms->poll        : intern->poll));
 	return;
 }
 /* }}} */
@@ -469,6 +469,7 @@ static int php_zeromq_get_keys(zval **ppzval TSRMLS_DC, int num_args, va_list ar
 	retval = va_arg(args, zval *);
 	
 	if (hash_key->nKeyLength == 0) {
+		/* Should not happen */
 		return ZEND_HASH_APPLY_REMOVE;
 	}
 	
@@ -641,15 +642,15 @@ PHP_METHOD(zeromqpoll, add)
 	
 	intern = PHP_ZEROMQ_POLL_OBJECT;
 	
-	Z_ADDREF_P(object);
-	
 	intern->items   = erealloc(intern->items,   (intern->num_items + 1) * sizeof(zmq_pollitem_t));
 	intern->objects = erealloc(intern->objects, (intern->num_items + 1) * sizeof(zval *));
 
 	intern->items[intern->num_items].socket = item->zms->socket;
 	intern->items[intern->num_items].events = type;
 	
-	intern->objects[intern->num_items++]    = object;
+	intern->objects[intern->num_items++] = object;
+	zend_objects_store_add_ref(object TSRMLS_CC);
+
 	ZEROMQ_RETURN_THIS;
 }
 
@@ -658,10 +659,12 @@ PHP_METHOD(zeromqpoll, poll)
 	php_zeromq_poll_object *intern;
 	
 	long timeout = -1;
-	zval *readable, *writable;
+	zval *r_array, *w_array;
 	int rc, i;
+	
+	zend_bool readable = 1, writable = 1;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "aa|l", &readable, &writable, &timeout) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a!a!|l", &r_array, &w_array, &timeout) == FAILURE) {
 		return;
 	}
 	
@@ -679,16 +682,26 @@ PHP_METHOD(zeromqpoll, poll)
 		return;
 	}
 	
-	array_init(readable);
-	array_init(writable);
+	readable = (r_array && Z_TYPE_P(r_array) == IS_ARRAY);
+	writable = (w_array && Z_TYPE_P(w_array) == IS_ARRAY);
 	
+	if (readable) {
+		zend_hash_clean(Z_ARRVAL_P(r_array));
+	}
+	
+	if (writable) {
+		zend_hash_clean(Z_ARRVAL_P(w_array));
+	}
+
 	for (i = 0; i < intern->num_items; i++) {
-		if (intern->items[i].revents & ZMQ_POLLIN) {
-			add_next_index_zval(readable, intern->objects[i]);
+		if (readable && intern->items[i].revents & ZMQ_POLLIN) {
+			Z_ADDREF_P(intern->objects[i]);
+			add_next_index_zval(r_array, intern->objects[i]);
 		} 
 		
-		if (intern->items[i].revents & ZMQ_POLLOUT) {
-			add_next_index_zval(writable, intern->objects[i]);
+		if (writable && intern->items[i].revents & ZMQ_POLLOUT) {
+			Z_ADDREF_P(intern->objects[i]);
+			add_next_index_zval(w_array, intern->objects[i]);
 		}
 		
 		if (intern->items[i].revents & ZMQ_POLLERR) {
@@ -760,8 +773,8 @@ ZEND_BEGIN_ARG_INFO_EX(zeromq_poll_add_args, 0, 0, 2)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(zeromq_poll_poll_args, 0, 0, 2)
-	ZEND_ARG_INFO(1, readable) 
-	ZEND_ARG_INFO(1, writable) 
+	ZEND_ARG_INFO(0, readable) 
+	ZEND_ARG_INFO(0, writable) 
 ZEND_END_ARG_INFO()
 
 static function_entry php_zeromq_poll_class_methods[] = {
@@ -777,6 +790,8 @@ zend_function_entry zeromq_functions[] = {
 static void php_zeromq_object_free_storage(void *object TSRMLS_DC)
 {
 	php_zeromq_object *intern = (php_zeromq_object *)object;
+
+	php_zeromq_printf("php_zeromq_object_free_storage(object=[%p])\n", intern);
 
 	if (!intern) {
 		return;
@@ -801,20 +816,17 @@ static void php_zeromq_poll_object_free_storage(void *object TSRMLS_DC)
 {
 	php_zeromq_poll_object *intern = (php_zeromq_poll_object *)object;
 
+	php_zeromq_printf("php_zeromq_poll_object_free_storage(object=[%p])\n", intern);
+
 	if (!intern) {
 		return;
 	}
-	
+
 	if (intern->num_items > 0) {
 		int i;
 		
 		for (i = 0; i < intern->num_items; i++) {
-			Z_DELREF_P(intern->objects[i]);
-			
-			if (Z_REFCOUNT_P(intern->objects[i]) <= 0) {
-				zval_dtor(intern->objects[i]);
-				FREE_ZVAL(intern->objects[i]);
-			}
+			zend_objects_store_del_ref(intern->objects[i] TSRMLS_CC);
 		}
 		efree(intern->objects);
 		efree(intern->items);
