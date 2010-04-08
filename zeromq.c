@@ -346,7 +346,7 @@ PHP_METHOD(zeromq, setcontextoptions)
 	}
 	
 	if (io_threads <= 0) {
-		zend_throw_exception_ex(php_zeromq_exception_sc_entry, 33 TSRMLS_CC, "The second argument must greater than zero, %ld given", app_threads);
+		zend_throw_exception_ex(php_zeromq_exception_sc_entry, 34 TSRMLS_CC, "The second argument must greater than zero, %ld given", app_threads);
 		return;
 	}
 
@@ -372,6 +372,9 @@ PHP_METHOD(zeromq, getcontextoptions)
 	intern = PHP_ZEROMQ_OBJECT;
 	array_init(return_value);
 	
+	/*
+		If socket has not been initialised yet, return the context options from the main object
+	*/
 	add_assoc_long(return_value, "app_threads", ((intern->zms) ? intern->zms->ctx->opts.app_threads : intern->ctx_opts.app_threads));
 	add_assoc_long(return_value, "io_threads",  ((intern->zms) ? intern->zms->ctx->opts.io_threads  : intern->ctx_opts.io_threads));
 	add_assoc_bool(return_value, "poll",        ((intern->zms) ? intern->zms->ctx->opts.poll        : intern->ctx_opts.poll));

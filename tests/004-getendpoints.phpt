@@ -13,11 +13,6 @@ $client = create_client();
 var_dump($client->getEndpoints());
 var_dump($server->getEndpoints());
 
-$client->send("Hello world!");
-$message = $server->recv();
-$server->send($message);
-$message = $client->recv();
-
 --EXPECTF--
 array(2) {
   ["connect"]=>
