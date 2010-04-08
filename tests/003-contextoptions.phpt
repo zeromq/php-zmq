@@ -1,5 +1,4 @@
 --TEST--
---XFAIL--
 set/get context options
 --SKIPIF--
 <?php require_once(dirname(__FILE__) . '/skipif.inc'); ?>
@@ -9,7 +8,7 @@ set/get context options
 include dirname(__FILE__) . '/zeromq_test_helper.inc';
 
 $test = new ZeroMQ(ZeroMQ::SOCKET_REQ);
-$test->setContextOptions(2, 2);
+$test->setContextOptions(2, 2, true);
 
 try {
     $test->setContextOptions(-1, -1);
@@ -26,6 +25,8 @@ try {
     echo "Got exception\n";
 }
 
+var_dump($test->getContextOptions());
+
 --EXPECT--
 incorrect args
 array(3) {
@@ -34,6 +35,14 @@ array(3) {
   ["io_threads"]=>
   int(2)
   ["poll"]=>
-  bool(false)
+  bool(true)
 }
 Got exception
+array(3) {
+  ["app_threads"]=>
+  int(2)
+  ["io_threads"]=>
+  int(2)
+  ["poll"]=>
+  bool(true)
+}

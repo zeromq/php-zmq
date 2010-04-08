@@ -38,10 +38,19 @@
 #include <stdint.h>
 #include <zmq.h>
 
+/* {{{ typedef struct _php_zeromq_context_opts */
+typedef struct _php_zeromq_context_opts {
+	zend_bool is_persistent;
+	int app_threads;
+	int io_threads;
+	zend_bool poll;
+} php_zeromq_context_opts;	
+/* }}}*/
+
 /* {{{ typedef struct _php_zeromq_context */
 typedef struct _php_zeromq_context {
 	void *context;
-	zend_bool is_persistent;
+	php_zeromq_context_opts opts;
 } php_zeromq_context;
 /* }}} */
 
@@ -54,10 +63,6 @@ typedef struct _php_zeromq_socket  {
 	HashTable connect;
 	HashTable bind;
 	
-	int app_threads;
-	int io_threads;
-	zend_bool poll;
-	
 	int type;
 } php_zeromq_socket;
 /* }}} */
@@ -68,10 +73,11 @@ typedef struct _php_zeromq_object  {
 	php_zeromq_socket *zms;
 	char *p_id;
 	
+	/* options for the context */
+	php_zeromq_context_opts ctx_opts;
+	
+	/* The socket type */
 	int type;
-	int app_threads;
-	int io_threads;
-	zend_bool poll;
 } php_zeromq_object;
 /* }}} */
 

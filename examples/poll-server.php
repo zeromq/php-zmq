@@ -9,16 +9,20 @@ $server->setContextOptions(1, 1, true)
 $poll = new ZeroMQPoll();
 $poll->add($server, ZeroMQ::POLL_IN | ZeroMQ::POLL_OUT);
 
+/* Initialise readable and writable arrays */
 $readable = array();
 $writable = array();
 
+/* Poll until there is something to do */
 while ($poll->poll($readable, $writable, -1)) {
 
     try {
+        /* Loop through readable objects and recv messages */
         foreach ($readable as $r) {
             echo "Received message: " . $r->recv() . "\n";
         }
         
+        /* Loop through writable and send back messages */
         foreach ($writable as $w) {
             $w->send("Got it!");
         }   

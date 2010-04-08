@@ -76,9 +76,7 @@ static int php_zeromq_context_list_entry(void)
 	Destroy the zeromq context and free memory associated
 */
 static void php_zeromq_context_destroy(php_zeromq_context *ctx, zend_bool is_persistent)
-{
-	php_zeromq_printf("php_zeromq_context_destroy(ctx=[%p], persistent=[%d])\n", ctx, is_persistent);
-		
+{	
 	(void) zmq_term(ctx->context);
 	pefree(ctx, is_persistent);
 }
@@ -87,20 +85,18 @@ static void php_zeromq_context_destroy(php_zeromq_context *ctx, zend_bool is_per
 /* {{{ static php_zeromq_context *php_zeromq_context_new(int app_threads, int io_threads, zend_bool poll, zend_bool persistent TSRMLS_DC)
 	Create a new zeromq context
 */
-static php_zeromq_context *php_zeromq_context_new(int app_threads, int io_threads, zend_bool poll, zend_bool persistent TSRMLS_DC)
+static php_zeromq_context *php_zeromq_context_new(php_zeromq_context_opts *ctx_opts TSRMLS_DC)
 {
 	php_zeromq_context *ctx;
-	
-	php_zeromq_printf("php_zeromq_context_new(app_threads=[%d], io_threads=[%d], persistent=[%d])\n", app_threads, io_threads, persistent);
-	
-	ctx          = pecalloc(1, sizeof(php_zeromq_context), persistent);
-	ctx->context = zmq_init(app_threads, io_threads, poll);
+
+	ctx          = pecalloc(1, sizeof(php_zeromq_context), ctx_opts->is_persistent);
+	ctx->context = zmq_init(ctx_opts->app_threads, ctx_opts->io_threads, ctx_opts->poll);
 	
 	if (!ctx->context) {
 		php_error_docref(NULL TSRMLS_CC, E_ERROR, "Error creating context: %s", zmq_strerror(errno));
 	}
 	
-	ctx->is_persistent = persistent;
+	memcpy(&(ctx->opts), ctx_opts, sizeof(php_zeromq_context_opts));
 	return ctx;
 }
 /* }}} */
@@ -108,18 +104,16 @@ static php_zeromq_context *php_zeromq_context_new(int app_threads, int io_thread
 /* {{{ static php_zeromq_context *php_zeromq_context_get(int app_threads, int io_threads, zend_bool poll, zend_bool persistent TSRMLS_DC)
 	Get a context. If context does not exist in persistent list allocates a new one
 */
-static php_zeromq_context *php_zeromq_context_get(int app_threads, int io_threads, zend_bool poll, zend_bool persistent TSRMLS_DC)
+static php_zeromq_context *php_zeromq_context_get(php_zeromq_context_opts *ctx_opts TSRMLS_DC)
 {
 	php_zeromq_context *ctx;
 
 	char *plist_key;
 	int plist_key_len;
 	zend_rsrc_list_entry le, *le_p = NULL;
-	
-	php_zeromq_printf("php_zeromq_context_get(app_threads=[%d], io_threads=[%d], persistent=[%d])\n", app_threads, io_threads, persistent);
-	
-	if (persistent) {
-		plist_key_len  = spprintf(&plist_key, 0, "zeromq_context:[%d]-[%d]-[%d]", app_threads, io_threads, poll);
+
+	if (ctx_opts->is_persistent) {
+		plist_key_len  = spprintf(&plist_key, 0, "zeromq_context:[%d]-[%d]-[%d]", ctx_opts->app_threads, ctx_opts->io_threads, ctx_opts->poll);
 		plist_key_len += 1;
 
 		if (zend_hash_find(&EG(persistent_list), plist_key, plist_key_len, (void *)&le_p) == SUCCESS) {
@@ -130,9 +124,9 @@ static php_zeromq_context *php_zeromq_context_get(int app_threads, int io_thread
 		}
 	}
 	
-	ctx = php_zeromq_context_new(app_threads, io_threads, poll, persistent);
+	ctx = php_zeromq_context_new(ctx_opts);
 
-	if (persistent) {
+	if (ctx_opts->is_persistent) {
 		le.type = php_zeromq_context_list_entry();
 		le.ptr  = ctx;
 
@@ -145,16 +139,14 @@ static php_zeromq_context *php_zeromq_context_get(int app_threads, int io_thread
 }
 /* }}} */
 
-/* {{{ static php_zeromq_socket *php_zeromq_socket_new(int type, int app_threads, int io_threads, zend_bool poll, zend_bool persistent TSRMLS_DC)
+/* {{{ static php_zeromq_socket *php_zeromq_socket_new(int type, zend_bool persistent, php_zeromq_context_opts *ctx_opts TSRMLS_DC)
 	Create a new zeromq socket
 */
-static php_zeromq_socket *php_zeromq_socket_new(int type, int app_threads, int io_threads, zend_bool poll, zend_bool persistent TSRMLS_DC)
+static php_zeromq_socket *php_zeromq_socket_new(int type, zend_bool persistent, php_zeromq_context_opts *ctx_opts TSRMLS_DC)
 {
 	php_zeromq_socket *zmq_sock = pecalloc(1, sizeof(php_zeromq_socket), persistent);
 
-	php_zeromq_printf("php_zeromq_socket_new(type=[%d], app_threads=[%d], io_threads=[%d], persistent=[%d])\n", type, app_threads, io_threads, persistent);
-
-	zmq_sock->ctx    = php_zeromq_context_get(app_threads, io_threads, poll, ZEROMQ_G(persist_context) TSRMLS_CC);
+	zmq_sock->ctx    = php_zeromq_context_get(ctx_opts TSRMLS_CC);
 	zmq_sock->socket = zmq_socket(zmq_sock->ctx->context, (int) type);
 	
 	if (!zmq_sock->socket) {
@@ -162,29 +154,27 @@ static php_zeromq_socket *php_zeromq_socket_new(int type, int app_threads, int i
 	}
 	
 	zmq_sock->is_persistent = persistent;
-	zmq_sock->app_threads   = app_threads;
-	zmq_sock->io_threads    = io_threads;
 	zmq_sock->type          = type;
-	zmq_sock->poll          = poll;
-	
+
 	zend_hash_init(&(zmq_sock->connect), 0, NULL, NULL, persistent);
 	zend_hash_init(&(zmq_sock->bind), 0, NULL, NULL, persistent);
 	return zmq_sock;
 }
 /* }}} */
 
-/* {{{ static php_zeromq_socket *php_zeromq_socket_get(int type, const char *p_id, int app_threads, int io_threads, zend_bool persistent TSRMLS_DC)
+/* {{{ static php_zeromq_socket *php_zeromq_socket_get(int type, const char *p_id, php_zeromq_context_opts *ctx_opts TSRMLS_DC)
 	Tries to get context from plist and allocates a new context if context does not exist
 */
-static php_zeromq_socket *php_zeromq_socket_get(int type, const char *p_id, int app_threads, int io_threads, zend_bool poll, zend_bool persistent TSRMLS_DC)
+static php_zeromq_socket *php_zeromq_socket_get(int type, const char *p_id, php_zeromq_context_opts *ctx_opts TSRMLS_DC)
 {
 	php_zeromq_socket *zmq_sock_p;
 
 	char *plist_key;
 	int plist_key_len;
 	
-	php_zeromq_printf("php_zeromq_socket_get(type=[%d], p_id=[%s], app_threads=[%d], io_threads=[%d], persistent=[%d])\n", type, p_id, app_threads, io_threads, persistent);
-
+	/* Socket is persistent if we got persistent id and context is persistent */
+	zend_bool persistent = (p_id && ctx_opts->is_persistent);
+	
 	if (persistent) {
 		zend_rsrc_list_entry *le = NULL;
 
@@ -198,7 +188,7 @@ static php_zeromq_socket *php_zeromq_socket_get(int type, const char *p_id, int 
 			}
 		}	
 	}
-	zmq_sock_p = php_zeromq_socket_new(type, app_threads, io_threads, poll, persistent TSRMLS_CC);
+	zmq_sock_p = php_zeromq_socket_new(type, persistent, ctx_opts TSRMLS_CC);
 	
 	if (persistent) {
 		zend_rsrc_list_entry le;
@@ -220,8 +210,6 @@ static php_zeromq_socket *php_zeromq_socket_get(int type, const char *p_id, int 
 */
 static void php_zeromq_socket_destroy(php_zeromq_socket *zmq_sock, zend_bool is_persistent)
 {
-	php_zeromq_printf("php_zeromq_socket_destroy(zmq_sock=[%p], persistent=[%d])\n", zmq_sock, is_persistent);
-	
 	zend_hash_destroy(&(zmq_sock->connect));
 	zend_hash_destroy(&(zmq_sock->bind));
 	
@@ -256,7 +244,7 @@ PHP_METHOD(zeromq, __construct)
 }
 /* }}} */
 
-/* {{{ ZeroMQ ZeroMQ::send(string message)
+/* {{{ ZeroMQ ZeroMQ::send(string message[, int flags = 0])
 	Send a message
 */
 PHP_METHOD(zeromq, send)
@@ -266,12 +254,18 @@ PHP_METHOD(zeromq, send)
 	
 	zmq_msg_t message;
 	int rc, message_param_len;
+	long flags = 0;
 	
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &message_param, &message_param_len) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|l", &message_param, &message_param_len, &flags) == FAILURE) {
 		return;
 	}
 	
 	intern = PHP_ZEROMQ_OBJECT;
+	
+	if (!intern->zms) {
+		zend_throw_exception(php_zeromq_poll_exception_sc_entry, "The socket has not been initialized yet", 1 TSRMLS_CC);
+		return;
+	}
 
 	if (zmq_msg_init_size(&message, message_param_len) != 0) {
 		zend_throw_exception_ex(php_zeromq_exception_sc_entry, errno TSRMLS_CC, "Failed to initialize message structure: %s", zmq_strerror(errno));
@@ -279,7 +273,7 @@ PHP_METHOD(zeromq, send)
 	}
 	memcpy(zmq_msg_data(&message), message_param, message_param_len);
 	
-	rc = zmq_send(intern->zms->socket, &message, zmq_msg_size(&message));
+	rc = zmq_send(intern->zms->socket, &message, flags);
 	zmq_msg_close(&message);
 	
 	if (rc != 0) {
@@ -303,6 +297,11 @@ PHP_METHOD(zeromq, recv)
 	}
 	
 	intern = PHP_ZEROMQ_OBJECT;
+	
+	if (!intern->zms) {
+		zend_throw_exception(php_zeromq_poll_exception_sc_entry, "The socket has not been initialized yet", 1 TSRMLS_CC);
+		return;
+	}
 
 	if (zmq_msg_init(&message) != 0) {
 		zend_throw_exception_ex(php_zeromq_exception_sc_entry, errno TSRMLS_CC, "Failed to initialize message structure: %s", zmq_strerror(errno));
@@ -352,9 +351,9 @@ PHP_METHOD(zeromq, setcontextoptions)
 	}
 
 	/* Socket is created on-demand in connect / bind */
-	intern->app_threads = app_threads;
-	intern->io_threads  = io_threads;
-	intern->poll        = poll;
+	intern->ctx_opts.app_threads = app_threads;
+	intern->ctx_opts.io_threads  = io_threads;
+	intern->ctx_opts.poll        = poll;
 	ZEROMQ_RETURN_THIS;
 }
 /* }}} */
@@ -373,9 +372,9 @@ PHP_METHOD(zeromq, getcontextoptions)
 	intern = PHP_ZEROMQ_OBJECT;
 	array_init(return_value);
 	
-	add_assoc_long(return_value, "app_threads", ((intern->zms) ? intern->zms->app_threads : intern->app_threads));
-	add_assoc_long(return_value, "io_threads",  ((intern->zms) ? intern->zms->io_threads  : intern->io_threads));
-	add_assoc_bool(return_value, "poll",        ((intern->zms) ? intern->zms->poll        : intern->poll));
+	add_assoc_long(return_value, "app_threads", ((intern->zms) ? intern->zms->ctx->opts.app_threads : intern->ctx_opts.app_threads));
+	add_assoc_long(return_value, "io_threads",  ((intern->zms) ? intern->zms->ctx->opts.io_threads  : intern->ctx_opts.io_threads));
+	add_assoc_bool(return_value, "poll",        ((intern->zms) ? intern->zms->ctx->opts.poll        : intern->ctx_opts.poll));
 	return;
 }
 /* }}} */
@@ -399,8 +398,7 @@ PHP_METHOD(zeromq, bind)
 	
 	if (!intern->zms) {
 		/* Socket is persisted only if context is persistent */
-		zend_bool persistent = (intern->p_id && ZEROMQ_G(persist_context));
-		intern->zms          = php_zeromq_socket_get(intern->type, intern->p_id, intern->app_threads, intern->io_threads, intern->poll, persistent TSRMLS_CC);
+		intern->zms = php_zeromq_socket_get(intern->type, intern->p_id, &(intern->ctx_opts) TSRMLS_CC);
 	}
 	
 	/* already connected ? */
@@ -437,8 +435,7 @@ PHP_METHOD(zeromq, connect)
 	
 	if (!intern->zms) {
 		/* Socket is persisted only if context is persistent */
-		zend_bool persistent = (intern->p_id && ZEROMQ_G(persist_context));
-		intern->zms          = php_zeromq_socket_get(intern->type, intern->p_id, intern->app_threads, intern->io_threads, intern->poll, persistent TSRMLS_CC);
+		intern->zms = php_zeromq_socket_get(intern->type, intern->p_id, &(intern->ctx_opts) TSRMLS_CC);
 	}
 	
 	/* already connected ? */
@@ -551,8 +548,7 @@ PHP_METHOD(zeromq, setsockopt)
 	
 	if (!intern->zms) {
 		/* Socket is persisted only if context is persistent */
-		zend_bool persistent = (intern->p_id && ZEROMQ_G(persist_context));
-		intern->zms          = php_zeromq_socket_get(intern->type, intern->p_id, intern->app_threads, intern->io_threads, intern->poll, persistent TSRMLS_CC);
+		intern->zms = php_zeromq_socket_get(intern->type, intern->p_id, &(intern->ctx_opts) TSRMLS_CC);
 	}
 	
 	switch (key) {
@@ -616,6 +612,9 @@ PHP_METHOD(zeromq, setsockopt)
 
 /* -- START ZeroMQPoll --- */
 
+/* {{{ ZeroMQPoll ZeroMQPoll::add(ZeroMQ $object, int events)
+	Add a ZeroMQ object into the pollset
+*/
 PHP_METHOD(zeromqpoll, add)
 {
 	php_zeromq_poll_object *intern;
@@ -635,7 +634,7 @@ PHP_METHOD(zeromqpoll, add)
 		return;
 	}
 	
-	if (!item->poll) {
+	if (!item->ctx_opts.poll) {
 		zend_throw_exception(php_zeromq_poll_exception_sc_entry, "The socket has not been initialized with polling", 1 TSRMLS_CC);
 		return;
 	}
@@ -650,16 +649,19 @@ PHP_METHOD(zeromqpoll, add)
 	
 	intern->objects[intern->num_items++] = object;
 	zend_objects_store_add_ref(object TSRMLS_CC);
-
 	ZEROMQ_RETURN_THIS;
 }
+/* }}} */
 
+/* {{{ boolean ZeroMQPoll::poll(array &$readable, array &$writable[, int timeout = -1])
+	Poll the sockets
+*/
 PHP_METHOD(zeromqpoll, poll)
 {
 	php_zeromq_poll_object *intern;
+	zval *r_array, *w_array;
 	
 	long timeout = -1;
-	zval *r_array, *w_array;
 	int rc, i;
 	
 	zend_bool readable = 0, writable = 0;
@@ -674,22 +676,26 @@ PHP_METHOD(zeromqpoll, poll)
 		zend_throw_exception(php_zeromq_poll_exception_sc_entry, "No sockets assigned to the ZeroMQPoll", 1 TSRMLS_CC);
 		return;
 	}
-
+	
+	if (r_array && Z_TYPE_P(r_array) == IS_ARRAY) {
+		if (zend_hash_num_elements(Z_ARRVAL_P(r_array)) > 0) {
+			zend_hash_clean(Z_ARRVAL_P(r_array));
+		}
+		readable = 1;
+	}
+	
+	if (w_array && Z_TYPE_P(w_array) == IS_ARRAY) {
+		if (zend_hash_num_elements(Z_ARRVAL_P(w_array)) > 0) { 
+			zend_hash_clean(Z_ARRVAL_P(w_array));
+		}
+		writable = 1;
+	}
+	
 	rc = zmq_poll(intern->items, intern->num_items, timeout);
 	
 	if (rc == -1) {
 		zend_throw_exception_ex(php_zeromq_poll_exception_sc_entry, errno TSRMLS_CC, "Poll failed: %s", zmq_strerror(errno));
 		return;
-	}
-	
-	if (r_array && Z_TYPE_P(r_array) == IS_ARRAY) {
-		zend_hash_clean(Z_ARRVAL_P(r_array));
-		readable = 1;
-	}
-	
-	if (w_array && Z_TYPE_P(w_array) == IS_ARRAY) {
-		zend_hash_clean(Z_ARRVAL_P(w_array));
-		writable = 1;
 	}
 
 	for (i = 0; i < intern->num_items; i++) {
@@ -709,6 +715,7 @@ PHP_METHOD(zeromqpoll, poll)
 	}
 	RETURN_TRUE;
 }
+/* }}} */
 
 /* -- END ZeroMQPoll */
 
@@ -790,8 +797,6 @@ static void php_zeromq_object_free_storage(void *object TSRMLS_DC)
 {
 	php_zeromq_object *intern = (php_zeromq_object *)object;
 
-	php_zeromq_printf("php_zeromq_object_free_storage(object=[%p])\n", intern);
-
 	if (!intern) {
 		return;
 	}
@@ -801,8 +806,8 @@ static void php_zeromq_object_free_storage(void *object TSRMLS_DC)
 	}
 	
 	if (intern->zms && !intern->zms->is_persistent) {
-		if (intern->zms->ctx && !intern->zms->ctx->is_persistent) {
-			php_zeromq_context_destroy(intern->zms->ctx, intern->zms->ctx->is_persistent);
+		if (intern->zms->ctx && !intern->zms->ctx->opts.is_persistent) {
+			php_zeromq_context_destroy(intern->zms->ctx, intern->zms->ctx->opts.is_persistent);
 		}
 		php_zeromq_socket_destroy(intern->zms, intern->zms->is_persistent);
 	}
@@ -814,8 +819,6 @@ static void php_zeromq_object_free_storage(void *object TSRMLS_DC)
 static void php_zeromq_poll_object_free_storage(void *object TSRMLS_DC)
 {
 	php_zeromq_poll_object *intern = (php_zeromq_poll_object *)object;
-
-	php_zeromq_printf("php_zeromq_poll_object_free_storage(object=[%p])\n", intern);
 
 	if (!intern) {
 		return;
@@ -845,12 +848,15 @@ static zend_object_value php_zeromq_object_new_ex(zend_class_entry *class_type, 
 	intern = (php_zeromq_object *) emalloc(sizeof(php_zeromq_object));
 	memset(&intern->zo, 0, sizeof(zend_object));
 
-	intern->zms         = NULL;
-	intern->p_id        = NULL;
-	intern->app_threads = 1;
-	intern->io_threads  = 1;
-	intern->type        = -1;
-	intern->poll        = 0;
+	intern->zms  = NULL;
+	intern->p_id = NULL;
+	intern->type = -1;
+	
+	/* Initialized the context options */
+	intern->ctx_opts.app_threads   = 1;
+	intern->ctx_opts.io_threads    = 1;
+	intern->ctx_opts.poll          = 0;
+	intern->ctx_opts.is_persistent = ZEROMQ_G(persist_context);
 	
 	if (ptr) {
 		*ptr = intern;
@@ -913,13 +919,13 @@ ZEND_RSRC_DTOR_FUNC(php_zeromq_context_dtor)
 {
 	if (rsrc->ptr) {
 		php_zeromq_context *ctx = (php_zeromq_context *)rsrc->ptr;
-		php_zeromq_context_destroy(ctx, ctx->is_persistent);
+		php_zeromq_context_destroy(ctx, ctx->opts.is_persistent);
 		rsrc->ptr = NULL;
 	}
 }
 
 PHP_INI_BEGIN()
-	STD_PHP_INI_ENTRY("zeromq.persist_context", "1", PHP_INI_ALL, OnUpdateBool, persist_context, zend_zeromq_globals, zeromq_globals)
+	STD_PHP_INI_ENTRY("zeromq.persist_context", "1", PHP_INI_SYSTEM, OnUpdateBool, persist_context, zend_zeromq_globals, zeromq_globals)
 PHP_INI_END()
 
 static void php_zeromq_init_globals(zend_zeromq_globals *zeromq_globals)
@@ -987,6 +993,8 @@ PHP_MINIT_FUNCTION(zeromq)
 	
 	PHP_ZEROMQ_REGISTER_CONST_LONG("POLL_IN", ZMQ_POLLIN);
 	PHP_ZEROMQ_REGISTER_CONST_LONG("POLL_OUT", ZMQ_POLLOUT);
+	
+	PHP_ZEROMQ_REGISTER_CONST_LONG("MODE_NOBLOCK", ZMQ_NOBLOCK);
 	
 #undef PHP_ZEROMQ_REGISTER_CONST_LONG
 
