@@ -13,9 +13,8 @@ URL:       http://github.com/mkoppanen/php-zeromq
 Source:    zeromq-%{version}.tgz
 Prefix:    %{_prefix}
 Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-root
-BuildRequires: php-devel, make, gcc, /usr/bin/phpize
-
-Requires: zeromq, libzmq
+BuildRequires: php-devel, make, gcc, /usr/bin/phpize, zeromq-devel
+Requires: zeromq
 
 %description
 PHP extension for 0MQ messaging system
