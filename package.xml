@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package packagerversion="1.4.9" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
+ <name>zeromq</name>
+ <uri>http://github.com/mkoppanen/php-zeromq</uri>
+ <summary>ZeroMQ for PHP</summary>
+ <description>PHP extension for 0MQ messaging system</description>
+ <lead>
+  <name>Mikko Koppanen</name>
+  <user>mkoppanen</user>
+  <email>mkoppanen@php.net</email>
+  <active>yes</active>
+ </lead>
+ <date>2009-12-15</date>
+ <time>15:33:53</time>
+ <version>
+  <release>0.1.0</release>
+  <api>0.1.0</api>
+ </version>
+ <stability>
+  <release>beta</release>
+  <api>beta</api>
+ </stability>
+ <license>BSD License</license>
+ <notes>- Initial release</notes>
+ <contents>
+  <dir name="/">
+   <!-- Support files -->
+   <file name="config.m4" role="src" />
+   <file name="zeromq.spec" role="src">
+    <tasks:replace from="@PACKAGE_VERSION@" to="version" type="package-info" />
+   </file>
+   
+   <!-- Headers -->
+   <file name="php_zeromq.h" role="src">
+    <tasks:replace from="@PACKAGE_VERSION@" to="version" type="package-info" />
+   </file>
+   <file name="php_zeromq_private.h" role="src" />
+   
+   <!-- Source files -->
+   <file name="zeromq.c" role="src" />
+
+   <!-- misc files -->
+   <file name="README" role="doc" />
+   <file name="LICENSE" role="doc" />
+  </dir>
+ </contents>
+ <dependencies>
+  <required>
+   <php>
+    <min>5.2.0</min>
+   </php>
+   <pearinstaller>
+    <min>1.4.0</min>
+   </pearinstaller>
+  </required>
+ </dependencies>
+ <providesextension>zeromq</providesextension>
+ <extsrcrelease />
+</package>
