@@ -131,6 +131,16 @@ class ZeroMQ {
      * Set on non-blocking mode
      */
      const MODE_NOBLOCK = 1;
+     
+    /**
+     * Track if the socket is readable
+     */
+     const POLL_IN = 1;
+
+    /**
+     * Track if the socket is writable
+     */
+     const POLL_OUT = 2;
     
     /**
      * Construct a new ZeroMQ object. The extending class must call this method. 
@@ -157,7 +167,7 @@ class ZeroMQ {
      *
      * @return ZeroMQ
      */
-    public function send($message, $flags = 0) {}
+    public function send($message[, $flags = 0]) {}
 
     /**
      * Receives a message from the queue.
@@ -247,6 +257,36 @@ class ZeroMQ {
      */
     public function getSocketType() {}
 }
+
+
+class ZeroMQPoll {
+ 
+    /**
+     * Add a new object into the poll set
+     * 
+     * @param ZeroMQ $object Object to add to set
+     * @param integer $type Bit-mask of ZeroMQ::POLL_* constants
+     *
+     * @throws ZeroMQPollException if the object has not been initialized with polling
+     * @return ZeroMQPoll
+     */
+    public function add(ZeroMQ $object, $type) {}
+    
+    /**
+     * Execute the poll. Readable and writable sockets are returned
+     * in the arrays passed by reference. If either of the given arrays
+     * is null the events of that type are not returned.
+     *
+     * @param array|null &$readable array where to return the readable objects
+     * @param array|null &$readable array where to return the writable objects
+     * @param integer    $timeout   Timeout for poll in milliseconds. -1 polls as 
+     *                              long as one of the objects comes readable/writable
+     *
+     * @throws ZeroMQPollException if polling fails
+     * @return boolean  
+     */
+    public function poll(&$readable, &$writable, $timeout = -1) {}
+}
 ?>
 </code></pre>
 
@@ -256,5 +296,4 @@ h3. INI settings
 zeromq.persist_context   Boolean   PHP_INI_ALL  (Default: On)
 </code></pre>
 Whether or not persistent contexts are allowed. Each unique combination of application and io threads creates a new context which is persisted if this setting is on. This setting must be set On for persistent connections to work.
-
 
