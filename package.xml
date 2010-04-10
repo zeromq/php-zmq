@@ -42,6 +42,9 @@
    <!-- misc files -->
    <file name="README" role="doc" />
    <file name="LICENSE" role="doc" />
+   <file name="zeromq.spec" role="doc">
+    <tasks:replace from="@PACKAGE_VERSION@" to="version" type="package-info" />
+   </file>
   </dir>
  </contents>
  <dependencies>
