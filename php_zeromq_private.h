@@ -116,7 +116,7 @@ ZEND_EXTERN_MODULE_GLOBALS(zeromq);
 #define ZEROMQ_RETURN_THIS RETURN_ZVAL(getThis(), 1, 0);
 
 #ifdef _DEBUG_ZEROMQ_
-# define php_zeromq_printf(fmt, ...) fprintf (stderr, fmt, __VA_ARGS__)
+# define php_zeromq_printf(...) fprintf (stderr, __VA_ARGS__)
 #else
 # define php_zeromq_printf(...)
 #endif
