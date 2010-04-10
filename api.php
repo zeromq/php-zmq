@@ -163,7 +163,7 @@ class ZeroMQ {
      * Sends a message to the queue. 
      *
      * @param string $message  The message to send
-     * @param int    $flags    flags, self::MODE_NOBLOCK or 0
+     * @param int    $flags    self::MODE_NOBLOCK or 0
      * @throws ZeroMQException if sending message fails
      *
      * @return ZeroMQ
@@ -173,7 +173,7 @@ class ZeroMQ {
     /**
      * Receives a message from the queue.
      * 
-     * @param int $flags Receive flags, self::MODE_NOBLOCK or 0
+     * @param int $flags self::MODE_NOBLOCK or 0
      * @throws ZeroMQException if receiving fails.
      *
      * @return string
@@ -185,9 +185,8 @@ class ZeroMQ {
      * see http://api.zeromq.org/zmq_connect.html. By default the method does not 
      * try to connect if it has been already connected to the address specified by ‘dsn’.
      *
-     * @param string $dsn   The connect dsn
-     * @param bool   $force Tries to connect to end-point even if the object is 
-     *                      already connected to the $dsn
+     * @param string  $dsn   The connect dsn
+     * @param boolean $force Tries to connect to end-point even if the object is already connected to the $dsn
      *
      * @throws ZeroMQException If connection fails
      * @return ZeroMQ
@@ -200,9 +199,8 @@ class ZeroMQ {
      * http://api.zeromq.org/zmq_connect.html. By default the method does not 
      * try to bind if it has been already bound to the address specified by $dsn.
      *
-     * @param string $dsn   The bind dsn
-     * @param bool   $force Tries to bind to end-point even if the object is 
-     *                      already bound to the $dsn
+     * @param string  $dsn   The bind dsn
+     * @param boolean $force Tries to bind to end-point even if the object is already bound to the $dsn
      *
      * @throws ZeroMQException if binding fails
      * @return ZeroMQ
@@ -225,7 +223,7 @@ class ZeroMQ {
      * Gets a socket option. This method is available if ZeroMQ extension
      * has been compiled against ZeroMQ version 2.0.7 or higher
      *
-     * @param int   $key   The option key
+     * @param integer $key The option key
      *
      * @throws ZeroMQException
      * @return mixed
@@ -233,9 +231,12 @@ class ZeroMQ {
     public function getSockOpt($key) {}    
     
     /**
-     * Set the amount of threads in the internal context. Must be 
+     * Set the amount of threads and whether to poll in the internal context. Must be 
      * set before connect / bind / setSockOpt is called. For persistent objects
      * it is on the first instanciation.
+     *
+     * $poll must be true if the object is going to be added into ZeroMQPoll.
+     * 
      *
      * @param integer $app_threads  How many application threads
      * @param integer $io_threads   How many io threads
@@ -247,7 +248,7 @@ class ZeroMQ {
     public function setContextOptions($app_threads, $io_threads, $poll = false) {}    
     
     /**
-     * Get the amount of threads in the internal context. The returned
+     * Get the options for the internal context. The returned
      * array contains keys 'app_threads', 'io_threads' and 'poll'
      *
      * @return array
@@ -291,15 +292,14 @@ class ZeroMQPoll {
      * in the arrays passed by reference. If either of the given arrays
      * is null the events of that type are not returned.
      *
-     * @param array|null &$readable array where to return the readable objects
-     * @param array|null &$readable array where to return the writable objects
-     * @param integer    $timeout   Timeout for poll in milliseconds. -1 polls as 
-     *                              long as one of the objects comes readable/writable
+     * @param array &$readable  array where to return the readable objects
+     * @param array &$writable  array where to return the writable objects
+     * @param integer $timeout   Timeout for poll in milliseconds. -1 polls as long as one of the objects comes readable/writable
      *
      * @throws ZeroMQPollException if polling fails
      * @return boolean  
      */
-    public function poll(&$readable, &$writable, $timeout = -1) {}
+    public function poll(array &$readable, array &$writable, $timeout = -1) {}
 }
 ?>
 </code></pre>
