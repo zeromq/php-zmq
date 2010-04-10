@@ -290,14 +290,15 @@ class ZeroMQPoll {
     /**
      * Execute the poll. Readable and writable sockets are returned
      * in the arrays passed by reference. If either of the given arrays
-     * is null the events of that type are not returned.
+     * is null the events of that type are not returned. Returns an integer
+     * indicated the amount of objects with events pending.
      *
      * @param array &$readable  array where to return the readable objects
      * @param array &$writable  array where to return the writable objects
      * @param integer $timeout   Timeout for poll in milliseconds. -1 polls as long as one of the objects comes readable/writable
      *
      * @throws ZeroMQPollException if polling fails
-     * @return boolean  
+     * @return integer
      */
     public function poll(array &$readable, array &$writable, $timeout = -1) {}
 }

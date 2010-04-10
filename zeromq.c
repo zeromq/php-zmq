@@ -56,6 +56,7 @@ ZEND_DECLARE_MODULE_GLOBALS(zeromq);
 # define Z_REFCOUNT_P(pz) (pz)->refcount
 #endif
 
+/* list entries */
 static int le_zeromq_socket, le_zeromq_context;
 
 /** {{{ static int php_zeromq_socket_list_entry(void)
@@ -228,7 +229,7 @@ static void php_zeromq_socket_destroy(php_zeromq_socket *zmq_sock)
 
 /* -- START ZeroMQ --- */
 
-/* {{{ ZeroMQ::__construct(int type[, string persistent_id])
+/* {{{ ZeroMQ ZeroMQ::__construct(integer $type[, string $persistent_id = null])
 	Build a new ZeroMQ object
 */
 PHP_METHOD(zeromq, __construct)
@@ -252,7 +253,7 @@ PHP_METHOD(zeromq, __construct)
 }
 /* }}} */
 
-/* {{{ ZeroMQ ZeroMQ::send(string message[, int flags = 0])
+/* {{{ ZeroMQ ZeroMQ::send(string $message[, integer $flags = 0])
 	Send a message
 */
 PHP_METHOD(zeromq, send)
@@ -292,7 +293,7 @@ PHP_METHOD(zeromq, send)
 }
 /* }}} */
 
-/* {{{ string ZeroMQ::recv([int $flags = 0])
+/* {{{ string ZeroMQ::recv([integer $flags = 0])
 	Receive a message
 */
 PHP_METHOD(zeromq, recv)
@@ -329,7 +330,7 @@ PHP_METHOD(zeromq, recv)
 }
 /* }}} */
 
-/* {{{ ZeroMQ::setContextOptions(int app_threads, int io_threads[, boolean poll = false])
+/* {{{ ZeroMQ ZeroMQ::setContextOptions(integer $app_threads, integer $io_threads[, boolean $poll = false])
 	Set options for the internal context
 */
 PHP_METHOD(zeromq, setcontextoptions)
@@ -412,7 +413,7 @@ PHP_METHOD(zeromq, getpersistentid)
 }
 /* }}} */
 
-/* {{{ ZeroMQ::bind(string dsn[, bool force_new_connection])
+/* {{{ ZeroMQ ZeroMQ::bind(string $dsn[, boolean $force = false])
 	Bind the socket to an endpoint
 */
 PHP_METHOD(zeromq, bind)
@@ -449,7 +450,7 @@ PHP_METHOD(zeromq, bind)
 }
 /* }}} */
 
-/* {{{ ZeroMQ::connect(string dsn[, bool force_new_connection])
+/* {{{ ZeroMQ ZeroMQ::connect(string $dsn[, boolean $force = false])
 	Connect the socket to an endpoint
 */
 PHP_METHOD(zeromq, connect)
@@ -544,7 +545,7 @@ PHP_METHOD(zeromq, getendpoints)
 }
 /* }}} */
 
-/* {{{ int ZeroMQ::getSocketType()
+/* {{{ integer ZeroMQ::getSocketType()
 	Returns the socket type
 */
 PHP_METHOD(zeromq, getsockettype)
@@ -562,7 +563,7 @@ PHP_METHOD(zeromq, getsockettype)
 }
 /* }}} */
 
-/* {{{ ZeroMQ ZeroMQ::setSockOpt(int ZeroMQ::SOCKOPT_, mixed value)
+/* {{{ ZeroMQ ZeroMQ::setSockOpt(integer $SOCKOPT, mixed $value)
 	Set a socket option
 */
 PHP_METHOD(zeromq, setsockopt)
@@ -732,7 +733,7 @@ PHP_METHOD(zeromq, getsockopt)
 
 /* -- START ZeroMQPoll --- */
 
-/* {{{ ZeroMQPoll ZeroMQPoll::add(ZeroMQ $object, int events)
+/* {{{ ZeroMQPoll ZeroMQPoll::add(ZeroMQ $object, integer $events)
 	Add a ZeroMQ object into the pollset
 */
 PHP_METHOD(zeromqpoll, add)
@@ -773,7 +774,7 @@ PHP_METHOD(zeromqpoll, add)
 }
 /* }}} */
 
-/* {{{ boolean ZeroMQPoll::poll(array &$readable, array &$writable[, int timeout = -1])
+/* {{{ integer ZeroMQPoll::poll(array &$readable, array &$writable[, integer $timeout = -1])
 	Poll the sockets
 */
 PHP_METHOD(zeromqpoll, poll)
@@ -817,23 +818,27 @@ PHP_METHOD(zeromqpoll, poll)
 		zend_throw_exception_ex(php_zeromq_poll_exception_sc_entry, errno TSRMLS_CC, "Poll failed: %s", zmq_strerror(errno));
 		return;
 	}
-
-	for (i = 0; i < intern->num_items; i++) {
-		if (readable && intern->items[i].revents & ZMQ_POLLIN) {
-			Z_ADDREF_P(intern->objects[i]);
-			add_next_index_zval(r_array, intern->objects[i]);
-		} 
+	
+	if (rc > 0) {
+		for (i = 0; i < intern->num_items; i++) {
 		
-		if (writable && intern->items[i].revents & ZMQ_POLLOUT) {
-			Z_ADDREF_P(intern->objects[i]);
-			add_next_index_zval(w_array, intern->objects[i]);
-		}
+			if (readable && intern->items[i].revents & ZMQ_POLLIN) {
+				Z_ADDREF_P(intern->objects[i]);
+				add_next_index_zval(r_array, intern->objects[i]);
+			} 
 		
-		if (intern->items[i].revents & ZMQ_POLLERR) {
-			// todo: errors
+			if (writable && intern->items[i].revents & ZMQ_POLLOUT) {
+				Z_ADDREF_P(intern->objects[i]);
+				add_next_index_zval(w_array, intern->objects[i]);
+			}
+		
+			if (intern->items[i].revents & ZMQ_POLLERR) {
+				/* should not happen */
+				php_error_docref(NULL TSRMLS_CC, E_WARNING, "Error polling object(%d)", i);
+			}
 		}
 	}
-	RETURN_TRUE;
+	RETURN_LONG(rc);
 }
 /* }}} */
 

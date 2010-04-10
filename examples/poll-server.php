@@ -14,19 +14,23 @@ $readable = array();
 $writable = array();
 
 /* Poll until there is something to do */
-while ($poll->poll($readable, $writable, -1)) {
-
-    try {
-        /* Loop through readable objects and recv messages */
-        foreach ($readable as $r) {
-            echo "Received message: " . $r->recv() . "\n";
-        }
+while (true) {
+    
+    $events = $poll->poll($readable, $writable, -1);
+    
+    if ($events > 0) {
+        try {
+            /* Loop through readable objects and recv messages */
+            foreach ($readable as $r) {
+                echo "Received message: " . $r->recv() . "\n";
+            }
         
-        /* Loop through writable and send back messages */
-        foreach ($writable as $w) {
-            $w->send("Got it!");
-        }   
-    } catch (Exception $e) {
-        echo "Got exception {$e->getMessage()}\n";
+            /* Loop through writable and send back messages */
+            foreach ($writable as $w) {
+                $w->send("Got it!");
+            }   
+        } catch (Exception $e) {
+            echo "Got exception {$e->getMessage()}\n";
+        }
     }
 }
