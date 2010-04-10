@@ -222,6 +222,17 @@ class ZeroMQ {
     public function setSockOpt($key, $value) {}
     
     /**
+     * Gets a socket option. This method is available if ZeroMQ extension
+     * has been compiled against ZeroMQ version 2.0.7 or higher
+     *
+     * @param int   $key   The option key
+     *
+     * @throws ZeroMQException
+     * @return mixed
+     */
+    public function getSockOpt($key) {}    
+    
+    /**
      * Set the amount of threads in the internal context. Must be 
      * set before connect / bind / setSockOpt is called. For persistent objects
      * it is on the first instanciation.
