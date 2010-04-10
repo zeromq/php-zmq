@@ -151,9 +151,9 @@ class ZeroMQ {
      * be enabled for persistent_id to work. Setting incorrect socket type might 
      * cause failure later in connect/bind/setSockOpt.
      *
-     * @param int type              The type of the socket
-     * @param string persistent_id  The persistent id. Can be used to create
-     *                              persistent connections
+     * @param integer $type              The type of the socket
+     * @param string  $persistent_id     The persistent id. Can be used to create
+     *                                   persistent connections
      * @throws ZeroMQException
      * @return void
      */
@@ -162,8 +162,8 @@ class ZeroMQ {
     /**
      * Sends a message to the queue. 
      *
-     * @param string $message  The message to send
-     * @param int    $flags    self::MODE_NOBLOCK or 0
+     * @param string  $message  The message to send
+     * @param integer $flags    self::MODE_NOBLOCK or 0
      * @throws ZeroMQException if sending message fails
      *
      * @return ZeroMQ
@@ -173,7 +173,7 @@ class ZeroMQ {
     /**
      * Receives a message from the queue.
      * 
-     * @param int $flags self::MODE_NOBLOCK or 0
+     * @param integer $flags self::MODE_NOBLOCK or 0
      * @throws ZeroMQException if receiving fails.
      *
      * @return string
@@ -211,8 +211,8 @@ class ZeroMQ {
      * Sets a socket option. For more information about socket options see 
      * http://api.zeromq.org/zmq_setsockopt.html
      *
-     * @param int   $key   The option key
-     * @param mixed $value The option value
+     * @param integer $key   The option key
+     * @param mixed   $value The option value
      *
      * @throws ZeroMQException
      * @return ZeroMQ
@@ -268,7 +268,7 @@ class ZeroMQ {
      * Return the socket type. Returns one of ZeroMQ::SOCKET_* constants
      *
      * @throws ZeroMQException
-     * @return int 
+     * @return integer 
      */
     public function getSocketType() {}
 }
