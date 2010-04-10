@@ -1,5 +1,5 @@
 --TEST--
-Test send / recv
+Test getting endpoints
 --SKIPIF--
 <?php require_once(dirname(__FILE__) . '/skipif.inc'); ?>
 --FILE--

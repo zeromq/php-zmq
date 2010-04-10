@@ -2,19 +2,19 @@
 %define version @PACKAGE_VERSION@
 %define release 1
 
-Name:      php-zeromq
-Version:   %{version}
-Release:   %{release}%{?dist}
-Packager:  Mikko Koppanen <mkoppanen@php.net>
-Summary:   PHP 0MQ extension
-License:   BSD License
-Group:     Web/Applications
-URL:       http://github.com/mkoppanen/php-zeromq
-Source:    zeromq-%{version}.tgz
-Prefix:    %{_prefix}
-Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-root
-BuildRequires: php-devel, make, gcc, /usr/bin/phpize, zeromq-devel
-Requires: zeromq
+Name:          php-zeromq
+Version:       %{version}
+Release:       %{release}%{?dist}
+Packager:      Mikko Koppanen <mkoppanen@php.net>
+Summary:       PHP 0MQ extension
+License:       BSD License
+Group:         Web/Applications
+URL:           http://github.com/mkoppanen/php-zeromq
+Source:        zeromq-%{version}.tgz
+Prefix:        %{_prefix}
+Buildroot:     %{_tmppath}/%{name}-%{version}-%{release}-root
+BuildRequires: php-devel, make, gcc, /usr/bin/phpize, zeromq-devel >= 2.0.7
+Requires:      zeromq >= 2.0.7
 
 %description
 PHP extension for 0MQ messaging system

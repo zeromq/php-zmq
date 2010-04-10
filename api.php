@@ -163,19 +163,22 @@ class ZeroMQ {
      * Sends a message to the queue. 
      *
      * @param string $message  The message to send
+     * @param int    $flags    flags, self::MODE_NOBLOCK or 0
      * @throws ZeroMQException if sending message fails
      *
      * @return ZeroMQ
      */
-    public function send($message[, $flags = 0]) {}
+    public function send($message, $flags = 0) {}
 
     /**
      * Receives a message from the queue.
-     *
+     * 
+     * @param int $flags Receive flags, self::MODE_NOBLOCK or 0
      * @throws ZeroMQException if receiving fails.
+     *
      * @return string
      */
-    public function recv() {}
+    public function recv($flags = 0) {}
 
     /**
      * Connect the socket to a remote endpoint. For more information about the dsn 

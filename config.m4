@@ -19,13 +19,12 @@ if test "$PHP_ZEROMQ" != "no"; then
   fi
 
   if $PKG_CONFIG --exists libzmq; then
+    AC_MSG_RESULT([found])
     PHP_ZEROMQ_LIBS=`$PKG_CONFIG libzmq --libs`
     PHP_ZEROMQ_INCS=`$PKG_CONFIG libzmq --cflags`
 
     PHP_EVAL_LIBLINE($PHP_ZEROMQ_LIBS, ZEROMQ_SHARED_LIBADD)
     PHP_EVAL_INCLINE($PHP_ZEROMQ_INCS)
-
-    AC_MSG_RESULT([yes])
   else
     AC_MSG_ERROR(Unable to find libzmq installation)
   fi
@@ -35,6 +34,14 @@ if test "$PHP_ZEROMQ" != "no"; then
     AC_MSG_ERROR(Unable to find stdint.h)
   fi
 
+  PHP_CHECK_LIBRARY(zmq, zmq_getsockopt, [
+    AC_DEFINE(HAVE_ZMQ_GETSOCKOPT, 1, [have zmq_getsockopt function])
+  ],[
+    AC_MSG_RESULT(WARNING: libzmq version 2.0.7 or higher is highly recommended)
+  ],[
+    ZEROMQ_SHARED_LIBADD -lzmq
+  ])
+  
   PHP_SUBST(ZEROMQ_SHARED_LIBADD)
   PHP_NEW_EXTENSION(zeromq, zeromq.c, $ext_shared)
   PKG_CONFIG_PATH="$ORIG_PKG_CONFIG_PATH"

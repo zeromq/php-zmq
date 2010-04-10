@@ -1,6 +1,7 @@
 <?php
 
 define('ZEROMQ_TEST_DSN', 'tcp://127.0.0.1:5566');
+define('ZEROMQ_TEST_DSN2', 'tcp://127.0.0.1:6655');
 
 function create_server($persistent_id = null) 
 {

@@ -54,16 +54,23 @@ typedef struct _php_zeromq_context {
 } php_zeromq_context;
 /* }}} */
 
+/* {{{ typedef struct _php_zeromq_socket_opts */
+typedef struct _php_zeromq_socket_opts {
+	zend_bool is_persistent;
+	int type;
+	char *p_id;
+} php_zeromq_socket_opts;
+/* }}} */
+
 /* {{{ typedef struct _php_zeromq_socket */
 typedef struct _php_zeromq_socket  {
 	void *socket;
 	php_zeromq_context *ctx;
-	zend_bool is_persistent;
-	
+
 	HashTable connect;
 	HashTable bind;
 	
-	int type;
+	php_zeromq_socket_opts opts;
 } php_zeromq_socket;
 /* }}} */
 
@@ -71,13 +78,12 @@ typedef struct _php_zeromq_socket  {
 typedef struct _php_zeromq_object  {
 	zend_object zo;
 	php_zeromq_socket *zms;
-	char *p_id;
 	
 	/* options for the context */
 	php_zeromq_context_opts ctx_opts;
 	
-	/* The socket type */
-	int type;
+	/* The socket options */
+	php_zeromq_socket_opts socket_opts;
 } php_zeromq_object;
 /* }}} */
 
