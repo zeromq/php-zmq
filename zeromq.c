@@ -685,11 +685,13 @@ PHP_METHOD(zeromq, getsockopt)
 			
 			do {
 				value_len = PHP_ZEROMQ_BUF_SIZE * i++;
-				value     = emalloc(value_len);
+				value     = erealloc(value, value_len);
 				rc        = zmq_getsockopt (intern->zms->socket, (int) key, value, &value_len);
 			} while (rc == -1 && errno == EINVAL);
 
-			RETURN_STRINGL((char *)value, value_len, 1);
+			RETVAL_STRINGL((char *)value, value_len, 1);
+			efree(value);
+			return;
 		}
 		break;
 		
