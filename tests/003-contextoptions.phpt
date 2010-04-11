@@ -7,12 +7,12 @@ set/get context options
 
 include dirname(__FILE__) . '/zeromq_test_helper.inc';
 
-$test = new ZeroMQ(ZeroMQ::SOCKET_REQ);
+$test = new ZMQ(ZMQ::SOCKET_REQ);
 $test->setContextOptions(2, 2, true);
 
 try {
     $test->setContextOptions(-1, -1);
-} catch (ZeroMQException $e) {
+} catch (ZMQException $e) {
     echo "incorrect args\n";
 }
 
@@ -21,7 +21,7 @@ $test->bind(ZEROMQ_TEST_DSN);
 
 try {
     $test->setContextOptions(4,2);
-} catch (ZeroMQException $e) {
+} catch (ZMQException $e) {
     echo "Got exception\n";
 }
 

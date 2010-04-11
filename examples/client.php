@@ -6,7 +6,7 @@
 */
 
 /* Create new queue object */
-$queue = new ZeroMQ(ZeroMQ::SOCKET_REQ, "MySock1");
+$queue = new ZMQ(ZMQ::SOCKET_REQ, "MySock1");
 $queue->connect("tcp://127.0.0.1:5555");
 
 /* Assign socket 1 to the queue, send and receive */

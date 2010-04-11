@@ -1,7 +1,7 @@
 <pre><code>
 <?php
 
-class ZeroMQ {
+class ZMQ {
 
     /**
      * Peer to peer socket
@@ -143,8 +143,8 @@ class ZeroMQ {
      const POLL_OUT = 2;
     
     /**
-     * Construct a new ZeroMQ object. The extending class must call this method. 
-     * The type is one of the ZeroMQ::SOCKET_* constants. 
+     * Construct a new ZMQ object. The extending class must call this method. 
+     * The type is one of the ZMQ::SOCKET_* constants. 
      * Persistent id allows reusing the socket over multiple requests. 
      * If persistent_id parameter is specific the type parameter is ignored and the 
      * socket is of type that it was initially created with. Persistent context must 
@@ -154,7 +154,7 @@ class ZeroMQ {
      * @param integer $type              The type of the socket
      * @param string  $persistent_id     The persistent id. Can be used to create
      *                                   persistent connections
-     * @throws ZeroMQException
+     * @throws ZMQException
      * @return void
      */
     public function __construct($type, $persistent_id = null) {}
@@ -164,9 +164,9 @@ class ZeroMQ {
      *
      * @param string  $message  The message to send
      * @param integer $flags    self::MODE_NOBLOCK or 0
-     * @throws ZeroMQException if sending message fails
+     * @throws ZMQException if sending message fails
      *
-     * @return ZeroMQ
+     * @return ZMQ
      */
     public function send($message, $flags = 0) {}
 
@@ -174,7 +174,7 @@ class ZeroMQ {
      * Receives a message from the queue.
      * 
      * @param integer $flags self::MODE_NOBLOCK or 0
-     * @throws ZeroMQException if receiving fails.
+     * @throws ZMQException if receiving fails.
      *
      * @return string
      */
@@ -188,8 +188,8 @@ class ZeroMQ {
      * @param string  $dsn   The connect dsn
      * @param boolean $force Tries to connect to end-point even if the object is already connected to the $dsn
      *
-     * @throws ZeroMQException If connection fails
-     * @return ZeroMQ
+     * @throws ZMQException If connection fails
+     * @return ZMQ
      */
     public function connect($dsn, $force = false) {}
 
@@ -202,8 +202,8 @@ class ZeroMQ {
      * @param string  $dsn   The bind dsn
      * @param boolean $force Tries to bind to end-point even if the object is already bound to the $dsn
      *
-     * @throws ZeroMQException if binding fails
-     * @return ZeroMQ
+     * @throws ZMQException if binding fails
+     * @return ZMQ
      */
     public function bind($dsn, $force = false) {}
 
@@ -214,18 +214,18 @@ class ZeroMQ {
      * @param integer $key   The option key
      * @param mixed   $value The option value
      *
-     * @throws ZeroMQException
-     * @return ZeroMQ
+     * @throws ZMQException
+     * @return ZMQ
      */
     public function setSockOpt($key, $value) {}
     
     /**
-     * Gets a socket option. This method is available if ZeroMQ extension
-     * has been compiled against ZeroMQ version 2.0.7 or higher
+     * Gets a socket option. This method is available if ZMQ extension
+     * has been compiled against ZMQ version 2.0.7 or higher
      *
      * @param integer $key The option key
      *
-     * @throws ZeroMQException
+     * @throws ZMQException
      * @return mixed
      */
     public function getSockOpt($key) {}    
@@ -235,15 +235,15 @@ class ZeroMQ {
      * set before connect / bind / setSockOpt is called. For persistent objects
      * it is on the first instanciation.
      *
-     * $poll must be true if the object is going to be added into ZeroMQPoll.
+     * $poll must be true if the object is going to be added into ZMQPoll.
      * 
      *
      * @param integer $app_threads  How many application threads
      * @param integer $io_threads   How many io threads
      * @param boolean $poll         Whether to support polling
      *
-     * @throws ZeroMQException if the socket has been initialized already
-     * @return ZeroMQ
+     * @throws ZMQException if the socket has been initialized already
+     * @return ZMQ
      */
     public function setContextOptions($app_threads, $io_threads, $poll = false) {}    
     
@@ -259,33 +259,33 @@ class ZeroMQ {
      * Get endpoints where the socket is connected to. The return array
      * contains two sub-arrays: 'connect' and 'bind'
      *
-     * @throws ZeroMQException
+     * @throws ZMQException
      * @return array 
      */
     public function getEndpoints() {}
 
     /**
-     * Return the socket type. Returns one of ZeroMQ::SOCKET_* constants
+     * Return the socket type. Returns one of ZMQ::SOCKET_* constants
      *
-     * @throws ZeroMQException
+     * @throws ZMQException
      * @return integer 
      */
     public function getSocketType() {}
 }
 
 
-class ZeroMQPoll {
+class ZMQPoll {
  
     /**
      * Add a new object into the poll set
      * 
-     * @param ZeroMQ $object Object to add to set
-     * @param integer $type Bit-mask of ZeroMQ::POLL_* constants
+     * @param ZMQ $object Object to add to set
+     * @param integer $type Bit-mask of ZMQ::POLL_* constants
      *
-     * @throws ZeroMQPollException if the object has not been initialized with polling
-     * @return ZeroMQPoll
+     * @throws ZMQPollException if the object has not been initialized with polling
+     * @return ZMQPoll
      */
-    public function add(ZeroMQ $object, $type) {}
+    public function add(ZMQ $object, $type) {}
     
     /**
      * Execute the poll. Readable and writable sockets are returned
@@ -297,7 +297,7 @@ class ZeroMQPoll {
      * @param array &$writable  array where to return the writable objects
      * @param integer $timeout   Timeout for poll in milliseconds. -1 polls as long as one of the objects comes readable/writable
      *
-     * @throws ZeroMQPollException if polling fails
+     * @throws ZMQPollException if polling fails
      * @return integer
      */
     public function poll(array &$readable, array &$writable, $timeout = -1) {}

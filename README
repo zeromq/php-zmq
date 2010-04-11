@@ -1,11 +1,11 @@
-Experimental PHP bindings for ZeroMQ.
+Experimental PHP bindings for 0MQ.
 
 The API is roughly as follows:
 
 <?php
 
 /* Create new queue object */
-$queue = new ZeroMQ(ZeroMQ::SOCKET_REQ, "MySock1");
+$queue = new ZMQ(ZMQ::SOCKET_REQ, "MySock1");
 
 /* Connect to an endpoint */
 $queue->connect("tcp://127.0.0.1:5555");

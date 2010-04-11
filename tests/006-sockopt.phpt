@@ -5,16 +5,16 @@ Test getsockopt / setsockopt
 --FILE--
 <?php
 
-if (!is_callable('ZeroMQ', 'getSockOpt'))
+if (!is_callable('ZMQ', 'getSockOpt'))
 	die("skip zeromq 2.0.7 or higher required");
 
-$test = new ZeroMQ(ZeroMQ::SOCKET_REP);
+$test = new ZMQ(ZMQ::SOCKET_REP);
 
-$test->setSockOpt(ZeroMQ::SOCKOPT_HWM, 1);
-var_dump($test->getSockOpt(ZeroMQ::SOCKOPT_HWM));
+$test->setSockOpt(ZMQ::SOCKOPT_HWM, 1);
+var_dump($test->getSockOpt(ZMQ::SOCKOPT_HWM));
 
-$test->setSockOpt(ZeroMQ::SOCKOPT_IDENTITY, "hello");
-var_dump($test->getSockOpt(ZeroMQ::SOCKOPT_IDENTITY));
+$test->setSockOpt(ZMQ::SOCKOPT_IDENTITY, "hello");
+var_dump($test->getSockOpt(ZMQ::SOCKOPT_IDENTITY));
 
 --EXPECT--
 int(1)

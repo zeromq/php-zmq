@@ -1,6 +1,6 @@
 /*
 +-----------------------------------------------------------------------------------+
-|  ZeroMQ extension for PHP                                                         |
+|  ZMQ extension for PHP                                                            |
 |  Copyright (c) 2010, Mikko Koppanen <mkoppanen@php.net>                           |
 |  All rights reserved.                                                             |
 +-----------------------------------------------------------------------------------+
@@ -28,11 +28,11 @@
 +-----------------------------------------------------------------------------------+
 */
 
-#ifndef _PHP_ZEROMQ_H_
-# define _PHP_ZEROMQ_H_
+#ifndef _PHP_ZMQ_H_
+# define _PHP_ZMQ_H_
 
-#define PHP_ZEROMQ_EXTNAME "zeromq"
-#define PHP_ZEROMQ_EXTVER "@PACKAGE_VERSION@"
+#define PHP_ZMQ_EXTNAME "zmq"
+#define PHP_ZMQ_EXTVER "@PACKAGE_VERSION@"
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -44,7 +44,7 @@
 
 #include "php.h"
 
-extern zend_module_entry zeromq_module_entry;
-#define phpext_zeromq_ptr &zeromq_module_entry
+extern zend_module_entry zmq_module_entry;
+#define phpext_zmq_ptr &zmq_module_entry
 
-#endif /* _PHP_ZEROMQ_H_ */
+#endif /* _PHP_ZMQ_H_ */

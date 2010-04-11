@@ -1,6 +1,6 @@
 /*
 +-----------------------------------------------------------------------------------+
-|  ZeroMQ extension for PHP                                                         |
+|  ZMQ extension for PHP                                                            |
 |  Copyright (c) 2010, Mikko Koppanen <mkoppanen@php.net>                           |
 |  All rights reserved.                                                             |
 +-----------------------------------------------------------------------------------+
@@ -28,8 +28,8 @@
 +-----------------------------------------------------------------------------------+
 */
 
-#ifndef _PHP_ZEROMQ_PRIVATE_H_
-# define _PHP_ZEROMQ_PRIVATE_H_
+#ifndef _PHP_ZMQ_PRIVATE_H_
+# define _PHP_ZMQ_PRIVATE_H_
 
 #include "ext/standard/info.h"
 #include "Zend/zend_exceptions.h"
@@ -38,87 +38,87 @@
 #include <stdint.h>
 #include <zmq.h>
 
-/* {{{ typedef struct _php_zeromq_context_opts */
-typedef struct _php_zeromq_context_opts {
+/* {{{ typedef struct _php_zmq_context_opts */
+typedef struct _php_zmq_context_opts {
 	zend_bool is_persistent;
 	int app_threads;
 	int io_threads;
 	zend_bool poll;
-} php_zeromq_context_opts;	
+} php_zmq_context_opts;	
 /* }}}*/
 
-/* {{{ typedef struct _php_zeromq_context */
-typedef struct _php_zeromq_context {
+/* {{{ typedef struct _php_zmq_context */
+typedef struct _php_zmq_context {
 	void *context;
-	php_zeromq_context_opts opts;
-} php_zeromq_context;
+	php_zmq_context_opts opts;
+} php_zmq_context;
 /* }}} */
 
-/* {{{ typedef struct _php_zeromq_socket_opts */
-typedef struct _php_zeromq_socket_opts {
+/* {{{ typedef struct _php_zmq_socket_opts */
+typedef struct _php_zmq_socket_opts {
 	zend_bool is_persistent;
 	int type;
 	char *p_id;
-} php_zeromq_socket_opts;
+} php_zmq_socket_opts;
 /* }}} */
 
-/* {{{ typedef struct _php_zeromq_socket */
-typedef struct _php_zeromq_socket  {
+/* {{{ typedef struct _php_zmq_socket */
+typedef struct _php_zmq_socket  {
 	void *socket;
-	php_zeromq_context *ctx;
+	php_zmq_context *ctx;
 
 	HashTable connect;
 	HashTable bind;
 	
-	php_zeromq_socket_opts opts;
-} php_zeromq_socket;
+	php_zmq_socket_opts opts;
+} php_zmq_socket;
 /* }}} */
 
-/* {{{ typedef struct _php_zeromq_object */
-typedef struct _php_zeromq_object  {
+/* {{{ typedef struct _php_zmq_object */
+typedef struct _php_zmq_object  {
 	zend_object zo;
-	php_zeromq_socket *zms;
+	php_zmq_socket *zms;
 	
 	/* options for the context */
-	php_zeromq_context_opts ctx_opts;
+	php_zmq_context_opts ctx_opts;
 	
 	/* The socket options */
-	php_zeromq_socket_opts socket_opts;
-} php_zeromq_object;
+	php_zmq_socket_opts socket_opts;
+} php_zmq_object;
 /* }}} */
 
-/* {{{ typedef struct _php_zeromq_poll_object */
-typedef struct _php_zeromq_poll_object  {
+/* {{{ typedef struct _php_zmq_poll_object */
+typedef struct _php_zmq_poll_object  {
 	zend_object zo;
 	zmq_pollitem_t *items;
 	int num_items;
 	
 	zval **objects;
-} php_zeromq_poll_object;
+} php_zmq_poll_object;
 /* }}} */
 
-ZEND_BEGIN_MODULE_GLOBALS(zeromq)
+ZEND_BEGIN_MODULE_GLOBALS(php_zmq)
 	zend_bool persist_context;
-ZEND_END_MODULE_GLOBALS(zeromq)
+ZEND_END_MODULE_GLOBALS(php_zmq)
 
-ZEND_EXTERN_MODULE_GLOBALS(zeromq);
+ZEND_EXTERN_MODULE_GLOBALS(php_zmq);
 
 #ifdef ZTS
-# define ZEROMQ_G(v) TSRMG(zeromq_globals_id, zend_zeromq_globals *, v)
+# define ZMQ_G(v) TSRMG(php_zmq_globals_id, zend_php_zmq_globals *, v)
 #else
-# define ZEROMQ_G(v) (zeromq_globals.v)
+# define ZMQ_G(v) (php_zmq_globals.v)
 #endif
 
-#define PHP_ZEROMQ_OBJECT (php_zeromq_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
+#define PHP_ZMQ_OBJECT (php_zmq_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
 
-#define PHP_ZEROMQ_POLL_OBJECT (php_zeromq_poll_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
+#define PHP_ZMQ_POLL_OBJECT (php_zmq_poll_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
 
-#define ZEROMQ_RETURN_THIS RETURN_ZVAL(getThis(), 1, 0);
+#define ZMQ_RETURN_THIS RETURN_ZVAL(getThis(), 1, 0);
 
-#ifdef _DEBUG_ZEROMQ_
-# define php_zeromq_printf(...) fprintf (stderr, __VA_ARGS__)
+#ifdef _DEBUG_ZMQ_
+# define php_zmq_printf(...) fprintf (stderr, __VA_ARGS__)
 #else
-# define php_zeromq_printf(...)
+# define php_zmq_printf(...)
 #endif
 
-#endif /* _PHP_ZEROMQ_PRIVATE_H_ */
+#endif /* _PHP_ZMQ_PRIVATE_H_ */

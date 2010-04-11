@@ -1,5 +1,5 @@
 <?php
 
-if (!extension_loaded("zeromq")) die("skip");
+if (!extension_loaded("zmq")) die("skip");
 
 ?>

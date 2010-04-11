@@ -5,7 +5,7 @@ define('ZEROMQ_TEST_DSN2', 'tcp://127.0.0.1:6655');
 
 function create_server($persistent_id = null) 
 {
-    $server = new ZeroMQ(ZeroMQ::SOCKET_REP, $persistent_id);
+    $server = new ZMQ(ZMQ::SOCKET_REP, $persistent_id);
     $server->bind(ZEROMQ_TEST_DSN);
 
     return $server;
@@ -13,7 +13,7 @@ function create_server($persistent_id = null)
 
 function create_client($persistent_id = null) 
 {
-    $client = new ZeroMQ(ZeroMQ::SOCKET_REQ, $persistent_id);
+    $client = new ZMQ(ZMQ::SOCKET_REQ, $persistent_id);
     $client->connect(ZEROMQ_TEST_DSN);
 
     return $client;
