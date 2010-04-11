@@ -8,25 +8,25 @@ class ZMQ {
      * Compatible sockets: SOCKET_P2P
      */
     const SOCKET_P2P = 1;
-    
+
     /**
      * Publish-subscribe 
      * Compatible sockets: SOCKET_SUB
      */
     const SOCKET_PUB = 2;
-    
+
     /**
      * Publish-subscribe 
      * Compatible sockets: SOCKET_PUB
      */    
     const SOCKET_SUB = 3;
-    
+
     /**
      * Request-reply
      * Compatible sockets: SOCKET_REP
      */
     const SOCKET_REQ = 4;
-    
+
     /**
      * Request-reply
      * Compatible sockets: SOCKET_REQ
@@ -37,18 +37,18 @@ class ZMQ {
      * TODO
      */
     const SOCKET_XREQ = 6;
-    
+
     /**
      * TODO
      */
     const SOCKET_XREP = 7;
-    
+
     /**
      * Parallelized pipeline
      * Compatible sockets: SOCKET_DOWNSTREAM
      */
     const SOCKET_UPSTREAM = 8;
-    
+
     /**
      * Parallelized pipeline
      * Compatible sockets: SOCKET_UPSTREAM
@@ -60,61 +60,61 @@ class ZMQ {
      * Valuetype: integer
      */
     const SOCKOPT_HWM = 1;
-    
+
     /**
      * Set low water mark
      * Valuetype: integer
      */
     const SOCKOPT_LWM = 2;
-    
+
     /**
      * Set disk offload size
      * Valuetype: integer
      */
     const SOCKOPT_SWAP = 3;
-    
+
     /**
      * Set I/O thread affinity 
      * Valuetype: integer
      */
     const SOCKOPT_AFFINITY = 4;
-    
+
     /**
      * Set socket identity
      * Valuetype: string
      */
     const SOCKOPT_IDENTITY = 5;
-    
+
     /**
      * Establish message filter
      * Valuetype: string
      */
     const SOCKOPT_SUBSCRIBE = 6;
-    
+
     /**
      * Remove message filter
      * Valuetype: string
      */
     const SOCKOPT_UNSUBSCRIBE = 7;
-    
+
     /**
      * Set multicast data rate
      * Valuetype: integer >= 0
      */
     const SOCKOPT_RATE = 8;
-    
+
     /**
      * Set multicast recovery interval
      * Valuetype: integer >= 0
      */
     const SOCKOPT_RECOVERY_IVL = 9;
-    
+
     /**
      * Control multicast loopback
      * Valuetype: integer >= 0
      */
     const SOCKOPT_MCAST_LOOP = 10;
-    
+
     /**
      * Set kernel transmit buffer size
      * Valuetype: integer >= 0
@@ -126,12 +126,12 @@ class ZMQ {
      * Valuetype: integer >= 0
      */
     const SOCKOPT_RCVBUF = 12;
-    
+
     /**
      * Set on non-blocking mode
      */
      const MODE_NOBLOCK = 1;
-     
+ 
     /**
      * Track if the socket is readable
      */
@@ -141,7 +141,7 @@ class ZMQ {
      * Track if the socket is writable
      */
      const POLL_OUT = 2;
-    
+
     /**
      * Construct a new ZMQ object. The extending class must call this method. 
      * The type is one of the ZMQ::SOCKET_* constants. 
@@ -183,7 +183,7 @@ class ZMQ {
     /**
      * Connect the socket to a remote endpoint. For more information about the dsn 
      * see http://api.zeromq.org/zmq_connect.html. By default the method does not 
-     * try to connect if it has been already connected to the address specified by ‘dsn’.
+     * try to connect if it has been already connected to the address specified by $dsn.
      *
      * @param string  $dsn   The connect dsn
      * @param boolean $force Tries to connect to end-point even if the object is already connected to the $dsn
@@ -218,7 +218,7 @@ class ZMQ {
      * @return ZMQ
      */
     public function setSockOpt($key, $value) {}
-    
+
     /**
      * Gets a socket option. This method is available if ZMQ extension
      * has been compiled against ZMQ version 2.0.7 or higher
@@ -229,7 +229,7 @@ class ZMQ {
      * @return mixed
      */
     public function getSockOpt($key) {}    
-    
+
     /**
      * Set the amount of threads and whether to poll in the internal context. Must be 
      * set before connect / bind / setSockOpt is called. For persistent objects
@@ -246,7 +246,7 @@ class ZMQ {
      * @return ZMQ
      */
     public function setContextOptions($app_threads, $io_threads, $poll = false) {}    
-    
+
     /**
      * Get the options for the internal context. The returned
      * array contains keys 'app_threads', 'io_threads' and 'poll'
