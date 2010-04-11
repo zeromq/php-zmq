@@ -733,7 +733,7 @@ PHP_METHOD(zmq, getsockopt)
 
 /* -- START ZMQPoll --- */
 
-/* {{{ ZMQPoll ZMQPoll::add(ZMQ $object, integer $events)
+/* {{{ integer ZMQPoll::add(ZMQ $object, integer $events)
 	Add a ZMQ object into the pollset
 */
 PHP_METHOD(zmqpoll, add)
