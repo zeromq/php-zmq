@@ -2,13 +2,18 @@
 
 /* Create socket, request-reply pattern (reply socket) */
 $server = new ZMQ(ZMQ::SOCKET_REP);
+
+/* Set 1 app thread, 1 io thread and turn poll support on */
 $server->setContextOptions(1, 1, true)
-       ->bind("tcp://127.0.0.1:5555");
 
-/* Create new pollset for incoming message */
+/* Bind to port 5555 on 127.0.0.1 */
+$server->bind("tcp://127.0.0.1:5555");
+
+/* Create new pollset for incoming/outgoing message */
 $poll = new ZMQPoll();
-$id = $poll->add($server, ZMQ::POLL_IN | ZMQ::POLL_OUT);
 
+/* Add the object and listen for poll in/out */
+$id = $poll->add($server, ZMQ::POLL_IN | ZMQ::POLL_OUT);
 echo "Added object with id " . $id . "\n";
 
 /* Initialise readable and writable arrays */
