@@ -277,13 +277,14 @@ class ZMQ {
 class ZMQPoll {
  
     /**
-     * Add a new object into the poll set
+     * Add a new object into the poll set. Returns the id for the object
+     * in the pollset.
      * 
      * @param ZMQ $object Object to add to set
      * @param integer $type Bit-mask of ZMQ::POLL_* constants
      *
      * @throws ZMQPollException if the object has not been initialized with polling
-     * @return ZMQPoll
+     * @return integer
      */
     public function add(ZMQ $object, $type) {}
     

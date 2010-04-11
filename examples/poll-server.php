@@ -7,7 +7,9 @@ $server->setContextOptions(1, 1, true)
 
 /* Create new pollset for incoming message */
 $poll = new ZMQPoll();
-$poll->add($server, ZMQ::POLL_IN | ZMQ::POLL_OUT);
+$id = $poll->add($server, ZMQ::POLL_IN | ZMQ::POLL_OUT);
+
+echo "Added object with id " . $id . "\n";
 
 /* Initialise readable and writable arrays */
 $readable = array();

@@ -768,9 +768,12 @@ PHP_METHOD(zmqpoll, add)
 	intern->items[intern->num_items].socket = item->zms->socket;
 	intern->items[intern->num_items].events = type;
 	
-	intern->objects[intern->num_items++] = object;
+	intern->objects[intern->num_items] = object;
 	zend_objects_store_add_ref(object TSRMLS_CC);
-	ZMQ_RETURN_THIS;
+	
+	RETVAL_LONG(intern->num_items);
+	intern->num_items++;
+	return;
 }
 /* }}} */
 
