@@ -670,6 +670,7 @@ PHP_METHOD(zmq, getsockopt)
 		case ZMQ_AFFINITY:
 		{
 			int64_t value;
+			
 			value_len = sizeof(int64_t);
 			if (zmq_getsockopt (intern->zms->socket, (int) key, &value, &value_len) != 0) {
 				zend_throw_exception_ex(php_zmq_exception_sc_entry, errno TSRMLS_CC, "Failed to get the option value: %s", zmq_strerror(errno));
@@ -682,8 +683,8 @@ PHP_METHOD(zmq, getsockopt)
 		case ZMQ_IDENTITY:
 		{
 			unsigned char value[255];
+			
 			value_len = 255;
-
 			if (zmq_getsockopt(intern->zms->socket, (int) key, value, &value_len) != 0) {
 				zend_throw_exception_ex(php_zmq_exception_sc_entry, errno TSRMLS_CC, "Failed to get the option value: %s", zmq_strerror(errno));
 				return;
@@ -699,6 +700,7 @@ PHP_METHOD(zmq, getsockopt)
 		case ZMQ_RCVBUF:
 		{
 			uint64_t value;
+			
 			value = sizeof(uint64_t);
 			if (zmq_getsockopt (intern->zms->socket, (int) key, &value, &value_len) != 0) {
 				zend_throw_exception_ex(php_zmq_exception_sc_entry, errno TSRMLS_CC, "Failed to get the option value: %s", zmq_strerror(errno));

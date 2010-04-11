@@ -15,24 +15,34 @@ echo "Added object with id " . $id . "\n";
 $readable = array();
 $writable = array();
 
-/* Poll until there is something to do */
 while (true) {
+    /* Amount of events retrieved */
+    $events = 0;
     
-    $events = $poll->poll($readable, $writable, -1);
+    try {
+        /* Poll until there is something to do */
+        $events = $poll->poll($readable, $writable, -1);
+    } catch (ZMQPollException $e) {
+        echo "poll failed: " . $e->getMessage() . "\n";
+    }
     
     if ($events > 0) {
-        try {
-            /* Loop through readable objects and recv messages */
-            foreach ($readable as $r) {
+        /* Loop through readable objects and recv messages */
+        foreach ($readable as $r) {
+            try {
                 echo "Received message: " . $r->recv() . "\n";
+            } catch (ZMQException $e) {
+                echo "recv failed: " . $e->getMessage() . "\n";
             }
+        }
         
-            /* Loop through writable and send back messages */
-            foreach ($writable as $w) {
+        /* Loop through writable and send back messages */
+        foreach ($writable as $w) {
+            try {
                 $w->send("Got it!");
-            }   
-        } catch (Exception $e) {
-            echo "Got exception {$e->getMessage()}\n";
+            } catch (ZMQException $e) {
+                echo "send failed: " . $e->getMessage() . "\n";
+            }
         }
     }
 }
