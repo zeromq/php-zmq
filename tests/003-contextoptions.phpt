@@ -1,5 +1,5 @@
 --TEST--
-set/get context options
+Test set/get context options
 --SKIPIF--
 <?php require_once(dirname(__FILE__) . '/skipif.inc'); ?>
 --FILE--

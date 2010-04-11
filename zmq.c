@@ -42,7 +42,7 @@ static zend_object_handlers zmq_poll_object_handlers;
 
 ZEND_DECLARE_MODULE_GLOBALS(php_zmq);
 
-#define PHP_ZMQ_BUF_SIZE 512
+#define PHP_ZMQ_IDENITTY_SIZE 255
 
 #ifndef Z_ADDREF_P
 # define Z_ADDREF_P(pz) (pz)->refcount++
@@ -681,18 +681,17 @@ PHP_METHOD(zmq, getsockopt)
 		
 		case ZMQ_IDENTITY:
 		{
-			int rc = 0, i = 1;
-			unsigned char *value = NULL;
-			
-			do {
-				value_len = PHP_ZMQ_BUF_SIZE * i++;
-				value     = erealloc(value, value_len);
-				rc        = zmq_getsockopt (intern->zms->socket, (int) key, value, &value_len);
-			} while (rc == -1 && errno == EINVAL);
+			int rc = 0;
+			unsigned char value[255];
 
-			RETVAL_STRINGL((char *)value, value_len, 1);
-			efree(value);
-			return;
+			rc = zmq_getsockopt(intern->zms->socket, (int) key, value, &value_len);
+
+			if (rc == -1) {
+				zend_throw_exception_ex(php_zmq_exception_sc_entry, errno TSRMLS_CC, "Failed to get the option value: %s", zmq_strerror(errno));
+				return;
+			}
+
+			RETURN_STRINGL((char *)value, value_len, 1);
 		}
 		break;
 		
@@ -882,9 +881,11 @@ ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(zmq_send_args, 0, 0, 1)
 	ZEND_ARG_INFO(0, message)
+	ZEND_ARG_INFO(0, mode)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(zmq_recv_args, 0, 0, 0)
+	ZEND_ARG_INFO(0, mode)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(zmq_getpersistentid_args, 0, 0, 0)
@@ -920,7 +921,8 @@ ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(zmq_poll_poll_args, 0, 0, 2)
 	ZEND_ARG_INFO(0, readable) 
-	ZEND_ARG_INFO(0, writable) 
+	ZEND_ARG_INFO(0, writable)
+	ZEND_ARG_INFO(0, timeout)
 ZEND_END_ARG_INFO()
 
 static function_entry php_zmq_poll_class_methods[] = {
