@@ -126,6 +126,18 @@ class ZMQ {
      * Valuetype: integer >= 0
      */
     const SOCKOPT_RCVBUF = 12;
+    
+    /**
+     * Send a multipart message
+     * @since 0MQ 2.0.7
+     */
+     const SOCKOPT_SNDMORE = 13;
+
+     /**
+      * Receive a multipart message
+      * @since 0MQ 2.0.7
+      */
+     const SOCKOPT_RECVMORE = 14;    
 
     /**
      * Set on non-blocking mode
@@ -141,7 +153,7 @@ class ZMQ {
      * Track if the socket is writable
      */
      const POLL_OUT = 2;
-
+    
     /**
      * Construct a new ZMQ object. The extending class must call this method. 
      * The type is one of the ZMQ::SOCKET_* constants. 
@@ -302,6 +314,15 @@ class ZMQPoll {
      * @return integer
      */
     public function poll(array &$readable, array &$writable, $timeout = -1) {}
+    
+    /**
+     * Returns the ids of the objects that had ZMQ_POLLERR flag set on the last 
+     * poll call. This method does not clear the last errors and the errors are
+     * cleared on next call to poll()
+     * 
+     * @return array
+     */
+    public function getLastErrors() {}    
 }
 ?>
 </code></pre>
