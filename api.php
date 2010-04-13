@@ -235,6 +235,7 @@ class ZMQ {
      * Gets a socket option. This method is available if ZMQ extension
      * has been compiled against ZMQ version 2.0.7 or higher
      *
+     * @since 0MQ 2.0.7
      * @param integer $key The option key
      *
      * @throws ZMQException
