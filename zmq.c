@@ -75,6 +75,24 @@ static int php_zmq_context_list_entry(void)
 }
 /* }}} */
 
+/* {{{ static void php_zmq_socket_opts_copy(php_zmq_socket_opts *target, php_zmq_socket_opts *source) 
+*/
+static void php_zmq_socket_opts_copy(php_zmq_socket_opts *target, php_zmq_socket_opts *source) 
+{
+	target->type          = source->type;
+	target->is_persistent = source->is_persistent;
+	target->p_id          = (source->p_id) ? pestrdup(source->p_id, source->is_persistent) : NULL;
+}
+/* }}} */
+
+/* {{{ static void php_zmq_context_opts_copy(php_zmq_context_opts *target, php_zmq_context_opts *source)
+*/
+static void php_zmq_context_opts_copy(php_zmq_context_opts *target, php_zmq_context_opts *source) 
+{
+	memcpy(target, source, sizeof(php_zmq_context_opts));
+}
+/* }}} */
+
 /* {{{ static void php_zmq_context_destroy(php_zmq_context *ctx)
 	Destroy the zmq context and free memory associated
 */
@@ -99,7 +117,7 @@ static php_zmq_context *php_zmq_context_new(php_zmq_context_opts *ctx_opts TSRML
 		php_error_docref(NULL TSRMLS_CC, E_ERROR, "Error creating context: %s", zmq_strerror(errno));
 	}
 	
-	memcpy(&(ctx->opts), ctx_opts, sizeof(php_zmq_context_opts));
+	php_zmq_context_opts_copy(&(ctx->opts), ctx_opts);
 	return ctx;
 }
 /* }}} */
@@ -157,9 +175,7 @@ static php_zmq_socket *php_zmq_socket_new(php_zmq_socket_opts *socket_opts, php_
 	}
 
 	/* Copy the socket options */
-	zmq_sock->opts.type          = socket_opts->type;
-	zmq_sock->opts.is_persistent = socket_opts->is_persistent;
-	zmq_sock->opts.p_id          = (socket_opts->p_id) ? pestrdup(socket_opts->p_id, socket_opts->is_persistent) : NULL;
+	php_zmq_socket_opts_copy(&(zmq_sock->opts), socket_opts);
 
 	zend_hash_init(&(zmq_sock->connect), 0, NULL, NULL, socket_opts->is_persistent);
 	zend_hash_init(&(zmq_sock->bind), 0, NULL, NULL, socket_opts->is_persistent);
@@ -612,6 +628,10 @@ PHP_METHOD(zmq, setsockopt)
 		case ZMQ_MCAST_LOOP:
 		case ZMQ_SNDBUF:
 		case ZMQ_RCVBUF:
+#ifdef ZMQ_SNDMORE
+		case ZMQ_SNDMORE:
+		case ZMQ_RCVMORE:
+#endif		
 		{
 			uint64_t value;
 			convert_to_long(pz_value);
@@ -698,6 +718,10 @@ PHP_METHOD(zmq, getsockopt)
 		case ZMQ_MCAST_LOOP:
 		case ZMQ_SNDBUF:
 		case ZMQ_RCVBUF:
+#ifdef ZMQ_SNDMORE
+		case ZMQ_SNDMORE:
+		case ZMQ_RCVMORE:
+#endif		
 		{
 			uint64_t value;
 			
@@ -821,6 +845,8 @@ PHP_METHOD(zmqpoll, poll)
 	}
 	
 	if (rc > 0) {
+		zend_hash_clean(Z_ARRVAL_P(intern->errors));
+		
 		for (i = 0; i < intern->num_items; i++) {
 		
 			if (readable && intern->items[i].revents & ZMQ_POLLIN) {
@@ -834,12 +860,30 @@ PHP_METHOD(zmqpoll, poll)
 			}
 		
 			if (intern->items[i].revents & ZMQ_POLLERR) {
-				/* should not happen */
-				php_error_docref(NULL TSRMLS_CC, E_WARNING, "Error polling object(%d)", i);
+				add_next_index_long(intern->errors, i);
 			}
 		}
 	}
 	RETURN_LONG(rc);
+}
+/* }}} */
+
+/* {{{ array ZMQPoll::getLastErrors()
+	Returns last errors
+*/
+PHP_METHOD(zmqpoll, getlasterrors)
+{
+	php_zmq_poll_object *intern;
+	
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "") == FAILURE) {
+		return;
+	}
+
+	intern = PHP_ZMQ_POLL_OBJECT;
+	
+	Z_ADDREF_P(intern->errors);
+	RETVAL_ZVAL(intern->errors, 1, 0);
+	return;
 }
 /* }}} */
 
@@ -924,9 +968,13 @@ ZEND_BEGIN_ARG_INFO_EX(zmq_poll_poll_args, 0, 0, 2)
 	ZEND_ARG_INFO(0, timeout)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(zmq_poll_getlasterrors_args, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
 static function_entry php_zmq_poll_class_methods[] = {
-	PHP_ME(zmqpoll, add,				zmq_poll_add_args,	ZEND_ACC_PUBLIC)
-	PHP_ME(zmqpoll, poll,			zmq_poll_poll_args,	ZEND_ACC_PUBLIC)
+	PHP_ME(zmqpoll, add,			zmq_poll_add_args,				ZEND_ACC_PUBLIC)
+	PHP_ME(zmqpoll, poll,			zmq_poll_poll_args,				ZEND_ACC_PUBLIC)
+	PHP_ME(zmqpoll, getlasterrors,	zmq_poll_getlasterrors_args,	ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 
@@ -973,6 +1021,11 @@ static void php_zmq_poll_object_free_storage(void *object TSRMLS_DC)
 		}
 		efree(intern->objects);
 		efree(intern->items);
+	}
+
+	if (intern->errors) {
+		zval_dtor(intern->errors);
+		FREE_ZVAL(intern->errors);
 	}
 
 	zend_object_std_dtor(&intern->zo TSRMLS_CC);
@@ -1026,6 +1079,9 @@ static zend_object_value php_zmq_poll_object_new_ex(zend_class_entry *class_type
 	intern->items     = NULL;
 	intern->objects   = NULL;
 	intern->num_items = 0;
+	
+	MAKE_STD_ZVAL(intern->errors);
+	array_init(intern->errors);
 
 	if (ptr) {
 		*ptr = intern;
@@ -1133,12 +1189,15 @@ PHP_MINIT_FUNCTION(zmq)
 	PHP_ZMQ_REGISTER_CONST_LONG("SOCKOPT_MCAST_LOOP", ZMQ_MCAST_LOOP);
 	PHP_ZMQ_REGISTER_CONST_LONG("SOCKOPT_SNDBUF", ZMQ_SNDBUF);
 	PHP_ZMQ_REGISTER_CONST_LONG("SOCKOPT_RCVBUF", ZMQ_RCVBUF);
+#ifdef ZMQ_SNDMORE
+	PHP_ZMQ_REGISTER_CONST_LONG("SOCKOPT_SNDMORE", ZMQ_SNDMORE);
+	PHP_ZMQ_REGISTER_CONST_LONG("SOCKOPT_RECVMORE", ZMQ_RCVMORE);
+#endif	
 	
 	PHP_ZMQ_REGISTER_CONST_LONG("POLL_IN", ZMQ_POLLIN);
 	PHP_ZMQ_REGISTER_CONST_LONG("POLL_OUT", ZMQ_POLLOUT);
 	
-	PHP_ZMQ_REGISTER_CONST_LONG("MODE_NOBLOCK", ZMQ_NOBLOCK);
-	
+	PHP_ZMQ_REGISTER_CONST_LONG("MODE_NOBLOCK", ZMQ_NOBLOCK);	
 #undef PHP_ZMQ_REGISTER_CONST_LONG
 
 	return SUCCESS;

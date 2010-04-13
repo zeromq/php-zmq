@@ -19,7 +19,15 @@ var_dump($test->getSockOpt(ZMQ::SOCKOPT_IDENTITY));
 $test->setSockOpt(ZMQ::SOCKOPT_IDENTITY, str_repeat("a", 255));
 var_dump(strlen($test->getSockOpt(ZMQ::SOCKOPT_IDENTITY)));
 
+try {
+	$test->setSockOpt(ZMQ::SOCKOPT_IDENTITY, str_repeat("a", 300));
+	var_dump(strlen($test->getSockOpt(ZMQ::SOCKOPT_IDENTITY)));
+} catch (ZMQException $e) {
+	echo "too long";
+}
+
 --EXPECT--
 int(1)
 string(5) "hello"
 int(255)
+too long

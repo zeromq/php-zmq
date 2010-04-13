@@ -4,7 +4,7 @@
 $server = new ZMQ(ZMQ::SOCKET_REP);
 
 /* Set 1 app thread, 1 io thread and turn poll support on */
-$server->setContextOptions(1, 1, true)
+$server->setContextOptions(1, 1, true);
 
 /* Bind to port 5555 on 127.0.0.1 */
 $server->bind("tcp://127.0.0.1:5555");
@@ -27,10 +27,17 @@ while (true) {
     try {
         /* Poll until there is something to do */
         $events = $poll->poll($readable, $writable, -1);
+        $errors = $poll->getLastErrors();
+        
+        if (count($errors) > 0) {
+            foreach ($errors as $error) {
+                echo "Error polling object " . $error . "\n";
+            }
+        }
     } catch (ZMQPollException $e) {
         echo "poll failed: " . $e->getMessage() . "\n";
     }
-    
+
     if ($events > 0) {
         /* Loop through readable objects and recv messages */
         foreach ($readable as $r) {

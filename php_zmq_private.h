@@ -94,6 +94,7 @@ typedef struct _php_zmq_poll_object  {
 	int num_items;
 	
 	zval **objects;
+	zval *errors;
 } php_zmq_poll_object;
 /* }}} */
 
