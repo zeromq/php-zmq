@@ -1167,7 +1167,12 @@ PHP_MINIT_FUNCTION(zmq)
 	zend_declare_class_constant_long(php_zmq_sc_entry, const_name, sizeof(const_name)-1, (long)value TSRMLS_CC);	
 	
 	/* Socket constants */
+#if defined(ZMQ_PAIR)
+	PHP_ZMQ_REGISTER_CONST_LONG("SOCKET_PAIR", ZMQ_PAIR);
+	PHP_ZMQ_REGISTER_CONST_LONG("SOCKET_P2P", ZMQ_PAIR);
+#else
 	PHP_ZMQ_REGISTER_CONST_LONG("SOCKET_P2P", ZMQ_P2P);
+#endif
 	PHP_ZMQ_REGISTER_CONST_LONG("SOCKET_PUB", ZMQ_PUB);
 	PHP_ZMQ_REGISTER_CONST_LONG("SOCKET_SUB", ZMQ_SUB);
 	PHP_ZMQ_REGISTER_CONST_LONG("SOCKET_REQ", ZMQ_REQ);
