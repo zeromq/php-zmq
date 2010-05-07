@@ -628,10 +628,6 @@ PHP_METHOD(zmq, setsockopt)
 		case ZMQ_MCAST_LOOP:
 		case ZMQ_SNDBUF:
 		case ZMQ_RCVBUF:
-#ifdef ZMQ_SNDMORE
-		case ZMQ_SNDMORE:
-		case ZMQ_RCVMORE:
-#endif		
 		{
 			uint64_t value;
 			convert_to_long(pz_value);
@@ -718,10 +714,6 @@ PHP_METHOD(zmq, getsockopt)
 		case ZMQ_MCAST_LOOP:
 		case ZMQ_SNDBUF:
 		case ZMQ_RCVBUF:
-#ifdef ZMQ_SNDMORE
-		case ZMQ_SNDMORE:
-		case ZMQ_RCVMORE:
-#endif		
 		{
 			uint64_t value;
 			
@@ -1169,6 +1161,7 @@ PHP_MINIT_FUNCTION(zmq)
 	/* Socket constants */
 #if defined(ZMQ_PAIR)
 	PHP_ZMQ_REGISTER_CONST_LONG("SOCKET_PAIR", ZMQ_PAIR);
+	/* This will be removed in the future */
 	PHP_ZMQ_REGISTER_CONST_LONG("SOCKET_P2P", ZMQ_PAIR);
 #else
 	PHP_ZMQ_REGISTER_CONST_LONG("SOCKET_P2P", ZMQ_P2P);
