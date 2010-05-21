@@ -145,7 +145,7 @@ static php_zmq_context *php_zmq_context_get(php_zmq_context_opts *ctx_opts TSRML
 		}
 	}
 	
-	ctx = php_zmq_context_new(ctx_opts);
+	ctx = php_zmq_context_new(ctx_opts TSRMLS_CC);
 
 	if (ctx_opts->is_persistent) {
 		le.type = php_zmq_context_list_entry();
