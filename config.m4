@@ -43,7 +43,7 @@ if test "$PHP_ZMQ" != "no"; then
   ])
   
   PHP_SUBST(ZMQ_SHARED_LIBADD)
-  PHP_NEW_EXTENSION(zmq, zmq.c, $ext_shared)
+  PHP_NEW_EXTENSION(zmq, zmq.c zmq_pollset.c, $ext_shared)
   PKG_CONFIG_PATH="$ORIG_PKG_CONFIG_PATH"
 fi
 

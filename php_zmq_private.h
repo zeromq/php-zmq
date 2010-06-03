@@ -34,16 +34,42 @@
 #include "ext/standard/info.h"
 #include "Zend/zend_exceptions.h"
 #include "php_ini.h"
+#include "ext/spl/php_spl.h"
 
-#ifdef PHP_WIN32
-# include <win32/php_stdint.h>
-#else
-# include <stdint.h>
-#endif
-
+#include <stdint.h>
 #include <zmq.h>
 
-/* {{{ typedef struct _php_zmq_context_opts */
+/* {{{ typedef struct _php_zmq_pollitem 
+*/
+typedef struct _php_zmq_pollitem {
+	int events;
+	zval *entry;
+	char key[35];
+	int key_len;
+	
+	/* convenience pointer containing fd or socket */
+	void *socket;
+	int fd;
+} php_zmq_pollitem;
+/* }}} */
+
+/* {{{ typedef struct _php_zmq_pollset 
+*/
+typedef struct _php_zmq_pollset {
+	php_zmq_pollitem *php_items;
+	int num_php_items;
+
+	/* items and a count */
+	zmq_pollitem_t *items;
+	int num_items;
+	
+	/* Errors in the last poll */
+	zval *errors;
+} php_zmq_pollset;
+/* }}} */
+
+/* {{{ typedef struct _php_zmq_context_opts
+*/
 typedef struct _php_zmq_context_opts {
 	zend_bool is_persistent;
 	int app_threads;
@@ -52,14 +78,16 @@ typedef struct _php_zmq_context_opts {
 } php_zmq_context_opts;	
 /* }}}*/
 
-/* {{{ typedef struct _php_zmq_context */
+/* {{{ typedef struct _php_zmq_context
+*/
 typedef struct _php_zmq_context {
 	void *context;
 	php_zmq_context_opts opts;
 } php_zmq_context;
 /* }}} */
 
-/* {{{ typedef struct _php_zmq_socket_opts */
+/* {{{ typedef struct _php_zmq_socket_opts
+*/
 typedef struct _php_zmq_socket_opts {
 	zend_bool is_persistent;
 	int type;
@@ -67,7 +95,8 @@ typedef struct _php_zmq_socket_opts {
 } php_zmq_socket_opts;
 /* }}} */
 
-/* {{{ typedef struct _php_zmq_socket */
+/* {{{ typedef struct _php_zmq_socket
+*/
 typedef struct _php_zmq_socket  {
 	void *socket;
 	php_zmq_context *ctx;
@@ -79,7 +108,8 @@ typedef struct _php_zmq_socket  {
 } php_zmq_socket;
 /* }}} */
 
-/* {{{ typedef struct _php_zmq_object */
+/* {{{ typedef struct _php_zmq_object 
+*/
 typedef struct _php_zmq_object  {
 	zend_object zo;
 	php_zmq_socket *zms;
@@ -92,14 +122,11 @@ typedef struct _php_zmq_object  {
 } php_zmq_object;
 /* }}} */
 
-/* {{{ typedef struct _php_zmq_poll_object */
+/* {{{ typedef struct _php_zmq_poll_object 
+*/
 typedef struct _php_zmq_poll_object  {
 	zend_object zo;
-	zmq_pollitem_t *items;
-	int num_items;
-	
-	zval **objects;
-	zval *errors;
+	php_zmq_pollset set;
 } php_zmq_poll_object;
 /* }}} */
 
