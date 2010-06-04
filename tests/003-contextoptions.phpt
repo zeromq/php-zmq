@@ -8,10 +8,10 @@ Test set/get context options
 include dirname(__FILE__) . '/zeromq_test_helper.inc';
 
 $test = new ZMQ(ZMQ::SOCKET_REQ);
-$test->setContextOptions(2, 2, true);
+$test->setContextOptions(2);
 
 try {
-    $test->setContextOptions(-1, -1);
+    $test->setContextOptions(-1);
 } catch (ZMQException $e) {
     echo "incorrect args\n";
 }
@@ -20,7 +20,7 @@ var_dump($test->getContextOptions());
 $test->bind(ZEROMQ_TEST_DSN);
 
 try {
-    $test->setContextOptions(4,2);
+    $test->setContextOptions(4);
 } catch (ZMQException $e) {
     echo "Got exception\n";
 }
@@ -29,20 +29,12 @@ var_dump($test->getContextOptions());
 
 --EXPECT--
 incorrect args
-array(3) {
-  ["app_threads"]=>
-  int(2)
+array(1) {
   ["io_threads"]=>
   int(2)
-  ["poll"]=>
-  bool(true)
 }
 Got exception
-array(3) {
-  ["app_threads"]=>
-  int(2)
+array(1) {
   ["io_threads"]=>
   int(2)
-  ["poll"]=>
-  bool(true)
 }

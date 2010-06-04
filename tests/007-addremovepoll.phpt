@@ -6,7 +6,7 @@ Test adding / removing items
 <?php
 /* Create socket, request-reply pattern (reply socket) */
 $z = new ZMQ(ZMQ::SOCKET_REP);
-$z->setContextOptions(1,1,true);
+$z->setContextOptions(1);
 $z->bind("tcp://127.0.0.1:5555");
 
 /* create handle */

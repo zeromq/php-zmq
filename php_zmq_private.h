@@ -72,9 +72,7 @@ typedef struct _php_zmq_pollset {
 */
 typedef struct _php_zmq_context_opts {
 	zend_bool is_persistent;
-	int app_threads;
 	int io_threads;
-	zend_bool poll;
 } php_zmq_context_opts;	
 /* }}}*/
 

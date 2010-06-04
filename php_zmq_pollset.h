@@ -31,7 +31,11 @@
 #ifndef _PHP_ZMQ_POLLSET_H_
 # define _PHP_ZMQ_POLLSET_H_
 
-#define PHP_POLLSET_ERR_NO_POLL -1
+#define PHP_ZMQ_POLLSET_ERR_NO_STREAM   -1
+#define PHP_ZMQ_POLLSET_ERR_CANNOT_CAST -2
+#define PHP_ZMQ_POLLSET_ERR_CAST_FAILED -3
+#define PHP_ZMQ_POLLSET_ERR_NO_INIT     -4
+#define PHP_ZMQ_POLLSET_ERR_NO_POLL     -5
 
 void php_zmq_pollset_init(php_zmq_pollset *set);
 

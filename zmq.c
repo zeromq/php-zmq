@@ -112,7 +112,7 @@ static php_zmq_context *php_zmq_context_new(php_zmq_context_opts *ctx_opts TSRML
 	php_zmq_context *ctx;
 
 	ctx          = pecalloc(1, sizeof(php_zmq_context), ctx_opts->is_persistent);
-	ctx->context = zmq_init(ctx_opts->app_threads, ctx_opts->io_threads, ctx_opts->poll);
+	ctx->context = zmq_init(ctx_opts->io_threads);
 	
 	if (!ctx->context) {
 		php_error_docref(NULL TSRMLS_CC, E_ERROR, "Error creating context: %s", zmq_strerror(errno));
@@ -135,7 +135,7 @@ static php_zmq_context *php_zmq_context_get(php_zmq_context_opts *ctx_opts TSRML
 	zend_rsrc_list_entry le, *le_p = NULL;
 
 	if (ctx_opts->is_persistent) {
-		plist_key_len  = spprintf(&plist_key, 0, "zmq_context:[%d]-[%d]-[%d]", ctx_opts->app_threads, ctx_opts->io_threads, ctx_opts->poll);
+		plist_key_len  = spprintf(&plist_key, 0, "zmq_context:[%d]", ctx_opts->io_threads);
 		plist_key_len += 1;
 
 		if (zend_hash_find(&EG(persistent_list), plist_key, plist_key_len, (void *)&le_p) == SUCCESS) {
@@ -347,16 +347,15 @@ PHP_METHOD(zmq, recv)
 }
 /* }}} */
 
-/* {{{ ZMQ ZMQ::setContextOptions(integer $app_threads, integer $io_threads[, boolean $poll = false])
+/* {{{ ZMQ ZMQ::setContextOptions(integer $io_threads)
 	Set options for the internal context
 */
 PHP_METHOD(zmq, setcontextoptions)
 {
 	php_zmq_object *intern;
-	long app_threads, io_threads;
-	zend_bool poll = 0;
+	long io_threads;
 	
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ll|b", &app_threads, &io_threads, &poll) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &io_threads) == FAILURE) {
 		return;
 	}
 
@@ -366,21 +365,14 @@ PHP_METHOD(zmq, setcontextoptions)
 		zend_throw_exception(php_zmq_exception_sc_entry, "Context options must be set before connect, bind or setSockOpt", 1 TSRMLS_CC);
 		return;
 	}
-	
-	if (app_threads <= 0) {
-		zend_throw_exception_ex(php_zmq_exception_sc_entry, 33 TSRMLS_CC, "The first argument must be greater than zero, %ld given", app_threads);
-		return;
-	}
-	
+
 	if (io_threads <= 0) {
-		zend_throw_exception_ex(php_zmq_exception_sc_entry, 34 TSRMLS_CC, "The second argument must greater than zero, %ld given", app_threads);
+		zend_throw_exception_ex(php_zmq_exception_sc_entry, 34 TSRMLS_CC, "The io_threads argument must greater than zero, %ld given", io_threads);
 		return;
 	}
 
 	/* Socket is created on-demand in connect / bind */
-	intern->ctx_opts.app_threads = app_threads;
 	intern->ctx_opts.io_threads  = io_threads;
-	intern->ctx_opts.poll        = poll;
 	ZMQ_RETURN_THIS;
 }
 /* }}} */
@@ -402,9 +394,7 @@ PHP_METHOD(zmq, getcontextoptions)
 	/*
 		If socket has not been initialised yet, return the context options from the main object
 	*/
-	add_assoc_long(return_value, "app_threads", ((intern->zms) ? intern->zms->ctx->opts.app_threads : intern->ctx_opts.app_threads));
 	add_assoc_long(return_value, "io_threads",  ((intern->zms) ? intern->zms->ctx->opts.io_threads  : intern->ctx_opts.io_threads));
-	add_assoc_bool(return_value, "poll",        ((intern->zms) ? intern->zms->ctx->opts.poll        : intern->ctx_opts.poll));
 	return;
 }
 /* }}} */
@@ -602,9 +592,6 @@ PHP_METHOD(zmq, setsockopt)
 	}
 	
 	switch (key) {
-		
-		case ZMQ_HWM:
-		case ZMQ_LWM:
 		case ZMQ_SWAP:
 		case ZMQ_AFFINITY:
 		{
@@ -680,9 +667,6 @@ PHP_METHOD(zmq, getsockopt)
 	}
 	
 	switch (key) {
-		
-		case ZMQ_HWM:
-		case ZMQ_LWM:
 		case ZMQ_SWAP:
 		case ZMQ_AFFINITY:
 		{
@@ -785,7 +769,37 @@ PHP_METHOD(zmqpoll, add)
 	pos = php_zmq_pollset_add(&(intern->set), object, events TSRMLS_CC);
 
 	if (pos < 0) {
-		zend_throw_exception(php_zmq_poll_exception_sc_entry, "Failed to add the item to the poll-set", 1 TSRMLS_CC);
+		
+		char *message = NULL;
+		
+		switch (pos) {
+			
+			case PHP_ZMQ_POLLSET_ERR_NO_STREAM:
+				message = "The supplied resource is not a valid stream resource";
+			break;
+			
+			case PHP_ZMQ_POLLSET_ERR_CANNOT_CAST:
+				message = "The supplied resource is not castable";
+			break;
+			
+			case PHP_ZMQ_POLLSET_ERR_CAST_FAILED:
+				message = "Failed to cast the supplied stream resource";
+			break;
+			
+			case PHP_ZMQ_POLLSET_ERR_NO_INIT:
+				message = "The ZMQ object has not been initialized properly";
+			break;
+			
+			case PHP_ZMQ_POLLSET_ERR_NO_POLL:
+				message = "The ZMQ object has not been initialized with polling";
+			break;
+			
+			default:
+				message = "Unknown error";
+			break;
+		}
+		
+		zend_throw_exception(php_zmq_poll_exception_sc_entry, message, 1 TSRMLS_CC);
 		return;
 	}
 	
@@ -948,10 +962,8 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(zmq_getcontextoptions_args, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(zmq_setcontextoptions_args, 0, 0, 2)
-	ZEND_ARG_INFO(0, app_threads)
+ZEND_BEGIN_ARG_INFO_EX(zmq_setcontextoptions_args, 0, 0, 1)
 	ZEND_ARG_INFO(0, io_threads)
-	ZEND_ARG_INFO(0, poll)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(zmq_getendpoints_args, 0, 0, 0)
@@ -1087,9 +1099,7 @@ static zend_object_value php_zmq_object_new_ex(zend_class_entry *class_type, php
 	intern->socket_opts.type = -1;
 	
 	/* Initialized the context options */
-	intern->ctx_opts.app_threads   = 1;
 	intern->ctx_opts.io_threads    = 1;
-	intern->ctx_opts.poll          = 0;
 	intern->ctx_opts.is_persistent = ZMQ_G(persist_context);
 	
 	if (ptr) {
@@ -1214,9 +1224,7 @@ PHP_MINIT_FUNCTION(zmq)
 	PHP_ZMQ_REGISTER_CONST_LONG("SOCKET_XREP", ZMQ_XREP);
 	PHP_ZMQ_REGISTER_CONST_LONG("SOCKET_UPSTREAM", ZMQ_UPSTREAM);
 	PHP_ZMQ_REGISTER_CONST_LONG("SOCKET_DOWNSTREAM", ZMQ_DOWNSTREAM);
-	
-	PHP_ZMQ_REGISTER_CONST_LONG("SOCKOPT_HWM", ZMQ_HWM);
-	PHP_ZMQ_REGISTER_CONST_LONG("SOCKOPT_LWM", ZMQ_LWM);
+
 	PHP_ZMQ_REGISTER_CONST_LONG("SOCKOPT_SWAP", ZMQ_SWAP);
 	PHP_ZMQ_REGISTER_CONST_LONG("SOCKOPT_AFFINITY", ZMQ_AFFINITY);
 	PHP_ZMQ_REGISTER_CONST_LONG("SOCKOPT_IDENTITY", ZMQ_IDENTITY);

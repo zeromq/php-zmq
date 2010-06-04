@@ -126,18 +126,6 @@ class ZMQ {
      * Valuetype: integer >= 0
      */
     const SOCKOPT_RCVBUF = 12;
-    
-    /**
-     * Send a multipart message
-     * @since 0MQ 2.0.7
-     */
-     const SOCKOPT_SNDMORE = 13;
-
-     /**
-      * Receive a multipart message
-      * @since 0MQ 2.0.7
-      */
-     const SOCKOPT_RECVMORE = 14;    
 
     /**
      * Set on non-blocking mode
@@ -244,25 +232,19 @@ class ZMQ {
     public function getSockOpt($key) {}    
 
     /**
-     * Set the amount of threads and whether to poll in the internal context. Must be 
-     * set before connect / bind / setSockOpt is called. For persistent objects
-     * it is on the first instanciation.
+     * Set the amount of threads. Must be called before connect / bind / setSockOpt is called. 
+     * For persistent objects it is on the first instanciation.
      *
-     * $poll must be true if the object is going to be added into ZMQPoll.
-     * 
-     *
-     * @param integer $app_threads  How many application threads
      * @param integer $io_threads   How many io threads
-     * @param boolean $poll         Whether to support polling
      *
      * @throws ZMQException if the socket has been initialized already
      * @return ZMQ
      */
-    public function setContextOptions($app_threads, $io_threads, $poll = false) {}    
+    public function setContextOptions($io_threads) {}    
 
     /**
      * Get the options for the internal context. The returned
-     * array contains keys 'app_threads', 'io_threads' and 'poll'
+     * array contains key 'io_threads'
      *
      * @return array
      */
@@ -307,8 +289,8 @@ class ZMQPoll {
      * is null the events of that type are not returned. Returns an integer
      * indicated the amount of objects with events pending.
      *
-     * @param array &$readable  array where to return the readable objects
-     * @param array &$writable  array where to return the writable objects
+     * @param array &$readable   array where to return the readable objects
+     * @param array &$writable   array where to return the writable objects
      * @param integer $timeout   Timeout for poll in milliseconds. -1 polls as long as one of the objects comes readable/writable
      *
      * @throws ZMQPollException if polling fails
@@ -323,7 +305,34 @@ class ZMQPoll {
      * 
      * @return array
      */
-    public function getLastErrors() {}    
+    public function getLastErrors() {}
+    
+    /**
+     * Removes an item from the poll object. The parameter can be ZMQ object, 
+     * resource or the string id returned by 'add' method. Returns true if the
+     * item was removed and false if item had not been added to the poll object.
+     * 
+     * @throws ZMQPollException if the poll object is empty
+     * @throws ZMQPollException if $item parameter is object but not an instance of ZMQ
+     *
+     * @param mixed $item  The item to remove
+     * @return boolean
+     */
+    public function remove($item) {}
+    
+    /**
+     * Counts the items in the poll object
+     *
+     * @return integer
+     */
+    public function count() {}
+    
+    /**
+     * Removes all items from the poll set
+     *
+     * @return ZMQPoll
+     */
+    public function clear() {}
 }
 ?>
 </code></pre>

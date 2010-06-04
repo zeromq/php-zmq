@@ -3,9 +3,6 @@
 /* Create socket, request-reply pattern (reply socket) */
 $server = new ZMQ(ZMQ::SOCKET_REP);
 
-/* Set 1 app thread, 1 io thread and turn poll support on */
-$server->setContextOptions(1, 1, true);
-
 /* Bind to port 5555 on 127.0.0.1 */
 $server->bind("tcp://127.0.0.1:5555");
 

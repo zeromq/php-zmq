@@ -142,15 +142,15 @@ int php_zmq_pollset_add(php_zmq_pollset *set, zval *entry, int events)
 		php_stream_from_zval_no_verify(stream, &entry);
 
 		if (!stream) {
-			return -1;
+			return PHP_ZMQ_POLLSET_ERR_NO_STREAM;
 		}
 
-		if (php_stream_can_cast(stream, PHP_STREAM_AS_FD | PHP_STREAM_CAST_INTERNAL) == FAILURE) {
-			return -2;
+		if (php_stream_can_cast(stream, (PHP_STREAM_AS_FD | PHP_STREAM_CAST_INTERNAL) & ~REPORT_ERRORS) == FAILURE) {
+			return PHP_ZMQ_POLLSET_ERR_CANNOT_CAST;
 		}
 
-		if (php_stream_cast(stream, PHP_STREAM_AS_FD | PHP_STREAM_CAST_INTERNAL, (void*)&fd, 0) == FAILURE) {
-			return -3;
+		if (php_stream_cast(stream, (PHP_STREAM_AS_FD | PHP_STREAM_CAST_INTERNAL) & ~REPORT_ERRORS, (void*)&fd, 0) == FAILURE) {
+			return PHP_ZMQ_POLLSET_ERR_CAST_FAILED;
 		}	
 
 		set->items = erealloc(set->items, (set->num_items + 1) * sizeof(zmq_pollitem_t));
@@ -158,20 +158,15 @@ int php_zmq_pollset_add(php_zmq_pollset *set, zval *entry, int events)
 		
 		set->items[set->num_items].fd     = fd;
 		set->items[set->num_items].events = events;
-		Z_ADDREF_P(entry);
-		
+		Z_ADDREF_P(entry);	
 	} else {
 		
 		php_zmq_object *item = (php_zmq_object *)zend_object_store_get_object(entry TSRMLS_CC);
 
 		if (!item->zms) {
-			return -4;
+			return PHP_ZMQ_POLLSET_ERR_NO_INIT;
 		}
 
-		if (!item->ctx_opts.poll) {
-			return -5;
-		}
-		
 		set->items = erealloc(set->items, (set->num_items + 1) * sizeof(zmq_pollitem_t));
 		memset(&(set->items[set->num_items]), 0, sizeof(zmq_pollitem_t));
 		

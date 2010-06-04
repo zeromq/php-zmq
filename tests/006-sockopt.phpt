@@ -10,9 +10,6 @@ if (!is_callable('ZMQ', 'getSockOpt'))
 
 $test = new ZMQ(ZMQ::SOCKET_REP);
 
-$test->setSockOpt(ZMQ::SOCKOPT_HWM, 1);
-var_dump($test->getSockOpt(ZMQ::SOCKOPT_HWM));
-
 $test->setSockOpt(ZMQ::SOCKOPT_IDENTITY, "hello");
 var_dump($test->getSockOpt(ZMQ::SOCKOPT_IDENTITY));
 
@@ -27,7 +24,6 @@ try {
 }
 
 --EXPECT--
-int(1)
 string(5) "hello"
 int(255)
 too long
