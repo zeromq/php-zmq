@@ -47,8 +47,6 @@ static zend_object_handlers zmq_socket_object_handlers;
 static zend_object_handlers zmq_context_object_handlers;
 static zend_object_handlers zmq_poll_object_handlers;
 
-ZEND_DECLARE_MODULE_GLOBALS(php_zmq);
-
 #ifndef Z_ADDREF_P
 # define Z_ADDREF_P(pz) (pz)->refcount++
 #endif
@@ -1179,22 +1177,10 @@ ZEND_RSRC_DTOR_FUNC(php_zmq_context_dtor)
 	}
 }
 
-PHP_INI_BEGIN()
-	STD_PHP_INI_ENTRY("zmq.persist_context", "1", PHP_INI_SYSTEM, OnUpdateBool, persist_context, zend_php_zmq_globals, php_zmq_globals)
-PHP_INI_END()
-
-static void php_zmq_init_globals(zend_php_zmq_globals *zmq_globals)
-{
-	zmq_globals->persist_context = 1;
-}
-
 PHP_MINIT_FUNCTION(zmq)
 {
 	zend_class_entry ce;
-	
-	ZEND_INIT_MODULE_GLOBALS(php_zmq, php_zmq_init_globals, NULL);
-	REGISTER_INI_ENTRIES();
-	
+
 	le_zmq_socket  = zend_register_list_destructors_ex(NULL, php_zmq_socket_dtor, "ZMQ persistent socket", module_number);
 	le_zmq_context = zend_register_list_destructors_ex(NULL, php_zmq_context_dtor, "ZMQ persistent context", module_number);
 
@@ -1276,7 +1262,6 @@ PHP_MINIT_FUNCTION(zmq)
 
 PHP_MSHUTDOWN_FUNCTION(zmq)
 {
-	UNREGISTER_INI_ENTRIES();
 	return SUCCESS;
 }
 

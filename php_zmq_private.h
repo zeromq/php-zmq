@@ -33,7 +33,6 @@
 
 #include "ext/standard/info.h"
 #include "Zend/zend_exceptions.h"
-#include "php_ini.h"
 #include "ext/spl/php_spl.h"
 
 #include <stdint.h>
@@ -122,12 +121,6 @@ typedef struct _php_zmq_poll_object  {
 	php_zmq_pollset set;
 } php_zmq_poll_object;
 /* }}} */
-
-ZEND_BEGIN_MODULE_GLOBALS(php_zmq)
-	zend_bool persist_context;
-ZEND_END_MODULE_GLOBALS(php_zmq)
-
-ZEND_EXTERN_MODULE_GLOBALS(php_zmq);
 
 #ifdef ZTS
 # define ZMQ_G(v) TSRMG(php_zmq_globals_id, zend_php_zmq_globals *, v)
