@@ -1048,6 +1048,22 @@ zend_function_entry zmq_functions[] = {
 	{NULL, NULL, NULL} 
 };
 
+static void php_zmq_context_object_free_storage(void *object TSRMLS_DC)
+{
+	php_zmq_context_object *intern = (php_zmq_context_object *)object;
+
+	if (!intern) {
+		return;
+	}
+
+	/*
+		Terminate context if non-persistent
+	*/
+
+	zend_object_std_dtor(&intern->zo TSRMLS_CC);
+	efree(intern);
+}
+
 static void php_zmq_object_free_storage(void *object TSRMLS_DC)
 {
 	php_zmq_object *intern = (php_zmq_object *)object;
@@ -1083,6 +1099,32 @@ static void php_zmq_poll_object_free_storage(void *object TSRMLS_DC)
 	zend_object_std_dtor(&intern->zo TSRMLS_CC);
 	
 	efree(intern);
+}
+
+static zend_object_value php_zmq_context_object_new_ex(zend_class_entry *class_type, php_zmq_context_object **ptr TSRMLS_DC)
+{
+	zval *tmp;
+	zend_object_value retval;
+	php_zmq_context_object *intern;
+
+	/* Allocate memory for it */
+	intern = (php_zmq_object *) emalloc(sizeof(php_zmq_object));
+	memset(&intern->zo, 0, sizeof(zend_object));
+
+	/*	
+		TODO: initialize properties here
+	*/
+	
+	if (ptr) {
+		*ptr = intern;
+	}
+
+	zend_object_std_init(&intern->zo, class_type TSRMLS_CC);
+	zend_hash_copy(intern->zo.properties, &class_type->default_properties, (copy_ctor_func_t) zval_add_ref,(void *) &tmp, sizeof(zval *));
+
+	retval.handle = zend_objects_store_put(intern, NULL, (zend_objects_free_object_storage_t) php_zmq_object_free_storage, NULL TSRMLS_CC);
+	retval.handlers = (zend_object_handlers *) &zmq_object_handlers;
+	return retval;
 }
 
 static zend_object_value php_zmq_object_new_ex(zend_class_entry *class_type, php_zmq_object **ptr TSRMLS_DC)
