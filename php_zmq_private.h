@@ -68,29 +68,18 @@ typedef struct _php_zmq_pollset {
 } php_zmq_pollset;
 /* }}} */
 
-/* {{{ typedef struct _php_zmq_context_opts
-*/
-typedef struct _php_zmq_context_opts {
-	zend_bool is_persistent;
-	int io_threads;
-} php_zmq_context_opts;	
-/* }}}*/
-
 /* {{{ typedef struct _php_zmq_context
 */
 typedef struct _php_zmq_context {
-	void *context;
-	php_zmq_context_opts opts;
-} php_zmq_context;
-/* }}} */
-
-/* {{{ typedef struct _php_zmq_socket_opts
-*/
-typedef struct _php_zmq_socket_opts {
+	/* zmq context */
+	void *z_ctx;
+	
+	/* Amount of io-threads */
+	int io_threads;
+	
+	/* Is this a persistent context */
 	zend_bool is_persistent;
-	int type;
-	char *p_id;
-} php_zmq_socket_opts;
+} php_zmq_context;
 /* }}} */
 
 /* {{{ typedef struct _php_zmq_socket
@@ -102,21 +91,27 @@ typedef struct _php_zmq_socket  {
 	HashTable connect;
 	HashTable bind;
 	
-	php_zmq_socket_opts opts;
+	int type;
+	zend_bool is_persistent;
 } php_zmq_socket;
+/* }}} */
+
+/* {{{ typedef struct _php_zmq_context_object 
+*/
+typedef struct _php_zmq_context_object  {
+	zend_object zo;
+	php_zmq_context *context;
+} php_zmq_context_object;
 /* }}} */
 
 /* {{{ typedef struct _php_zmq_object 
 */
 typedef struct _php_zmq_object  {
 	zend_object zo;
-	php_zmq_socket *zms;
+	php_zmq_socket *z_socket;
 	
 	/* options for the context */
-	php_zmq_context_opts ctx_opts;
-	
-	/* The socket options */
-	php_zmq_socket_opts socket_opts;
+	char *persistent_id;
 } php_zmq_object;
 /* }}} */
 
