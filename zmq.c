@@ -33,12 +33,15 @@
 #include "php_zmq_pollset.h"
 
 zend_class_entry *php_zmq_sc_entry;
+zend_class_entry *php_zmq_context_sc_entry;
 zend_class_entry *php_zmq_poll_sc_entry;
 
 zend_class_entry *php_zmq_exception_sc_entry;
+zend_class_entry *php_zmq_context_exception_sc_entry;
 zend_class_entry *php_zmq_poll_exception_sc_entry;
 
 static zend_object_handlers zmq_object_handlers;
+static zend_object_handlers zmq_context_object_handlers;
 static zend_object_handlers zmq_poll_object_handlers;
 
 ZEND_DECLARE_MODULE_GLOBALS(php_zmq);
@@ -1114,6 +1117,32 @@ static zend_object_value php_zmq_object_new_ex(zend_class_entry *class_type, php
 	return retval;
 }
 
+static zend_object_value php_zmq_context_object_new_ex(zend_class_entry *class_type, php_zmq_context_object **ptr TSRMLS_DC)
+{
+	zval *tmp;
+	zend_object_value retval;
+	php_zmq_context_object *intern;
+
+	/* Allocate memory for it */
+	intern = (php_zmq_context_object *) emalloc(sizeof(php_zmq_object));
+	memset(&intern->zo, 0, sizeof(zend_object));
+
+	/*
+		TODO: initialize properties here
+	*/
+	
+	if (ptr) {
+		*ptr = intern;
+	}
+
+	zend_object_std_init(&intern->zo, class_type TSRMLS_CC);
+	zend_hash_copy(intern->zo.properties, &class_type->default_properties, (copy_ctor_func_t) zval_add_ref,(void *) &tmp, sizeof(zval *));
+
+	retval.handle = zend_objects_store_put(intern, NULL, (zend_objects_free_object_storage_t) php_zmq_context_object_free_storage, NULL TSRMLS_CC);
+	retval.handlers = (zend_object_handlers *) &zmq_context_object_handlers;
+	return retval;
+}
+
 static zend_object_value php_zmq_poll_object_new_ex(zend_class_entry *class_type, php_zmq_poll_object **ptr TSRMLS_DC)
 {
 	zval *tmp;
@@ -1136,6 +1165,11 @@ static zend_object_value php_zmq_poll_object_new_ex(zend_class_entry *class_type
 	retval.handle = zend_objects_store_put(intern, NULL, (zend_objects_free_object_storage_t) php_zmq_poll_object_free_storage, NULL TSRMLS_CC);
 	retval.handlers = (zend_object_handlers *) &zmq_poll_object_handlers;
 	return retval;
+}
+
+static zend_object_value php_zmq_context_object_new(zend_class_entry *class_type TSRMLS_DC)
+{
+	return php_zmq_context_object_new_ex(class_type, NULL TSRMLS_CC);
 }
 
 static zend_object_value php_zmq_object_new(zend_class_entry *class_type TSRMLS_DC)
@@ -1185,8 +1219,14 @@ PHP_MINIT_FUNCTION(zmq)
 	le_zmq_socket  = zend_register_list_destructors_ex(NULL, php_zmq_socket_dtor, "ZMQ persistent socket", module_number);
 	le_zmq_context = zend_register_list_destructors_ex(NULL, php_zmq_context_dtor, "ZMQ persistent context", module_number);
 
+	memcpy(&zmq_context_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
 	memcpy(&zmq_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
 	memcpy(&zmq_poll_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+	
+	INIT_CLASS_ENTRY(ce, "ZMQContext", php_zmq_context_class_methods);
+	ce.create_object = php_zmq_context_object_new;
+	zmq_context_object_handlers.clone_obj = NULL;
+	php_zmq_context_sc_entry = zend_register_internal_class(&ce TSRMLS_CC);
 	
 	INIT_CLASS_ENTRY(ce, "ZMQ", php_zmq_class_methods);
 	ce.create_object = php_zmq_object_new;

@@ -35,9 +35,11 @@
     <tasks:replace from="@PACKAGE_VERSION@" to="version" type="package-info" />
    </file>
    <file name="php_zmq_private.h" role="src" />
+   <file name="php_zmq_pollset.h" role="src" />
    
    <!-- Source files -->
    <file name="zmq.c" role="src" />
+   <file name="zmq_pollset.c" role="src" />
 
    <!-- misc files -->
    <file name="README" role="doc" />
