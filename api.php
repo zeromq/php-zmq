@@ -1,7 +1,39 @@
 <pre><code>
 <?php
 
-class ZMQ {
+class ZMQContext {
+
+    /**
+     * Build a new ZMQContext. Persistent context is required for building
+     * persistent sockets. 
+     *
+     *
+     * @param integer $io_threads     Number of io threads
+     * @param boolean $is_persistent  Whether the context is persistent
+     * 
+     * @return void
+     */
+    public function __construct($io_threads = 1, $is_persistent = true) {}
+
+    /**
+     * Construct a new ZMQ object. The extending class must call this method. 
+     * The type is one of the ZMQ::SOCKET_* constants. 
+     * Persistent id allows reusing the socket over multiple requests. 
+     * If persistent_id parameter is specific the type parameter is ignored and the 
+     * socket is of type that it was initially created with. Persistent context must 
+     * be enabled for persistent_id to work. Setting incorrect socket type might 
+     * cause failure later in connect/bind/setSockOpt.
+     *
+     * @param integer $type              The type of the socket
+     * @param string  $persistent_id     The persistent id. Can be used to create
+     *                                   persistent connections
+     * @throws ZMQException
+     * @return ZMQSocket
+     */
+    public function getSocket($type, $persistent_id = null) {}
+}
+
+class ZMQSocket {
 
     /**
      * Peer to peer socket
@@ -151,13 +183,14 @@ class ZMQ {
      * be enabled for persistent_id to work. Setting incorrect socket type might 
      * cause failure later in connect/bind/setSockOpt.
      *
-     * @param integer $type              The type of the socket
-     * @param string  $persistent_id     The persistent id. Can be used to create
-     *                                   persistent connections
+     * @param ZMQContext $context           ZMQContext to build this object
+     * @param integer    $type              The type of the socket
+     * @param string     $persistent_id     The persistent id. Can be used to create
+     *                                      persistent connections
      * @throws ZMQException
      * @return void
      */
-    public function __construct($type, $persistent_id = null) {}
+    public function __construct(ZMQContext $context, $type, $persistent_id = null) {}
 
     /**
      * Sends a message to the queue. 

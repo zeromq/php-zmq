@@ -1,7 +1,8 @@
 <?php
 
 /* Create socket, request-reply pattern (reply socket) */
-$server = new ZMQ(ZMQ::SOCKET_REP);
+$context = new ZMQContext();
+$server  = $context->getSocket(ZMQ::SOCKET_REP);
 
 /* Bind to port 5555 on 127.0.0.1 */
 $server->bind("tcp://127.0.0.1:5555");

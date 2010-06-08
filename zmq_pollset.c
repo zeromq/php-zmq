@@ -161,16 +161,16 @@ int php_zmq_pollset_add(php_zmq_pollset *set, zval *entry, int events)
 		Z_ADDREF_P(entry);	
 	} else {
 		
-		php_zmq_object *item = (php_zmq_object *)zend_object_store_get_object(entry TSRMLS_CC);
+		php_zmq_socket_object *item = (php_zmq_socket_object *)zend_object_store_get_object(entry TSRMLS_CC);
 
-		if (!item->zms) {
+		if (!item->socket) {
 			return PHP_ZMQ_POLLSET_ERR_NO_INIT;
 		}
 
 		set->items = erealloc(set->items, (set->num_items + 1) * sizeof(zmq_pollitem_t));
 		memset(&(set->items[set->num_items]), 0, sizeof(zmq_pollitem_t));
 		
-		set->items[set->num_items].socket = item->zms->socket;
+		set->items[set->num_items].socket = item->socket->z_socket;
 		set->items[set->num_items].events = events;
 		zend_objects_store_add_ref(entry TSRMLS_CC);	
 	}

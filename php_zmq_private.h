@@ -85,7 +85,7 @@ typedef struct _php_zmq_context {
 /* {{{ typedef struct _php_zmq_socket
 */
 typedef struct _php_zmq_socket  {
-	void *socket;
+	void *z_socket;
 	php_zmq_context *ctx;
 
 	HashTable connect;
@@ -104,15 +104,15 @@ typedef struct _php_zmq_context_object  {
 } php_zmq_context_object;
 /* }}} */
 
-/* {{{ typedef struct _php_zmq_object 
+/* {{{ typedef struct _php_zmq_socket_object 
 */
-typedef struct _php_zmq_object  {
+typedef struct _php_zmq_socket_object  {
 	zend_object zo;
-	php_zmq_socket *z_socket;
+	php_zmq_socket *socket;
 	
 	/* options for the context */
 	char *persistent_id;
-} php_zmq_object;
+} php_zmq_socket_object;
 /* }}} */
 
 /* {{{ typedef struct _php_zmq_poll_object 
@@ -135,7 +135,9 @@ ZEND_EXTERN_MODULE_GLOBALS(php_zmq);
 # define ZMQ_G(v) (php_zmq_globals.v)
 #endif
 
-#define PHP_ZMQ_OBJECT (php_zmq_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
+#define PHP_ZMQ_CONTEXT_OBJECT (php_zmq_context_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
+
+#define PHP_ZMQ_SOCKET_OBJECT (php_zmq_socket_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
 
 #define PHP_ZMQ_POLL_OBJECT (php_zmq_poll_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
 

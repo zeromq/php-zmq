@@ -4,17 +4,18 @@ Test adding / removing items
 <?php require_once(dirname(__FILE__) . '/skipif.inc'); ?>
 --FILE--
 <?php
+
+include dirname(__FILE__) . '/zeromq_test_helper.inc';
+
 /* Create socket, request-reply pattern (reply socket) */
-$z = new ZMQ(ZMQ::SOCKET_REP);
-$z->setContextOptions(1);
-$z->bind("tcp://127.0.0.1:5555");
+$z = create_client();
 
 /* create handle */
 $fp = fsockopen("tcp://example.com:80");
 
-$poll = new ZMQPoll();
-$obj_id = $poll->add($z, ZMQ::POLL_IN | ZMQ::POLL_OUT);
-$fp_id = $poll->add($fp, ZMQ::POLL_IN | ZMQ::POLL_OUT);
+$poll   = new ZMQPoll();
+$obj_id = $poll->add($z, ZMQ::POLL_IN);
+$fp_id  = $poll->add($fp, ZMQ::POLL_IN | ZMQ::POLL_OUT);
 
 var_dump($obj_id, $fp_id, $poll->count());
 
