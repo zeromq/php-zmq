@@ -34,58 +34,58 @@ class ZMQContext {
 }
 
 class ZMQSocket {
-
+    
     /**
-     * Peer to peer socket
-     * Compatible sockets: SOCKET_P2P
+     * Publish-subscribe 
+     * Compatible sockets: SOCKET_SUB
      */
-    const SOCKET_P2P = 1;
+    const SOCKET_PAIR = 0;
 
     /**
      * Publish-subscribe 
      * Compatible sockets: SOCKET_SUB
      */
-    const SOCKET_PUB = 2;
+    const SOCKET_PUB = 1;
 
     /**
      * Publish-subscribe 
      * Compatible sockets: SOCKET_PUB
      */    
-    const SOCKET_SUB = 3;
+    const SOCKET_SUB = 2;
 
     /**
      * Request-reply
      * Compatible sockets: SOCKET_REP
      */
-    const SOCKET_REQ = 4;
+    const SOCKET_REQ = 3;
 
     /**
      * Request-reply
      * Compatible sockets: SOCKET_REQ
      */
-    const SOCKET_REP = 5;
+    const SOCKET_REP = 4;
 
     /**
      * TODO
      */
-    const SOCKET_XREQ = 6;
+    const SOCKET_XREQ = 5;
 
     /**
      * TODO
      */
-    const SOCKET_XREP = 7;
+    const SOCKET_XREP = 6;
 
     /**
      * Parallelized pipeline
      * Compatible sockets: SOCKET_DOWNSTREAM
      */
-    const SOCKET_UPSTREAM = 8;
+    const SOCKET_UPSTREAM = 7;
 
     /**
      * Parallelized pipeline
      * Compatible sockets: SOCKET_UPSTREAM
      */
-    const SOCKET_DOWNSTREAM = 9;
+    const SOCKET_DOWNSTREAM = 8;
 
     /**
      * Set high water mark
@@ -158,21 +158,31 @@ class ZMQSocket {
      * Valuetype: integer >= 0
      */
     const SOCKOPT_RCVBUF = 12;
+    
+    /**
+     * Receive multipart message
+     */
+    const SOCKOPT_RECVMORE = 13;
 
     /**
      * Set on non-blocking mode
      */
-     const MODE_NOBLOCK = 1;
+    const MODE_NOBLOCK = 1;
+     
+    /**
+     * Send multipart message
+     */
+    const MODE_SNDMORE = 2;
  
     /**
      * Track if the socket is readable
      */
-     const POLL_IN = 1;
+    const POLL_IN = 1;
 
     /**
      * Track if the socket is writable
      */
-     const POLL_OUT = 2;
+    const POLL_OUT = 2;
     
     /**
      * Construct a new ZMQ object. The extending class must call this method. 
@@ -369,11 +379,3 @@ class ZMQPoll {
 }
 ?>
 </code></pre>
-
-h3. INI settings
-
-<pre><code>
-zeromq.persist_context   Boolean   PHP_INI_ALL  (Default: On)
-</code></pre>
-Whether or not persistent contexts are allowed. Each unique combination of application and io threads creates a new context which is persisted if this setting is on. This setting must be set On for persistent connections to work.
-
