@@ -555,6 +555,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 	switch (key) {
 		case ZMQ_SWAP:
 		case ZMQ_AFFINITY:
+		case ZMQ_RCVMORE:
 		{
 			int64_t value;
 			convert_to_long(pz_value);
@@ -576,7 +577,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 		case ZMQ_RECOVERY_IVL:
 		case ZMQ_MCAST_LOOP:
 		case ZMQ_SNDBUF:
-		case ZMQ_RCVBUF:	
+		case ZMQ_RCVBUF:
 		{
 			uint64_t value;
 			convert_to_long(pz_value);
@@ -629,6 +630,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 	switch (key) {
 		case ZMQ_SWAP:
 		case ZMQ_AFFINITY:
+		case ZMQ_RCVMORE:
 		{
 			int64_t value;
 			
@@ -1241,7 +1243,7 @@ PHP_MINIT_FUNCTION(zmq)
 	PHP_ZMQ_REGISTER_CONST_LONG("SOCKOPT_MCAST_LOOP", ZMQ_MCAST_LOOP);
 	PHP_ZMQ_REGISTER_CONST_LONG("SOCKOPT_SNDBUF", ZMQ_SNDBUF);
 	PHP_ZMQ_REGISTER_CONST_LONG("SOCKOPT_RCVBUF", ZMQ_RCVBUF);
-	PHP_ZMQ_REGISTER_CONST_LONG("SOCKOPT_RECVMORE", ZMQ_RCVMORE);
+	PHP_ZMQ_REGISTER_CONST_LONG("SOCKOPT_RCVMORE", ZMQ_RCVMORE);
 	
 	PHP_ZMQ_REGISTER_CONST_LONG("POLL_IN", ZMQ_POLLIN);
 	PHP_ZMQ_REGISTER_CONST_LONG("POLL_OUT", ZMQ_POLLOUT);
