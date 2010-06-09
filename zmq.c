@@ -268,12 +268,28 @@ PHP_METHOD(zmqcontext, getsocket)
 	interns                = (php_zmq_socket_object *)zend_object_store_get_object(return_value TSRMLS_CC);
 	interns->socket        = php_zmq_socket_get(intern->context, type, persistent_id TSRMLS_CC);
 	
-	if (persistent_id) {
+	if (interns->socket->is_persistent && persistent_id) {
 		interns->persistent_id = estrdup(persistent_id);
 	}
 	
 	zend_objects_store_add_ref(getThis() TSRMLS_CC);
 	return;
+}
+/* }}} */
+
+/* {{{ ZMQContext ZMQContext::isPersistent()
+	Whether the context is persistent
+*/
+PHP_METHOD(zmqcontext, ispersistent)
+{
+	php_zmq_context_object *intern;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "") == FAILURE) {
+		return;
+	}
+	
+	intern = PHP_ZMQ_CONTEXT_OBJECT;
+	RETURN_BOOL(intern->context->is_persistent);
 }
 /* }}} */
 
@@ -689,6 +705,22 @@ PHP_METHOD(zmqsocket, getsockopt)
 }
 /* }}} */
 
+/* {{{ boolean ZMQSocket::isPersistent()
+	Whether the socket is persistent
+*/
+PHP_METHOD(zmqsocket, ispersistent)
+{
+	php_zmq_socket_object *intern;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "") == FAILURE) {
+		return;
+	}
+	
+	intern = PHP_ZMQ_SOCKET_OBJECT;
+	RETURN_BOOL(intern->socket->is_persistent);
+}
+/* }}} */
+
 /* -- END ZMQ --- */
 
 /* -- START ZMQPoll --- */
@@ -920,9 +952,13 @@ ZEND_BEGIN_ARG_INFO_EX(zmq_context_getsocket_args, 0, 0, 2)
 	ZEND_ARG_INFO(0, dsn)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(zmq_context_ispersistent_args, 0, 0, 2)
+ZEND_END_ARG_INFO()
+
 static function_entry php_zmq_context_class_methods[] = {
-	PHP_ME(zmqcontext, __construct,	zmq_context_construct_args,	ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
-	PHP_ME(zmqcontext, getsocket,	zmq_context_getsocket_args,	ZEND_ACC_PUBLIC)
+	PHP_ME(zmqcontext, __construct,		zmq_context_construct_args,	ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
+	PHP_ME(zmqcontext, getsocket,		zmq_context_getsocket_args,	ZEND_ACC_PUBLIC)
+	PHP_ME(zmqcontext, ispersistent,	zmq_context_ispersistent_args,	ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 
@@ -966,6 +1002,10 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(zmq_socket_getsockopt_args, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(zmq_socket_ispersistent_args, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
+
 static function_entry php_zmq_socket_class_methods[] = {
 	PHP_ME(zmqsocket, __construct,			zmq_socket_construct_args,			ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
 	PHP_ME(zmqsocket, send,					zmq_socket_send_args,				ZEND_ACC_PUBLIC)
@@ -975,6 +1015,7 @@ static function_entry php_zmq_socket_class_methods[] = {
 	PHP_ME(zmqsocket, setsockopt,			zmq_socket_setsockopt_args,			ZEND_ACC_PUBLIC)
 	PHP_ME(zmqsocket, getendpoints,			zmq_socket_getendpoints_args,		ZEND_ACC_PUBLIC)
 	PHP_ME(zmqsocket, getsockettype,		zmq_socket_getsockettype_args,		ZEND_ACC_PUBLIC)
+	PHP_ME(zmqsocket, ispersistent,			zmq_socket_ispersistent_args,		ZEND_ACC_PUBLIC)
 	PHP_ME(zmqsocket, getpersistentid,		zmq_socket_getpersistentid_args,	ZEND_ACC_PUBLIC)
 	PHP_ME(zmqsocket, getsockopt,			zmq_socket_getsockopt_args,			ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}

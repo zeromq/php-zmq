@@ -31,6 +31,13 @@ class ZMQContext {
      * @return ZMQSocket
      */
     public function getSocket($type, $persistent_id = null) {}
+    
+    /**
+     * Whether the context is persistent
+     *
+     * @return boolean
+     */
+    public function isPersistent() {}
 }
 
 class ZMQSocket {
@@ -162,7 +169,7 @@ class ZMQSocket {
     /**
      * Receive multipart message
      */
-    const SOCKOPT_RECVMORE = 13;
+    const SOCKOPT_RCVMORE = 13;
 
     /**
      * Set on non-blocking mode
@@ -275,25 +282,6 @@ class ZMQSocket {
     public function getSockOpt($key) {}    
 
     /**
-     * Set the amount of threads. Must be called before connect / bind / setSockOpt is called. 
-     * For persistent objects it is on the first instanciation.
-     *
-     * @param integer $io_threads   How many io threads
-     *
-     * @throws ZMQException if the socket has been initialized already
-     * @return ZMQ
-     */
-    public function setContextOptions($io_threads) {}    
-
-    /**
-     * Get the options for the internal context. The returned
-     * array contains key 'io_threads'
-     *
-     * @return array
-     */
-    public function getContextOptions() {}
-
-    /**
      * Get endpoints where the socket is connected to. The return array
      * contains two sub-arrays: 'connect' and 'bind'
      *
@@ -309,6 +297,13 @@ class ZMQSocket {
      * @return integer 
      */
     public function getSocketType() {}
+    
+    /**
+     * Whether the socket is persistent
+     *
+     * @return boolean
+     */
+    public function isPersistent() {}
 }
 
 
