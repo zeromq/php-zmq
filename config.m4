@@ -34,14 +34,6 @@ if test "$PHP_ZMQ" != "no"; then
     AC_MSG_ERROR(Unable to find stdint.h)
   fi
 
-  PHP_CHECK_LIBRARY(zmq, zmq_getsockopt, [
-    AC_DEFINE(HAVE_ZMQ_GETSOCKOPT, 1, [have zmq_getsockopt function])
-  ],[
-    AC_MSG_RESULT(WARNING: libzmq version 2.0.7 or higher is highly recommended)
-  ],[
-    ZMQ_SHARED_LIBADD -lzmq
-  ])
-  
   PHP_SUBST(ZMQ_SHARED_LIBADD)
   PHP_NEW_EXTENSION(zmq, zmq.c zmq_pollset.c, $ext_shared)
   PKG_CONFIG_PATH="$ORIG_PKG_CONFIG_PATH"
