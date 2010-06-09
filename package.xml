@@ -10,18 +10,18 @@
   <email>mkoppanen@php.net</email>
   <active>yes</active>
  </lead>
- <date>2009-12-15</date>
+ <date>2010-06-09</date>
  <time>15:33:53</time>
  <version>
-  <release>0.2.0</release>
-  <api>0.2.0</api>
+  <release>0.3.0</release>
+  <api>0.3.0</api>
  </version>
  <stability>
   <release>beta</release>
   <api>beta</api>
  </stability>
  <license>BSD License</license>
- <notes>- Initial release</notes>
+ <notes>- Major refactoring</notes>
  <contents>
   <dir name="/">
    <!-- Support files -->
