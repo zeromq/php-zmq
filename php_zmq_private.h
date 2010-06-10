@@ -111,6 +111,9 @@ typedef struct _php_zmq_socket_object  {
 	
 	/* options for the context */
 	char *persistent_id;
+	
+	/* zval of the context */
+	zval *context_obj;
 } php_zmq_socket_object;
 /* }}} */
 

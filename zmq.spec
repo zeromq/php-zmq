@@ -9,7 +9,7 @@ Packager:      Mikko Koppanen <mkoppanen@php.net>
 Summary:       PHP 0MQ extension
 License:       BSD License
 Group:         Web/Applications
-URL:           http://github.com/mkoppanen/php-zeromq
+URL:           http://github.com/mkoppanen/php-zmq
 Source:        zmq-%{version}.tgz
 Prefix:        %{_prefix}
 Buildroot:     %{_tmppath}/%{name}-%{version}-%{release}-root

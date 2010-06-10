@@ -187,8 +187,9 @@ PHP_METHOD(zmqcontext, __construct)
 */
 static php_zmq_socket *php_zmq_socket_new(php_zmq_context *context, int type, zend_bool is_persistent TSRMLS_DC)
 {
-	php_zmq_socket *zmq_sock = pecalloc(1, sizeof(php_zmq_socket), is_persistent);
-
+	php_zmq_socket *zmq_sock;
+	
+	zmq_sock           = pecalloc(1, sizeof(php_zmq_socket), is_persistent);
 	zmq_sock->z_socket = zmq_socket(context->z_ctx, type);
 	
 	if (!zmq_sock->z_socket) {
@@ -272,7 +273,11 @@ PHP_METHOD(zmqcontext, getsocket)
 		interns->persistent_id = estrdup(persistent_id);
 	}
 	
-	zend_objects_store_add_ref(getThis() TSRMLS_CC);
+	/* Need to add refcount if context is not persistent */
+	if (!intern->context->is_persistent) {
+		Z_ADDREF_P(getThis());
+		interns->context_obj = getThis();
+	}
 	return;
 }
 /* }}} */
@@ -318,11 +323,15 @@ PHP_METHOD(zmqsocket, __construct)
 
 	intern->socket = php_zmq_socket_get(internc->context, type, persistent_id TSRMLS_CC);
 	
-	if (persistent_id) {
+	if (intern->socket->is_persistent && persistent_id) {
 		intern->persistent_id = estrdup(persistent_id);
 	}
 	
-	zend_objects_store_add_ref(obj TSRMLS_CC);
+	/* Need to add refcount if context is not persistent */
+	if (!internc->context->is_persistent) {
+		Z_ADDREF_P(obj);
+		intern->context_obj = obj;
+	}
 	return;
 }
 /* }}} */
@@ -1084,6 +1093,10 @@ static void php_zmq_socket_object_free_storage(void *object TSRMLS_DC)
 	if (!intern) {
 		return;
 	}
+	
+	if (intern->context_obj) {
+		Z_DELREF_P(intern->context_obj);
+	}
 
 	if (intern->socket) {
 		if (!intern->socket->is_persistent) {
@@ -1091,10 +1104,10 @@ static void php_zmq_socket_object_free_storage(void *object TSRMLS_DC)
 		}
 	}
 	
-	if (intern->persistent_id) {
+	if (intern->socket->is_persistent && intern->persistent_id) {
 		efree(intern->persistent_id);
 	}
-
+	
 	zend_object_std_dtor(&intern->zo TSRMLS_CC);
 	efree(intern);
 }
@@ -1150,6 +1163,7 @@ static zend_object_value php_zmq_socket_object_new_ex(zend_class_entry *class_ty
 
 	intern->socket        = NULL;
 	intern->persistent_id = NULL;
+	intern->context_obj   = NULL;
 	
 	if (ptr) {
 		*ptr = intern;
