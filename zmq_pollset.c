@@ -123,7 +123,15 @@ int php_zmq_pollset_add(php_zmq_pollset *set, zval *entry, int events)
 	
 	assert(set->num_php_items == set->num_items);
 	
+	if (Z_TYPE_P(entry) != IS_OBJECT && Z_TYPE_P(entry) != IS_RESOURCE) {
+		return PHP_ZMQ_POLLSET_ERR_INVALID_TYPE;
+	}
+	
 	php_zmq_create_key(entry, key, &key_len);
+
+	if (!key_len || key_len > 34) {
+		return PHP_ZMQ_POLLSET_ERR_KEY_FAIL;
+	}
 	
 	for (i = 0; i < set->num_php_items; i++) {
 		if (key_len == set->php_items[i].key_len &&
@@ -225,7 +233,7 @@ static void php_zmq_pollitem_copy(php_zmq_pollitem *target, php_zmq_pollitem *so
 {
 	target->events  = source->events;
 	target->entry   = source->entry;
-	target->key_len = source->key_len;
+	target->key_len = source->key_len;	
 	memcpy(target->key, source->key, source->key_len + 1);
 }
 

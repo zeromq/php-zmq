@@ -754,17 +754,18 @@ PHP_METHOD(zmqpoll, add)
 	switch (Z_TYPE_P(object)) {
 		case IS_OBJECT:
 			if (!instanceof_function(Z_OBJCE_P(object), php_zmq_socket_sc_entry TSRMLS_CC)) {
-				zend_throw_exception(php_zmq_poll_exception_sc_entry, "The object must be an instance of ZMQ", 1 TSRMLS_CC);
+				zend_throw_exception(php_zmq_poll_exception_sc_entry, "The given object must be an instance of ZMQSocket", 1 TSRMLS_CC);
 				return;
 			}
 		break;
 		
 		case IS_RESOURCE:
-			// todo: check
+			/* noop */
 		break;
 		
 		default:
-		
+			zend_throw_exception(php_zmq_poll_exception_sc_entry, "The argument must be an instance of ZMQSocket or resource", 1 TSRMLS_CC);
+			return;
 		break;
 	}
 
@@ -775,7 +776,6 @@ PHP_METHOD(zmqpoll, add)
 		char *message = NULL;
 		
 		switch (pos) {
-			
 			case PHP_ZMQ_POLLSET_ERR_NO_STREAM:
 				message = "The supplied resource is not a valid stream resource";
 			break;
