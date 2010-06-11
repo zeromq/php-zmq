@@ -114,6 +114,7 @@ static php_zmq_context *php_zmq_context_new(long io_threads, zend_bool is_persis
 	context->z_ctx = zmq_init(io_threads);
 	
 	if (!context->z_ctx) {
+		pefree(context, is_persistent);
 		php_error_docref(NULL TSRMLS_CC, E_ERROR, "Error creating context: %s", zmq_strerror(errno));
 	}
 	
@@ -195,6 +196,7 @@ static php_zmq_socket *php_zmq_socket_new(php_zmq_context *context, int type, ze
 	zmq_sock->z_socket = zmq_socket(context->z_ctx, type);
 	
 	if (!zmq_sock->z_socket) {
+		pefree(zmq_sock, is_persistent);
 		php_error_docref(NULL TSRMLS_CC, E_ERROR, "Error creating socket: %s", zmq_strerror(errno));
 	}
 	
@@ -305,7 +307,7 @@ PHP_METHOD(zmqcontext, ispersistent)
 /* --- START ZMQ --- */
 
 /* {{{ ZMQSocket ZMQSocket::__construct(ZMQContext $context, integer $type[, string $persistent_id = null])
-	Build a new ZMQ object
+	Build a new ZMQSocket object
 */
 PHP_METHOD(zmqsocket, __construct)
 {
@@ -726,7 +728,7 @@ PHP_METHOD(zmqsocket, ispersistent)
 }
 /* }}} */
 
-/* -- END ZMQ --- */
+/* -- END ZMQSocket--- */
 
 /* -- START ZMQPoll --- */
 
