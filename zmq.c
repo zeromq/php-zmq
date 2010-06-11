@@ -529,13 +529,7 @@ PHP_METHOD(zmqsocket, getendpoints)
 	
 	array_init(connect);
 	array_init(bind);
-	
-	if (!intern->socket) {
-		add_assoc_zval(return_value, "connect", connect);
-		add_assoc_zval(return_value, "bind", bind);
-		return; /* No endpoints */
-	}
-	
+
 	zend_hash_apply_with_arguments(&(intern->socket->connect) TSRMLS_CC, (apply_func_args_t) php_zmq_get_keys, 1, connect);
 	zend_hash_apply_with_arguments(&(intern->socket->bind) TSRMLS_CC, (apply_func_args_t) php_zmq_get_keys, 1, bind);
 
@@ -815,7 +809,7 @@ PHP_METHOD(zmqpoll, add)
 }
 /* }}} */
 
-/* {{{ ZMQPoll ZMQPoll::remove(mixed $item)
+/* {{{ boolean ZMQPoll::remove(mixed $item)
 	Remove item from poll set
 */
 PHP_METHOD(zmqpoll, remove)
@@ -904,7 +898,7 @@ PHP_METHOD(zmqpoll, count)
 }
 /* }}} */
 
-/* {{{ integer ZMQPoll::clear()
+/* {{{ ZMQPoll ZMQPoll::clear()
 	Clear the pollset
 */
 PHP_METHOD(zmqpoll, clear)
@@ -1099,13 +1093,13 @@ static void php_zmq_socket_object_free_storage(void *object TSRMLS_DC)
 	}
 
 	if (intern->socket) {
+		if (intern->socket->is_persistent && intern->persistent_id) {
+			efree(intern->persistent_id);
+		}
+		
 		if (!intern->socket->is_persistent) {
 			php_zmq_socket_destroy(intern->socket);
 		}
-	}
-	
-	if (intern->socket->is_persistent && intern->persistent_id) {
-		efree(intern->persistent_id);
 	}
 	
 	zend_object_std_dtor(&intern->zo TSRMLS_CC);

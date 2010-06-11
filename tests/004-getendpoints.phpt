@@ -13,6 +13,9 @@ $client = create_client();
 var_dump($client->getEndpoints());
 var_dump($server->getEndpoints());
 
+$socket = new ZMQSocket(new ZMQContext(), ZMQ::SOCKET_REQ);
+var_dump($socket->getEndpoints());
+
 --EXPECTF--
 array(2) {
   ["connect"]=>
@@ -32,5 +35,13 @@ array(2) {
   array(1) {
     [0]=>
     string(%d) "tcp://%d.%d.%d.%d:%d"
+  }
+}
+array(2) {
+  ["connect"]=>
+  array(0) {
+  }
+  ["bind"]=>
+  array(0) {
   }
 }

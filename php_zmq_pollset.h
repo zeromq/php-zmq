@@ -39,24 +39,54 @@
 #define PHP_ZMQ_POLLSET_ERR_KEY_FAIL     -6
 #define PHP_ZMQ_POLLSET_ERR_INVALID_TYPE -7
 
+/** {{{ void php_zmq_pollset_init(php_zmq_pollset *set);
+*/
 void php_zmq_pollset_init(php_zmq_pollset *set);
+/* }}} */
 
+/** {{{ void php_zmq_pollset_deinit(php_zmq_pollset *set);
+*/
 void php_zmq_pollset_deinit(php_zmq_pollset *set);
+/* }}} */
 
+/** {{{ void php_zmq_pollset_clear(php_zmq_pollset *set);
+*/
 void php_zmq_pollset_clear(php_zmq_pollset *set);
+/* }}} */
 
+/** {{{ int php_zmq_pollset_add(php_zmq_pollset *set, zval *entry, int events);
+*/
 int php_zmq_pollset_add(php_zmq_pollset *set, zval *entry, int events);
+/* }}} */
 
+/** {{{ void php_zmq_pollset_rebuild(php_zmq_pollset *set);
+*/
 void php_zmq_pollset_rebuild(php_zmq_pollset *set);
+/* }}} */
 
+/** {{{ zend_bool php_zmq_pollset_delete(php_zmq_pollset *set, zval *entry);
+*/
 zend_bool php_zmq_pollset_delete(php_zmq_pollset *set, zval *entry);
+/* }}} */
 
+/** {{{ int php_zmq_pollset_poll(php_zmq_pollset *set, int timeout, zval *r_array, zval *w_array, zval *e_array);
+*/
 int php_zmq_pollset_poll(php_zmq_pollset *set, int timeout, zval *r_array, zval *w_array, zval *e_array);
+/* }}} */
 
+/** {{{ zend_bool php_zmq_pollset_get_key(php_zmq_pollset *set, int pos, char key[35], int *key_len);
+*/
 zend_bool php_zmq_pollset_get_key(php_zmq_pollset *set, int pos, char key[35], int *key_len);
+/* }}} */
 
+/** {{{ zend_bool php_zmq_pollset_delete_by_key(php_zmq_pollset *set, char key[35], int key_len);
+*/
 zend_bool php_zmq_pollset_delete_by_key(php_zmq_pollset *set, char key[35], int key_len);
+/* }}} */
 
+/** {{{ void php_zmq_pollset_delete_all(php_zmq_pollset *set TSRMLS_DC);
+*/
 void php_zmq_pollset_delete_all(php_zmq_pollset *set TSRMLS_DC);
+/* }}} */
 
 #endif /* _PHP_ZMQ_POLLSET_H_ */
