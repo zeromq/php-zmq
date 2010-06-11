@@ -158,9 +158,11 @@ static php_zmq_context *php_zmq_context_get(long io_threads, zend_bool is_persis
 }
 /* }}} */
 
-PHP_METHOD(zmq, __construct)
-{
-}
+/* {{{ ZMQ ZMQ::__construct()
+	Private constructor
+*/
+PHP_METHOD(zmq, __construct) {}
+/* }}} */
 
 /* {{{ ZMQContext ZMQContext::__construct(integer $io_threads[, boolean $is_persistent = true])
 	Build a new ZMQContext object
@@ -302,7 +304,7 @@ PHP_METHOD(zmqcontext, ispersistent)
 
 /* --- START ZMQ --- */
 
-/* {{{ ZMQ ZMQ::__construct(ZMQContext $context, integer $type[, string $persistent_id = null])
+/* {{{ ZMQSocket ZMQSocket::__construct(ZMQContext $context, integer $type[, string $persistent_id = null])
 	Build a new ZMQ object
 */
 PHP_METHOD(zmqsocket, __construct)
@@ -336,7 +338,7 @@ PHP_METHOD(zmqsocket, __construct)
 }
 /* }}} */
 
-/* {{{ ZMQ ZMQ::send(string $message[, integer $flags = 0])
+/* {{{ ZMQSocket ZMQSocket::send(string $message[, integer $flags = 0])
 	Send a message
 */
 PHP_METHOD(zmqsocket, send)
@@ -423,7 +425,7 @@ PHP_METHOD(zmqsocket, getpersistentid)
 }
 /* }}} */
 
-/* {{{ ZMQ ZMQ::bind(string $dsn[, boolean $force = false])
+/* {{{ ZMQ ZMQSocket::bind(string $dsn[, boolean $force = false])
 	Bind the socket to an endpoint
 */
 PHP_METHOD(zmqsocket, bind)
@@ -455,7 +457,7 @@ PHP_METHOD(zmqsocket, bind)
 }
 /* }}} */
 
-/* {{{ ZMQ ZMQ::connect(string $dsn[, boolean $force = false])
+/* {{{ ZMQSocket ZMQSocket::connect(string $dsn[, boolean $force = false])
 	Connect the socket to an endpoint
 */
 PHP_METHOD(zmqsocket, connect)
@@ -539,7 +541,7 @@ PHP_METHOD(zmqsocket, getendpoints)
 }
 /* }}} */
 
-/* {{{ integer ZMQ::getSocketType()
+/* {{{ integer ZMQSocket::getSocketType()
 	Returns the socket type
 */
 PHP_METHOD(zmqsocket, getsockettype)
@@ -555,7 +557,7 @@ PHP_METHOD(zmqsocket, getsockettype)
 }
 /* }}} */
 
-/* {{{ ZMQ ZMQ::setSockOpt(integer $SOCKOPT, mixed $value)
+/* {{{ ZMQSocket ZMQSocket::setSockOpt(integer $SOCKOPT, mixed $value)
 	Set a socket option
 */
 PHP_METHOD(zmqsocket, setsockopt)
@@ -626,7 +628,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 }
 /* }}} */
 
-/* {{{ mixed ZMQ::getSockOpt()
+/* {{{ mixed ZMQSocket::getSockOpt()
 	Get a socket option
 */
 PHP_METHOD(zmqsocket, getsockopt)
@@ -728,8 +730,8 @@ PHP_METHOD(zmqsocket, ispersistent)
 
 /* -- START ZMQPoll --- */
 
-/* {{{ integer ZMQPoll::add(ZMQ $object, integer $events)
-	Add a ZMQ object into the pollset
+/* {{{ integer ZMQPoll::add(ZMQSocket $object, integer $events)
+	Add a ZMQSocket object into the pollset
 */
 PHP_METHOD(zmqpoll, add)
 {
@@ -783,11 +785,11 @@ PHP_METHOD(zmqpoll, add)
 			break;
 			
 			case PHP_ZMQ_POLLSET_ERR_NO_INIT:
-				message = "The ZMQ object has not been initialized properly";
+				message = "The ZMQSocket object has not been initialized properly";
 			break;
 			
 			case PHP_ZMQ_POLLSET_ERR_NO_POLL:
-				message = "The ZMQ object has not been initialized with polling";
+				message = "The ZMQSocket object has not been initialized with polling";
 			break;
 			
 			default:
@@ -1127,7 +1129,7 @@ static zend_object_value php_zmq_context_object_new_ex(zend_class_entry *class_t
 	php_zmq_context_object *intern;
 
 	/* Allocate memory for it */
-	intern = (php_zmq_context_object *) emalloc(sizeof(php_zmq_socket_object));
+	intern = (php_zmq_context_object *) emalloc(sizeof(php_zmq_context_object));
 	memset(&intern->zo, 0, sizeof(zend_object));
 
 	/* Context is initialized in the constructor */
@@ -1167,7 +1169,7 @@ static zend_object_value php_zmq_socket_object_new_ex(zend_class_entry *class_ty
 	zend_hash_copy(intern->zo.properties, &class_type->default_properties, (copy_ctor_func_t) zval_add_ref,(void *) &tmp, sizeof(zval *));
 
 	retval.handle = zend_objects_store_put(intern, NULL, (zend_objects_free_object_storage_t) php_zmq_socket_object_free_storage, NULL TSRMLS_CC);
-	retval.handlers = (zend_object_handlers *) &zmq_object_handlers;
+	retval.handlers = (zend_object_handlers *) &zmq_socket_object_handlers;
 	return retval;
 }
 
