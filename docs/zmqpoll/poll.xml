@@ -17,7 +17,8 @@
   </methodsynopsis>
   <para>
    Polls the items in the current poll set. The readable and writable items are returned in the 
-   given array parameters.
+   <parameter>readable</parameter> and <parameter>writable</parameter> parameters. 
+   <function>ZMQPoll::getLastErrors</function> can be used to check if there were errors.
   </para>
  </refsect1>
 

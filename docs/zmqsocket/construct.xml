@@ -16,7 +16,9 @@
    <methodparam choice="opt"><type>string</type><parameter>persistent_id</parameter><initializer>null</initializer></methodparam>
   </methodsynopsis>
   <para>
-   Constructs a ZMQSocket object.
+   Constructs a ZMQSocket object. <parameter>persistent_id</parameter> parameter can be used to allocated a persistent
+   socket. A persistent socket has to be allocated from a persistent context and it stays connected over multiple requests.
+   The <parameter>persistent_id</parameter> parameter can be used to recall the same socket over multiple requests.
   </para>
  </refsect1>
 

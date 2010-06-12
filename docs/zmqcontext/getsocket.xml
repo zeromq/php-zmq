@@ -51,7 +51,7 @@
    <example>
     <title>A <function>ZMQContext</function> example</title>
     <para>
-     Construct a new context and allocate request socket from it
+     Basic usage
     </para>
     <programlisting role="php">
 <![CDATA[
@@ -70,6 +70,7 @@ $socket->send("Hello there");
 
 /* Receive back the response */
 $message = $socket->recv();
+echo "Received message: {$message}\n";
 ?>
 ]]>
     </programlisting>

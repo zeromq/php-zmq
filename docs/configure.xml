@@ -8,12 +8,6 @@
   &pecl.info;
   <link xlink:href="&url.pecl.package;zmq">&url.pecl.package;zmq</link>
  </para>
-
- <para>
-  The latest PECL/zmq Win32 DLL is available here:
-  <link xlink:href="&url.pecl.win.ext;php_zmq.dll">php_zmq.dll</link>
- </para>
-
 </section>
 
 

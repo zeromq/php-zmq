@@ -14,7 +14,7 @@
    <void />
   </methodsynopsis>
   <para>
-   Count the amount of items in the poll set.
+   Count the items in the poll set.
   </para>
  </refsect1>
 
@@ -26,7 +26,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   Returns number of items in the poll set.
+   Returns an &integer; representing the amount of items in the poll set.
   </para>
  </refsect1>
 

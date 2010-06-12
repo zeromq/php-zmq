@@ -14,8 +14,7 @@
    <void />
   </methodsynopsis>
   <para>
-   Returns the ids of the objects that had errors in the last poll. Most usual error is that if 
-   stream has been closed before calling poll method.
+   Returns the ids of the objects that had errors in the last poll.
   </para>
  </refsect1>
 

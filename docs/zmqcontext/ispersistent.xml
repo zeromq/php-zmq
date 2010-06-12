@@ -10,11 +10,12 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>void</type><methodname>ZMQContext::isPersistent</methodname>
+   <modifier>public</modifier> <type>boolean</type><methodname>ZMQContext::isPersistent</methodname>
    <void />
   </methodsynopsis>
   <para>
-    Whether the context is persistent.
+    Whether the context is persistent. Persistent context is needed for persistent connections as each
+    socket is allocated from a context.
   </para>
  </refsect1>
 

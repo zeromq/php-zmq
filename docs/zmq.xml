@@ -167,14 +167,14 @@
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
-     <varname linkend="zmq.constants.mode-sndmore">ZMQ::MODE_SNDMORE</varname>
-     <initializer>2</initializer>
+     <varname linkend="zmq.constants.mode-noblock">ZMQ::MODE_NOBLOCK</varname>
+     <initializer>1</initializer>
     </fieldsynopsis>
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
-     <varname linkend="zmq.constants.mode-noblock">ZMQ::MODE_NOBLOCK</varname>
-     <initializer>1</initializer>
+     <varname linkend="zmq.constants.mode-sndmore">ZMQ::MODE_SNDMORE</varname>
+     <initializer>2</initializer>
     </fieldsynopsis>
     <fieldsynopsis>
      <modifier>const</modifier>
@@ -287,77 +287,77 @@
      <varlistentry xml:id="zmq.constants.sockopt-swap">
       <term><constant>ZMQ::SOCKOPT_SWAP</constant></term>
       <listitem>
-       <para>Set disk offload size</para>
+       <para>Set disk offload size (Value: &integer;)</para>
       </listitem>
      </varlistentry>
 
      <varlistentry xml:id="zmq.constants.sockopt-affinity">
       <term><constant>ZMQ::SOCKOPT_AFFINITY</constant></term>
       <listitem>
-       <para> Set I/O thread affinity</para>
+       <para> Set I/O thread affinity (Value: &integer;)</para>
       </listitem>
      </varlistentry>
 
      <varlistentry xml:id="zmq.constants.sockopt-identity">
       <term><constant>ZMQ::SOCKOPT_IDENTITY</constant></term>
       <listitem>
-       <para>Set socket identity</para>
+       <para>Set socket identity (Value: &string;)</para>
       </listitem>
      </varlistentry>
 
      <varlistentry xml:id="zmq.constants.sockopt-subscribe">
       <term><constant>ZMQ::SOCKOPT_SUBSCRIBE</constant></term>
       <listitem>
-       <para>Establish message filter. Valid for subscriber socket</para>
+       <para>Establish message filter. Valid for subscriber socket (Value: &string;)</para>
       </listitem>
      </varlistentry>
 
      <varlistentry xml:id="zmq.constants.sockopt-unsubscribe">
       <term><constant>ZMQ::SOCKOPT_UNSUBSCRIBE</constant></term>
       <listitem>
-       <para>Remove message filter. Valid for subscriber socket</para>
+       <para>Remove message filter. Valid for subscriber socket (Value: &string;)</para>
       </listitem>
      </varlistentry>
 
      <varlistentry xml:id="zmq.constants.sockopt-rate">
       <term><constant>ZMQ::SOCKOPT_RATE</constant></term>
       <listitem>
-       <para>Set rate for multicast sockets (pgm)</para>
+       <para>Set rate for multicast sockets (pgm) (Value: &integer; >= 0)</para>
       </listitem>
      </varlistentry>
 
      <varlistentry xml:id="zmq.constants.sockopt-recovery-ivl">
       <term><constant>ZMQ::SOCKOPT_RECOVERY_IVL</constant></term>
       <listitem>
-       <para> Set multicast recovery interval</para>
+       <para> Set multicast recovery interval (Value: &integer; >= 0)</para>
       </listitem>
      </varlistentry>
 
      <varlistentry xml:id="zmq.constants.sockopt-mcast-loop">
       <term><constant>ZMQ::SOCKOPT_MCAST_LOOP</constant></term>
       <listitem>
-       <para> Control multicast loopback</para>
+       <para> Control multicast loopback (Value: &integer; >= 0)</para>
       </listitem>
      </varlistentry>
 
      <varlistentry xml:id="zmq.constants.sockopt-sndbuf">
       <term><constant>ZMQ::SOCKOPT_SNDBUF</constant></term>
       <listitem>
-       <para>Set kernel transmit buffer size</para>
+       <para>Set kernel transmit buffer size (Value: &integer; >= 0)</para>
       </listitem>
      </varlistentry>
 
      <varlistentry xml:id="zmq.constants.sockopt-rcvbuf">
       <term><constant>ZMQ::SOCKOPT_RCVBUF</constant></term>
       <listitem>
-       <para> Set kernel receive buffer size</para>
+       <para> Set kernel receive buffer size (Value: &integer; >= 0)</para>
       </listitem>
      </varlistentry>
 
      <varlistentry xml:id="zmq.constants.sockopt-rcvmore">
       <term><constant>ZMQ::SOCKOPT_RCVMORE</constant></term>
       <listitem>
-       <para>Receive multi-part messages</para>
+       <para>Receive multi-part messages (Value: &integer;)</para>
       </listitem>
      </varlistentry>
 
@@ -374,18 +374,18 @@
        <para>Poll for outgoing data</para>
       </listitem>
      </varlistentry>
+     
+     <varlistentry xml:id="zmq.constants.mode-noblock">
+      <term><constant>ZMQ::MODE_NOBLOCK</constant></term>
+      <listitem>
+       <para>Non-blocking operation</para>
+      </listitem>
+     </varlistentry>
 
      <varlistentry xml:id="zmq.constants.mode-sndmore">
       <term><constant>ZMQ::MODE_SNDMORE</constant></term>
       <listitem>
        <para>Send multi-part message</para>
-      </listitem>
-     </varlistentry>
-
-     <varlistentry xml:id="zmq.constants.mode-noblock">
-      <term><constant>ZMQ::MODE_NOBLOCK</constant></term>
-      <listitem>
-       <para>Non-blocking operation</para>
       </listitem>
      </varlistentry>
      

@@ -14,7 +14,7 @@
    <void />
   </methodsynopsis>
   <para>
-   Whether the socket is persistent.
+   Check whether the socket is persistent.
   </para>
  </refsect1>
 

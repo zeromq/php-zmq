@@ -14,8 +14,8 @@
    <methodparam><type>mixed</type><parameter>item</parameter></methodparam>
   </methodsynopsis>
   <para>
-   Remove item from the poll set. The parameter can be the original item or the id
-   returned from <function>ZMQPoll::add</function> method.
+   Remove item from the poll set. The <parameter>item</parameter> parameter can be ZMQSocket object,
+   a stream resource or the id returned from <function>ZMQPoll::add</function> method.
   </para>
  </refsect1>
 
@@ -27,7 +27,7 @@
      <term><parameter>item</parameter></term>
      <listitem>
       <para>
-       The ZMQSocket object, PHP stream or &string; id of the item
+       The ZMQSocket object, PHP stream or &string; id of the item.
       </para>
      </listitem>
     </varlistentry>
@@ -38,7 +38,8 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   Returns true if the object was removed and false if the object was not found.
+   Returns true if the item was removed and false if the object 
+   with given id does not exist in the poll set.
   </para>
  </refsect1>
 

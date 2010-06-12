@@ -28,7 +28,7 @@
      <term><parameter>dsn</parameter></term>
      <listitem>
       <para>
-       The connect dsn, for example "tcp://127.0.0.1:5555"
+       The connect dsn, for example "tcp://127.0.0.1:5555".
       </para>
      </listitem>
     </varlistentry>
@@ -36,7 +36,7 @@
      <term><parameter>force</parameter></term>
      <listitem>
       <para>
-       Tries to connect even if the socket has already been connected to this endpoint
+       Tries to connect even if the socket has already been connected to given endpoint.
       </para>
      </listitem>
     </varlistentry>

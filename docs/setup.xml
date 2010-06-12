@@ -8,13 +8,8 @@
   &reftitle.required;
   <para>
    ZMQ extension requires 0MQ version 2.0.7 or higher. 0MQ can be acquired from <link xlink:href="&url.zeromq;area:download">&url.zeromq;area:download</link>.
-  </para>
- 
-  <!-- {{{ Installation -->
-   &reference.zmq.configure;
-  <!-- or &reference.zmq.configure; -->
-  <!-- }}} -->
- 
+  </para> 
+  &reference.zmq.configure;
  </section>
 </chapter>
 
