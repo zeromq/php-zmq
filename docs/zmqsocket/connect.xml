@@ -15,7 +15,7 @@
    <methodparam choice="opt"><type>boolean</type><parameter>force</parameter><initializer>false</initializer></methodparam>
   </methodsynopsis>
   <para>
-   Connect the socket to a remote endpoint. The endpoint is defined in format "transport://address" where 
+   Connect the socket to a remote endpoint. The endpoint is defined in format <literal>transport://address</literal> where 
    transport is one of the following: inproc, ipc, tcp, pgm or epgm.
   </para>
  </refsect1>
@@ -28,7 +28,7 @@
      <term><parameter>dsn</parameter></term>
      <listitem>
       <para>
-       The connect dsn, for example "tcp://127.0.0.1:5555".
+       The connect dsn, for example <literal>transport://address</literal>.
       </para>
      </listitem>
     </varlistentry>

@@ -42,9 +42,9 @@
  &reftitle.examples;
   <para>
    <example>
-    <title>A <function>ZMQContext</function> example</title>
+    <title>A send/recv example</title>
     <para>
-     Construct a new context and allocate request socket from it
+     Non-blocking send / receive
     </para>
     <programlisting role="php">
 <![CDATA[
