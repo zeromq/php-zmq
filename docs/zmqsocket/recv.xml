@@ -73,7 +73,7 @@ do {
     } catch (ZMQSocketException $e) {
         /* EAGAIN means that the operation would have blocked, retry */
         if ($e->getCode() === ZMQ::ERR_EAGAIN) {
-            echo " - Unable to execute operation, retrying ($retries)\n";
+            echo " - Got EAGAIN, retrying ($retries)\n";
         } else {
             die(" - Error: " . $e->getMessage());
         }
