@@ -15,8 +15,8 @@
    <methodparam><type>integer</type><parameter>type</parameter></methodparam>
   </methodsynopsis>
   <para>
-   Adds a new item to the poll set and returns the internal id of the added item. The poll set item
-   can be later removed using the given id.
+   Adds a new item to the poll set and returns the internal id of the added item. The item can be removed
+   from the poll set using the returned string id.
   </para>
  </refsect1>
 

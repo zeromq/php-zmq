@@ -15,8 +15,8 @@
    <methodparam choice="opt"><type>string</type><parameter>persistent_id</parameter><initializer>null</initializer></methodparam>
   </methodsynopsis>
   <para>
-   Shortcut for creating new sockets from the context. If the context is not persistent the <parameter>persistent_id</parameter> is
-   ignored and the socket falls back to being non-persistent.
+   Shortcut for creating new sockets from the context. If the context is not persistent the <parameter>persistent_id</parameter> 
+   parameter is ignored and the socket falls back to being non-persistent.
   </para>
  </refsect1>
 
