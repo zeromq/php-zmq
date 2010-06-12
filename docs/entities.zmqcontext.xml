@@ -1,0 +1,3 @@
+&reference.zmq.zmqcontext.construct;
+&reference.zmq.zmqcontext.getsocket;
+&reference.zmq.zmqcontext.ispersistent;

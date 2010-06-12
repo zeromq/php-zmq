@@ -1,0 +1,11 @@
+&reference.zmq.zmqsocket.bind;
+&reference.zmq.zmqsocket.connect;
+&reference.zmq.zmqsocket.construct;
+&reference.zmq.zmqsocket.getendpoints;
+&reference.zmq.zmqsocket.getpersistentid;
+&reference.zmq.zmqsocket.getsockettype;
+&reference.zmq.zmqsocket.getsockopt;
+&reference.zmq.zmqsocket.ispersistent;
+&reference.zmq.zmqsocket.recv;
+&reference.zmq.zmqsocket.send;
+&reference.zmq.zmqsocket.setsockopt;

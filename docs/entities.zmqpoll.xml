@@ -1,0 +1,6 @@
+&reference.zmq.zmqpoll.add;
+&reference.zmq.zmqpoll.clear;
+&reference.zmq.zmqpoll.count;
+&reference.zmq.zmqpoll.getlasterrors;
+&reference.zmq.zmqpoll.poll;
+&reference.zmq.zmqpoll.remove;

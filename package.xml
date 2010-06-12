@@ -13,15 +13,15 @@
  <date>2010-06-09</date>
  <time>15:33:53</time>
  <version>
-  <release>0.3.0</release>
-  <api>0.3.0</api>
+  <release>0.4.0</release>
+  <api>0.4.0</api>
  </version>
  <stability>
   <release>beta</release>
   <api>beta</api>
  </stability>
  <license>BSD License</license>
- <notes>- Major refactoring</notes>
+ <notes>- Fix memory errors / other bugs</notes>
  <contents>
   <dir name="/">
    <!-- Support files -->
