@@ -80,6 +80,7 @@ $message = $socket->recv();
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
+   Throws ZMQContextException if context initialization fails.
   </para>
  </refsect1>
 

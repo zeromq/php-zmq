@@ -30,7 +30,7 @@
      <term><parameter>context</parameter></term>
      <listitem>
       <para>
-       ZMQContext used to allocate this socket.
+       ZMQContext object.
       </para>
      </listitem>
     </varlistentry>
@@ -46,8 +46,8 @@
      <term><parameter>persistent_id</parameter></term>
      <listitem>
       <para>
-        Whether the context is persistent. Persistent context is stored
-        over multiple requests and is a requirement for persistent sockets.
+       If <parameter>persistent_id</parameter> is specified the socket will be persisted over multiple requests.
+       If <parameter>context</parameter> is not persistent the socket falls back to non-persistent mode.
       </para>
      </listitem>
     </varlistentry>

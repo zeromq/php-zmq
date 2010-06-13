@@ -36,8 +36,7 @@
      <term><parameter>persistent_id</parameter></term>
      <listitem>
       <para>
-       Persists the socket with this id. If <parameter>persistent_id</parameter> is specified
-       the socket will be persisted over multiple requests.
+       If <parameter>persistent_id</parameter> is specified the socket will be persisted over multiple requests.
       </para>
      </listitem>
     </varlistentry>

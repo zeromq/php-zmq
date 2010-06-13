@@ -61,6 +61,8 @@ static zend_object_handlers zmq_poll_object_handlers;
 
 #define PHP_ZMQ_INTERNAL_ERROR -99
 
+#define PHP_ZMQ_IDENTITY_LEN 255
+
 /* list entries */
 static int le_zmq_socket, le_zmq_context;
 
@@ -117,7 +119,7 @@ static php_zmq_context *php_zmq_context_new(long io_threads, zend_bool is_persis
 	
 	if (!context->z_ctx) {
 		pefree(context, is_persistent);
-		php_error_docref(NULL TSRMLS_CC, E_ERROR, "Error creating context: %s", zmq_strerror(errno));
+		return NULL;
 	}
 	
 	context->io_threads    = io_threads;
@@ -148,6 +150,10 @@ static php_zmq_context *php_zmq_context_get(long io_threads, zend_bool is_persis
 	}
 	
 	context = php_zmq_context_new(io_threads, is_persistent TSRMLS_CC);
+	
+	if (!context) {
+		return NULL;
+	}
 
 	if (is_persistent) {
 		le.type = php_zmq_context_list_entry();
@@ -180,9 +186,13 @@ PHP_METHOD(zmqcontext, __construct)
 		return;
 	}
 	
-	intern = PHP_ZMQ_CONTEXT_OBJECT;
-	
+	intern          = PHP_ZMQ_CONTEXT_OBJECT;
 	intern->context = php_zmq_context_get(io_threads, is_persistent TSRMLS_CC);
+	
+	if (!intern->context) {
+		zend_throw_exception_ex(php_zmq_context_exception_sc_entry, errno TSRMLS_CC, "Error creating context: %s", zmq_strerror(errno));
+		return;
+	}
 	return;
 }
 /* }}} */
@@ -211,7 +221,7 @@ static php_zmq_socket *php_zmq_socket_new(php_zmq_context *context, int type, ze
 }
 /* }}} */
 
-/* {{{ static php_zmq_socket *php_zmq_socket_get(php_zmq_context *context, int type, const char *persistent_id TSRMLS_DC)
+/* {{{ static php_zmq_socket *php_zmq_socket_get(php_zmq_context *context, int type, const char *persistent_id, int persistent_id_len TSRMLS_DC)
 	Tries to get context from plist and allocates a new context if context does not exist
 */
 static php_zmq_socket *php_zmq_socket_get(php_zmq_context *context, int type, const char *persistent_id TSRMLS_DC)
@@ -240,7 +250,7 @@ static php_zmq_socket *php_zmq_socket_get(php_zmq_context *context, int type, co
 	zmq_sock_p = php_zmq_socket_new(context, type, is_persistent TSRMLS_CC);
 	
 	if (!zmq_sock_p) {
-		if (plist_key) {
+		if (is_persistent) {
 			efree(plist_key);
 		}
 		return NULL;
@@ -252,7 +262,7 @@ static php_zmq_socket *php_zmq_socket_get(php_zmq_context *context, int type, co
 		le.type = php_zmq_socket_list_entry();
 		le.ptr  = zmq_sock_p;
 		
-		if (zend_hash_update(&EG(persistent_list), (char *)plist_key, plist_key_len, (void *)&le, sizeof(le), NULL) == FAILURE) {
+		if (zend_hash_update(&EG(persistent_list), plist_key, plist_key_len, (void *)&le, sizeof(le), NULL) == FAILURE) {
 			php_error_docref(NULL TSRMLS_CC, E_ERROR, "Could not register persistent entry for the socket");
 		}
 		efree(plist_key);
@@ -450,7 +460,7 @@ PHP_METHOD(zmqsocket, getpersistentid)
 	
 	intern = PHP_ZMQ_SOCKET_OBJECT;
 	
-	if (intern->persistent_id) {
+	if (intern->socket->is_persistent && intern->persistent_id) {
 		RETURN_STRING(intern->persistent_id, 1);
 	}
 	RETURN_NULL();
@@ -698,9 +708,9 @@ PHP_METHOD(zmqsocket, getsockopt)
 		
 		case ZMQ_IDENTITY:
 		{
-			unsigned char value[255];
+			unsigned char value[PHP_ZMQ_IDENTITY_LEN];
 			
-			value_len = 255;
+			value_len = PHP_ZMQ_IDENTITY_LEN;
 			if (zmq_getsockopt(intern->socket->z_socket, (int) key, value, &value_len) != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry, errno TSRMLS_CC, "Failed to get the option value: %s", zmq_strerror(errno));
 				return;
@@ -1279,7 +1289,7 @@ PHP_MINIT_FUNCTION(zmq)
 	memcpy(&zmq_poll_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
 	
 	INIT_CLASS_ENTRY(ce, "ZMQ", php_zmq_class_methods);
-	ce.create_object = NULL;
+	ce.create_object              = NULL;
 	zmq_object_handlers.clone_obj = NULL;
 	php_zmq_sc_entry = zend_register_internal_class(&ce TSRMLS_CC);
 	
