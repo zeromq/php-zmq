@@ -30,6 +30,8 @@ fclose($fp);
 var_dump($poll->poll($a, $b, 100));
 var_dump($poll->getLastErrors());
 
+$poll->remove($fp_id);
+
 $poll->clear();
 var_dump($poll->count());
 

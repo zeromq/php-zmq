@@ -43,6 +43,53 @@
    </variablelist>
   </para>
  </refsect1>
+ 
+ <refsect1 role="examples">
+ &reftitle.examples;
+  <para>
+   <example>
+    <title>A <function>ZMQContext</function> example</title>
+    <para>
+     Construct a new context and allocate request socket from it
+    </para>
+    <programlisting role="php">
+<![CDATA[
+<?php
+/* Server hostname */
+$dsn = "tcp://127.0.0.1:5555";
+
+/* Create a socket */
+$socket = new ZMQSocket(new ZMQContext(), ZMQ::SOCKET_REQ, 'my socket');
+
+/* Get list of connected endpoints */
+$endpoints = $socket->getEndpoints();
+
+/* Check if the socket is connected */
+if (!in_array($dsn, $endpoints['connect'])) {
+    echo "<p>Connecting to $dsn</p>";
+    $socket->connect($dsn);
+} else {
+    echo "<p>Already connected to $dsn</p>";
+}
+
+/* Send and receive */
+$socket->send("Hello!");
+$message = $socket->recv();
+
+echo "<p>Server said: {$message}</p>";
+?>
+]]>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
+
+  <refsect1 role="returnvalues">
+   &reftitle.returnvalues;
+   <para>
+    Throws ZMQContextException if context initialization fails.
+   </para>
+  </refsect1> 
 
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;

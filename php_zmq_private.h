@@ -62,6 +62,9 @@ typedef struct _php_zmq_pollset {
 	zmq_pollitem_t *items;
 	int num_items;
 	
+	/* How many allocated */
+	int allocated_items;
+	
 	/* Errors in the last poll */
 	zval *errors;
 } php_zmq_pollset;

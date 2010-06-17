@@ -216,7 +216,7 @@ static php_zmq_socket *php_zmq_socket_new(php_zmq_context *context, int type, ze
 	zmq_sock->is_persistent = is_persistent;
 
 	zend_hash_init(&(zmq_sock->connect), 0, NULL, NULL, is_persistent);
-	zend_hash_init(&(zmq_sock->bind), 0, NULL, NULL, is_persistent);
+	zend_hash_init(&(zmq_sock->bind),    0, NULL, NULL, is_persistent);
 	return zmq_sock;
 }
 /* }}} */
@@ -305,7 +305,7 @@ PHP_METHOD(zmqcontext, getsocket)
 	
 	/* Need to add refcount if context is not persistent */
 	if (!intern->context->is_persistent) {
-		Z_ADDREF_P(getThis());
+		zend_objects_store_add_ref(getThis() TSRMLS_CC);
 		interns->context_obj = getThis();
 	}
 	return;
@@ -366,7 +366,7 @@ PHP_METHOD(zmqsocket, __construct)
 	
 	/* Need to add refcount if context is not persistent */
 	if (!internc->context->is_persistent) {
-		Z_ADDREF_P(obj);
+		zend_objects_store_add_ref(obj TSRMLS_CC);
 		intern->context_obj = obj;
 	}
 	return;
@@ -1134,9 +1134,9 @@ static void php_zmq_socket_object_free_storage(void *object TSRMLS_DC)
 	if (!intern) {
 		return;
 	}
-	
+
 	if (intern->context_obj) {
-		Z_DELREF_P(intern->context_obj);
+		zend_objects_store_del_ref(intern->context_obj);
 	}
 
 	if (intern->socket) {
@@ -1148,7 +1148,7 @@ static void php_zmq_socket_object_free_storage(void *object TSRMLS_DC)
 			php_zmq_socket_destroy(intern->socket);
 		}
 	}
-	
+
 	zend_object_std_dtor(&intern->zo TSRMLS_CC);
 	efree(intern);
 }
@@ -1161,9 +1161,8 @@ static void php_zmq_poll_object_free_storage(void *object TSRMLS_DC)
 		return;
 	}
 
-	php_zmq_pollset_deinit(&(intern->set)); 
+	php_zmq_pollset_deinit(&(intern->set));
 	zend_object_std_dtor(&intern->zo TSRMLS_CC);
-	
 	efree(intern);
 }
 

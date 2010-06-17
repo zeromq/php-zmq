@@ -37,8 +37,8 @@ void php_zmq_pollset_init(php_zmq_pollset *set)
 	set->items         = NULL;
 	set->php_items     = NULL;
 		
-	set->num_items     = 0;
-	set->num_php_items = 0;
+	set->num_items       = 0;
+	set->num_php_items   = 0;
 	
 	MAKE_STD_ZVAL(set->errors);
 	array_init(set->errors);
@@ -62,14 +62,14 @@ void php_zmq_pollset_clear(php_zmq_pollset *set)
 void php_zmq_pollset_deinit(php_zmq_pollset *set TSRMLS_DC)
 {
 	int i;
-	
+
 	for (i = 0; i < set->num_php_items; i++) {
 		if (Z_TYPE_P(set->php_items[i].entry) == IS_RESOURCE) {
-			Z_DELREF_P(set->php_items[i].entry);
-		} else {
+			zval_ptr_dtor(&(set->php_items[i].entry));
+	 	} else {
 			zend_objects_store_del_ref(set->php_items[i].entry TSRMLS_CC);
 		}
-	}
+	} 
 	php_zmq_pollset_clear(set);
 	
 	zval_dtor(set->errors);
@@ -82,7 +82,7 @@ void php_zmq_pollset_delete_all(php_zmq_pollset *set TSRMLS_DC)
 	
 	for (i = 0; i < set->num_php_items; i++) {
 		if (Z_TYPE_P(set->php_items[i].entry) == IS_RESOURCE) {
-			Z_DELREF_P(set->php_items[i].entry);
+			zval_ptr_dtor(&(set->php_items[i].entry));
 		} else {
 			zend_objects_store_del_ref(set->php_items[i].entry TSRMLS_CC);
 		}
@@ -240,22 +240,29 @@ static void php_zmq_pollitem_copy(php_zmq_pollitem *target, php_zmq_pollitem *so
 zend_bool php_zmq_pollset_delete_by_key(php_zmq_pollset *set, char key[35], int key_len)
 {	
 	php_zmq_pollitem *php_items = NULL;
-	int i, num_php_items = 0;
+	int i, num_php_items = 0, alloc_size;
 	zend_bool match = 0;
 	
+	alloc_size = (set->num_php_items - 1);
+	php_items  = ecalloc(alloc_size, sizeof(php_zmq_pollitem));
+
 	for (i = 0; i < set->num_php_items; i++) {
-		if (key_len == set->php_items[i].key_len &&
+		if (!match && key_len == set->php_items[i].key_len &&
 			!memcmp(set->php_items[i].key, key, key_len)) {	
 				
 			if (Z_TYPE_P(set->php_items[i].entry) == IS_RESOURCE) {
-				Z_DELREF_P(set->php_items[i].entry);
+				zval_ptr_dtor(&(set->php_items[i].entry));
 			} else {
 				zend_objects_store_add_ref(set->php_items[i].entry TSRMLS_CC);
 			}
 			match = 1;
 			continue;
 		}
-		php_items = erealloc(php_items, (num_php_items + 1) * sizeof(php_zmq_pollitem));
+		
+		/* Looks like the key was not found, need to realloc */
+		if (num_php_items >= alloc_size) {
+			php_items = erealloc(php_items, (num_php_items + 1) * sizeof(php_zmq_pollitem));
+		}
 		php_zmq_pollitem_copy(&(php_items[num_php_items]), &(set->php_items[i]));
 		num_php_items++;
 	}
