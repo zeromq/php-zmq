@@ -1288,7 +1288,7 @@ PHP_MINIT_FUNCTION(zmq)
 	memcpy(&zmq_poll_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
 	
 	INIT_CLASS_ENTRY(ce, "ZMQ", php_zmq_class_methods);
-	ce.create_object              = NULL;
+	ce.create_object = NULL;
 	zmq_object_handlers.clone_obj = NULL;
 	php_zmq_sc_entry = zend_register_internal_class(&ce TSRMLS_CC);
 	
