@@ -49,9 +49,9 @@ void php_zmq_pollset_init(php_zmq_pollset *set);
 void php_zmq_pollset_deinit(php_zmq_pollset *set);
 /* }}} */
 
-/** {{{ void php_zmq_pollset_clear(php_zmq_pollset *set);
+/** {{{ void php_zmq_pollset_clear(php_zmq_pollset *set, zend_bool reinit);
 */
-void php_zmq_pollset_clear(php_zmq_pollset *set);
+void php_zmq_pollset_clear(php_zmq_pollset *set, zend_bool reinit);
 /* }}} */
 
 /** {{{ int php_zmq_pollset_add(php_zmq_pollset *set, zval *entry, int events);
