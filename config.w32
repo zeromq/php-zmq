@@ -6,7 +6,7 @@ if (PHP_ZMQ != "no") {
         && CHECK_LIB("libzmq.lib", "zmq", PHP_PHP_BUILD + "\\lib;" + PHP_ZMQ))
 	{
 		ADD_FLAG("CFLAGS_ZMQ", "/D HAVE_ZMQ_GETSOCKOPT");
-		EXTENSION('zmq', 'zmq.c');
+		EXTENSION('zmq', 'zmq.c zmq_pollset.c');
 		AC_DEFINE('HAVE_ZMQ', 1);
 	} else {
 		WARNING("zmq not enabled; libraries and headers not found");

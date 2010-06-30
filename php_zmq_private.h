@@ -35,8 +35,13 @@
 #include "Zend/zend_exceptions.h"
 #include "ext/spl/php_spl.h"
 
-#include <stdint.h>
 #include <zmq.h>
+
+#ifdef PHP_WIN32
+# include "win32/php_stdint.h"
+#else
+# include <stdint.h>
+#endif
 
 /* {{{ typedef struct _php_zmq_pollitem 
 */

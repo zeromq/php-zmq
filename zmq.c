@@ -382,7 +382,7 @@ PHP_METHOD(zmqsocket, send)
 	char *message_param; 
 	
 	zmq_msg_t message;
-	int _errno, rc, message_param_len;
+	int errno_, rc, message_param_len;
 	long flags = 0;
 	
 
@@ -399,12 +399,12 @@ PHP_METHOD(zmqsocket, send)
 	memcpy(zmq_msg_data(&message), message_param, message_param_len);
 	
 	rc = zmq_send(intern->socket->z_socket, &message, flags);
-	_errno = errno;
+	errno_ = errno;
 	
 	zmq_msg_close(&message);
 	
 	if (rc != 0) {
-		zend_throw_exception_ex(php_zmq_socket_exception_sc_entry, _errno TSRMLS_CC, "Failed to send message: %s", zmq_strerror(_errno));
+		zend_throw_exception_ex(php_zmq_socket_exception_sc_entry, errno_ TSRMLS_CC, "Failed to send message: %s", zmq_strerror(errno_));
 		return;	
 	}
 	ZMQ_RETURN_THIS;
@@ -419,7 +419,7 @@ PHP_METHOD(zmqsocket, recv)
 	php_zmq_socket_object *intern;
 	zmq_msg_t message;
 	long flags = 0, rc;
-	int _errno; 
+	int errno_; 
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|l", &flags) == FAILURE) {
 		return;
@@ -433,11 +433,11 @@ PHP_METHOD(zmqsocket, recv)
 	}
 	
 	rc = zmq_recv(intern->socket->z_socket, &message, flags);
-	_errno = errno;
+	errno_ = errno;
 
 	if (rc != 0) {
 		zmq_msg_close(&message);
-		zend_throw_exception_ex(php_zmq_socket_exception_sc_entry, _errno TSRMLS_CC, "Failed to receive message: %s", zmq_strerror(_errno));
+		zend_throw_exception_ex(php_zmq_socket_exception_sc_entry, errno_ TSRMLS_CC, "Failed to receive message: %s", zmq_strerror(errno_));
 		return;
 	}
 
