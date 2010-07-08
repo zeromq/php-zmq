@@ -47,18 +47,6 @@ static zend_object_handlers zmq_socket_object_handlers;
 static zend_object_handlers zmq_context_object_handlers;
 static zend_object_handlers zmq_poll_object_handlers;
 
-#ifndef Z_ADDREF_P
-# define Z_ADDREF_P(pz) (pz)->refcount++
-#endif
-
-#ifndef Z_DELREF_P
-# define Z_DELREF_P(pz) (pz)->refcount--
-#endif
-
-#ifndef Z_REFCOUNT_P
-# define Z_REFCOUNT_P(pz) (pz)->refcount
-#endif
-
 #define PHP_ZMQ_INTERNAL_ERROR -99
 
 #define PHP_ZMQ_IDENTITY_LEN 255
@@ -526,16 +514,21 @@ PHP_METHOD(zmqsocket, connect)
 		return;
 	}
 
-	zend_hash_add(&(intern->socket->connect), dsn, dsn_len + 1, (void *)&dummy, sizeof(void *), NULL);
+	(void) zend_hash_add(&(intern->socket->connect), dsn, dsn_len + 1, (void *)&dummy, sizeof(void *), NULL);
 	ZMQ_RETURN_THIS;
 }
 /* }}} */
 
-/* {{{ static int php_zmq_get_keys(zval **ppzval TSRMLS_DC, int num_args, va_list args, zend_hash_key *hash_key) */
+#if (PHP_MAJOR_VERSION >= 5 && PHP_MINOR_VERSION < 3)
+static int php_zmq_get_keys(zval **ppzval, int num_args, va_list args, zend_hash_key *hash_key)
+{
+	TSRMLS_FETCH();
+#else
 static int php_zmq_get_keys(zval **ppzval TSRMLS_DC, int num_args, va_list args, zend_hash_key *hash_key)
 {
+#endif
 	zval *retval;
-	
+
 	if (num_args != 1) {
 		/* Incorrect args ? */
 		return ZEND_HASH_APPLY_KEEP;
@@ -547,7 +540,7 @@ static int php_zmq_get_keys(zval **ppzval TSRMLS_DC, int num_args, va_list args,
 		/* Should not happen */
 		return ZEND_HASH_APPLY_REMOVE;
 	}
-	
+
 	add_next_index_stringl(retval, hash_key->arKey, hash_key->nKeyLength - 1, 1);
 	return ZEND_HASH_APPLY_KEEP;
 }
@@ -574,8 +567,13 @@ PHP_METHOD(zmqsocket, getendpoints)
 	array_init(connect);
 	array_init(bind);
 
+#if (PHP_MAJOR_VERSION >= 5 && PHP_MINOR_VERSION < 3)
+	zend_hash_apply_with_arguments(&(intern->socket->connect), (apply_func_args_t) php_zmq_get_keys, 1, connect);
+	zend_hash_apply_with_arguments(&(intern->socket->bind), (apply_func_args_t) php_zmq_get_keys, 1, bind);
+#else
 	zend_hash_apply_with_arguments(&(intern->socket->connect) TSRMLS_CC, (apply_func_args_t) php_zmq_get_keys, 1, connect);
 	zend_hash_apply_with_arguments(&(intern->socket->bind) TSRMLS_CC, (apply_func_args_t) php_zmq_get_keys, 1, bind);
+#endif
 
 	add_assoc_zval(return_value, "connect", connect);
 	add_assoc_zval(return_value, "bind", bind);
@@ -843,7 +841,7 @@ PHP_METHOD(zmqpoll, add)
 		return;
 	}
 	
-	if (!php_zmq_pollset_get_key(&(intern->set), pos, key, &key_len)) {
+	if (!php_zmq_pollset_get_key(&(intern->set), pos, key, &key_len TSRMLS_CC)) {
 		zend_throw_exception(php_zmq_poll_exception_sc_entry, "Failed to get the item key", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
 		return;
 	}
@@ -881,12 +879,12 @@ PHP_METHOD(zmqpoll, remove)
 			}
 			/* break intentionally missing */
 		case IS_RESOURCE:
-			RETVAL_BOOL(php_zmq_pollset_delete(&(intern->set), item));
+			RETVAL_BOOL(php_zmq_pollset_delete(&(intern->set), item TSRMLS_CC));
 		break;
 		
 		default:
 			convert_to_string(item);
-			RETVAL_BOOL(php_zmq_pollset_delete_by_key(&(intern->set), Z_STRVAL_P(item), Z_STRLEN_P(item)));
+			RETVAL_BOOL(php_zmq_pollset_delete_by_key(&(intern->set), Z_STRVAL_P(item), Z_STRLEN_P(item) TSRMLS_CC));
 		break;
 	}
 	
@@ -955,7 +953,7 @@ PHP_METHOD(zmqpoll, clear)
 	
 	intern = PHP_ZMQ_POLL_OBJECT;
 	
-	php_zmq_pollset_delete_all(&(intern->set));
+	php_zmq_pollset_delete_all(&(intern->set) TSRMLS_CC);
 	ZMQ_RETURN_THIS;
 }
 /* }}} */
@@ -1136,7 +1134,7 @@ static void php_zmq_socket_object_free_storage(void *object TSRMLS_DC)
 	}
 
 	if (intern->context_obj) {
-		zend_objects_store_del_ref(intern->context_obj);
+		zend_objects_store_del_ref(intern->context_obj TSRMLS_CC);
 	}
 
 	if (intern->socket) {
@@ -1161,7 +1159,7 @@ static void php_zmq_poll_object_free_storage(void *object TSRMLS_DC)
 		return;
 	}
 
-	php_zmq_pollset_deinit(&(intern->set));
+	php_zmq_pollset_deinit(&(intern->set) TSRMLS_CC);
 	zend_object_std_dtor(&intern->zo TSRMLS_CC);
 	efree(intern);
 }

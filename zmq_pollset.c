@@ -32,6 +32,12 @@
 #include "php_zmq_private.h"
 #include "php_zmq_pollset.h"
 
+#if (PHP_MAJOR_VERSION >= 5 && PHP_MINOR_VERSION < 3)
+# include "ext/standard/md5.h"
+#else
+# include "ext/spl/php_spl.h"
+#endif
+
 #define PHP_ZMQ_ALLOC_SIZE 5
 
 void php_zmq_pollset_init(php_zmq_pollset *set) 
@@ -96,7 +102,28 @@ void php_zmq_pollset_delete_all(php_zmq_pollset *set TSRMLS_DC)
 	php_zmq_pollset_clear(set, 1);
 }
 
-static void php_zmq_create_key(zval *entry, char key[35], int *key_len)
+#if (PHP_MAJOR_VERSION >= 5 && PHP_MINOR_VERSION < 3)
+static void php_spl_object_hash(zval *obj, char *result TSRMLS_DC) /* {{{*/
+{
+	PHP_MD5_CTX context;
+    unsigned char digest[16];
+	
+	char *hash;
+	int len;
+	
+	len = spprintf(&hash, 0, "%p:%d", Z_OBJ_HT_P(obj), Z_OBJ_HANDLE_P(obj));
+    
+    result[0] = '\0';
+    PHP_MD5Init(&context);
+    PHP_MD5Update(&context, (unsigned char*)hash, len);
+    PHP_MD5Final(digest, &context);
+    make_digest(result, digest);
+    efree(hash);
+}
+/* }}} */
+#endif
+
+static void php_zmq_create_key(zval *entry, char key[35], int *key_len TSRMLS_DC)
 {
 	if (Z_TYPE_P(entry) == IS_RESOURCE) {
 		*key_len = snprintf(key, 35, "r:%d", Z_LVAL_P(entry));
@@ -107,7 +134,7 @@ static void php_zmq_create_key(zval *entry, char key[35], int *key_len)
 	}
 }
 
-zend_bool php_zmq_pollset_get_key(php_zmq_pollset *set, int pos, char key[35], int *key_len)
+zend_bool php_zmq_pollset_get_key(php_zmq_pollset *set, int pos, char key[35], int *key_len TSRMLS_DC)
 {
 	if (pos >= set->num_php_items || pos < 0) {
 		return 0;
@@ -121,7 +148,7 @@ zend_bool php_zmq_pollset_get_key(php_zmq_pollset *set, int pos, char key[35], i
 	return 1;
 }
 
-int php_zmq_pollset_add(php_zmq_pollset *pollset, zval *entry, int events) 
+int php_zmq_pollset_add(php_zmq_pollset *pollset, zval *entry, int events TSRMLS_DC) 
 {
 	int i;
 	char key[35];
@@ -134,7 +161,7 @@ int php_zmq_pollset_add(php_zmq_pollset *pollset, zval *entry, int events)
 		return PHP_ZMQ_POLLSET_ERR_INVALID_TYPE;
 	}
 	
-	php_zmq_create_key(entry, key, &key_len);
+	php_zmq_create_key(entry, key, &key_len TSRMLS_CC);
 
 	if (!key_len || key_len > 34) {
 		return PHP_ZMQ_POLLSET_ERR_KEY_FAIL;
@@ -251,7 +278,7 @@ static void php_zmq_pollitem_copy(php_zmq_pollitem *target, php_zmq_pollitem *so
 	memcpy(target->key, source->key, source->key_len + 1);
 }
 
-zend_bool php_zmq_pollset_delete_by_key(php_zmq_pollset *set, char key[35], int key_len)
+zend_bool php_zmq_pollset_delete_by_key(php_zmq_pollset *set, char key[35], int key_len TSRMLS_DC)
 {	
 	php_zmq_pollitem *php_items = NULL;
 	int i, num_php_items = 0, alloc_size;
@@ -284,13 +311,13 @@ zend_bool php_zmq_pollset_delete_by_key(php_zmq_pollset *set, char key[35], int 
 	return match;
 }
 
-zend_bool php_zmq_pollset_delete(php_zmq_pollset *set, zval *entry)
+zend_bool php_zmq_pollset_delete(php_zmq_pollset *set, zval *entry TSRMLS_DC)
 {
 	char key[35];
 	int key_len;
 	
-	php_zmq_create_key(entry, key, &key_len);
-	return php_zmq_pollset_delete_by_key(set, key, key_len);
+	php_zmq_create_key(entry, key, &key_len TSRMLS_CC);
+	return php_zmq_pollset_delete_by_key(set, key, key_len TSRMLS_CC);
 }
 
 int php_zmq_pollset_poll(php_zmq_pollset *set, int timeout, zval *r_array, zval *w_array, zval *e_array)

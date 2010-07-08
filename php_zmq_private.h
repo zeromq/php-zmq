@@ -33,7 +33,6 @@
 
 #include "ext/standard/info.h"
 #include "Zend/zend_exceptions.h"
-#include "ext/spl/php_spl.h"
 
 #include <zmq.h>
 
@@ -151,6 +150,18 @@ typedef struct _php_zmq_poll_object  {
 # define php_zmq_printf(...) fprintf (stderr, __VA_ARGS__)
 #else
 # define php_zmq_printf(...)
+#endif
+
+#ifndef Z_ADDREF_P
+# define Z_ADDREF_P(pz) (pz)->refcount++
+#endif
+
+#ifndef Z_DELREF_P
+# define Z_DELREF_P(pz) (pz)->refcount--
+#endif
+
+#ifndef Z_REFCOUNT_P
+# define Z_REFCOUNT_P(pz) (pz)->refcount
 #endif
 
 #endif /* _PHP_ZMQ_PRIVATE_H_ */
