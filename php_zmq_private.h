@@ -33,6 +33,7 @@
 
 #include "ext/standard/info.h"
 #include "Zend/zend_exceptions.h"
+#include "main/php_ini.h"
 
 #include <zmq.h>
 

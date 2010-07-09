@@ -32,7 +32,7 @@
 #include "php_zmq_private.h"
 #include "php_zmq_pollset.h"
 
-#if (PHP_MAJOR_VERSION >= 5 && PHP_MINOR_VERSION < 3)
+#if (PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION < 3)
 # include "ext/standard/md5.h"
 #else
 # include "ext/spl/php_spl.h"
@@ -102,7 +102,7 @@ void php_zmq_pollset_delete_all(php_zmq_pollset *set TSRMLS_DC)
 	php_zmq_pollset_clear(set, 1);
 }
 
-#if (PHP_MAJOR_VERSION >= 5 && PHP_MINOR_VERSION < 3)
+#if (PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION < 3)
 static void php_spl_object_hash(zval *obj, char *result TSRMLS_DC) /* {{{*/
 {
 	PHP_MD5_CTX context;

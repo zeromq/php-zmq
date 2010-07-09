@@ -519,7 +519,7 @@ PHP_METHOD(zmqsocket, connect)
 }
 /* }}} */
 
-#if (PHP_MAJOR_VERSION >= 5 && PHP_MINOR_VERSION < 3)
+#if (PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION < 3)
 static int php_zmq_get_keys(zval **ppzval, int num_args, va_list args, zend_hash_key *hash_key)
 {
 	TSRMLS_FETCH();
@@ -567,7 +567,7 @@ PHP_METHOD(zmqsocket, getendpoints)
 	array_init(connect);
 	array_init(bind);
 
-#if (PHP_MAJOR_VERSION >= 5 && PHP_MINOR_VERSION < 3)
+#if (PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION < 3)
 	zend_hash_apply_with_arguments(&(intern->socket->connect), (apply_func_args_t) php_zmq_get_keys, 1, connect);
 	zend_hash_apply_with_arguments(&(intern->socket->bind), (apply_func_args_t) php_zmq_get_keys, 1, bind);
 #else
