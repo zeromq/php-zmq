@@ -736,7 +736,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 		
 		case ZMQ_SUBSCRIBE:
 		case ZMQ_UNSUBSCRIBE:
-			zend_throw_exception(php_zmq_socket_exception_sc_entry, "Retrieving SOCKOPT_SUBSCRIBE and SOCKOPT_UNSUBSCRIBE is not support", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
+			zend_throw_exception(php_zmq_socket_exception_sc_entry, "Retrieving SOCKOPT_SUBSCRIBE and SOCKOPT_UNSUBSCRIBE is not supported", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
 			return;
 		break;
 		
