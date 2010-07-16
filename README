@@ -1,4 +1,4 @@
-Experimental PHP bindings for 0MQ.
+Experimental PHP bindings for 0MQ. The documentation is available at http://valokuva.org/~mikko/php-zmq/
 
 The API is roughly as follows:
 
