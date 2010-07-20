@@ -53,7 +53,7 @@ void php_zmq_pollset_init(php_zmq_pollset *set)
 	array_init(set->errors);
 }
 
-void php_zmq_pollset_clear(php_zmq_pollset *set, zend_bool reinit) 
+void php_zmq_pollset_clear(php_zmq_pollset *set, zend_bool reinit TSRMLS_DC)
 {
 	if (set->alloc_size > 0) {
 		efree(set->php_items);
@@ -83,7 +83,7 @@ void php_zmq_pollset_deinit(php_zmq_pollset *set TSRMLS_DC)
 		zval_ptr_dtor(&(set->php_items[i].entry));
 	} 
 	
-	php_zmq_pollset_clear(set, 0);
+	php_zmq_pollset_clear(set, 0 TSRMLS_CC);
 	
 	zval_dtor(set->errors);
 	FREE_ZVAL(set->errors);
@@ -99,7 +99,7 @@ void php_zmq_pollset_delete_all(php_zmq_pollset *set TSRMLS_DC)
 		}
 		zval_ptr_dtor(&(set->php_items[i].entry));
 	}
-	php_zmq_pollset_clear(set, 1);
+	php_zmq_pollset_clear(set, 1 TSRMLS_CC);
 }
 
 #if (PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION < 3)
@@ -302,7 +302,7 @@ zend_bool php_zmq_pollset_delete_by_key(php_zmq_pollset *set, char key[35], int 
 		num_php_items++;
 	}
 	
-	php_zmq_pollset_clear(set, 0);
+	php_zmq_pollset_clear(set, 0 TSRMLS_CC);
 	set->php_items     = php_items;
 	set->num_php_items = num_php_items;
 	set->alloc_size    = alloc_size;
