@@ -147,12 +147,6 @@ typedef struct _php_zmq_poll_object  {
 
 #define ZMQ_RETURN_THIS RETURN_ZVAL(getThis(), 1, 0);
 
-#ifdef _DEBUG_ZMQ_
-# define php_zmq_printf(...) fprintf (stderr, __VA_ARGS__)
-#else
-# define php_zmq_printf(...)
-#endif
-
 #ifndef Z_ADDREF_P
 # define Z_ADDREF_P(pz) (pz)->refcount++
 #endif

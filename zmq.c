@@ -173,7 +173,8 @@ PHP_METHOD(zmqcontext, __construct)
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|lb", &io_threads, &is_persistent) == FAILURE) {
 		return;
 	}
-	
+
+
 	intern          = PHP_ZMQ_CONTEXT_OBJECT;
 	intern->context = php_zmq_context_get(io_threads, is_persistent TSRMLS_CC);
 	
