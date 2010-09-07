@@ -608,7 +608,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 	zval *pz_value;
 	int status;
 	
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "lz", &key, &pz_value) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "lz/", &key, &pz_value) == FAILURE) {
 		return;
 	}
 	
