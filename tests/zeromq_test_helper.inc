@@ -19,3 +19,11 @@ function create_client($persistent_id = null)
 
     return $client;
 }
+
+function bind_callback(ZMQSocket $socket, $persistent_id = null)
+{
+	static $port = 5566;
+
+	$socket->bind("tcp://127.0.0.1:{$port}");
+	$port++;
+}
