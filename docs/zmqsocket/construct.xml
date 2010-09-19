@@ -21,7 +21,6 @@
    socket. A persistent socket has to be allocated from a persistent context and it stays connected over multiple requests.
    The <parameter>persistent_id</parameter> parameter can be used to recall the same socket over multiple requests. The     
    <parameter>on_new_socket</parameter> is called only when a new underlying socket structure is created.
-   </para>
   </para>
  </refsect1>
 
