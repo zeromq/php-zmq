@@ -13,10 +13,12 @@
    <modifier>public</modifier> <type>ZMQSocket</type><methodname>ZMQContext::getSocket</methodname>
    <methodparam><type>integer</type><parameter>type</parameter></methodparam>
    <methodparam choice="opt"><type>string</type><parameter>persistent_id</parameter><initializer>null</initializer></methodparam>
+   <methodparam choice="opt"><type>callback</type><parameter>on_new_socket</parameter><initializer>null</initializer></methodparam>
   </methodsynopsis>
   <para>
    Shortcut for creating new sockets from the context. If the context is not persistent the <parameter>persistent_id</parameter> 
-   parameter is ignored and the socket falls back to being non-persistent.
+   parameter is ignored and the socket falls back to being non-persistent. The <parameter>on_new_socket</parameter> is called only
+   when a new underlying socket structure is created.
   </para>
  </refsect1>
 
@@ -37,6 +39,15 @@
      <listitem>
       <para>
        If <parameter>persistent_id</parameter> is specified the socket will be persisted over multiple requests.
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>on_new_socket</parameter></term>
+     <listitem>
+      <para>
+       Callback function, which is executed when a new socket structure is created. This function does not get invoked
+       if the underlying persisntent connection is re-used.
       </para>
      </listitem>
     </varlistentry>
