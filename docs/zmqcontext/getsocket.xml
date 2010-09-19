@@ -47,7 +47,7 @@
      <listitem>
       <para>
        Callback function, which is executed when a new socket structure is created. This function does not get invoked
-       if the underlying persisntent connection is re-used.
+       if the underlying persistent connection is re-used. The callback takes ZMQSocket and persistent_id as two arguments.
       </para>
      </listitem>
     </varlistentry>
