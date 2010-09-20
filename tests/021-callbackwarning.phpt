@@ -5,12 +5,12 @@ Test warning in callback
 --FILE--
 <?php
 
-function this_throws($a, $b) 
+function generate_warning($a, $b) 
 {
 	in_array(1, 1);
 }
 
-$socket = new ZMQSocket(new ZMQContext(), ZMQ::SOCKET_REQ, 'persistent_socket', 'this_throws');
+$socket = new ZMQSocket(new ZMQContext(), ZMQ::SOCKET_REQ, 'persistent_socket', 'generate_warning');
 
 --EXPECTF--
 Warning: in_array() expects parameter 2 to be array, integer given in %s on line %d
