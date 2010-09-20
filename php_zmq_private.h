@@ -159,4 +159,23 @@ typedef struct _php_zmq_poll_object  {
 # define Z_REFCOUNT_P(pz) (pz)->refcount
 #endif
 
+#if ZEND_MODULE_API_NO > 20060613
+
+#define PHP_ZMQ_ERROR_HANDLING_INIT() zend_error_handling error_handling;
+
+#define PHP_ZMQ_ERROR_HANDLING_THROW() zend_replace_error_handling(EH_THROW, php_zmq_socket_exception_sc_entry, &error_handling TSRMLS_CC);
+
+#define PHP_ZMQ_ERROR_HANDLING_RESTORE() zend_restore_error_handling(&error_handling TSRMLS_CC);
+
+#else
+
+#define PHP_ZMQ_ERROR_HANDLING_INIT()
+
+#define PHP_ZMQ_ERROR_HANDLING_THROW() php_set_error_handling(EH_THROW, php_zmq_socket_exception_sc_entry TSRMLS_CC);
+
+#define PHP_ZMQ_ERROR_HANDLING_RESTORE() php_set_error_handling(EH_NORMAL, NULL TSRMLS_CC);
+
+#endif
+
+
 #endif /* _PHP_ZMQ_PRIVATE_H_ */

@@ -263,13 +263,7 @@ static php_zmq_socket *php_zmq_socket_get(php_zmq_context *context, int type, co
 static void php_zmq_connect_callback(zval *socket, zend_fcall_info *fci, zend_fcall_info_cache *fci_cache, char *persistent_id, int persistent_id_len)
 {
 	zval *retval_ptr, *pid_z;
-	zval **params[2];
-#if ZEND_MODULE_API_NO > 20060613 
-	zend_error_handling error_handling;
-	zend_replace_error_handling(EH_THROW, php_zmq_socket_exception_sc_entry, &error_handling TSRMLS_CC);
-#else
-	php_set_error_handling(EH_THROW, php_zmq_socket_exception_sc_entry TSRMLS_CC);
-#endif	
+	zval **params[2];	
 	
 	ALLOC_INIT_ZVAL(pid_z);
 	
@@ -288,7 +282,7 @@ static void php_zmq_connect_callback(zval *socket, zend_fcall_info *fci, zend_fc
 	fci->retval_ptr_ptr = &retval_ptr;
 	fci->no_separation  = 1;
 	
-	if (zend_call_function(fci, fci_cache TSRMLS_CC) == FAILURE || EG(exception)) {
+	if (zend_call_function(fci, fci_cache TSRMLS_CC) == FAILURE) {
 		if (!EG(exception)) {
 			zend_throw_exception_ex(php_zmq_socket_exception_sc_entry, 0 TSRMLS_CC, "Failed to invoke callback %s()", Z_STRVAL_P(fci->function_name));
 		}
@@ -298,12 +292,6 @@ static void php_zmq_connect_callback(zval *socket, zend_fcall_info *fci, zend_fc
 	if (retval_ptr) {
 		zval_ptr_dtor(&retval_ptr);
 	}
-
-#if ZEND_MODULE_API_NO > 20060613 
-	zend_restore_error_handling(&error_handling TSRMLS_CC);
-#else
-	php_set_error_handling(EH_NORMAL, NULL TSRMLS_CC);
-#endif
 }
 
 /* {{{ proto ZMQContext ZMQContext::getSocket(integer $type[, string $persistent_id = null, callback $on_new_socket = null])
@@ -322,20 +310,12 @@ PHP_METHOD(zmqcontext, getsocket)
 	zend_fcall_info fci;
 	zend_fcall_info_cache fci_cache;
 	
-#if ZEND_MODULE_API_NO > 20060613 
-	zend_error_handling error_handling;
-	zend_replace_error_handling(EH_THROW, php_zmq_socket_exception_sc_entry, &error_handling TSRMLS_CC);
-#else
-	php_set_error_handling(EH_THROW, php_zmq_socket_exception_sc_entry TSRMLS_CC);
-#endif
+	PHP_ZMQ_ERROR_HANDLING_INIT()
+	PHP_ZMQ_ERROR_HANDLING_THROW()
 
 	rc = zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l|s!f", &type, &persistent_id, &persistent_id_len, &fci, &fci_cache);
 
-#if ZEND_MODULE_API_NO > 20060613 
-	zend_restore_error_handling(&error_handling TSRMLS_CC);
-#else
-	php_set_error_handling(EH_NORMAL, NULL TSRMLS_CC);
-#endif	
+	PHP_ZMQ_ERROR_HANDLING_RESTORE()
 
 	if (rc == FAILURE) {
 		return;
@@ -364,7 +344,7 @@ PHP_METHOD(zmqcontext, getsocket)
 	}
 	
 	if (is_new && ZEND_NUM_ARGS() > 2) {
-		php_zmq_connect_callback(return_value, &fci, &fci_cache, persistent_id, persistent_id_len);	
+		php_zmq_connect_callback(return_value, &fci, &fci_cache, persistent_id, persistent_id_len);
 	}
 	return;
 }
@@ -390,7 +370,7 @@ PHP_METHOD(zmqcontext, ispersistent)
 
 /* --- START ZMQ --- */
 
-/* {{{ proto ZMQSocket ZMQSocket::__construct(ZMQContext $context, integer $type[, string $persistent_id = null])
+/* {{{ proto ZMQSocket ZMQSocket::__construct(ZMQContext $context, integer $type[, string $persistent_id = null, callback $on_new_socket = null])
 	Build a new ZMQSocket object
 */
 PHP_METHOD(zmqsocket, __construct)
@@ -407,20 +387,12 @@ PHP_METHOD(zmqsocket, __construct)
 	zend_fcall_info fci;
 	zend_fcall_info_cache fci_cache;
 	
-#if ZEND_MODULE_API_NO > 20060613 
-	zend_error_handling error_handling;
-	zend_replace_error_handling(EH_THROW, php_zmq_socket_exception_sc_entry, &error_handling TSRMLS_CC);
-#else
-	php_set_error_handling(EH_THROW, php_zmq_socket_exception_sc_entry TSRMLS_CC);
-#endif
+	PHP_ZMQ_ERROR_HANDLING_INIT()
+	PHP_ZMQ_ERROR_HANDLING_THROW()
 
 	rc = zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "Ol|s!f", &obj, php_zmq_context_sc_entry, &type, &persistent_id, &persistent_id_len, &fci, &fci_cache);
 
-#if ZEND_MODULE_API_NO > 20060613 
-	zend_restore_error_handling(&error_handling TSRMLS_CC);
-#else
-	php_set_error_handling(EH_NORMAL, NULL TSRMLS_CC);
-#endif	
+	PHP_ZMQ_ERROR_HANDLING_RESTORE()
 
 	if (rc == FAILURE) {
 		return;
@@ -448,7 +420,7 @@ PHP_METHOD(zmqsocket, __construct)
 	}
 	
 	if (is_new && ZEND_NUM_ARGS() > 3) {
-		php_zmq_connect_callback(getThis(), &fci, &fci_cache, persistent_id, persistent_id_len);
+		php_zmq_connect_callback(getThis(), &fci, &fci_cache, persistent_id, persistent_id_len);	
 	}
 	return;
 }
