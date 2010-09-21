@@ -310,12 +310,16 @@ PHP_METHOD(zmqcontext, getsocket)
 	zend_fcall_info fci;
 	zend_fcall_info_cache fci_cache;
 	
-	PHP_ZMQ_ERROR_HANDLING_INIT()
-	PHP_ZMQ_ERROR_HANDLING_THROW()
+	if (ZEND_NUM_ARGS() > 2) {
+		PHP_ZMQ_ERROR_HANDLING_INIT()
+		PHP_ZMQ_ERROR_HANDLING_THROW()
 
-	rc = zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l|s!f", &type, &persistent_id, &persistent_id_len, &fci, &fci_cache);
+		rc = zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l|s!f", &type, &persistent_id, &persistent_id_len, &fci, &fci_cache);
 
-	PHP_ZMQ_ERROR_HANDLING_RESTORE()
+		PHP_ZMQ_ERROR_HANDLING_RESTORE()
+	} else {
+		rc = zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l|s!f", &type, &persistent_id, &persistent_id_len);
+	}
 
 	if (rc == FAILURE) {
 		return;
@@ -387,12 +391,16 @@ PHP_METHOD(zmqsocket, __construct)
 	zend_fcall_info fci;
 	zend_fcall_info_cache fci_cache;
 	
-	PHP_ZMQ_ERROR_HANDLING_INIT()
-	PHP_ZMQ_ERROR_HANDLING_THROW()
-
-	rc = zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "Ol|s!f", &obj, php_zmq_context_sc_entry, &type, &persistent_id, &persistent_id_len, &fci, &fci_cache);
-
-	PHP_ZMQ_ERROR_HANDLING_RESTORE()
+	if (ZEND_NUM_ARGS() > 3) {
+		PHP_ZMQ_ERROR_HANDLING_INIT()
+		PHP_ZMQ_ERROR_HANDLING_THROW()
+		
+		rc = zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "Ol|s!f", &obj, php_zmq_context_sc_entry, &type, &persistent_id, &persistent_id_len, &fci, &fci_cache);
+		
+		PHP_ZMQ_ERROR_HANDLING_RESTORE()
+	} else {
+		rc = zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "Ol|s!", &obj, php_zmq_context_sc_entry, &type, &persistent_id, &persistent_id_len);
+	}
 
 	if (rc == FAILURE) {
 		return;

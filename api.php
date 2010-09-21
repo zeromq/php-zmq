@@ -27,10 +27,11 @@ class ZMQContext {
      * @param integer $type              The type of the socket
      * @param string  $persistent_id     The persistent id. Can be used to create
      *                                   persistent connections
+     * @param function   $on_new_socket     Called when a new socket is created     
      * @throws ZMQException
      * @return ZMQSocket
      */
-    public function getSocket($type, $persistent_id = null) {}
+    public function getSocket($type, $persistent_id = null, $on_new_socket = null) {}
     
     /**
      * Whether the context is persistent
@@ -204,10 +205,11 @@ class ZMQSocket {
      * @param integer    $type              The type of the socket
      * @param string     $persistent_id     The persistent id. Can be used to create
      *                                      persistent connections
+     * @param function   $on_new_socket     Called when a new socket is created
      * @throws ZMQException
      * @return void
      */
-    public function __construct(ZMQContext $context, $type, $persistent_id = null) {}
+    public function __construct(ZMQContext $context, $type, $persistent_id = null, $on_new_socket = null) {}
 
     /**
      * Sends a message to the queue. 
