@@ -294,7 +294,7 @@ static void php_zmq_connect_callback(zval *socket, zend_fcall_info *fci, zend_fc
 	}
 }
 
-/* {{{ proto ZMQContext ZMQContext::getSocket(integer $type[, string $persistent_id = null, callback $on_new_socket = null])
+/* {{{ proto ZMQContext ZMQContext::getSocket(integer $type[, string $persistent_id = null[, callback $on_new_socket = null]])
 	Build a new ZMQContext object
 */
 PHP_METHOD(zmqcontext, getsocket)
@@ -370,7 +370,7 @@ PHP_METHOD(zmqcontext, ispersistent)
 
 /* --- START ZMQ --- */
 
-/* {{{ proto ZMQSocket ZMQSocket::__construct(ZMQContext $context, integer $type[, string $persistent_id = null, callback $on_new_socket = null])
+/* {{{ proto ZMQSocket ZMQSocket::__construct(ZMQContext $context, integer $type[, string $persistent_id = null[, callback $on_new_socket = null]])
 	Build a new ZMQSocket object
 */
 PHP_METHOD(zmqsocket, __construct)
