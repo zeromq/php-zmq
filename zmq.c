@@ -284,7 +284,7 @@ static void php_zmq_connect_callback(zval *socket, zend_fcall_info *fci, zend_fc
 	
 	if (zend_call_function(fci, fci_cache TSRMLS_CC) == FAILURE) {
 		if (!EG(exception)) {
-			zend_throw_exception_ex(php_zmq_socket_exception_sc_entry, 0 TSRMLS_CC, "Failed to invoke callback %s()", Z_STRVAL_P(fci->function_name));
+			zend_throw_exception_ex(php_zmq_socket_exception_sc_entry, 0 TSRMLS_CC, "Failed to invoke 'on_new_socket' callback %s()", Z_STRVAL_P(fci->function_name));
 		}
 	}
 	zval_ptr_dtor(&pid_z);

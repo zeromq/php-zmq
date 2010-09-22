@@ -58,7 +58,10 @@
      <listitem>
       <para>
        Callback function, which is executed when a new socket structure is created. This function does not get invoked
-       if the underlying persistent connection is re-used. The callback takes ZMQSocket and persistent_id as two arguments.
+       if the underlying persistent connection is re-used. 
+       <note>
+         function on_new_socket_cb(ZMQSocket $socket, string $persistent_id = null);
+       </note>
       </para>
      </listitem>
     </varlistentry>    
@@ -78,6 +81,10 @@
 <![CDATA[
 <?php
 
+/*
+  The socket is persistent so this function is called only on the 
+  first request to the script.
+*/
 function on_new_socket_cb(ZMQSocket $socket, $persistent_id = null)
 {
     if ($persistent_id === 'server') {
