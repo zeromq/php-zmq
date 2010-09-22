@@ -58,10 +58,7 @@
      <listitem>
       <para>
        Callback function, which is executed when a new socket structure is created. This function does not get invoked
-       if the underlying persistent connection is re-used. 
-       <note>
-         function on_new_socket_cb(ZMQSocket $socket, string $persistent_id = null);
-       </note>
+       if the underlying persistent connection is re-used.
       </para>
      </listitem>
     </varlistentry>    
@@ -109,6 +106,14 @@ echo "Received message: {$message}\n";
    </para>
   </refsect1> 
  
+  <refsect1 role="notes">
+   The callback signature
+   <note>
+    <para>
+     function on_new_socket_cb(ZMQSocket $socket, string $persistent_id = null);
+    </para>
+   </note>
+  </refsect1> 
 
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
