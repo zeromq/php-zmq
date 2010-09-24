@@ -19,5 +19,5 @@ try {
 
 --EXPECTF--
 Warning: Parameter 1 to try_to_force_ref() expected to be a reference, value given in %s on line %d
-Failed to invoke callback try_to_force_ref()
+Failed to invoke 'on_new_socket' callback try_to_force_ref()
 
