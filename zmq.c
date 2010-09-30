@@ -790,12 +790,12 @@ PHP_METHOD(zmqsocket, getsockopt)
 		case ZMQ_RECOVERY_IVL:
 		case ZMQ_MCAST_LOOP:
 		case ZMQ_SNDBUF:
-		case ZMQ_RCVBUF:	
+		case ZMQ_RCVBUF:
 		{
 			uint64_t value;
 			
 			value = sizeof(uint64_t);
-			if (zmq_getsockopt (intern->socket->z_socket, (int) key, &value, &value_len) != 0) {
+			if (zmq_getsockopt(intern->socket->z_socket, (int) key, &value, &value_len) != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry, errno TSRMLS_CC, "Failed to get the option value: %s", zmq_strerror(errno));
 				return;
 			}
@@ -808,7 +808,21 @@ PHP_METHOD(zmqsocket, getsockopt)
 			zend_throw_exception(php_zmq_socket_exception_sc_entry, "Retrieving SOCKOPT_SUBSCRIBE and SOCKOPT_UNSUBSCRIBE is not supported", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
 			return;
 		break;
-		
+
+#ifdef ZMQ_TYPE
+		case ZMQ_TYPE:
+		{
+			int value;
+			
+			if (zmq_getsockopt(intern->socket->z_socket, (int) key, &value, &value_len) != 0) {
+				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry, errno TSRMLS_CC, "Failed to get the option value: %s", zmq_strerror(errno));
+				return;
+			}
+			RETURN_LONG(value);
+		}
+		break;
+#endif
+
 		default:
 		{
 			zend_throw_exception(php_zmq_socket_exception_sc_entry, "Unknown option key", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
