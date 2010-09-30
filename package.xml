@@ -10,11 +10,11 @@
   <email>mkoppanen@php.net</email>
   <active>yes</active>
  </lead>
- <date>2010-07-12</date>
+ <date>2010-09-30</date>
  <time>15:33:53</time>
  <version>
-  <release>0.5.0</release>
-  <api>0.5.0</api>
+  <release>0.6.0</release>
+  <api>0.6.0</api>
  </version>
  <stability>
   <release>beta</release>
@@ -22,8 +22,8 @@
  </stability>
  <license>BSD License</license>
  <notes>
-- Fixes for PHP 5.2
-- Pollset now working properly
+- Added callback for connecting/binding sockets
+- Make sure that passed param types are not modified in setSockOpt
  </notes>
  <contents>
   <dir name="/">
