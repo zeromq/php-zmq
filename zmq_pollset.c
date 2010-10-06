@@ -324,6 +324,8 @@ int php_zmq_pollset_poll(php_zmq_pollset *set, int timeout, zval *r_array, zval 
 {
 	int rc, i;
 	zend_bool readable = 0, writable = 0;
+	
+	zend_hash_clean(Z_ARRVAL_P(e_array));
 
 	rc = zmq_poll(set->items, set->num_items, timeout);
 	
@@ -348,8 +350,6 @@ int php_zmq_pollset_poll(php_zmq_pollset *set, int timeout, zval *r_array, zval 
 	assert(set->num_items == set->num_php_items);
 	
 	if (rc > 0) {
-		zend_hash_clean(Z_ARRVAL_P(e_array));
-		
 		for (i = 0; i < set->num_items; i++) {
 			if (readable && set->items[i].revents & ZMQ_POLLIN) {
 				Z_ADDREF_P(set->php_items[i].entry);

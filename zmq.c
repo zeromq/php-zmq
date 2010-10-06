@@ -766,7 +766,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			int64_t value;
 			
 			value_len = sizeof(int64_t);
-			if (zmq_getsockopt (intern->socket->z_socket, (int) key, &value, &value_len) != 0) {
+			if (zmq_getsockopt(intern->socket->z_socket, (int) key, &value, &value_len) != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry, errno TSRMLS_CC, "Failed to get the option value: %s", zmq_strerror(errno));
 				return;
 			}
@@ -932,7 +932,6 @@ PHP_METHOD(zmqpoll, add)
 	}
 	
 	RETURN_STRINGL(key, key_len, 1);
-	return;
 }
 /* }}} */
 
