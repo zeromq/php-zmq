@@ -81,8 +81,7 @@ void php_zmq_pollset_deinit(php_zmq_pollset *set TSRMLS_DC)
 			zend_objects_store_del_ref(set->php_items[i].entry TSRMLS_CC);
 	 	}
 		zval_ptr_dtor(&(set->php_items[i].entry));
-	} 
-	
+	}
 	php_zmq_pollset_clear(set, 0 TSRMLS_CC);
 	
 	zval_dtor(set->errors);
@@ -115,7 +114,7 @@ static void php_spl_object_hash(zval *obj, char *result TSRMLS_DC) /* {{{*/
     
     result[0] = '\0';
     PHP_MD5Init(&context);
-    PHP_MD5Update(&context, (unsigned char*)hash, len);
+    PHP_MD5Update(&context, (unsigned char*) hash, len);
     PHP_MD5Final(digest, &context);
     make_digest(result, digest);
     efree(hash);
