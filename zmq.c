@@ -796,7 +796,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 		{
 			uint64_t value;
 			
-			value = sizeof(uint64_t);
+			value_len = sizeof(uint64_t);
 			if (zmq_getsockopt(intern->socket->z_socket, (int) key, &value, &value_len) != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry, errno TSRMLS_CC, "Failed to get the option value: %s", zmq_strerror(errno));
 				return;
@@ -1270,7 +1270,7 @@ static zend_object_value php_zmq_context_object_new_ex(zend_class_entry *class_t
 	zend_object_std_init(&intern->zo, class_type TSRMLS_CC);
 	zend_hash_copy(intern->zo.properties, &class_type->default_properties, (copy_ctor_func_t) zval_add_ref,(void *) &tmp, sizeof(zval *));
 
-	retval.handle = zend_objects_store_put(intern, NULL, (zend_objects_free_object_storage_t) php_zmq_context_object_free_storage, NULL TSRMLS_CC);
+	retval.handle   = zend_objects_store_put(intern, NULL, (zend_objects_free_object_storage_t) php_zmq_context_object_free_storage, NULL TSRMLS_CC);
 	retval.handlers = (zend_object_handlers *) &zmq_context_object_handlers;
 	return retval;
 }
@@ -1296,7 +1296,7 @@ static zend_object_value php_zmq_socket_object_new_ex(zend_class_entry *class_ty
 	zend_object_std_init(&intern->zo, class_type TSRMLS_CC);
 	zend_hash_copy(intern->zo.properties, &class_type->default_properties, (copy_ctor_func_t) zval_add_ref,(void *) &tmp, sizeof(zval *));
 
-	retval.handle = zend_objects_store_put(intern, NULL, (zend_objects_free_object_storage_t) php_zmq_socket_object_free_storage, NULL TSRMLS_CC);
+	retval.handle   = zend_objects_store_put(intern, NULL, (zend_objects_free_object_storage_t) php_zmq_socket_object_free_storage, NULL TSRMLS_CC);
 	retval.handlers = (zend_object_handlers *) &zmq_socket_object_handlers;
 	return retval;
 }
@@ -1420,6 +1420,10 @@ PHP_MINIT_FUNCTION(zmq)
 	PHP_ZMQ_REGISTER_CONST_LONG("SOCKET_XREP", ZMQ_XREP);
 	PHP_ZMQ_REGISTER_CONST_LONG("SOCKET_UPSTREAM", ZMQ_UPSTREAM);
 	PHP_ZMQ_REGISTER_CONST_LONG("SOCKET_DOWNSTREAM", ZMQ_DOWNSTREAM);
+#if defined(ZMQ_PUSH) && defined(ZMQ_PULL)
+	PHP_ZMQ_REGISTER_CONST_LONG("SOCKET_PUSH", ZMQ_PUSH);
+	PHP_ZMQ_REGISTER_CONST_LONG("SOCKET_PULL", ZMQ_PULL);
+#endif
 
 	PHP_ZMQ_REGISTER_CONST_LONG("SOCKOPT_HWM", ZMQ_HWM);
 	PHP_ZMQ_REGISTER_CONST_LONG("SOCKOPT_SWAP", ZMQ_SWAP);
