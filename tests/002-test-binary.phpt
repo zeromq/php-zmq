@@ -24,7 +24,7 @@ var_dump(strlen($message));
 
 var_dump($message === $rose);
 
---EXPECT--
-int(2051)
-int(2051)
+--EXPECTF--
+int(1580)
+int(1580)
 bool(true)

@@ -9,9 +9,10 @@ include dirname(__FILE__) . '/zeromq_test_helper.inc';
 
 /* Create socket, request-reply pattern (reply socket) */
 $z = create_client();
+$s = create_server();
 
 /* create handle */
-$fp = fsockopen("tcp://example.com:80");
+$fp = fsockopen("tcp://localhost:5566");
 
 $poll   = new ZMQPoll();
 $obj_id = $poll->add($z, ZMQ::POLL_IN);
@@ -23,7 +24,6 @@ $a = array();
 $b = array();
 $poll->poll($a, $b, 100);
 var_dump($a, $b);
-
 
 fclose($fp);
 
@@ -39,7 +39,9 @@ var_dump($poll->count());
 string(34) "o:%s"
 string(3) "r:%d"
 int(2)
-array(0) {
+array(1) {
+  [0]=>
+  resource(%d) of type (stream)
 }
 array(1) {
   [0]=>

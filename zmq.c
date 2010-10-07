@@ -783,7 +783,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry, errno TSRMLS_CC, "Failed to get the option value: %s", zmq_strerror(errno));
 				return;
 			}
-			RETURN_STRINGL((char *)value, value_len, 1);
+			RETURN_STRINGL((char *) value, value_len, 1);
 		}
 		break;
 		
@@ -806,8 +806,12 @@ PHP_METHOD(zmqsocket, getsockopt)
 		break;
 		
 		case ZMQ_SUBSCRIBE:
+			zend_throw_exception(php_zmq_socket_exception_sc_entry, "Retrieving SOCKOPT_SUBSCRIBE is not supported", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
+			return;
+		break;
+		
 		case ZMQ_UNSUBSCRIBE:
-			zend_throw_exception(php_zmq_socket_exception_sc_entry, "Retrieving SOCKOPT_SUBSCRIBE and SOCKOPT_UNSUBSCRIBE is not supported", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
+			zend_throw_exception(php_zmq_socket_exception_sc_entry, "Retrieving SOCKOPT_UNSUBSCRIBE is not supported", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
 			return;
 		break;
 
@@ -875,7 +879,7 @@ PHP_METHOD(zmqpoll, add)
 	switch (Z_TYPE_P(object)) {
 		case IS_OBJECT:
 			if (!instanceof_function(Z_OBJCE_P(object), php_zmq_socket_sc_entry TSRMLS_CC)) {
-				zend_throw_exception(php_zmq_poll_exception_sc_entry, "The given object must be an instance of ZMQSocket", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
+				zend_throw_exception(php_zmq_poll_exception_sc_entry, "The first argument must be an instance of ZMQSocket or a resource", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
 				return;
 			}
 		break;
@@ -885,7 +889,7 @@ PHP_METHOD(zmqpoll, add)
 		break;
 		
 		default:
-			zend_throw_exception(php_zmq_poll_exception_sc_entry, "The argument must be an instance of ZMQSocket or resource", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
+			zend_throw_exception(php_zmq_poll_exception_sc_entry, "The first argument must be an instance of ZMQSocket or a resource", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
 			return;
 		break;
 	}
