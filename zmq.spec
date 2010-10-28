@@ -32,7 +32,7 @@ PHP extension for 0MQ messaging system
 %{__make} install INSTALL_ROOT=%{buildroot}
 
 # Create the ini location
-%{__mkdir} -p %{buildroot}/etc/php.d
+%{__mkdir} -p %{buildroot}/%{_sysconfdir}/php.d
 
 # Preliminary extension ini
 echo "extension=zmq.so" > %{buildroot}/%{_sysconfdir}/php.d/zmq.ini
