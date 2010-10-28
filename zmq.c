@@ -318,7 +318,7 @@ PHP_METHOD(zmqcontext, getsocket)
 
 		PHP_ZMQ_ERROR_HANDLING_RESTORE()
 	} else {
-		rc = zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l|s!f", &type, &persistent_id, &persistent_id_len);
+		rc = zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l|s!", &type, &persistent_id, &persistent_id_len);
 	}
 
 	if (rc == FAILURE) {
@@ -372,7 +372,7 @@ PHP_METHOD(zmqcontext, ispersistent)
 
 /* --- END ZMQContext --- */
 
-/* --- START ZMQ --- */
+/* --- START ZMQSocket --- */
 
 /* {{{ proto ZMQSocket ZMQSocket::__construct(ZMQContext $context, integer $type[, string $persistent_id = null[, callback $on_new_socket = null]])
 	Build a new ZMQSocket object
@@ -1344,15 +1344,6 @@ static zend_object_value php_zmq_poll_object_new(zend_class_entry *class_type TS
 	return php_zmq_poll_object_new_ex(class_type, NULL TSRMLS_CC);
 }
 
-ZEND_RSRC_DTOR_FUNC(php_zmq_socket_dtor)
-{
-	if (rsrc->ptr) {
-		php_zmq_socket *zms = (php_zmq_socket *)rsrc->ptr;
-		php_zmq_socket_destroy(zms);
-		rsrc->ptr = NULL;
-	}
-}
-
 ZEND_RSRC_DTOR_FUNC(php_zmq_context_dtor)
 {
 	if (rsrc->ptr) {
@@ -1362,13 +1353,22 @@ ZEND_RSRC_DTOR_FUNC(php_zmq_context_dtor)
 	}
 }
 
+ZEND_RSRC_DTOR_FUNC(php_zmq_socket_dtor)
+{
+	if (rsrc->ptr) {
+		php_zmq_socket *zms = (php_zmq_socket *)rsrc->ptr;
+		php_zmq_socket_destroy(zms);
+		rsrc->ptr = NULL;
+	}
+}
+
 PHP_MINIT_FUNCTION(zmq)
 {
 	zend_class_entry ce, ce_context, ce_socket, ce_poll;
 	zend_class_entry ce_exception, ce_context_exception, ce_socket_exception, ce_poll_exception;
 
-	le_zmq_socket  = zend_register_list_destructors_ex(NULL, php_zmq_socket_dtor, "ZMQ persistent socket", module_number);
 	le_zmq_context = zend_register_list_destructors_ex(NULL, php_zmq_context_dtor, "ZMQ persistent context", module_number);
+	le_zmq_socket  = zend_register_list_destructors_ex(NULL, php_zmq_socket_dtor, "ZMQ persistent socket", module_number);
 
 	memcpy(&zmq_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
 	memcpy(&zmq_context_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
