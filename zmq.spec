@@ -41,6 +41,7 @@ echo "extension=zmq.so" > %{buildroot}/%{_sysconfdir}/php.d/zmq.ini
 [ "%{buildroot}" != "/" ] && %{__rm} -rf %{buildroot}
 
 %files
+%defattr(-,root,root,-)
 %{_libdir}/php/modules/zmq.so
 %{_sysconfdir}/php.d/zmq.ini
 
