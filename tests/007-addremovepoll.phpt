@@ -13,6 +13,7 @@ $s = create_server();
 
 /* create handle */
 $fp = fsockopen("tcp://localhost:5566");
+usleep(1000);
 
 $poll   = new ZMQPoll();
 $obj_id = $poll->add($z, ZMQ::POLL_IN);
