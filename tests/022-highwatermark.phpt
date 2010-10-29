@@ -2,6 +2,10 @@
 Test that high-watermark works
 --SKIPIF--
 <?php require_once(dirname(__FILE__) . '/skipif.inc'); ?>
+
+if (!defined('ZMQ::SOCKOPT_LINGER'))
+    die ("Skip Not compiled against new enough version");
+
 --FILE--
 <?php
 
