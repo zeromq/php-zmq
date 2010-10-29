@@ -721,6 +721,22 @@ PHP_METHOD(zmqsocket, setsockopt)
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(uint64_t));
 		}
 		break;
+
+#ifdef ZMQ_LINGER
+		case ZMQ_LINGER:
+		{
+			int value;
+			convert_to_long(pz_value);
+			
+			if (Z_LVAL_P(pz_value) < 0) {
+				zend_throw_exception(php_zmq_socket_exception_sc_entry, "The option value must be zero or larger", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
+				return;
+			}
+			value  = (int) Z_LVAL_P(pz_value);
+			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
+		}
+		break;
+#endif
 		
 		default:
 		{
@@ -814,9 +830,15 @@ PHP_METHOD(zmqsocket, getsockopt)
 			zend_throw_exception(php_zmq_socket_exception_sc_entry, "Retrieving SOCKOPT_UNSUBSCRIBE is not supported", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
 			return;
 		break;
+		
+#if defined(ZMQ_TYPE) || defined(ZMQ_LINGER)
 
 #ifdef ZMQ_TYPE
 		case ZMQ_TYPE:
+#endif
+#ifdef ZMQ_LINGER
+		case ZMQ_LINGER:
+#endif
 		{
 			int value;
 			
@@ -1443,7 +1465,10 @@ PHP_MINIT_FUNCTION(zmq)
 	PHP_ZMQ_REGISTER_CONST_LONG("SOCKOPT_RCVMORE", ZMQ_RCVMORE);
 #ifdef ZMQ_TYPE
 	PHP_ZMQ_REGISTER_CONST_LONG("SOCKOPT_TYPE", ZMQ_TYPE);
-#endif	
+#endif
+#ifdef ZMQ_LINGER
+	PHP_ZMQ_REGISTER_CONST_LONG("SOCKOPT_LINGER", ZMQ_LINGER);
+#endif
 	
 	PHP_ZMQ_REGISTER_CONST_LONG("POLL_IN", ZMQ_POLLIN);
 	PHP_ZMQ_REGISTER_CONST_LONG("POLL_OUT", ZMQ_POLLOUT);
