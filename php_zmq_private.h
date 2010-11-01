@@ -133,6 +133,13 @@ typedef struct _php_zmq_poll_object  {
 } php_zmq_poll_object;
 /* }}} */
 
+/* {{{ typedef struct _php_zmq_device_object 
+*/
+typedef struct _php_zmq_device_object  {
+	zend_object zo;
+} php_zmq_device_object;
+/* }}} */
+
 #ifdef ZTS
 # define ZMQ_G(v) TSRMG(php_zmq_globals_id, zend_php_zmq_globals *, v)
 #else
