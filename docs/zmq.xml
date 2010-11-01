@@ -191,6 +191,24 @@
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
+     <varname linkend="zmq.constants.device-forwarder">ZMQ::DEVICE_FORWARDER</varname>
+     <initializer>2</initializer>
+    </fieldsynopsis>
+    <fieldsynopsis>
+     <modifier>const</modifier>
+     <type>integer</type>
+     <varname linkend="zmq.constants.device-queue">ZMQ::DEVICE_QUEUE</varname>
+     <initializer>3</initializer>
+    </fieldsynopsis>
+    <fieldsynopsis>
+     <modifier>const</modifier>
+     <type>integer</type>
+     <varname linkend="zmq.constants.device-streamer">ZMQ::DEVICE_STREAMER</varname>
+     <initializer>1</initializer>
+    </fieldsynopsis>
+    <fieldsynopsis>
+     <modifier>const</modifier>
+     <type>integer</type>
      <varname linkend="zmq.constants.err-internal">ZMQ::ERR_INTERNAL</varname>
      <initializer>-99</initializer>
     </fieldsynopsis>
@@ -412,6 +430,27 @@
       <term><constant>ZMQ::MODE_SNDMORE</constant></term>
       <listitem>
        <para>Send multi-part message</para>
+      </listitem>
+     </varlistentry>
+     
+     <varlistentry xml:id="zmq.constants.device-forwarder">
+      <term><constant>ZMQ::DEVICE_FORWARDER</constant></term>
+      <listitem>
+       <para>Forwarder device</para>
+      </listitem>
+     </varlistentry>
+
+     <varlistentry xml:id="zmq.constants.device-queue">
+      <term><constant>ZMQ::DEVICE_QUEUE</constant></term>
+      <listitem>
+       <para>Queue device</para>
+      </listitem>
+     </varlistentry>
+
+     <varlistentry xml:id="zmq.constants.device-streamer">
+      <term><constant>ZMQ::DEVICE_STREAMER</constant></term>
+      <listitem>
+       <para>Streamer device</para>
       </listitem>
      </varlistentry>
      

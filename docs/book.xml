@@ -21,6 +21,7 @@
  &reference.zmq.zmqcontext;
  &reference.zmq.zmqsocket;
  &reference.zmq.zmqpoll;
+ &reference.zmq.zmqdevice;
 
 </book>
 

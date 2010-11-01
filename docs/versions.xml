@@ -27,6 +27,7 @@
  <function name='zmqpoll::remove' from='PECL zmq &gt;= 0.5.0'/>
  <function name='zmqpoll::count' from='PECL zmq &gt;= 0.5.0'/>
  <function name='zmqpoll::clear' from='PECL zmq &gt;= 0.5.0'/>
+ <function name='zmqdevice::__construct' from='PECL zmq &gt;= 0.5.0'/>
  <function name='zmqexception::__clone' from='PECL zmq &gt;= 0.5.0'/>
  <function name='zmqexception::__construct' from='PECL zmq &gt;= 0.5.0'/>
  <function name='zmqexception::getmessage' from='PECL zmq &gt;= 0.5.0'/>
@@ -67,6 +68,16 @@
  <function name='zmqpollexception::getprevious' from='PECL zmq &gt;= 0.5.0'/>
  <function name='zmqpollexception::gettraceasstring' from='PECL zmq &gt;= 0.5.0'/>
  <function name='zmqpollexception::__tostring' from='PECL zmq &gt;= 0.5.0'/>
+ <function name='zmqdeviceexception::__clone' from='PECL zmq &gt;= 0.5.0'/>
+ <function name='zmqdeviceexception::__construct' from='PECL zmq &gt;= 0.5.0'/>
+ <function name='zmqdeviceexception::getmessage' from='PECL zmq &gt;= 0.5.0'/>
+ <function name='zmqdeviceexception::getcode' from='PECL zmq &gt;= 0.5.0'/>
+ <function name='zmqdeviceexception::getfile' from='PECL zmq &gt;= 0.5.0'/>
+ <function name='zmqdeviceexception::getline' from='PECL zmq &gt;= 0.5.0'/>
+ <function name='zmqdeviceexception::gettrace' from='PECL zmq &gt;= 0.5.0'/>
+ <function name='zmqdeviceexception::getprevious' from='PECL zmq &gt;= 0.5.0'/>
+ <function name='zmqdeviceexception::gettraceasstring' from='PECL zmq &gt;= 0.5.0'/>
+ <function name='zmqdeviceexception::__tostring' from='PECL zmq &gt;= 0.5.0'/>
 </versions>
 
 <!-- Keep this comment at the end of the file
