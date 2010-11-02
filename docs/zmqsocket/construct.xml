@@ -107,12 +107,14 @@ echo "Received message: {$message}\n";
   </refsect1> 
  
   <refsect1 role="notes">
-   The callback signature
-   <note>
-    <para>
-     function on_new_socket_cb(ZMQSocket $socket, string $persistent_id = null);
-    </para>
-   </note>
+   <para>
+    The callback signature
+    <note>
+     <para>
+      function on_new_socket_cb(ZMQSocket $socket, string $persistent_id = null);
+     </para>
+    </note>
+   </para>
   </refsect1> 
 
  <refsect1 role="returnvalues">
