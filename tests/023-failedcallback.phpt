@@ -38,6 +38,7 @@ try {
     echo "fail\n";
 }
 
+echo "OK\n";
 /**/
 
 try {
@@ -69,6 +70,7 @@ success
 success
 called just_echo
 success
+OK
 success
 success
 called just_echo
