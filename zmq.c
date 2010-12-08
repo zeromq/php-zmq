@@ -57,6 +57,17 @@ static zend_object_handlers zmq_device_object_handlers;
 /* list entries */
 static int le_zmq_socket, le_zmq_context;
 
+/** {{{ static char* php_zmq_get_lib_version(void)
+*/
+static char* php_zmq_get_lib_version(void) {
+	char *version = NULL;
+	int major = 0, minor = 0, patch = 0;
+	zmq_version(&major, &minor, &patch);
+	(void) spprintf(&version, 0, "%d.%d.%d", major, minor, patch);
+	return version;
+}
+/* }}} */
+
 /** {{{ static int php_zmq_socket_list_entry(void)
 */
 static int php_zmq_socket_list_entry(void)
@@ -1565,7 +1576,9 @@ PHP_MINIT_FUNCTION(zmq)
 	php_zmq_device_exception_sc_entry->ce_flags |= ZEND_ACC_FINAL_CLASS;
 	
 #define PHP_ZMQ_REGISTER_CONST_LONG(const_name, value) \
-	zend_declare_class_constant_long(php_zmq_sc_entry, const_name, sizeof(const_name)-1, (long)value TSRMLS_CC);	
+	zend_declare_class_constant_long(php_zmq_sc_entry, const_name, sizeof(const_name)-1, (long)value TSRMLS_CC);
+#define PHP_ZMQ_REGISTER_CONST_STRING(const_name, value) \	
+	zend_declare_class_constant_string ( php_zmq_sc_entry, const_name, sizeof(const_name)-1, value TSRMLS_CC);	
 	
 	/* Socket constants */
 	PHP_ZMQ_REGISTER_CONST_LONG("SOCKET_PAIR", ZMQ_PAIR);
@@ -1617,6 +1630,11 @@ PHP_MINIT_FUNCTION(zmq)
 	PHP_ZMQ_REGISTER_CONST_LONG("ERR_EFSM", EFSM);
 	PHP_ZMQ_REGISTER_CONST_LONG("ERR_ETERM", ETERM);
 	
+	char *version;
+	version = php_zmq_get_lib_version();
+	PHP_ZMQ_REGISTER_CONST_STRING("LIBZMQ_VER", version);
+	efree(version);
+	
 #undef PHP_ZMQ_REGISTER_CONST_LONG
 
 	return SUCCESS;
@@ -1625,10 +1643,7 @@ PHP_MINIT_FUNCTION(zmq)
 PHP_MINFO_FUNCTION(zmq)
 {
 	char *version;
-	int major = 0, minor = 0, patch = 0;
-	
-	zmq_version(&major, &minor, &patch);
-	(void) spprintf(&version, 0, "%d.%d.%d", major, minor, patch);
+	version = php_zmq_get_lib_version();
 	
 	php_info_print_table_start();
 
