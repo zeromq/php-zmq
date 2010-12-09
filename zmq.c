@@ -1577,8 +1577,8 @@ PHP_MINIT_FUNCTION(zmq)
 	
 #define PHP_ZMQ_REGISTER_CONST_LONG(const_name, value) \
 	zend_declare_class_constant_long(php_zmq_sc_entry, const_name, sizeof(const_name)-1, (long)value TSRMLS_CC);
-#define PHP_ZMQ_REGISTER_CONST_STRING(const_name, value) \	
-	zend_declare_class_constant_string ( php_zmq_sc_entry, const_name, sizeof(const_name)-1, value TSRMLS_CC);	
+#define PHP_ZMQ_REGISTER_CONST_STRING(const_name, value) \
+	zend_declare_class_constant_string (php_zmq_sc_entry, const_name, sizeof(const_name)-1, value TSRMLS_CC);
 	
 	/* Socket constants */
 	PHP_ZMQ_REGISTER_CONST_LONG("SOCKET_PAIR", ZMQ_PAIR);
@@ -1636,6 +1636,7 @@ PHP_MINIT_FUNCTION(zmq)
 	efree(version);
 	
 #undef PHP_ZMQ_REGISTER_CONST_LONG
+#undef PHP_ZMQ_REGISTER_CONST_STRING
 
 	return SUCCESS;
 }
