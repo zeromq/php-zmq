@@ -756,6 +756,12 @@ PHP_METHOD(zmqsocket, setsockopt)
 		break;
 		
 		case ZMQ_HWM:
+		{
+			if (zend_hash_num_elements(&(intern->socket->connect)) > 0 || zend_hash_num_elements(&(intern->socket->bind)) > 0) {
+				php_error(E_WARNING, "Setting the HWM after connection has been established - option may not be appled");
+			}
+		}
+		/* No break here intentionally to fall through */
 		case ZMQ_RATE:
 		case ZMQ_RECOVERY_IVL:
 		case ZMQ_MCAST_LOOP:
