@@ -89,6 +89,18 @@
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
+     <varname linkend="zmq.constants.socket-push">ZMQ::SOCKET_PUSH</varname>
+     <initializer>7</initializer>
+    </fieldsynopsis>
+    <fieldsynopsis>
+     <modifier>const</modifier>
+     <type>integer</type>
+     <varname linkend="zmq.constants.socket-pull">ZMQ::SOCKET_PULL</varname>
+     <initializer>8</initializer>
+    </fieldsynopsis>
+    <fieldsynopsis>
+     <modifier>const</modifier>
+     <type>integer</type>
      <varname linkend="zmq.constants.sockopt-hwm">ZMQ::SOCKOPT_HWM</varname>
      <initializer>1</initializer>
     </fieldsynopsis>    
@@ -289,35 +301,49 @@
      <varlistentry xml:id="zmq.constants.socket-xreq">
       <term><constant>ZMQ::SOCKET_XREQ</constant></term>
       <listitem>
-       <para></para>
+       <para>Extended REQ socket that load balances to all connected peers.</para>
       </listitem>
      </varlistentry>
 
      <varlistentry xml:id="zmq.constants.socket-xrep">
       <term><constant>ZMQ::SOCKET_XREP</constant></term>
       <listitem>
-       <para></para>
+       <para>Extended REP socket that can route replies to requesters.</para>
       </listitem>
      </varlistentry>
 
      <varlistentry xml:id="zmq.constants.socket-upstream">
       <term><constant>ZMQ::SOCKET_UPSTREAM</constant></term>
       <listitem>
-       <para>Pipeline upstream socket</para>
+       <para>Pipeline upstream socket. Deprecated alias for SOCKET_PUSH.</para>
       </listitem>
      </varlistentry>
 
      <varlistentry xml:id="zmq.constants.socket-downstream">
       <term><constant>ZMQ::SOCKET_DOWNSTREAM</constant></term>
       <listitem>
-       <para>Pipeline downstream socket</para>
+       <para>Pipeline downstream socket. Deprecated alias for SOCKET_PULL</para>
+      </listitem>
+     </varlistentry>
+
+     <varlistentry xml:id="zmq.constants.socket-push">
+      <term><constant>ZMQ::SOCKET_PUSH</constant></term>
+      <listitem>
+       <para>Pipeline upstream push socket</para>
+      </listitem>
+     </varlistentry>
+
+     <varlistentry xml:id="zmq.constants.socket-pull">
+      <term><constant>ZMQ::SOCKET_PULL</constant></term>
+      <listitem>
+       <para>Pipeline downstream pull socket</para>
       </listitem>
      </varlistentry>
 
      <varlistentry xml:id="zmq.constants.sockopt-hwm">
       <term><constant>ZMQ::SOCKOPT_HWM</constant></term>
       <listitem>
-       <para>The high water mark is a hard limit on the maximum number of outstanding messages ØMQ shall queue in memory for any single peer that the specified socket is communicating with (Value: &integer;)</para>
+       <para>The high water mark is a hard limit on the maximum number of outstanding messages ØMQ shall queue in memory for any single peer that the specified socket is communicating with. Setting this option on a socket will only affect connections made after the option has been set. (Value: &integer;).</para>
       </listitem>
      </varlistentry>
 
