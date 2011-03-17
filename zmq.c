@@ -370,28 +370,28 @@ PHP_METHOD(zmqcontext, getsocket)
 	object_init_ex(return_value, php_zmq_socket_sc_entry);
 	interns         = (php_zmq_socket_object *)zend_object_store_get_object(return_value TSRMLS_CC);
 	interns->socket = socket;
-	
-	if (socket->is_persistent) {
-		interns->persistent_id = estrdup(persistent_id);
-	}
-	
+
 	/* Need to add refcount if context is not persistent */
 	if (!intern->context->is_persistent) {
 		zend_objects_store_add_ref(getThis() TSRMLS_CC);
 		interns->context_obj = getThis();
 	}
-	
+
 	if (is_new) {	
 		if (ZEND_NUM_ARGS() > 2) {
 			if (!php_zmq_connect_callback(return_value, &fci, &fci_cache, persistent_id TSRMLS_CC)) {
 				zval_dtor(return_value);
 				php_zmq_socket_destroy(socket);
+				interns->socket = NULL;
 				return;
 			}
 		}
 		if (socket->is_persistent) {
 			php_zmq_socket_store(socket, type, persistent_id TSRMLS_CC);
 		}
+	}
+	if (socket->is_persistent) {
+		interns->persistent_id = estrdup(persistent_id);
 	}
 	return;
 }
@@ -456,20 +456,17 @@ PHP_METHOD(zmqsocket, __construct)
 	intern         = PHP_ZMQ_SOCKET_OBJECT;
 	intern->socket = socket;
 
-	if (socket->is_persistent) {
-		intern->persistent_id = estrdup(persistent_id);
-	}
-	
 	/* Need to add refcount if context is not persistent */
 	if (!internc->context->is_persistent) {
 		zend_objects_store_add_ref(obj TSRMLS_CC);
 		intern->context_obj = obj;
 	}
-	
+
 	if (is_new) {	
 		if (ZEND_NUM_ARGS() > 3) {
 			if (!php_zmq_connect_callback(getThis(), &fci, &fci_cache, persistent_id TSRMLS_CC)) {
 				php_zmq_socket_destroy(socket);
+				intern->socket = NULL;
 				return;
 			}	
 		}
@@ -477,13 +474,16 @@ PHP_METHOD(zmqsocket, __construct)
 			php_zmq_socket_store(socket, type, persistent_id TSRMLS_CC);
 		}
 	}
+	if (socket->is_persistent) {
+		intern->persistent_id = estrdup(persistent_id);
+	}
 
 	return;
 }
 /* }}} */
 
 /* {{{ proto ZMQSocket ZMQSocket::send(string $message[, integer $flags = 0])
-	Send a message
+	Send a message. Return true if message was sent and false on EAGAIN
 */
 PHP_METHOD(zmqsocket, send)
 {
@@ -506,17 +506,17 @@ PHP_METHOD(zmqsocket, send)
 		return;
 	}
 	memcpy(zmq_msg_data(&message), message_param, message_param_len);
-	
+
 	rc = zmq_send(intern->socket->z_socket, &message, flags);
 	errno_ = errno;
-	
+
 	zmq_msg_close(&message);
-	
+
 	if (rc != 0) {
 		zend_throw_exception_ex(php_zmq_socket_exception_sc_entry, errno_ TSRMLS_CC, "Failed to send message: %s", zmq_strerror(errno_));
-		return;	
+		return;
 	}
-	ZMQ_RETURN_THIS;
+	RETURN_TRUE;
 }
 /* }}} */
 
@@ -528,19 +528,19 @@ PHP_METHOD(zmqsocket, recv)
 	php_zmq_socket_object *intern;
 	zmq_msg_t message;
 	long flags = 0, rc;
-	int errno_; 
+	int errno_;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|l", &flags) == FAILURE) {
 		return;
 	}
-	
+
 	intern = PHP_ZMQ_SOCKET_OBJECT;
 
 	if (zmq_msg_init(&message) != 0) {
 		zend_throw_exception_ex(php_zmq_socket_exception_sc_entry, errno TSRMLS_CC, "Failed to initialize message structure: %s", zmq_strerror(errno));
 		return;
 	}
-	
+
 	rc = zmq_recv(intern->socket->z_socket, &message, flags);
 	errno_ = errno;
 
@@ -550,7 +550,7 @@ PHP_METHOD(zmqsocket, recv)
 		return;
 	}
 
-	ZVAL_STRINGL(return_value, zmq_msg_data(&message), zmq_msg_size(&message), 1);	
+	ZVAL_STRINGL(return_value, zmq_msg_data(&message), zmq_msg_size(&message), 1);
 	zmq_msg_close(&message);
 	return;
 }
@@ -1338,18 +1338,18 @@ static void php_zmq_socket_object_free_storage(void *object TSRMLS_DC)
 		return;
 	}
 
-	if (intern->context_obj) {
-		zend_objects_store_del_ref(intern->context_obj TSRMLS_CC);
-	}
-
 	if (intern->socket) {
 		if (intern->socket->is_persistent && intern->persistent_id) {
 			efree(intern->persistent_id);
 		}
-		
+
 		if (!intern->socket->is_persistent) {
 			php_zmq_socket_destroy(intern->socket);
 		}
+	}
+
+	if (intern->context_obj) {
+		zend_objects_store_del_ref(intern->context_obj TSRMLS_CC);
 	}
 
 	zend_object_std_dtor(&intern->zo TSRMLS_CC);
