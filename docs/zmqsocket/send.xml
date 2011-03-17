@@ -15,7 +15,7 @@
    <methodparam choice="opt"><type>integer</type><parameter>mode</parameter><initializer>0</initializer></methodparam>
   </methodsynopsis>
   <para>
-   Send a message using the socket. The operation will block unless <constant>ZMQ::MODE_NOBLOCK</constant> is used.
+   Send a message using the socket. The operation can block unless <constant>ZMQ::MODE_NOBLOCK</constant> is used.
   </para>
  </refsect1>
 
@@ -47,12 +47,11 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   Returns the current object. Throws ZMQSocketException on error and if <constant>ZMQ::MODE_NOBLOCK</constant> is used
-   an exception is thrown if the operation would block.
+   Returns the current object. Throws ZMQSocketException on error. 
+   If <constant>ZMQ::MODE_NOBLOCK</constant> is used and the operation would 
+   block &boolean; false shall be returned.
   </para>
  </refsect1>
-
-
 </refentry>
 
 <!-- Keep this comment at the end of the file

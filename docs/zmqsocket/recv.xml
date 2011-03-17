@@ -99,8 +99,9 @@ Got response: This is a message
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   Returns the message. Throws ZMQSocketException in error. If <constant>ZMQ::MODE_NOBLOCK</constant> is
-   used the exception error code can be checked against <constant>ZMQ::ERR_EAGAIN</constant> constant.
+   Returns the message. Throws ZMQSocketException in error. 
+   If <constant>ZMQ::MODE_NOBLOCK</constant> is used and the operation would 
+   block &boolean; false shall be returned.
   </para>
  </refsect1>
 

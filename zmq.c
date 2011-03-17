@@ -513,6 +513,9 @@ PHP_METHOD(zmqsocket, send)
 	zmq_msg_close(&message);
 
 	if (rc != 0) {
+	    if (errno_ == EAGAIN) {
+			RETURN_FALSE;
+	    }
 		zend_throw_exception_ex(php_zmq_socket_exception_sc_entry, errno_ TSRMLS_CC, "Failed to send message: %s", zmq_strerror(errno_));
 		return;
 	}
@@ -546,6 +549,9 @@ PHP_METHOD(zmqsocket, recv)
 
 	if (rc != 0) {
 		zmq_msg_close(&message);
+		if (errno == EAGAIN) {
+			RETURN_FALSE;
+		}
 		zend_throw_exception_ex(php_zmq_socket_exception_sc_entry, errno_ TSRMLS_CC, "Failed to receive message: %s", zmq_strerror(errno_));
 		return;
 	}
