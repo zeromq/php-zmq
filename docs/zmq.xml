@@ -175,6 +175,12 @@
      <type>integer</type>
      <varname linkend="zmq.constants.sockopt-type">ZMQ::SOCKOPT_TYPE</varname>
      <initializer>16</initializer>
+    </fieldsynopsis>
+    <fieldsynopsis>
+     <modifier>const</modifier>
+     <type>integer</type>
+     <varname linkend="zmq.constants.sockopt-linger">ZMQ::SOCKOPT_LINGER</varname>
+     <initializer>17</initializer>
     </fieldsynopsis>    
     <fieldsynopsis>
      <modifier>const</modifier>
@@ -428,6 +434,14 @@
       <term><constant>ZMQ::SOCKOPT_TYPE</constant></term>
       <listitem>
        <para>Get the socket type. Valid for getSockOpt (Value: &integer;)</para>
+      </listitem>
+     </varlistentry>
+     
+     <varlistentry xml:id="zmq.constants.sockopt-linger">
+      <term><constant>ZMQ::SOCKOPT_LINGER</constant></term>
+      <listitem>
+       <para>The linger value of the socket. Specifies how long the socket blocks
+             trying flush messages after it has been closed (Value: &integer;)</para>
       </listitem>
      </varlistentry>
 
