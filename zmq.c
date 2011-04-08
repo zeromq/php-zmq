@@ -978,7 +978,7 @@ PHP_METHOD(zmqpoll, add)
 
 	if (pos < 0) {
 		
-		char *message = NULL;
+		const char *message = NULL;
 		
 		switch (pos) {
 			case PHP_ZMQ_POLLSET_ERR_NO_STREAM:
