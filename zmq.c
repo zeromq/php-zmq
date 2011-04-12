@@ -54,17 +54,18 @@ static zend_object_handlers zmq_device_object_handlers;
 
 #define PHP_ZMQ_IDENTITY_LEN 255
 
+#define PHP_ZMQ_VERSION_LEN 24
+
 /* list entries */
 static int le_zmq_socket, le_zmq_context;
 
-/** {{{ static char* php_zmq_get_lib_version(void)
+/** {{{ static void php_zmq_get_lib_version(char buffer[PHP_ZMQ_VERSION_LEN])
 */
-static char* php_zmq_get_lib_version(void) {
-	char *version = NULL;
+static void php_zmq_get_lib_version(char buffer[PHP_ZMQ_VERSION_LEN]) 
+{
 	int major = 0, minor = 0, patch = 0;
 	zmq_version(&major, &minor, &patch);
-	(void) spprintf(&version, 0, "%d.%d.%d", major, minor, patch);
-	return version;
+	(void) snprintf(buffer, PHP_ZMQ_VERSION_LEN, "%d.%d.%d", major, minor, patch);
 }
 /* }}} */
 
@@ -978,7 +979,7 @@ PHP_METHOD(zmqpoll, add)
 
 	if (pos < 0) {
 		
-		const char *message = NULL;
+		char *message = NULL;
 		
 		switch (pos) {
 			case PHP_ZMQ_POLLSET_ERR_NO_STREAM:
@@ -1524,6 +1525,7 @@ ZEND_RSRC_DTOR_FUNC(php_zmq_socket_dtor)
 
 PHP_MINIT_FUNCTION(zmq)
 {
+	char version[PHP_ZMQ_VERSION_LEN];
 	zend_class_entry ce, ce_context, ce_socket, ce_poll, ce_device;
 	zend_class_entry ce_exception, ce_context_exception, ce_socket_exception, ce_poll_exception, ce_device_exception;
 
@@ -1635,12 +1637,10 @@ PHP_MINIT_FUNCTION(zmq)
 	PHP_ZMQ_REGISTER_CONST_LONG("ERR_ENOTSUP", ENOTSUP);
 	PHP_ZMQ_REGISTER_CONST_LONG("ERR_EFSM", EFSM);
 	PHP_ZMQ_REGISTER_CONST_LONG("ERR_ETERM", ETERM);
-	
-	char *version;
-	version = php_zmq_get_lib_version();
+
+	php_zmq_get_lib_version(version);
 	PHP_ZMQ_REGISTER_CONST_STRING("LIBZMQ_VER", version);
-	efree(version);
-	
+
 #undef PHP_ZMQ_REGISTER_CONST_LONG
 #undef PHP_ZMQ_REGISTER_CONST_STRING
 
@@ -1649,8 +1649,8 @@ PHP_MINIT_FUNCTION(zmq)
 
 PHP_MINFO_FUNCTION(zmq)
 {
-	char *version;
-	version = php_zmq_get_lib_version();
+	char version[PHP_ZMQ_VERSION_LEN];
+	php_zmq_get_lib_version(version);
 	
 	php_info_print_table_start();
 
@@ -1659,8 +1659,6 @@ PHP_MINFO_FUNCTION(zmq)
 		php_info_print_table_row(2, "libzmq version", version);
 
 	php_info_print_table_end();
-
-	efree(version);
 	DISPLAY_INI_ENTRIES();
 }
 
