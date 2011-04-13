@@ -24,6 +24,7 @@
  <notes>
 - Added callback for connecting/binding sockets
 - Make sure that passed param types are not modified in setSockOpt
+- EAGAIN in send/recv doesn't cause exception
  </notes>
  <contents>
   <dir name="/">
