@@ -331,7 +331,7 @@ class ZMQPoll {
      *
      * @param array &$readable   array where to return the readable objects
      * @param array &$writable   array where to return the writable objects
-     * @param integer $timeout   Timeout for poll in milliseconds. -1 polls as long as one of the objects comes readable/writable
+     * @param integer $timeout   Timeout for poll in microseconds. -1 polls as long as one of the objects comes readable/writable
      *
      * @throws ZMQPollException if polling fails
      * @return integer
