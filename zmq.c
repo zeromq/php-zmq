@@ -637,8 +637,7 @@ PHP_METHOD(zmqsocket, recv)
 {
 	php_zmq_socket_object *intern;
 	zval *retval;
-	long flags = 0, rc;
-	int errno_;
+	long flags = 0;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|l", &flags) == FAILURE) {
 		return;
