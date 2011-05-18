@@ -676,6 +676,7 @@ PHP_METHOD(zmqsocket, recvmulti)
 	do {
 		retval = php_zmq_recv(intern, flags);
 		if(retval == NULL) {
+			zval_dtor(return_value); 
 			RETURN_FALSE;
 		}
 		add_next_index_zval(return_value, retval);
