@@ -10,11 +10,11 @@
   <email>mkoppanen@php.net</email>
   <active>yes</active>
  </lead>
- <date>2010-09-30</date>
+ <date>2011-05-20</date>
  <time>15:33:53</time>
  <version>
-  <release>0.7.0</release>
-  <api>0.7.0</api>
+  <release>0.8.0</release>
+  <api>0.8.0</api>
  </version>
  <stability>
   <release>beta</release>
@@ -22,9 +22,7 @@
  </stability>
  <license>BSD License</license>
  <notes>
-- Added callback for connecting/binding sockets
-- Make sure that passed param types are not modified in setSockOpt
-- EAGAIN in send/recv doesn't cause exception
+- Added sendmulti and receivemulti functions for simple multipart messaging
  </notes>
  <contents>
   <dir name="/">

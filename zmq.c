@@ -606,7 +606,7 @@ static zend_bool php_zmq_recv(php_zmq_socket_object *intern, long flags, zval *r
 
 	if (zmq_msg_init(&message) != 0) {
 		zend_throw_exception_ex(php_zmq_socket_exception_sc_entry, errno TSRMLS_CC, "Failed to initialize message structure: %s", zmq_strerror(errno));
-		return;
+		return 0;
 	}
 
 	rc = zmq_recv(intern->socket->z_socket, &message, flags);
