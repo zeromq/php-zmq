@@ -506,7 +506,7 @@ static zend_bool php_zmq_send(php_zmq_socket_object *intern, char *message_param
 			return 0;
 	    }
 		zend_throw_exception_ex(php_zmq_socket_exception_sc_entry, errno_ TSRMLS_CC, "Failed to send message: %s", zmq_strerror(errno_));
-		return;
+		return 0;
 	}
 	
 	return 1;
@@ -532,69 +532,82 @@ PHP_METHOD(zmqsocket, send)
 	
 	ret = php_zmq_send(intern, message_param, message_param_len, flags TSRMLS_CC);
 
-	if(ret) {
+	if (ret) {
 		ZMQ_RETURN_THIS;
 	} else {
 		RETURN_FALSE;
 	}
 }
 /* }}} */
+#if (PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION < 3)
+static int php_zmq_send_cb(zval **ppzval, int num_args, va_list args, zend_hash_key *hash_key)
+{
+	TSRMLS_FETCH();
+#else
+static int php_zmq_send_cb(zval **ppzval TSRMLS_DC, int num_args, va_list args, zend_hash_key *hash_key)
+{
+#endif
+    zval tmpcopy;
+	php_zmq_socket_object *intern;
+	int flags, *rc, *to_send;
+
+	intern  = va_arg(args, php_zmq_socket_object *);
+	flags   = va_arg(args, int);
+	to_send = va_arg(args, int *);
+	rc      = va_arg(args, int *);
+
+	if (--(*to_send)) {
+		flags = flags | ZMQ_SNDMORE;
+	} else {
+		flags = flags & ~ZMQ_SNDMORE;
+	}
+
+	tmpcopy = **ppzval;
+	zval_copy_ctor(&tmpcopy);
+	INIT_PZVAL(&tmpcopy);
+
+	if (Z_TYPE(tmpcopy) != IS_STRING) {
+		convert_to_string(&tmpcopy);
+	}
+
+	*rc = php_zmq_send(intern, Z_STRVAL(tmpcopy), Z_STRLEN(tmpcopy), flags TSRMLS_CC);
+
+	zval_dtor(&tmpcopy);
+
+	if (!*rc) {
+		return ZEND_HASH_APPLY_STOP;
+	}
+	return ZEND_HASH_APPLY_KEEP;
+}
 
 /* {{{ proto ZMQSocket ZMQSocket::sendmulti(arrays $messages[, integer $flags = 0])
 	Send a multipart message. Return true if message was sent and false on EAGAIN
 */
-PHP_METHOD(zmqsocket, sendmulti) {
+PHP_METHOD(zmqsocket, sendmulti)
+{
+	zval *messages;
 	php_zmq_socket_object *intern;
-	char *message_param; 
-	int message_param_len, array_count, i;
+	int to_send, ret = 0;
 	long flags = 0;
-	zend_bool ret;
-	zval *messages, **data, *send;
-	HashTable *arr_hash;
-	HashPosition pointer;
-	
+
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a|l", &messages, &flags) == FAILURE) {
 		return;
 	}
-	
-	intern = PHP_ZMQ_SOCKET_OBJECT;
-	arr_hash = Z_ARRVAL_P(messages);
-	array_count = zend_hash_num_elements(arr_hash);
-	flags = flags | ZMQ_SNDMORE;
-	
-	for(	zend_hash_internal_pointer_reset_ex(arr_hash, &pointer), i=1; 
-			zend_hash_get_current_data_ex(arr_hash, (void**) &data, &pointer) == SUCCESS; 
-			zend_hash_move_forward_ex(arr_hash, &pointer), i++) {
-			zval *temp = NULL;
-			if (Z_TYPE_PP(data) != IS_STRING) {
-				temp = *data;
-				zval_copy_ctor(temp);
-				convert_to_string(temp);
-				send = temp;
-			} else {
-				send = *data;
-			}
-			
-			message_param = Z_STRVAL_P(send);
-			message_param_len = Z_STRLEN_P(send);
-			
-			if(i == array_count) {
-				flags = flags & ~ZMQ_SNDMORE;
-			}
-			
-			if(php_zmq_send(intern, message_param, message_param_len, flags TSRMLS_CC) == 0) {
-				if(temp) {
-					zval_dtor(temp);	
-				}
-				RETURN_FALSE;
-			}
-			
-			if(temp) {
-				zval_dtor(temp);	
-			}			
-	}
 
-	ZMQ_RETURN_THIS;
+	intern = PHP_ZMQ_SOCKET_OBJECT;
+	to_send = zend_hash_num_elements(Z_ARRVAL_P(messages));
+
+#if (PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION < 3)
+	zend_hash_apply_with_arguments(Z_ARRVAL_P(messages), (apply_func_args_t) php_zmq_send_cb, 4, intern, flags, &to_send, &ret);
+#else
+	zend_hash_apply_with_arguments(Z_ARRVAL_P(messages) TSRMLS_CC, (apply_func_args_t) php_zmq_send_cb, 4, intern, flags, &to_send, &ret);
+#endif
+
+	if (ret) {
+		ZMQ_RETURN_THIS;
+	} else {
+		RETURN_FALSE;
+	}
 }
 
 /* {{{ static zend_bool php_zmq_recv(php_zmq_socket_object *intern, long flags, zval *return_value TSRMLS_DC)
@@ -643,11 +656,10 @@ PHP_METHOD(zmqsocket, recv)
 
 	intern = PHP_ZMQ_SOCKET_OBJECT;
 	retval = php_zmq_recv(intern, flags, return_value TSRMLS_CC);
-	
-	if(retval == 0) {
+
+	if (retval == 0) {
 		RETURN_FALSE;
-	} 
-	
+	}
 	return;
 }
 /* }}} */
@@ -658,7 +670,6 @@ PHP_METHOD(zmqsocket, recv)
 PHP_METHOD(zmqsocket, recvmulti)
 {
 	php_zmq_socket_object *intern;
-	zmq_msg_t message;
 	size_t value_len;
 	long flags = 0;
 	zend_bool retval;
@@ -668,21 +679,21 @@ PHP_METHOD(zmqsocket, recvmulti)
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|l", &flags) == FAILURE) {
 		return;
 	}
-	
+
 	intern = PHP_ZMQ_SOCKET_OBJECT;
 	array_init(return_value);
 
 	do {
 		MAKE_STD_ZVAL(msg);
 		retval = php_zmq_recv(intern, flags, msg TSRMLS_CC);
-		if(retval == 0) {
-			zval_dtor(return_value); 
+		if (retval == 0) {
+			zval_dtor(return_value);
 			RETURN_FALSE;
 		}
 		add_next_index_zval(return_value, msg);
 		zmq_getsockopt(intern->socket->z_socket, ZMQ_RCVMORE, &value, &value_len);
-	} while(value > 0);
-	
+	} while (value > 0);
+
 	return;
 }
 /* }}} */
