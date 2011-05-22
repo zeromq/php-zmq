@@ -7,5 +7,7 @@
 &reference.zmq.zmqsocket.getsockopt;
 &reference.zmq.zmqsocket.ispersistent;
 &reference.zmq.zmqsocket.recv;
+&reference.zmq.zmqsocket.recvmulti;
 &reference.zmq.zmqsocket.send;
+&reference.zmq.zmqsocket.sendmulti;
 &reference.zmq.zmqsocket.setsockopt;
