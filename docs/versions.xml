@@ -12,7 +12,9 @@
  <function name='zmqcontext::ispersistent' from='PECL zmq &gt;= 0.5.0'/>
  <function name='zmqsocket::__construct' from='PECL zmq &gt;= 0.5.0'/>
  <function name='zmqsocket::send' from='PECL zmq &gt;= 0.5.0'/>
+ <function name='zmqsocket::sendmulti' from='PECL zmq &gt;= 0.8.0'/>
  <function name='zmqsocket::recv' from='PECL zmq &gt;= 0.5.0'/>
+ <function name='zmqsocket::recvmulti' from='PECL zmq &gt;= 0.8.0'/>
  <function name='zmqsocket::bind' from='PECL zmq &gt;= 0.5.0'/>
  <function name='zmqsocket::connect' from='PECL zmq &gt;= 0.5.0'/>
  <function name='zmqsocket::setsockopt' from='PECL zmq &gt;= 0.5.0'/>
