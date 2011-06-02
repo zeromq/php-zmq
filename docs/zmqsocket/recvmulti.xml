@@ -3,14 +3,14 @@
 
 <refentry xml:id="zmqsocket.recvmulti" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
-  <refname>ZMQSocket::recv</refname>
+  <refname>ZMQSocket::recvMulti</refname>
   <refpurpose>Receives a multipart message</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>string</type><methodname>ZMQSocket::recv</methodname>
+   <modifier>public</modifier> <type>string</type><methodname>ZMQSocket::recvMulti</methodname>
    <methodparam choice="opt"><type>integer</type><parameter>mode</parameter><initializer>0</initializer></methodparam>
   </methodsynopsis>
   <para>
