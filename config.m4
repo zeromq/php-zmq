@@ -15,7 +15,7 @@ if test "$PHP_ZMQ" != "no"; then
   if test "x$PHP_ZMQ" = "xyes"; then
     export PKG_CONFIG_PATH=/usr/lib/pkgconfig:/usr/local/lib/pkgconfig:/opt/lib/pkgconfig:/opt/local/lib/pkgconfig
   else
-    export PKG_CONFIG_PATH=$PHP_ZMQ:$PHP_ZMQ/lib/pkgconfig
+    export PKG_CONFIG_PATH="$PHP_ZMQ:$PHP_ZMQ/lib/pkgconfig"
   fi
 
   if $PKG_CONFIG --exists libzmq; then
