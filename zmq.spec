@@ -13,8 +13,8 @@ URL:           http://github.com/mkoppanen/php-zmq
 Source:        zmq-%{version}.tgz
 Prefix:        %{_prefix}
 Buildroot:     %{_tmppath}/%{name}-%{version}-%{release}-root
-BuildRequires: php-devel, make, gcc, /usr/bin/phpize, zmq-devel >= 2.0.7
-Requires:      zmq >= 2.0.7
+BuildRequires: php-devel, make, gcc, /usr/bin/phpize, zeromq-devel >= 2.0.7
+Requires:      zeromq >= 2.0.7
 
 %description
 PHP extension for 0MQ messaging system
@@ -46,5 +46,7 @@ echo "extension=zmq.so" > %{buildroot}/%{_sysconfdir}/php.d/zmq.ini
 %{_sysconfdir}/php.d/zmq.ini
 
 %changelog
+* Wed Jun 15 2011 Rick Moran <moran@morangroup.org>
+ - Minor Changes.
 * Thu Apr 8 2010 Mikko Koppanen <mkoppanen@php.net>
  - Initial spec file
