@@ -921,11 +921,6 @@ PHP_METHOD(zmqsocket, setsockopt)
 		{
 			int value;
 			convert_to_long(pz_value);
-			
-			if (Z_LVAL_P(pz_value) < 0) {
-				zend_throw_exception(php_zmq_socket_exception_sc_entry, "The option value must be zero or larger", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
-				return;
-			}
 			value  = (int) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
 		}
