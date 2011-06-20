@@ -13,8 +13,8 @@
  <date>2011-05-20</date>
  <time>15:33:53</time>
  <version>
-  <release>0.8.0</release>
-  <api>0.8.0</api>
+  <release>0.9.0</release>
+  <api>0.9.0</api>
  </version>
  <stability>
   <release>beta</release>
@@ -22,7 +22,8 @@
  </stability>
  <license>BSD License</license>
  <notes>
-- Added sendmulti and receivemulti functions for simple multipart messaging
+- Added SOCKET_ROUTER and SOCKET_DEALER
+- Fixed GH-29: Cannot set ZMQ_LINGER to -1
  </notes>
  <contents>
   <dir name="/">

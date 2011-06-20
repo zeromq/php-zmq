@@ -1,3 +1,10 @@
+0.9.0
+- Added SOCKET_ROUTER and SOCKET_DEALER
+- Fixed GH-29: Cannot set ZMQ_LINGER to -1
+
+0.8.0
+- Added sendmulti and receivemulti functions for simple multipart messaging
+
 0.7.0
 - Added callback for connecting/binding sockets
 - Make sure that passed param types are not modified in setSockOpt
