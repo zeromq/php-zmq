@@ -1,3 +1,12 @@
+1.0.0
+- Changed poll timeout to milliseconds rather than microseconds
+- ZMQ::MODE_NOBLOCK is now called MODE_DONTWAIT, the old constant is 
+  kept for backwards compatibility
+- ZMQ::SOCKOPT_HWM sets both ZMQ::SOCKOPT_SNDHWM and ZMQ::SOCKOPT_RCVHWM,
+  the latter constants are available if compiled against version 3.x of ZeroMQ
+- ZMQ::SOCKOPT_MCAST_LOOP has been removed
+- ZMQ::SOCKOPT_SWAP has been removed
+
 0.9.0
 - Added SOCKET_ROUTER and SOCKET_DEALER
 - Fixed GH-29: Cannot set ZMQ_LINGER to -1

@@ -50,11 +50,10 @@ static zend_object_handlers zmq_context_object_handlers;
 static zend_object_handlers zmq_poll_object_handlers;
 static zend_object_handlers zmq_device_object_handlers;
 
-#define PHP_ZMQ_INTERNAL_ERROR -99
-
-#define PHP_ZMQ_IDENTITY_LEN 255
-
-#define PHP_ZMQ_VERSION_LEN 24
+zend_class_entry *php_zmq_socket_exception_sc_entry_get ()
+{
+	return php_zmq_socket_exception_sc_entry;
+}
 
 /* list entries */
 static int le_zmq_socket, le_zmq_context;
@@ -496,12 +495,12 @@ static zend_bool php_zmq_send(php_zmq_socket_object *intern, char *message_param
 	}
 	memcpy(zmq_msg_data(&message), message_param, message_param_len);
 
-	rc = zmq_send(intern->socket->z_socket, &message, flags);
+	rc = zmq_sendmsg(intern->socket->z_socket, &message, flags);
 	errno_ = errno;
 
 	zmq_msg_close(&message);
 	
-	if (rc != 0) {
+	if (rc == -1) {
 	    if (errno_ == EAGAIN) {
 			return 0;
 	    }
@@ -622,10 +621,10 @@ static zend_bool php_zmq_recv(php_zmq_socket_object *intern, long flags, zval *r
 		return 0;
 	}
 
-	rc = zmq_recv(intern->socket->z_socket, &message, flags);
+	rc = zmq_recvmsg(intern->socket->z_socket, &message, flags);
 	errno_ = errno;
 
-	if (rc != 0) {
+	if (rc == -1) {
 		zmq_msg_close(&message);
 		if (errno == EAGAIN) {
 			return 0;
@@ -860,196 +859,6 @@ PHP_METHOD(zmqsocket, getsockettype)
 }
 /* }}} */
 
-/* {{{ proto ZMQSocket ZMQSocket::setSockOpt(integer $SOCKOPT, mixed $value)
-	Set a socket option
-*/
-PHP_METHOD(zmqsocket, setsockopt)
-{
-	php_zmq_socket_object *intern;
-	long key;
-	zval *pz_value;
-	int status;
-	
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "lz/", &key, &pz_value) == FAILURE) {
-		return;
-	}
-	
-	intern = PHP_ZMQ_SOCKET_OBJECT;
-
-	switch (key) {
-		case ZMQ_SWAP:
-		case ZMQ_AFFINITY:
-		case ZMQ_RCVMORE:
-		{
-			int64_t value;
-			convert_to_long(pz_value);
-			value  = (int64_t) Z_LVAL_P(pz_value);
-			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int64_t));
-		}
-		break;
-		
-		case ZMQ_IDENTITY:
-		case ZMQ_SUBSCRIBE:
-		case ZMQ_UNSUBSCRIBE:
-		{
-			convert_to_string(pz_value);
-			status = zmq_setsockopt(intern->socket->z_socket, key, Z_STRVAL_P(pz_value), Z_STRLEN_P(pz_value));
-		}
-		break;
-		
-		case ZMQ_HWM:
-		case ZMQ_RATE:
-		case ZMQ_RECOVERY_IVL:
-		case ZMQ_MCAST_LOOP:
-		case ZMQ_SNDBUF:
-		case ZMQ_RCVBUF:
-		{
-			uint64_t value;
-			convert_to_long(pz_value);
-			
-			if (Z_LVAL_P(pz_value) < 0) {
-				zend_throw_exception(php_zmq_socket_exception_sc_entry, "The option value must be zero or larger", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
-				return;
-			}
-			value  = (uint64_t) Z_LVAL_P(pz_value);
-			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(uint64_t));
-		}
-		break;
-
-#ifdef ZMQ_LINGER
-		case ZMQ_LINGER:
-		{
-			int value;
-			convert_to_long(pz_value);
-			value  = (int) Z_LVAL_P(pz_value);
-			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
-		}
-		break;
-#endif
-		
-		default:
-		{
-			zend_throw_exception(php_zmq_socket_exception_sc_entry, "Unknown option key", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
-			return;
-		}
-		break;
-	}
-	
-	if (status != 0) {
-		zend_throw_exception_ex(php_zmq_socket_exception_sc_entry, errno TSRMLS_CC, "Failed to set socket option: %s", zmq_strerror(errno));
-		return;
-	}
-	ZMQ_RETURN_THIS;
-}
-/* }}} */
-
-/* {{{ proto mixed ZMQSocket::getSockOpt()
-	Get a socket option
-*/
-PHP_METHOD(zmqsocket, getsockopt)
-{
-	php_zmq_socket_object *intern;
-	long key;
-	size_t value_len;
-	
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &key) == FAILURE) {
-		return;
-	}
-
-	intern = PHP_ZMQ_SOCKET_OBJECT;
-	
-	if (!intern->socket) {
-		zend_throw_exception(php_zmq_socket_exception_sc_entry, "The socket has not been initialized yet", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
-		return;
-	}
-	
-	switch (key) {
-		case ZMQ_SWAP:
-		case ZMQ_AFFINITY:
-		case ZMQ_RCVMORE:
-		{
-			int64_t value;
-			
-			value_len = sizeof(int64_t);
-			if (zmq_getsockopt(intern->socket->z_socket, (int) key, &value, &value_len) != 0) {
-				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry, errno TSRMLS_CC, "Failed to get the option value: %s", zmq_strerror(errno));
-				return;
-			}
-			RETURN_LONG(value);
-		}
-		break;
-		
-		case ZMQ_IDENTITY:
-		{
-			unsigned char value[PHP_ZMQ_IDENTITY_LEN];
-			
-			value_len = PHP_ZMQ_IDENTITY_LEN;
-			if (zmq_getsockopt(intern->socket->z_socket, (int) key, value, &value_len) != 0) {
-				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry, errno TSRMLS_CC, "Failed to get the option value: %s", zmq_strerror(errno));
-				return;
-			}
-			RETURN_STRINGL((char *) value, value_len, 1);
-		}
-		break;
-		
-		case ZMQ_HWM:
-		case ZMQ_RATE:
-		case ZMQ_RECOVERY_IVL:
-		case ZMQ_MCAST_LOOP:
-		case ZMQ_SNDBUF:
-		case ZMQ_RCVBUF:
-		{
-			uint64_t value;
-			
-			value_len = sizeof(uint64_t);
-			if (zmq_getsockopt(intern->socket->z_socket, (int) key, &value, &value_len) != 0) {
-				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry, errno TSRMLS_CC, "Failed to get the option value: %s", zmq_strerror(errno));
-				return;
-			}
-			RETURN_LONG(value);
-		}
-		break;
-		
-		case ZMQ_SUBSCRIBE:
-			zend_throw_exception(php_zmq_socket_exception_sc_entry, "Retrieving SOCKOPT_SUBSCRIBE is not supported", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
-			return;
-		break;
-		
-		case ZMQ_UNSUBSCRIBE:
-			zend_throw_exception(php_zmq_socket_exception_sc_entry, "Retrieving SOCKOPT_UNSUBSCRIBE is not supported", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
-			return;
-		break;
-		
-#if defined(ZMQ_TYPE) || defined(ZMQ_LINGER)
-
-#ifdef ZMQ_TYPE
-		case ZMQ_TYPE:
-#endif
-#ifdef ZMQ_LINGER
-		case ZMQ_LINGER:
-#endif
-		{
-			int value;
-			
-			if (zmq_getsockopt(intern->socket->z_socket, (int) key, &value, &value_len) != 0) {
-				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry, errno TSRMLS_CC, "Failed to get the option value: %s", zmq_strerror(errno));
-				return;
-			}
-			RETURN_LONG(value);
-		}
-		break;
-#endif
-
-		default:
-		{
-			zend_throw_exception(php_zmq_socket_exception_sc_entry, "Unknown option key", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
-			return;
-		}
-		break;
-	}
-}
-/* }}} */
-
 /* {{{ proto boolean ZMQSocket::isPersistent()
 	Whether the socket is persistent
 */
@@ -1213,7 +1022,7 @@ PHP_METHOD(zmqpoll, poll)
 		return;
 	}
 		
-	rc = php_zmq_pollset_poll(&(intern->set), timeout, r_array, w_array, intern->set.errors);
+	rc = php_zmq_pollset_poll(&(intern->set), timeout * PHP_ZMQ_TIMEOUT, r_array, w_array, intern->set.errors);
 
 	if (rc == -1) {
 		zend_throw_exception_ex(php_zmq_poll_exception_sc_entry, errno TSRMLS_CC, "Poll failed: %s", zmq_strerror(errno));
@@ -1295,7 +1104,7 @@ PHP_METHOD(zmqdevice, __construct)
 	frontend = (php_zmq_socket_object *) zend_object_store_get_object(f TSRMLS_CC);
 	backend  = (php_zmq_socket_object *) zend_object_store_get_object(b TSRMLS_CC);
 
-	rc = zmq_device(type, frontend->socket->z_socket, backend->socket->z_socket);
+	rc = php_zmq_device(frontend->socket->z_socket, backend->socket->z_socket);
 	
 	if (rc != 0) {
 		zend_throw_exception_ex(php_zmq_poll_exception_sc_entry, errno TSRMLS_CC, "Failed to start the device: %s", zmq_strerror(errno));
@@ -1728,47 +1537,44 @@ PHP_MINIT_FUNCTION(zmq)
 	PHP_ZMQ_REGISTER_CONST_LONG("SOCKET_REP", ZMQ_REP);
 	PHP_ZMQ_REGISTER_CONST_LONG("SOCKET_XREQ", ZMQ_XREQ);
 	PHP_ZMQ_REGISTER_CONST_LONG("SOCKET_XREP", ZMQ_XREP);
-	PHP_ZMQ_REGISTER_CONST_LONG("SOCKET_UPSTREAM", ZMQ_UPSTREAM);
-	PHP_ZMQ_REGISTER_CONST_LONG("SOCKET_DOWNSTREAM", ZMQ_DOWNSTREAM);
-#if defined(ZMQ_PUSH) && defined(ZMQ_PULL)
 	PHP_ZMQ_REGISTER_CONST_LONG("SOCKET_PUSH", ZMQ_PUSH);
 	PHP_ZMQ_REGISTER_CONST_LONG("SOCKET_PULL", ZMQ_PULL);
-#endif
-
-#if defined(ZMQ_DEALER) && defined (ZMQ_ROUTER)
 	PHP_ZMQ_REGISTER_CONST_LONG("SOCKET_DEALER", ZMQ_DEALER);
 	PHP_ZMQ_REGISTER_CONST_LONG("SOCKET_ROUTER", ZMQ_ROUTER);
-#endif
+
+	/* 2.0? */
+	PHP_ZMQ_REGISTER_CONST_LONG("SOCKET_UPSTREAM", ZMQ_PULL);
+	PHP_ZMQ_REGISTER_CONST_LONG("SOCKET_DOWNSTREAM", ZMQ_PUSH);
+
 
 	PHP_ZMQ_REGISTER_CONST_LONG("SOCKOPT_HWM", ZMQ_HWM);
-	PHP_ZMQ_REGISTER_CONST_LONG("SOCKOPT_SWAP", ZMQ_SWAP);
+
+	PHP_ZMQ_REGISTER_CONST_LONG("SOCKOPT_SNDHWM", ZMQ_SNDHWM);
+	PHP_ZMQ_REGISTER_CONST_LONG("SOCKOPT_RCVHWM", ZMQ_RCVHWM);
+
 	PHP_ZMQ_REGISTER_CONST_LONG("SOCKOPT_AFFINITY", ZMQ_AFFINITY);
 	PHP_ZMQ_REGISTER_CONST_LONG("SOCKOPT_IDENTITY", ZMQ_IDENTITY);
 	PHP_ZMQ_REGISTER_CONST_LONG("SOCKOPT_SUBSCRIBE", ZMQ_SUBSCRIBE);
 	PHP_ZMQ_REGISTER_CONST_LONG("SOCKOPT_UNSUBSCRIBE", ZMQ_UNSUBSCRIBE);
 	PHP_ZMQ_REGISTER_CONST_LONG("SOCKOPT_RATE", ZMQ_RATE);
 	PHP_ZMQ_REGISTER_CONST_LONG("SOCKOPT_RECOVERY_IVL", ZMQ_RECOVERY_IVL);
-	PHP_ZMQ_REGISTER_CONST_LONG("SOCKOPT_MCAST_LOOP", ZMQ_MCAST_LOOP);
 	PHP_ZMQ_REGISTER_CONST_LONG("SOCKOPT_SNDBUF", ZMQ_SNDBUF);
 	PHP_ZMQ_REGISTER_CONST_LONG("SOCKOPT_RCVBUF", ZMQ_RCVBUF);
 	PHP_ZMQ_REGISTER_CONST_LONG("SOCKOPT_RCVMORE", ZMQ_RCVMORE);
-#ifdef ZMQ_TYPE
 	PHP_ZMQ_REGISTER_CONST_LONG("SOCKOPT_TYPE", ZMQ_TYPE);
-#endif
-#ifdef ZMQ_LINGER
 	PHP_ZMQ_REGISTER_CONST_LONG("SOCKOPT_LINGER", ZMQ_LINGER);
-#endif
-	
+
 	PHP_ZMQ_REGISTER_CONST_LONG("POLL_IN", ZMQ_POLLIN);
 	PHP_ZMQ_REGISTER_CONST_LONG("POLL_OUT", ZMQ_POLLOUT);
-	
+
 	PHP_ZMQ_REGISTER_CONST_LONG("MODE_SNDMORE", ZMQ_SNDMORE);
-	PHP_ZMQ_REGISTER_CONST_LONG("MODE_NOBLOCK", ZMQ_NOBLOCK);
+	PHP_ZMQ_REGISTER_CONST_LONG("MODE_NOBLOCK", ZMQ_DONTWAIT);
+	PHP_ZMQ_REGISTER_CONST_LONG("MODE_DONTWAIT", ZMQ_DONTWAIT);
 
 	PHP_ZMQ_REGISTER_CONST_LONG("DEVICE_FORWARDER", ZMQ_FORWARDER);
 	PHP_ZMQ_REGISTER_CONST_LONG("DEVICE_QUEUE", ZMQ_QUEUE);
 	PHP_ZMQ_REGISTER_CONST_LONG("DEVICE_STREAMER", ZMQ_STREAMER);
-	
+
 	PHP_ZMQ_REGISTER_CONST_LONG("ERR_INTERNAL", PHP_ZMQ_INTERNAL_ERROR);
 	PHP_ZMQ_REGISTER_CONST_LONG("ERR_EAGAIN", EAGAIN);
 	PHP_ZMQ_REGISTER_CONST_LONG("ERR_ENOTSUP", ENOTSUP);

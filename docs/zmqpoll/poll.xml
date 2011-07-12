@@ -49,7 +49,9 @@
      <listitem>
       <para>
        Timeout for the operation. -1 means that poll waits until
-       at least one item has activity.
+       at least one item has activity. Please note that starting from 
+       version 1.0.0 the poll timeout is defined in milliseconds, rather
+       than microseconds.
       </para>
      </listitem>
     </varlistentry>

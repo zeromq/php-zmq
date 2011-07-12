@@ -9,9 +9,9 @@ $poll = new ZMQPoll();
 $ctx  = new ZMQContext();
 $sock = new ZMQSocket($ctx, ZMQ::SOCKET_REP);
 
-$test = "value";
+$test = "1";
 
-$sock->setSockOpt(ZMQ::SOCKOPT_SWAP, $test);
+$sock->setSockOpt(ZMQ::SOCKOPT_HWM, $test);
 echo gettype($test) . "\n";
 
 echo "done\n";
