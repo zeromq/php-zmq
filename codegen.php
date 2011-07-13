@@ -31,12 +31,12 @@ echo <<<EOL
 +-----------------------------------------------------------------------------------+
 */
 
+#include "php_zmq.h"
+#include "php_zmq_private.h"
+
 EOL;
 
 $xml = simplexml_load_file ('sockopts.xml');
-
-echo '#include "php_zmq.h"' . PHP_EOL;
-echo '#include "php_zmq_private.h"' . PHP_EOL;
 
 foreach ($xml->version as $node)
 {
