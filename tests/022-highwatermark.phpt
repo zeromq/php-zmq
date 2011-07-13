@@ -15,20 +15,27 @@ $writable = array();
 $poll = new ZMQPoll();
 $ctx  = new ZMQContext();
 
-$pull = new ZMQSocket($ctx, ZMQ::SOCKET_PULL);
-$pull->bind("tcp://127.0.0.1:44331");
+$req = new ZMQSocket($ctx, ZMQ::SOCKET_REQ);
+$req->setSockOpt(ZMQ::SOCKOPT_HWM, 1);
+$req->setSockOpt(ZMQ::SOCKOPT_LINGER, 1);
+$req->bind("tcp://127.0.0.1:44331");
 
-$push = new ZMQSocket($ctx, ZMQ::SOCKET_PUSH);
-$push->setSockOpt(ZMQ::SOCKOPT_HWM, 1);
-$push->setSockOpt(ZMQ::SOCKOPT_LINGER, 1);
-$push->connect("tcp://127.0.0.1:44331");
+$rep = new ZMQSocket($ctx, ZMQ::SOCKET_REP);
+$rep->connect("tcp://127.0.0.1:44331");
 
-$poll->add($push, ZMQ::POLL_OUT);
+$poll->add($req, ZMQ::POLL_OUT);
 
 $poll->poll(null, $writable, 10);
 var_dump($writable);
 
-$push->send('x');
+$req->send('x');
+
+$poll->poll(null, $writable, 10);
+var_dump($writable);
+
+$rep->recv ();
+$rep->send('x');
+$req->recv();
 
 $poll->poll(null, $writable, 10);
 var_dump($writable);
@@ -39,9 +46,14 @@ echo "OK\n";
 --EXPECTF--
 array(1) {
   [0]=>
-  object(ZMQSocket)#%d (%d) {
+  object(ZMQSocket)#3 (0) {
   }
 }
 array(0) {
+}
+array(1) {
+  [0]=>
+  object(ZMQSocket)#3 (0) {
+  }
 }
 OK

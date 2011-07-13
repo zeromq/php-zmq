@@ -264,9 +264,9 @@ PHP_METHOD(zmqsocket, getsockopt)
 
 		case ZMQ_EVENTS:
 		{
-			uint32 value;
+			uint32_t value;
 
-			value_len = sizeof(uint32);
+			value_len = sizeof(uint32_t);
 			if (zmq_getsockopt(intern->socket->z_socket, (int) key, &value, &value_len) != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to get the option value: %s", zmq_strerror(errno));
 				return;

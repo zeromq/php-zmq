@@ -1,6 +1,6 @@
 1.0.0
 - Changed poll timeout to milliseconds rather than microseconds
-- ZMQ::MODE_NOBLOCK is now called MODE_DONTWAIT, the old constant is 
+- ZMQ::MODE_NOBLOCK is now called ZMQ::MODE_DONTWAIT, the old constant is 
   kept for backwards compatibility
 - ZMQ::SOCKOPT_HWM sets both ZMQ::SOCKOPT_SNDHWM and ZMQ::SOCKOPT_RCVHWM,
   the latter constants are available if compiled against version 3.x of ZeroMQ

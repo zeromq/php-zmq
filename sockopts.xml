@@ -20,7 +20,7 @@
         <option name="type" type="int" mode="r"/>
         <option name="rcvmore" type="int64_t" mode="r"/>
         <option name="fd" type="int" mode="r"/>
-        <option name="events" type="uint32" mode="r"/>
+        <option name="events" type="uint32_t" mode="r"/>
     </version>
     <version major="3">
         <option name="sndhwm" type="int" mode="rw"/>
