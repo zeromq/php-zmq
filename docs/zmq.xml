@@ -187,7 +187,19 @@
      <type>integer</type>
      <varname linkend="zmq.constants.sockopt-linger">ZMQ::SOCKOPT_LINGER</varname>
      <initializer>17</initializer>
-    </fieldsynopsis>    
+    </fieldsynopsis>  
+    <fieldsynopsis>
+     <modifier>const</modifier>
+     <type>integer</type>
+     <varname linkend="zmq.constants.sockopt-backlog">ZMQ::SOCKOPT_BACKLOG</varname>
+     <initializer>19</initializer>
+    </fieldsynopsis>
+    <fieldsynopsis>
+     <modifier>const</modifier>
+     <type>integer</type>
+     <varname linkend="zmq.constants.sockopt-maxmsgsize">ZMQ::SOCKOPT_MAXMSGSIZE</varname>
+     <initializer>22</initializer>
+    </fieldsynopsis>      
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
@@ -443,6 +455,20 @@
       <listitem>
        <para>The linger value of the socket. Specifies how long the socket blocks
              trying flush messages after it has been closed (Value: &integer;)</para>
+      </listitem>
+     </varlistentry>
+     
+     <varlistentry xml:id="zmq.constants.sockopt-backlog">
+      <term><constant>ZMQ::SOCKOPT_BACKLOG</constant></term>
+      <listitem>
+       <para>The SOCKOPT_BACKLOG option shall set the maximum length of the queue of outstanding peer connections for the specified socket; this only applies to connection-oriented transports. (Value: &integer;)</para>
+      </listitem>
+     </varlistentry>
+     
+     <varlistentry xml:id="zmq.constants.sockopt-maxmsgsize">
+      <term><constant>ZMQ::SOCKOPT_MAXMSGSIZE</constant></term>
+      <listitem>
+       <para>Limits the maximum size of the inbound message. Value -1 means no limit. Available if compiled against ZeroMQ 3.x (Value: &integer;)</para>
       </listitem>
      </varlistentry>
 
