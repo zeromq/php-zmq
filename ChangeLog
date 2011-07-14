@@ -6,6 +6,9 @@
   the latter constants are available if compiled against version 3.x of ZeroMQ
 - ZMQ::SOCKOPT_MCAST_LOOP has been removed
 - ZMQ::SOCKOPT_SWAP has been removed
+- The devices has been refactored: the constructor now takes two arguments, front
+  and back socket. Starting the device has been moved to separate run method and 
+  two new methods setIdleTimeout and setIdleCallback has been added.
 
 0.9.0
 - Added SOCKET_ROUTER and SOCKET_DEALER

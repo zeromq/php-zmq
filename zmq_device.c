@@ -37,9 +37,34 @@
 #include "php_zmq.h"
 #include "php_zmq_private.h"
 
-
-int php_zmq_device(void *in_socket, void *out_socket)
+static void php_zmq_invoke_idle_callback (php_zmq_device_object *intern TSRMLS_DC)
 {
+	zval **params[1];
+	zval *retval_ptr = NULL;
+
+	params [0]              = &intern->user_data;
+	intern->fci.params      = params;
+	intern->fci.param_count = 1;
+
+	/* Call the cb */
+	intern->fci.no_separation  = 1;
+	intern->fci.retval_ptr_ptr = &retval_ptr;
+
+	if (zend_call_function(&(intern->fci), &(intern->fci_cache) TSRMLS_CC) == FAILURE) {
+		if (!EG(exception)) {
+			zend_throw_exception_ex(php_zmq_device_exception_sc_entry_get (), 0 TSRMLS_CC, "Failed to invoke idle callback %s()", Z_STRVAL_P(intern->fci.function_name));
+		}
+	}
+	if (retval_ptr) {
+		zval_ptr_dtor(&retval_ptr);
+	}
+}
+
+
+int php_zmq_device(php_zmq_device_object *intern TSRMLS_DC)
+{
+	php_zmq_socket_object *front, *back;
+
     zmq_msg_t msg;
     int64_t more;
     size_t moresz;
@@ -51,37 +76,47 @@ int php_zmq_device(void *in_socket, void *out_socket)
         return -1;
     }
 
-    items [0].socket = in_socket;
+	front = (php_zmq_socket_object *)zend_object_store_get_object(intern->front TSRMLS_CC);
+	back = (php_zmq_socket_object *)zend_object_store_get_object(intern->back TSRMLS_CC);
+
+    items [0].socket = front->socket->z_socket;
     items [0].fd = 0;
     items [0].events = ZMQ_POLLIN;
     items [0].revents = 0;
-    items [1].socket = out_socket;
+    items [1].socket = back->socket->z_socket;
     items [1].fd = 0;
     items [1].events = ZMQ_POLLIN;
     items [1].revents = 0;
 
     while (1) {
 
-        rc = zmq_poll(&items [0], 2, -1);
+        rc = zmq_poll(&items [0], 2, intern->timeout);
         if (rc < 0) {
             return -1;
         }
 
+		if (rc == 0 && intern->has_callback)
+		{
+			/* Invoke idle callback */
+			php_zmq_invoke_idle_callback (intern TSRMLS_CC);
+			continue;
+		}
+
         if (items [0].revents & ZMQ_POLLIN) {
             while (1) {
 
-                rc = zmq_recvmsg(in_socket, &msg, 0);
+                rc = zmq_recvmsg(items [0].socket, &msg, 0);
                 if (rc == -1) {
                     return -1;
                 }
 
                 moresz = sizeof(more);
-                rc = zmq_getsockopt(in_socket, ZMQ_RCVMORE, &more, &moresz);
+                rc = zmq_getsockopt(items [0].socket, ZMQ_RCVMORE, &more, &moresz);
                 if (rc < 0) {
                     return -1;
                 }
 
-                rc = zmq_sendmsg (out_socket, &msg, more ? ZMQ_SNDMORE : 0);
+                rc = zmq_sendmsg (items [1].socket, &msg, more ? ZMQ_SNDMORE : 0);
                 if (rc == -1) {
                     return -1;
                 }
@@ -93,19 +128,18 @@ int php_zmq_device(void *in_socket, void *out_socket)
 
         if (items [1].revents & ZMQ_POLLIN) {
             while (1) {
-
-                rc = zmq_recvmsg(out_socket, &msg, 0);
+                rc = zmq_recvmsg(items [1].socket, &msg, 0);
                 if (rc == -1) {
                     return -1;
                 }
 
                 moresz = sizeof (more);
-                rc = zmq_getsockopt (out_socket, ZMQ_RCVMORE, &more, &moresz);
+                rc = zmq_getsockopt(items [1].socket, ZMQ_RCVMORE, &more, &moresz);
                 if (rc < 0) {
                     return -1;
                 }
 
-                rc = zmq_sendmsg (in_socket, &msg, more ? ZMQ_SNDMORE : 0);
+                rc = zmq_sendmsg(items [0].socket, &msg, more ? ZMQ_SNDMORE : 0);
                 if (rc == -1) {
                     return -1;
                 }

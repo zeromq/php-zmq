@@ -137,6 +137,15 @@ typedef struct _php_zmq_poll_object  {
 */
 typedef struct _php_zmq_device_object  {
 	zend_object zo;
+	
+	zend_bool has_callback;
+	long timeout;
+	zend_fcall_info fci;
+	zend_fcall_info_cache fci_cache;
+	zval *user_data;
+	
+	zval *front;
+	zval *back;
 } php_zmq_device_object;
 /* }}} */
 
@@ -151,6 +160,8 @@ typedef struct _php_zmq_device_object  {
 #define PHP_ZMQ_SOCKET_OBJECT (php_zmq_socket_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
 
 #define PHP_ZMQ_POLL_OBJECT (php_zmq_poll_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
+
+#define PHP_ZMQ_DEVICE_OBJECT (php_zmq_device_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
 
 #define ZMQ_RETURN_THIS RETURN_ZVAL(getThis(), 1, 0);
 
@@ -216,7 +227,9 @@ typedef struct _php_zmq_device_object  {
 
 PHP_METHOD(zmqsocket, getsockopt);
 PHP_METHOD(zmqsocket, setsockopt);
+int php_zmq_device(php_zmq_device_object *intern);
 
 zend_class_entry *php_zmq_socket_exception_sc_entry_get ();
+zend_class_entry *php_zmq_device_exception_sc_entry_get ();
 
 #endif /* _PHP_ZMQ_PRIVATE_H_ */

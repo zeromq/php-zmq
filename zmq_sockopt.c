@@ -27,6 +27,7 @@
 |  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                     |
 +-----------------------------------------------------------------------------------+
 */
+
 #include "php_zmq.h"
 #include "php_zmq_private.h"
 #if ZMQ_VERSION_MAJOR == 2
