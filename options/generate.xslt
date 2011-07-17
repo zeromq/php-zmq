@@ -70,7 +70,11 @@
 					</xsl:choose>
 				</xsl:if>
 			</xsl:for-each>
-				
+			
+			<xsl:if test="@major = 3">
+				<xsl:call-template name="set-hwm-bwc"/>
+			</xsl:if>
+	
 			<xsl:call-template name="setsockopt-footer" />
 			<!-- end ZMQSocket::setSockOpt -->
 
@@ -268,6 +272,31 @@ PHP_METHOD(zmqsocket, setsockopt)
 		</xsl:choose>
 	</xsl:template>
 	
+	<xsl:template name="set-hwm-bwc">
+		
+		case ZMQ_HWM:
+		{
+			int value;
+			convert_to_long(pz_value);
+
+			if (Z_LVAL_P(pz_value) &lt; 0) {
+				zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "The option value must be zero or larger", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
+				return;
+			}
+			value = (int) Z_LVAL_P(pz_value);
+			status = zmq_setsockopt(intern->socket->z_socket, ZMQ_SNDHWM, &amp;value, sizeof(int));
+
+			if (status == 0) {
+				status = zmq_setsockopt(intern->socket->z_socket, ZMQ_RCVHWM, &amp;value, sizeof(int));
+			}
+			
+			if (status != 0) {
+				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_HWM option: %s", zmq_strerror(errno));
+				return;
+			}
+		}
+		break;
+	</xsl:template>
 	
 	<xsl:template name="convert-to-uppercase">
 		<xsl:param name="input-string"/>
