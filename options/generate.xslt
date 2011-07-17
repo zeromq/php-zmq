@@ -10,7 +10,7 @@
 
 			<!-- start ZMQSocket::getSockOpt -->
 			<xsl:call-template name="getsockopt-header"/>
-			<xsl:for-each select="/options/version/option">
+			<xsl:for-each select="option">
 				
 				<xsl:variable name="raw-name">
 					<xsl:call-template name="convert-to-uppercase">
@@ -22,7 +22,7 @@
 				<xsl:if test="@name != 'identity' and @name != 'fd'">	
 					<xsl:choose>
 						<xsl:when test="@mode = 'rw' or @mode = 'r'">
-							<xsl:call-template name="supported-get-option">
+							<xsl:call-template name="get-numeric-option">
 								<xsl:with-param name="const-name" select="$const-name"/>
 								<xsl:with-param name="raw-name" select="$raw-name"/>
 								<xsl:with-param name="type" select="@type"/>
@@ -44,7 +44,7 @@
 			<!-- start ZMQSocket::setSockOpt -->
 			<xsl:call-template name="setsockopt-header"/>
 
-			<xsl:for-each select="/options/version/option">
+			<xsl:for-each select="option">
 				<xsl:variable name="raw-name">
 					<xsl:call-template name="convert-to-uppercase">
 						<xsl:with-param name="input-string" select="@name"/>
@@ -106,19 +106,19 @@ PHP_METHOD(zmqsocket, getsockopt)
 	</xsl:template>
 	
 	<xsl:template name="getsockopt-footer">
-	
+
 		case ZMQ_IDENTITY:
 		{
 			unsigned char value[PHP_ZMQ_IDENTITY_LEN];
 
 			value_len = PHP_ZMQ_IDENTITY_LEN;
 			if (zmq_getsockopt(intern->socket->z_socket, (int) key, value, &amp;value_len) != 0) {
-				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to get the option value: %s", zmq_strerror(errno));
+				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to get the option ZMQ::SOCKOPT_IDENTITY value: %s", zmq_strerror(errno));
 				return;
 			}
 			RETURN_STRINGL((char *) value, value_len, 1);
 		}
-		break;	
+		break;
 
 		default:
 		{
@@ -136,14 +136,13 @@ PHP_METHOD(zmqsocket, getsockopt)
 		<xsl:param name="raw-name"/>
 		case <xsl:value-of select="$const-name"/>:
 		{
-			zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "<xsl:value-of select="$operation"/> SOCKOPT_<xsl:value-of select="$raw-name"/> is not supported", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
+			zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "<xsl:value-of select="$operation"/> ZMQ::SOCKOPT_<xsl:value-of select="$raw-name"/> is not supported", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
 			return;
 		}
 		break;
 	</xsl:template>
-	
-	
-	<xsl:template name="supported-get-option">
+
+	<xsl:template name="get-numeric-option">
 		<xsl:param name="const-name"/>
 		<xsl:param name="raw-name"/>
 		<xsl:param name="type"/>	
@@ -153,7 +152,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 
 			value_len = sizeof(<xsl:value-of select="$type"/>);
 			if (zmq_getsockopt(intern->socket->z_socket, (int) key, &amp;value, &amp;value_len) != 0) {
-				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to get the option SOCKOPT_<xsl:value-of select="$raw-name"/> value: %s", zmq_strerror(errno));
+				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to get the option ZMQ::SOCKOPT_<xsl:value-of select="$raw-name"/> value: %s", zmq_strerror(errno));
 				return;
 			}
 			RETURN_LONG(value);
@@ -212,12 +211,12 @@ PHP_METHOD(zmqsocket, setsockopt)
 			status = zmq_setsockopt(intern->socket->z_socket, key, Z_STRVAL_P(pz_value), Z_STRLEN_P(pz_value));
 
 			if (status != 0) {
-				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket SOCKOPT_<xsl:value-of select="$raw-name"/> option: %s", zmq_strerror(errno));
+				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_<xsl:value-of select="$raw-name"/> option: %s", zmq_strerror(errno));
 				return;
 			}
 		}
 		break;		
-		
+
 	</xsl:template>
 	
 	<xsl:template name="set-numeric-option">
@@ -229,27 +228,24 @@ PHP_METHOD(zmqsocket, setsockopt)
 		{
 			<xsl:value-of select="$type"/> value;
 			convert_to_long(pz_value);
-
 			<xsl:if test="type = 'uint64_t'">
-
 			if (Z_LVAL_P(pz_value) &lt; 0) {
-				zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "The option value must be zero or larger", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
+				zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "The option ZMQ::SOCKOPT_<xsl:value-of select="$raw-name"/> value must be zero or larger", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
 				return;
 			}
 			</xsl:if>
-
 			value  = (<xsl:value-of select="$type"/>) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &amp;value, sizeof(<xsl:value-of select="$type"/>));
 			
 			if (status != 0) {
-				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket SOCKOPT_<xsl:value-of select="$raw-name"/> option: %s", zmq_strerror(errno));
+				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_<xsl:value-of select="$raw-name"/> option: %s", zmq_strerror(errno));
 				return;
 			}
 		}
-		break;	
-	
+		break;
+
 	</xsl:template>
-	
+
 	<xsl:template name="set-option">
 		<xsl:param name="const-name"/>
 		<xsl:param name="raw-name"/>

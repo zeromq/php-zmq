@@ -1,1 +1,1 @@
-xsltproc generate.xslt sockopts.xml
+xsltproc generate.xslt sockopts.xml > ../zmq_sockopt.c

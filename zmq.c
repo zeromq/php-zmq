@@ -311,7 +311,7 @@ static zend_bool php_zmq_connect_callback(zval *socket, zend_fcall_info *fci, ze
 	
 	fci->params         = params;
 	fci->param_count    = 2;
-		
+	fci->retval_ptr_ptr = &retval_ptr;
 	fci->no_separation  = 1;
 	
 	if (zend_call_function(fci, fci_cache TSRMLS_CC) == FAILURE) {
