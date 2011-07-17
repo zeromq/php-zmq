@@ -678,7 +678,11 @@ PHP_METHOD(zmqsocket, recvmulti)
 	long flags = 0;
 	zend_bool retval;
 	zval *msg;
+#if ZMQ_VERSION_MAJOR < 3	
 	int64_t value;
+#else
+	int value;
+#endif
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|l", &flags) == FAILURE) {
 		return;
