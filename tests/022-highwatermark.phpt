@@ -28,14 +28,14 @@ $poll->add($req, ZMQ::POLL_OUT);
 $poll->poll(null, $writable, 10);
 var_dump($writable);
 
-$req->send('x');
+$req->sendmsg('x');
 
 $poll->poll(null, $writable, 10);
 var_dump($writable);
 
-$rep->recv ();
-$rep->send('x');
-$req->recv();
+$rep->recvmsg ();
+$rep->sendmsg('x');
+$req->recvmsg();
 
 $poll->poll(null, $writable, 10);
 var_dump($writable);

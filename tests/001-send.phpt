@@ -10,13 +10,13 @@ include dirname(__FILE__) . '/zeromq_test_helper.inc';
 $server = create_server();
 $client = create_client();
 
-$client->send("Hello world!");
+$client->sendmsg("Hello world!");
 
-$message = $server->recv();
+$message = $server->recvmsg();
 var_dump($message);
-$server->send($message);
+$server->sendmsg($message);
 
-$message = $client->recv();
+$message = $client->recvmsg();
 var_dump($message);
 
 --EXPECT--

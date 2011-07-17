@@ -12,14 +12,14 @@ $rose = file_get_contents(dirname(__FILE__) . '/rose.jpg');
 $server = create_server();
 $client = create_client();
 
-$client->send($rose);
+$client->sendmsg($rose);
 
-$message = $server->recv();
+$message = $server->recvmsg();
 var_dump(strlen($message));
 
-$server->send($message);
+$server->sendmsg($message);
 
-$message = $client->recv();
+$message = $client->recvmsg();
 var_dump(strlen($message));
 
 var_dump($message === $rose);

@@ -517,13 +517,10 @@ static zend_bool php_zmq_send(php_zmq_socket_object *intern, char *message_param
 }
 /* }}} */
 
-/* {{{ proto ZMQSocket ZMQSocket::send(string $message[, integer $flags = 0])
-	Send a message. Return true if message was sent and false on EAGAIN
-*/
-PHP_METHOD(zmqsocket, send)
+static void php_zmq_sendmsg_impl(INTERNAL_FUNCTION_PARAMETERS)
 {
 	php_zmq_socket_object *intern;
-	char *message_param; 
+	char *message_param;
 	int message_param_len;
 	long flags = 0;
 	zend_bool ret;
@@ -531,9 +528,7 @@ PHP_METHOD(zmqsocket, send)
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|l", &message_param, &message_param_len, &flags) == FAILURE) {
 		return;
 	}
-	
 	intern = PHP_ZMQ_SOCKET_OBJECT;
-	
 	ret = php_zmq_send(intern, message_param, message_param_len, flags TSRMLS_CC);
 
 	if (ret) {
@@ -542,7 +537,26 @@ PHP_METHOD(zmqsocket, send)
 		RETURN_FALSE;
 	}
 }
+
+/* {{{ proto ZMQSocket ZMQSocket::sendmsg(string $message[, integer $flags = 0])
+	Send a message. Return true if message was sent and false on EAGAIN
+*/
+PHP_METHOD(zmqsocket, sendmsg)
+{
+	php_zmq_sendmsg_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU);
+}
 /* }}} */
+
+/* {{{ proto ZMQSocket ZMQSocket::send(string $message[, integer $flags = 0])
+	Send a message. Return true if message was sent and false on EAGAIN
+*/
+PHP_METHOD(zmqsocket, send)
+{
+	php_error_docref(NULL TSRMLS_CC, E_STRICT, "ZMQSocket::send has been deprecated in favour of ZMQSocket::sendmsg");
+	php_zmq_sendmsg_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU);
+}
+/* }}} */
+
 #if (PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION < 3)
 static int php_zmq_send_cb(zval **ppzval, int num_args, va_list args, zend_hash_key *hash_key)
 {
@@ -645,10 +659,7 @@ static zend_bool php_zmq_recv(php_zmq_socket_object *intern, long flags, zval *r
 }
 /* }}} */
 
-/* {{{ proto string ZMQ::recv([integer $flags = 0])
-	Receive a message
-*/
-PHP_METHOD(zmqsocket, recv)
+static void php_zmq_recvmsg_impl(INTERNAL_FUNCTION_PARAMETERS)
 {
 	php_zmq_socket_object *intern;
 	zend_bool retval;
@@ -665,6 +676,24 @@ PHP_METHOD(zmqsocket, recv)
 		RETURN_FALSE;
 	}
 	return;
+}
+
+/* {{{ proto string ZMQ::recvmsg([integer $flags = 0])
+	Receive a message
+*/
+PHP_METHOD(zmqsocket, recvmsg)
+{
+	php_zmq_recvmsg_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU);
+}
+/* }}} */
+
+/* {{{ proto string ZMQ::recv([integer $flags = 0])
+	Receive a message
+*/
+PHP_METHOD(zmqsocket, recv)
+{
+	php_error_docref(NULL TSRMLS_CC, E_STRICT, "ZMQSocket::recv has been deprecated in favour of ZMQSocket::recvmsg");
+	php_zmq_recvmsg_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU);
 }
 /* }}} */
 
@@ -1259,12 +1288,12 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(zmq_socket_getsockettype_args, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(zmq_socket_send_args, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(zmq_socket_sendmsg_args, 0, 0, 1)
 	ZEND_ARG_INFO(0, message)
 	ZEND_ARG_INFO(0, mode)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(zmq_socket_recv_args, 0, 0, 0)
+ZEND_BEGIN_ARG_INFO_EX(zmq_socket_recvmsg_args, 0, 0, 0)
 	ZEND_ARG_INFO(0, mode)
 ZEND_END_ARG_INFO()
 
@@ -1281,10 +1310,12 @@ ZEND_END_ARG_INFO()
 
 static function_entry php_zmq_socket_class_methods[] = {
 	PHP_ME(zmqsocket, __construct,			zmq_socket_construct_args,			ZEND_ACC_PUBLIC|ZEND_ACC_CTOR|ZEND_ACC_FINAL)
-	PHP_ME(zmqsocket, send,					zmq_socket_send_args,				ZEND_ACC_PUBLIC)
-	PHP_ME(zmqsocket, recv,					zmq_socket_recv_args,				ZEND_ACC_PUBLIC)
-	PHP_ME(zmqsocket, sendmulti,			zmq_socket_send_args,				ZEND_ACC_PUBLIC)
-	PHP_ME(zmqsocket, recvmulti,			zmq_socket_recv_args,				ZEND_ACC_PUBLIC)
+	PHP_ME(zmqsocket, send,					zmq_socket_sendmsg_args,				ZEND_ACC_PUBLIC)
+	PHP_ME(zmqsocket, recv,					zmq_socket_recvmsg_args,				ZEND_ACC_PUBLIC)
+	PHP_ME(zmqsocket, sendmsg,				zmq_socket_sendmsg_args,				ZEND_ACC_PUBLIC)
+	PHP_ME(zmqsocket, recvmsg,				zmq_socket_recvmsg_args,				ZEND_ACC_PUBLIC)
+	PHP_ME(zmqsocket, sendmulti,			zmq_socket_sendmsg_args,				ZEND_ACC_PUBLIC)
+	PHP_ME(zmqsocket, recvmulti,			zmq_socket_recvmsg_args,				ZEND_ACC_PUBLIC)
 	PHP_ME(zmqsocket, bind,					zmq_socket_bind_args,				ZEND_ACC_PUBLIC)
 	PHP_ME(zmqsocket, connect,				zmq_socket_connect_args,			ZEND_ACC_PUBLIC)
 	PHP_ME(zmqsocket, setsockopt,			zmq_socket_setsockopt_args,			ZEND_ACC_PUBLIC)
