@@ -66,7 +66,11 @@ int php_zmq_device(php_zmq_device_object *intern TSRMLS_DC)
 	php_zmq_socket_object *front, *back;
 
     zmq_msg_t msg;
-    int64_t more;
+#if ZMQ_VERSION_MAJOR < 3	
+	int64_t more;
+#else
+	int more;
+#endif
     size_t moresz;
 	zmq_pollitem_t items [2];
 
