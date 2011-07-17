@@ -9,6 +9,8 @@
 - The devices has been refactored: the constructor now takes two arguments, front
   and back socket. Starting the device has been moved to separate run method and 
   two new methods setIdleTimeout and setIdleCallback has been added.
+- ZMQSocket::send/recv have been deprecated in favour of ZMQSocket::sendmsg/recvmsg.
+  The old methods will be removed in the next major version.
 
 0.9.0
 - Added SOCKET_ROUTER and SOCKET_DEALER
