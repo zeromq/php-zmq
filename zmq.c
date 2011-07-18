@@ -719,6 +719,7 @@ PHP_METHOD(zmqsocket, recvmulti)
 
 	intern = PHP_ZMQ_SOCKET_OBJECT;
 	array_init(return_value);
+	value_len = sizeof (value);
 
 	do {
 		MAKE_STD_ZVAL(msg);
