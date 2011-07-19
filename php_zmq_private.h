@@ -97,8 +97,7 @@ typedef struct _php_zmq_socket  {
 
 	HashTable connect;
 	HashTable bind;
-	
-	int type;
+
 	zend_bool is_persistent;
 } php_zmq_socket;
 /* }}} */

@@ -218,7 +218,6 @@ static php_zmq_socket *php_zmq_socket_new(php_zmq_context *context, int type, ze
 		return NULL;
 	}
 
-	zmq_sock->type          = type;
 	zmq_sock->is_persistent = is_persistent;
 
 	zend_hash_init(&(zmq_sock->connect), 0, NULL, NULL, is_persistent);
@@ -886,14 +885,20 @@ PHP_METHOD(zmqsocket, getendpoints)
 */
 PHP_METHOD(zmqsocket, getsockettype)
 {
+	int type;
+	size_t type_siz;
 	php_zmq_socket_object *intern;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "") == FAILURE) {
 		return;
 	}
-
 	intern = PHP_ZMQ_SOCKET_OBJECT;
-	RETURN_LONG(intern->socket->type);
+	type_siz = sizeof (int);
+
+	if (zmq_getsockopt(intern->socket->z_socket, ZMQ_TYPE, &type, &type_siz) != -1) {
+		RETURN_LONG(type);
+	}
+	RETURN_LONG(-1);
 }
 /* }}} */
 
