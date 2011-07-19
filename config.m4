@@ -13,7 +13,11 @@ if test "$PHP_ZMQ" != "no"; then
 
   AC_MSG_CHECKING(libzmq installation)
   if test "x$PHP_ZMQ" = "xyes"; then
-    export PKG_CONFIG_PATH=/usr/lib/pkgconfig:/usr/local/lib/pkgconfig:/opt/lib/pkgconfig:/opt/local/lib/pkgconfig
+    if test "x${PKG_CONFIG_PATH}" != "x"; then
+      export PKG_CONFIG_PATH="${PKG_CONFIG_PATH}:/usr/lib/pkgconfig:/usr/local/lib/pkgconfig:/opt/lib/pkgconfig:/opt/local/lib/pkgconfig"
+    else
+      export PKG_CONFIG_PATH="/usr/lib/pkgconfig:/usr/local/lib/pkgconfig:/opt/lib/pkgconfig:/opt/local/lib/pkgconfig"
+    fi
   else
     export PKG_CONFIG_PATH="$PHP_ZMQ:$PHP_ZMQ/lib/pkgconfig"
   fi
