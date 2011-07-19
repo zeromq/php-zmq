@@ -1165,7 +1165,7 @@ PHP_METHOD(zmqdevice, run)
 	}
 
 	intern = PHP_ZMQ_DEVICE_OBJECT;
-	rc = php_zmq_device (intern);
+	rc = php_zmq_device (intern TSRMLS_CC);
 
 	if (rc != 0) {
 		zend_throw_exception_ex(php_zmq_device_exception_sc_entry, errno TSRMLS_CC, "Failed to start the device: %s", zmq_strerror(errno));
