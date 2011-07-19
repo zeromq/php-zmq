@@ -1226,20 +1226,20 @@ PHP_METHOD(zmqdevice, setidlecallback)
 	}
 
 	intern = PHP_ZMQ_DEVICE_OBJECT;
-	php_zmq_clear_device_callback (intern);
+	php_zmq_clear_device_callback(intern);
 
 	intern->user_data = user_data;
-	Z_ADDREF_P (user_data);
+	Z_ADDREF_P(user_data);
 
 	intern->fci                = empty_fcall_info;
 	intern->fci.size           = sizeof(zend_fcall_info);
 	intern->fci.function_table = EG(function_table);
 	intern->fci.param_count    = 0;
 
-	MAKE_STD_ZVAL (intern->fci.function_name);
-	ZVAL_ZVAL (intern->fci.function_name, fci.function_name, 1, 0);
+	MAKE_STD_ZVAL(intern->fci.function_name);
+	ZVAL_ZVAL(intern->fci.function_name, fci.function_name, 1, 0);
 
-	memset (&(intern->fci_cache), 0, sizeof (zend_fcall_info_cache));
+	memset (&(intern->fci_cache), 0, sizeof(zend_fcall_info_cache));
 	intern->has_callback = 1;
 
 	ZMQ_RETURN_THIS;
