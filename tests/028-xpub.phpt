@@ -1,7 +1,10 @@
 --TEST--
 Test send / recv with XPUB and XSUB sockets
 --SKIPIF--
-<?php require_once(dirname(__FILE__) . '/skipif.inc'); ?>
+<?php 
+    require_once(dirname(__FILE__) . '/skipif.inc'); 
+    if(!defined('ZMQ::SOCKET_XPUB')) die('skip');
+?>
 --FILE--
 <?php
 
