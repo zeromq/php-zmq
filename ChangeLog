@@ -1,4 +1,4 @@
-1.0.0
+1.0.0rc1
 - Changed poll timeout to milliseconds rather than microseconds
 - ZMQ::MODE_NOBLOCK is now called ZMQ::MODE_DONTWAIT, the old constant is 
   kept for backwards compatibility
