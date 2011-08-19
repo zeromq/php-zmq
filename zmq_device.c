@@ -158,15 +158,15 @@ int php_zmq_device(php_zmq_device_object *intern TSRMLS_DC)
 
 #if ZMQ_VERSION_MAJOR >= 3
                 labelsz = sizeof(label);
-                rc = zmq_getsockopt(items [0].socket, ZMQ_RCVLABEL, &label, &labelsz);
+                rc = zmq_getsockopt(items [1].socket, ZMQ_RCVLABEL, &label, &labelsz);
                 if(rc == 0) {
                     return -1;
                 }
 
-                rc = zmq_sendmsg (items [1].socket, &msg, more ? ZMQ_SNDMORE : (label ? ZMQ_SNDLABEL : 0));
+                rc = zmq_sendmsg (items [0].socket, &msg, more ? ZMQ_SNDMORE : (label ? ZMQ_SNDLABEL : 0));
                 more = more | label;
 #else
-                rc = zmq_sendmsg (items [1].socket, &msg, more ? ZMQ_SNDMORE : 0);
+                rc = zmq_sendmsg (items [0].socket, &msg, more ? ZMQ_SNDMORE : 0);
 #endif
                 if (rc == -1) {
                     return -1;
