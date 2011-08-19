@@ -37,8 +37,9 @@
 #include "php_zmq.h"
 #include "php_zmq_private.h"
 
-static void php_zmq_invoke_idle_callback (php_zmq_device_object *intern TSRMLS_DC)
+static zend_bool php_zmq_invoke_idle_callback (php_zmq_device_object *intern TSRMLS_DC)
 {
+	zend_bool retval = 0;
 	zval **params[1];
 	zval *retval_ptr = NULL;
 
@@ -56,8 +57,13 @@ static void php_zmq_invoke_idle_callback (php_zmq_device_object *intern TSRMLS_D
 		}
 	}
 	if (retval_ptr) {
+		convert_to_boolean(retval_ptr);
+		if (Z_BVAL_P(retval_ptr)) {
+			retval = 1;
+        }
 		zval_ptr_dtor(&retval_ptr);
 	}
+	return retval;
 }
 
 
@@ -104,7 +110,9 @@ int php_zmq_device(php_zmq_device_object *intern TSRMLS_DC)
 		if (rc == 0 && intern->has_callback)
 		{
 			/* Invoke idle callback */
-			php_zmq_invoke_idle_callback (intern TSRMLS_CC);
+			if (!php_zmq_invoke_idle_callback (intern TSRMLS_CC)) {
+				return 0;
+			}
 			continue;
 		}
 
@@ -125,7 +133,7 @@ int php_zmq_device(php_zmq_device_object *intern TSRMLS_DC)
 #if ZMQ_VERSION_MAJOR >= 3
                 labelsz = sizeof(label);
                 rc = zmq_getsockopt(items [0].socket, ZMQ_RCVLABEL, &label, &labelsz);
-                if(rc == 0) {
+                if(rc < 0) {
                     return -1;
                 }
 
@@ -159,7 +167,7 @@ int php_zmq_device(php_zmq_device_object *intern TSRMLS_DC)
 #if ZMQ_VERSION_MAJOR >= 3
                 labelsz = sizeof(label);
                 rc = zmq_getsockopt(items [1].socket, ZMQ_RCVLABEL, &label, &labelsz);
-                if(rc == 0) {
+                if(rc < 0) {
                     return -1;
                 }
 
