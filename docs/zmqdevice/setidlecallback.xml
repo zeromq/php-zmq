@@ -15,7 +15,8 @@
   </methodsynopsis>
   <para>
    Sets the idle callback function. If idle timeout is defined the idle callback function
-   shall be called if the internal poll loop times out without events.
+   shall be called if the internal poll loop times out without events. If the callback function
+   returns false or a value that evaluates to false the device is stopped.
   </para>
  </refsect1>
 
