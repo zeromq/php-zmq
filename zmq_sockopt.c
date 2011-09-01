@@ -867,6 +867,30 @@ PHP_METHOD(zmqsocket, getsockopt)
 		}
 		break;
 
+		case ZMQ_SNDTIMEO:
+		{
+                        int value;
+
+                        value_len = sizeof(int);
+                        if (zmq_getsockopt(intern->socket->z_socket, (int) key, &value, &value_len) != 0) {
+                                zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to get the option ZMQ::SOCKOPT_SNDTIMEO value: %s", zmq_strerror(errno));
+                                return;
+                        }
+                        RETURN_LONG(value);
+		}
+
+               case ZMQ_RCVTIMEO:
+                {
+                        int value;
+
+                        value_len = sizeof(int);
+                        if (zmq_getsockopt(intern->socket->z_socket, (int) key, &value, &value_len) != 0) {
+                                zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to get the option ZMQ::SOCKOPT_RCVTIMEO value: %s", zmq_strerror(errno));
+                                return;
+                        }
+                        RETURN_LONG(value);
+                }
+
 		default:
 		{
 			zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Unknown option key", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
@@ -1185,6 +1209,33 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 	
+		case ZMQ_SNDTIMEO:
+		{
+                        int value;
+                        convert_to_long(pz_value);
+
+                        value  = (int) Z_LVAL_P(pz_value);
+                        status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
+
+                        if (status != 0) {
+                                zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_SNDTIMEO option: %s", zmq_strerror(errno));
+                                return;
+                        }
+		}
+
+                case ZMQ_RCVTIMEO:
+                {
+                        int value;
+                        convert_to_long(pz_value);
+
+                        value  = (int) Z_LVAL_P(pz_value);
+                        status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
+
+                        if (status != 0) {
+                                zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_RCVTIMEO option: %s", zmq_strerror(errno));
+                                return;
+                        }
+                }
 
 		default:
 		{
