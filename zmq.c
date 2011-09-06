@@ -1349,8 +1349,8 @@ ZEND_BEGIN_ARG_INFO_EX(zmq_poll_add_args, 0, 0, 2)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(zmq_poll_poll_args, 0, 0, 2)
-	ZEND_ARG_INFO(0, readable)
-	ZEND_ARG_INFO(0, writable)
+	ZEND_ARG_INFO(1, readable)
+	ZEND_ARG_INFO(1, writable)
 	ZEND_ARG_INFO(0, timeout)
 ZEND_END_ARG_INFO()
 
