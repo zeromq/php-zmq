@@ -1251,7 +1251,7 @@ PHP_METHOD(zmqdevice, setidlecallback)
 ZEND_BEGIN_ARG_INFO_EX(zmq_construct_args, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
-static function_entry php_zmq_class_methods[] = {
+static zend_function_entry php_zmq_class_methods[] = {
 	PHP_ME(zmq, __construct,	zmq_construct_args,	ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
 	{NULL, NULL, NULL}
 };
@@ -1270,7 +1270,7 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(zmq_context_ispersistent_args, 0, 0, 2)
 ZEND_END_ARG_INFO()
 
-static function_entry php_zmq_context_class_methods[] = {
+static zend_function_entry php_zmq_context_class_methods[] = {
 	PHP_ME(zmqcontext, __construct,		zmq_context_construct_args,	ZEND_ACC_PUBLIC|ZEND_ACC_CTOR|ZEND_ACC_FINAL)
 	PHP_ME(zmqcontext, getsocket,		zmq_context_getsocket_args,	ZEND_ACC_PUBLIC)
 	PHP_ME(zmqcontext, ispersistent,	zmq_context_ispersistent_args,	ZEND_ACC_PUBLIC)
@@ -1324,7 +1324,7 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(zmq_socket_ispersistent_args, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
-static function_entry php_zmq_socket_class_methods[] = {
+static zend_function_entry php_zmq_socket_class_methods[] = {
 	PHP_ME(zmqsocket, __construct,			zmq_socket_construct_args,			ZEND_ACC_PUBLIC|ZEND_ACC_CTOR|ZEND_ACC_FINAL)
 	PHP_ME(zmqsocket, send,					zmq_socket_sendmsg_args,			ZEND_ACC_PUBLIC)
 	PHP_ME(zmqsocket, recv,					zmq_socket_recvmsg_args,			ZEND_ACC_PUBLIC)
@@ -1367,7 +1367,7 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(zmq_poll_clear_args, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
-static function_entry php_zmq_poll_class_methods[] = {
+static zend_function_entry php_zmq_poll_class_methods[] = {
 	PHP_ME(zmqpoll, add,			zmq_poll_add_args,				ZEND_ACC_PUBLIC)
 	PHP_ME(zmqpoll, poll,			zmq_poll_poll_args,				ZEND_ACC_PUBLIC)
 	PHP_ME(zmqpoll, getlasterrors,	zmq_poll_getlasterrors_args,	ZEND_ACC_PUBLIC)
@@ -1393,7 +1393,7 @@ ZEND_BEGIN_ARG_INFO_EX(zmq_device_setidletimeout_args, 0, 0, 1)
 	ZEND_ARG_INFO(0, timeout)
 ZEND_END_ARG_INFO()
 
-static function_entry php_zmq_device_class_methods[] = {
+static zend_function_entry php_zmq_device_class_methods[] = {
 	PHP_ME(zmqdevice, __construct,		zmq_device_construct_args,			ZEND_ACC_PUBLIC|ZEND_ACC_CTOR|ZEND_ACC_FINAL)
 	PHP_ME(zmqdevice, run,				zmq_device_run_args,				ZEND_ACC_PUBLIC)
 	PHP_ME(zmqdevice, setidlecallback,	zmq_device_setidlecallback_args,	ZEND_ACC_PUBLIC)
@@ -1497,8 +1497,11 @@ static zend_object_value php_zmq_context_object_new_ex(zend_class_entry *class_t
 	}
 
 	zend_object_std_init(&intern->zo, class_type TSRMLS_CC);
+#if PHP_MAJOR_VERSION > 5 || (PHP_MAJOR_VERSION >= 5 && PHP_MINOR_VERSION >= 4)
+	object_properties_init(&intern->zo, class_type);
+#else
 	zend_hash_copy(intern->zo.properties, &class_type->default_properties, (copy_ctor_func_t) zval_add_ref,(void *) &tmp, sizeof(zval *));
-
+#endif
 	retval.handle   = zend_objects_store_put(intern, NULL, (zend_objects_free_object_storage_t) php_zmq_context_object_free_storage, NULL TSRMLS_CC);
 	retval.handlers = (zend_object_handlers *) &zmq_context_object_handlers;
 	return retval;
@@ -1523,8 +1526,11 @@ static zend_object_value php_zmq_socket_object_new_ex(zend_class_entry *class_ty
 	}
 
 	zend_object_std_init(&intern->zo, class_type TSRMLS_CC);
+#if PHP_MAJOR_VERSION > 5 || (PHP_MAJOR_VERSION >= 5 && PHP_MINOR_VERSION >= 4)
+	object_properties_init(&intern->zo, class_type);
+#else
 	zend_hash_copy(intern->zo.properties, &class_type->default_properties, (copy_ctor_func_t) zval_add_ref,(void *) &tmp, sizeof(zval *));
-
+#endif
 	retval.handle   = zend_objects_store_put(intern, NULL, (zend_objects_free_object_storage_t) php_zmq_socket_object_free_storage, NULL TSRMLS_CC);
 	retval.handlers = (zend_object_handlers *) &zmq_socket_object_handlers;
 	return retval;
@@ -1547,8 +1553,11 @@ static zend_object_value php_zmq_poll_object_new_ex(zend_class_entry *class_type
 	}
 
 	zend_object_std_init(&intern->zo, class_type TSRMLS_CC);
+#if PHP_MAJOR_VERSION > 5 || (PHP_MAJOR_VERSION >= 5 && PHP_MINOR_VERSION >= 4)
+	object_properties_init(&intern->zo, class_type);
+#else
 	zend_hash_copy(intern->zo.properties, &class_type->default_properties, (copy_ctor_func_t) zval_add_ref,(void *) &tmp, sizeof(zval *));
-
+#endif
 	retval.handle = zend_objects_store_put(intern, NULL, (zend_objects_free_object_storage_t) php_zmq_poll_object_free_storage, NULL TSRMLS_CC);
 	retval.handlers = (zend_object_handlers *) &zmq_poll_object_handlers;
 	return retval;
@@ -1573,8 +1582,11 @@ static zend_object_value php_zmq_device_object_new_ex(zend_class_entry *class_ty
 	}
 
 	zend_object_std_init(&intern->zo, class_type TSRMLS_CC);
+#if PHP_MAJOR_VERSION > 5 || (PHP_MAJOR_VERSION >= 5 && PHP_MINOR_VERSION >= 4)
+	object_properties_init(&intern->zo, class_type);
+#else
 	zend_hash_copy(intern->zo.properties, &class_type->default_properties, (copy_ctor_func_t) zval_add_ref,(void *) &tmp, sizeof(zval *));
-
+#endif
 	retval.handle = zend_objects_store_put(intern, NULL, (zend_objects_free_object_storage_t) php_zmq_device_object_free_storage, NULL TSRMLS_CC);
 	retval.handlers = (zend_object_handlers *) &zmq_device_object_handlers;
 	return retval;
