@@ -878,6 +878,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			}
 			RETURN_LONG(value);
 		}
+		break;
 
 		case ZMQ_RCVTIMEO:
 		{
@@ -890,6 +891,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			}
 			RETURN_LONG(value);
 		}
+		break;
 
 		default:
 		{
@@ -1222,6 +1224,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 				return;
 			}
 		}
+		break;
 
 		case ZMQ_RCVTIMEO:
 		{
@@ -1236,6 +1239,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 				return;
 			}
 		}
+		break;
 
 		default:
 		{
