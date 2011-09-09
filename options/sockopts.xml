@@ -42,5 +42,7 @@
         <option name="rcvmore" type="int" mode="r"/>
         <option name="fd" type="int" mode="r"/>
         <option name="events" type="int" mode="r"/>
+        <option name="sndtimeo" type="int" mode="rw"/>
+        <option name="rcvtimeo" type="int" mode="rw"/>
     </version>
 </options>

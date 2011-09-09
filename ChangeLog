@@ -11,6 +11,9 @@
   two new methods setIdleTimeout and setIdleCallback has been added.
 - ZMQSocket::send/recv have been deprecated in favour of ZMQSocket::sendmsg/recvmsg.
   The old methods will be removed in the next major version.
+- Changed ZMQPoll::poll to take readable and writable arrays by reference, possibly 
+  breaks code that tries to pass 'null' or 'false'
+- Added ZMQ::SOCKOPT_SNDTIMEO and ZMQ::SOCKOPT_RCVTIMEO (Ben Gray)
 
 0.9.0
 - Added SOCKET_ROUTER and SOCKET_DEALER

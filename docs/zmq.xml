@@ -199,7 +199,19 @@
      <type>integer</type>
      <varname linkend="zmq.constants.sockopt-maxmsgsize">ZMQ::SOCKOPT_MAXMSGSIZE</varname>
      <initializer>22</initializer>
-    </fieldsynopsis>      
+    </fieldsynopsis>
+    <fieldsynopsis>
+     <modifier>const</modifier>
+     <type>integer</type>
+     <varname linkend="zmq.constants.sockopt-sndtimeo">ZMQ::SOCKOPT_SNDTIMEO</varname>
+     <initializer>23</initializer>
+    </fieldsynopsis>
+    <fieldsynopsis>
+     <modifier>const</modifier>
+     <type>integer</type>
+     <varname linkend="zmq.constants.sockopt-rcvtimeo">ZMQ::SOCKOPT_RCVTIMEO</varname>
+     <initializer>24</initializer>
+    </fieldsynopsis>
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
@@ -469,6 +481,20 @@
       <term><constant>ZMQ::SOCKOPT_MAXMSGSIZE</constant></term>
       <listitem>
        <para>Limits the maximum size of the inbound message. Value -1 means no limit. Available if compiled against ZeroMQ 3.x (Value: &integer;)</para>
+      </listitem>
+     </varlistentry>
+
+     <varlistentry xml:id="zmq.constants.sockopt-sndtimeo">
+      <term><constant>ZMQ::SOCKOPT_SNDTIMEO</constant></term>
+      <listitem>
+       <para>Sets the timeout for send operation on the socket. Value -1 means no limit. Available if compiled against ZeroMQ 3.x (Value: &integer;)</para>
+      </listitem>
+     </varlistentry>
+
+     <varlistentry xml:id="zmq.constants.sockopt-rcvtimeo">
+      <term><constant>ZMQ::SOCKOPT_RCVTIMEO</constant></term>
+      <listitem>
+       <para>Sets the timeout for receive operation on the socket. Value -1 means no limit. Available if compiled against ZeroMQ 3.x (Value: &integer;)</para>
       </listitem>
      </varlistentry>
 
