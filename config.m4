@@ -24,8 +24,9 @@ if test "$PHP_ZMQ" != "no"; then
 
   if $PKG_CONFIG --exists libzmq; then
     PHP_ZMQ_VERSION=`$PKG_CONFIG libzmq --modversion`
+    PHP_ZMQ_PREFIX=`$PKG_CONFIG libzmq --variable=prefix`
 
-    AC_MSG_RESULT([found version $PHP_ZMQ_VERSION])
+    AC_MSG_RESULT([found version $PHP_ZMQ_VERSION, under $PHP_ZMQ_PREFIX])
     PHP_ZMQ_LIBS=`$PKG_CONFIG libzmq --libs`
     PHP_ZMQ_INCS=`$PKG_CONFIG libzmq --cflags`
 
