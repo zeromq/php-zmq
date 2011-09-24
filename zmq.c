@@ -723,6 +723,7 @@ PHP_METHOD(zmqsocket, recvmulti)
 		MAKE_STD_ZVAL(msg);
 		retval = php_zmq_recv(intern, flags, msg TSRMLS_CC);
 		if (retval == 0) {
+			zval_ptr_dtor(&msg);
 			zval_dtor(return_value);
 			RETURN_FALSE;
 		}
