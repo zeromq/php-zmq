@@ -231,4 +231,6 @@ int php_zmq_device(php_zmq_device_object *intern TSRMLS_DC);
 zend_class_entry *php_zmq_socket_exception_sc_entry_get ();
 zend_class_entry *php_zmq_device_exception_sc_entry_get ();
 
+php_stream *php_zmq_create_zmq_fd(zval *obj TSRMLS_DC);
+
 #endif /* _PHP_ZMQ_PRIVATE_H_ */
