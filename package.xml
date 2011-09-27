@@ -10,15 +10,15 @@
   <email>mkoppanen@php.net</email>
   <active>yes</active>
  </lead>
- <date>2011-05-20</date>
- <time>15:33:53</time>
+ <date>2011-09-28</date>
+ <time>19:00:00</time>
  <version>
-  <release>1.0.0rc1</release>
-  <api>1.0.0rc1</api>
+  <release>1.0.0</release>
+  <api>1.0.0</api>
  </version>
  <stability>
-  <release>beta</release>
-  <api>beta</api>
+  <release>stable</release>
+  <api>stable</api>
  </stability>
  <license>BSD License</license>
  <notes>
@@ -52,7 +52,10 @@
    
    <!-- Source files -->
    <file name="zmq.c" role="src" />
+   <file name="zmq_device.c" role="src" />
+   <file name="zmq_fd_stream.c" role="src" />
    <file name="zmq_pollset.c" role="src" />
+   <file name="zmq_sockopt.c" role="src" />
 
    <!-- misc files -->
    <file name="README" role="doc" />
