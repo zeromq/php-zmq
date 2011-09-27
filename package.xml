@@ -18,7 +18,7 @@
  </version>
  <stability>
   <release>stable</release>
-  <api>stable</api>
+  <api>beta</api>
  </stability>
  <license>BSD License</license>
  <notes>
@@ -34,6 +34,10 @@
   two new methods setIdleTimeout and setIdleCallback has been added.
 - ZMQSocket::send/recv have been deprecated in favour of ZMQSocket::sendmsg/recvmsg.
   The old methods will be removed in the next major version.
+- Added ZMQ_FD as a getSockOpt resource for use with external polling system 
+- Added RECVTIMEO and SENDTIMEO socket options for defining timeouts
+- Added label support in devices
+- Added PHP 5.4 support
  </notes>
  <contents>
   <dir name="/">
