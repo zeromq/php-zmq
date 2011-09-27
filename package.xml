@@ -36,6 +36,7 @@
   The old methods will be removed in the next major version.
 - Added ZMQ_FD as a getSockOpt resource for use with external polling system 
 - Added RECVTIMEO and SENDTIMEO socket options for defining timeouts
+- Fixed a memory leak around EAGAIN
 - Added label support in devices
 - Added PHP 5.4 support
  </notes>
