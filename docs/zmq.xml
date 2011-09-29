@@ -89,7 +89,7 @@
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
-     <varname linkend="zmq.constants.socket-router">ZMQ::SOCKET_ROUTER/varname>
+     <varname linkend="zmq.constants.socket-router">ZMQ::SOCKET_ROUTER</varname>
      <initializer>5</initializer>
     </fieldsynopsis>
     <fieldsynopsis>
