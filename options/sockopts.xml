@@ -44,5 +44,6 @@
         <option name="events" type="int" mode="r"/>
         <option name="sndtimeo" type="int" mode="rw"/>
         <option name="rcvtimeo" type="int" mode="rw"/>
+        <option name="rcvlabel" type="int" mode="r"/>
     </version>
 </options>

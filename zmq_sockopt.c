@@ -889,6 +889,19 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
+		
+		case ZMQ_RCVLABEL:
+		{
+			int value;
+
+			value_len = sizeof(int);
+			if (zmq_getsockopt(intern->socket->z_socket, (int) key, &value, &value_len) != 0) {
+				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to get the option ZMQ::SOCKOPT_RCVLABEL value: %s", zmq_strerror(errno));
+				return;
+			}
+			RETURN_LONG(value);
+		}
+		break;
 	
 		
 		case ZMQ_FD:
@@ -1242,6 +1255,13 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
+	
+		case ZMQ_RCVLABEL:
+		{
+			zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Setting ZMQ::SOCKOPT_RCVLABEL is not supported", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
+			return;
+		}
+		break;
 	
 		
 		case ZMQ_HWM:
