@@ -3,6 +3,7 @@ Test send / recv with a manually created XREQ and XREP device
 --SKIPIF--
 <?php 
     require_once(dirname(__FILE__) . '/skipif.inc'); 
+    if(!defined('ZMQ::SOCKET_XPUB')) die('skip');
 ?>
 --FILE--
 <?php
