@@ -10,10 +10,10 @@
   <email>mkoppanen@php.net</email>
   <active>yes</active>
  </lead>
- <date>2011-09-28</date>
+ <date>2011-10-11</date>
  <time>19:00:00</time>
  <version>
-  <release>1.0.0</release>
+  <release>1.0.1</release>
   <api>1.0.0</api>
  </version>
  <stability>
@@ -22,23 +22,8 @@
  </stability>
  <license>BSD License</license>
  <notes>
-- Changed poll timeout to milliseconds rather than microseconds
-- ZMQ::MODE_NOBLOCK is now called ZMQ::MODE_DONTWAIT, the old constant is 
-  kept for backwards compatibility
-- ZMQ::SOCKOPT_HWM sets both ZMQ::SOCKOPT_SNDHWM and ZMQ::SOCKOPT_RCVHWM,
-  the latter constants are available if compiled against version 3.x of ZeroMQ
-- ZMQ::SOCKOPT_MCAST_LOOP has been removed
-- ZMQ::SOCKOPT_SWAP has been removed
-- The devices has been refactored: the constructor now takes two arguments, front
-  and back socket. Starting the device has been moved to separate run method and 
-  two new methods setIdleTimeout and setIdleCallback has been added.
-- ZMQSocket::send/recv have been deprecated in favour of ZMQSocket::sendmsg/recvmsg.
-  The old methods will be removed in the next major version.
-- Added ZMQ_FD as a getSockOpt resource for use with external polling system 
-- Added RECVTIMEO and SENDTIMEO socket options for defining timeouts
-- Fixed a memory leak around EAGAIN
-- Added label support in devices
-- Added PHP 5.4 support
+- Devices now work with XREP types in 3.0.x builds
+- Exposed RCVLABEL and SNDLABEL constants
  </notes>
  <contents>
   <dir name="/">

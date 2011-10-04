@@ -137,7 +137,7 @@ int php_zmq_device(php_zmq_device_object *intern TSRMLS_DC)
                     return -1;
                 }
 
-                rc = zmq_sendmsg (items [1].socket, &msg, more ? ZMQ_SNDMORE : (label ? ZMQ_SNDLABEL : 0));
+                rc = zmq_sendmsg (items [1].socket, &msg, label ? ZMQ_SNDLABEL : (more ? ZMQ_SNDMORE : 0));
                 more = more | label;
 #else
                 rc = zmq_sendmsg (items [1].socket, &msg, more ? ZMQ_SNDMORE : 0);
@@ -171,7 +171,7 @@ int php_zmq_device(php_zmq_device_object *intern TSRMLS_DC)
                     return -1;
                 }
 
-                rc = zmq_sendmsg (items [0].socket, &msg, more ? ZMQ_SNDMORE : (label ? ZMQ_SNDLABEL : 0));
+                rc = zmq_sendmsg (items [0].socket, &msg, label ? ZMQ_SNDLABEL : (more ? ZMQ_SNDMORE : 0));
                 more = more | label;
 #else
                 rc = zmq_sendmsg (items [0].socket, &msg, more ? ZMQ_SNDMORE : 0);
