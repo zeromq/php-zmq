@@ -50,6 +50,10 @@ static zend_object_handlers zmq_context_object_handlers;
 static zend_object_handlers zmq_poll_object_handlers;
 static zend_object_handlers zmq_device_object_handlers;
 
+#if (PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION < 3)
+static const zend_fcall_info empty_fcall_info = { 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, 0 };
+#endif
+
 zend_class_entry *php_zmq_socket_exception_sc_entry_get ()
 {
 	return php_zmq_socket_exception_sc_entry;
