@@ -76,10 +76,27 @@
 			</xsl:if>
 	
 			<xsl:call-template name="setsockopt-footer" />
-			<!-- end ZMQSocket::setSockOpt -->
 
+void php_zmq_register_sockopt_constants (zend_class_entry *php_zmq_sc_entry TSRMLS_DC)
+{
+#define PHP_ZMQ_REGISTER_SOCKOPT(const_name, value) \
+	zend_declare_class_constant_long(php_zmq_sc_entry, const_name, sizeof(const_name)-1, (long)value TSRMLS_CC);
+			<xsl:if test="@major = 3">
+	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_HWM", ZMQ_HWM);
+			</xsl:if>
+			<xsl:for-each select="option">
+				<xsl:variable name="raw-name">
+					<xsl:call-template name="convert-to-uppercase">
+						<xsl:with-param name="input-string" select="@name"/>
+					</xsl:call-template>
+				</xsl:variable>
+	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_<xsl:value-of select="$raw-name"/>", ZMQ_<xsl:value-of select="$raw-name"/>);
+			</xsl:for-each>
+#undef PHP_ZMQ_REGISTER_SOCKOPT
+}
+			<!-- end ZMQSocket::setSockOpt -->
 #endif
-		</xsl:for-each>
+</xsl:for-each>
 	</xsl:template>
 	
 	
