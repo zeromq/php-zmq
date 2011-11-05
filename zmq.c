@@ -1115,7 +1115,7 @@ PHP_METHOD(zmqpoll, getlasterrors)
 
 /* -- END ZMQPoll */
 
-/* {{{ proto void ZMQDevice::__construct(int type, ZMQSocket frontend, ZMQSocket backend)
+/* {{{ proto void ZMQDevice::__construct(ZMQSocket frontend, ZMQSocket backend)
 	Construct a device
 */
 PHP_METHOD(zmqdevice, __construct)
