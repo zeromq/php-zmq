@@ -79,8 +79,8 @@ int php_zmq_device(php_zmq_device_object *intern TSRMLS_DC)
 #endif
 
 #if ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR == 0
-	size_t labelsz = sizeof(label);
 	int label;
+	size_t labelsz = sizeof(label);
 #endif
 
     size_t moresz;
