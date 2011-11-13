@@ -6,7 +6,7 @@
 		<xsl:call-template name="file-header"/>
 		
 		<xsl:for-each select="/options/version">
-#if ZMQ_VERSION_MAJOR == <xsl:value-of select="@major" />
+#if <xsl:value-of select="@comparison" />
 
 			<!-- start ZMQSocket::getSockOpt -->
 			<xsl:call-template name="getsockopt-header"/>
