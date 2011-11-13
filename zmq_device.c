@@ -78,7 +78,7 @@ int php_zmq_device(php_zmq_device_object *intern TSRMLS_DC)
 	int64_t more;
 #endif
 
-#if ZMQ_VERSION_MAJOR >= 3 && ZMQ_VERSION_MINOR == 0
+#if ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR == 0
 	size_t labelsz = sizeof(label);
 	int label;
 #endif
@@ -134,7 +134,7 @@ int php_zmq_device(php_zmq_device_object *intern TSRMLS_DC)
                     return -1;
                 }
 
-#if ZMQ_VERSION_MAJOR >= 3 && ZMQ_VERSION_MINOR == 0
+#if ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR == 0
                 labelsz = sizeof(label);
 
 				rc = zmq_getsockopt(items [0].socket, ZMQ_RCVLABEL, &label, &labelsz);
