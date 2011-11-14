@@ -115,6 +115,7 @@ int php_zmq_device(php_zmq_device_object *intern TSRMLS_DC)
 		{
 			/* Invoke idle callback */
 			if (!php_zmq_invoke_idle_callback (intern TSRMLS_CC)) {
+				zmq_msg_close (&msg);
 				return 0;
 			}
 			continue;
