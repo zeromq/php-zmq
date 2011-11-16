@@ -421,6 +421,12 @@ PHP_METHOD(zmqcontext, ispersistent)
 }
 /* }}} */
 
+/* {{{ proto ZMQContext ZMQContext::__clone()
+	Clones the instance of the ZMQContext class
+*/
+PHP_METHOD(zmqcontext, __clone) { }
+/* }}} */
+
 /* --- END ZMQContext --- */
 
 /* --- START ZMQSocket --- */
@@ -903,6 +909,12 @@ PHP_METHOD(zmqsocket, ispersistent)
 }
 /* }}} */
 
+/* {{{ proto ZMQSocket ZMQSocket::__clone()
+	Clones the instance of the ZMQSocket class
+*/
+PHP_METHOD(zmqsocket, __clone) { }
+/* }}} */
+
 /* -- END ZMQSocket--- */
 
 /* -- START ZMQPoll --- */
@@ -1113,6 +1125,12 @@ PHP_METHOD(zmqpoll, getlasterrors)
 }
 /* }}} */
 
+/* {{{ proto ZMQPoll ZMQPoll::__clone()
+	Clones the instance of the ZMQPoll class
+*/
+PHP_METHOD(zmqpoll, __clone) { }
+/* }}} */
+
 /* -- END ZMQPoll */
 
 /* {{{ proto void ZMQDevice::__construct(ZMQSocket frontend, ZMQSocket backend)
@@ -1231,6 +1249,12 @@ PHP_METHOD(zmqdevice, setidlecallback)
 }
 /* }}} */
 
+/* {{{ proto ZMQDevice ZMQDevice::__clone()
+	Clones the instance of the ZMQDevice class
+*/
+PHP_METHOD(zmqdevice, __clone) { }
+/* }}} */
+
 /* -- END ZMQPoll */
 
 ZEND_BEGIN_ARG_INFO_EX(zmq_construct_args, 0, 0, 0)
@@ -1255,10 +1279,14 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(zmq_context_ispersistent_args, 0, 0, 2)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(zmq_context_clone_args, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
 static zend_function_entry php_zmq_context_class_methods[] = {
 	PHP_ME(zmqcontext, __construct,		zmq_context_construct_args,	ZEND_ACC_PUBLIC|ZEND_ACC_CTOR|ZEND_ACC_FINAL)
 	PHP_ME(zmqcontext, getsocket,		zmq_context_getsocket_args,	ZEND_ACC_PUBLIC)
 	PHP_ME(zmqcontext, ispersistent,	zmq_context_ispersistent_args,	ZEND_ACC_PUBLIC)
+	PHP_ME(zmqcontext, __clone,			zmq_context_clone_args,			ZEND_ACC_PRIVATE|ZEND_ACC_FINAL)
 	{NULL, NULL, NULL}
 };
 
@@ -1309,6 +1337,9 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(zmq_socket_ispersistent_args, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(zmq_socket_clone_args, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
 static zend_function_entry php_zmq_socket_class_methods[] = {
 	PHP_ME(zmqsocket, __construct,			zmq_socket_construct_args,			ZEND_ACC_PUBLIC|ZEND_ACC_CTOR|ZEND_ACC_FINAL)
 	PHP_ME(zmqsocket, send,					zmq_socket_send_args,				ZEND_ACC_PUBLIC)
@@ -1323,6 +1354,7 @@ static zend_function_entry php_zmq_socket_class_methods[] = {
 	PHP_ME(zmqsocket, ispersistent,			zmq_socket_ispersistent_args,		ZEND_ACC_PUBLIC)
 	PHP_ME(zmqsocket, getpersistentid,		zmq_socket_getpersistentid_args,	ZEND_ACC_PUBLIC)
 	PHP_ME(zmqsocket, getsockopt,			zmq_socket_getsockopt_args,			ZEND_ACC_PUBLIC)
+	PHP_ME(zmqsocket, __clone,				zmq_socket_clone_args,				ZEND_ACC_PRIVATE|ZEND_ACC_FINAL)
 	PHP_MALIAS(zmqsocket,	sendmsg, send,	zmq_socket_send_args, 				ZEND_ACC_PUBLIC)
 	PHP_MALIAS(zmqsocket,	recvmsg, recv, 	zmq_socket_recv_args, 				ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
@@ -1352,6 +1384,9 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(zmq_poll_clear_args, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(zmq_poll_clone_args, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
 static zend_function_entry php_zmq_poll_class_methods[] = {
 	PHP_ME(zmqpoll, add,			zmq_poll_add_args,				ZEND_ACC_PUBLIC)
 	PHP_ME(zmqpoll, poll,			zmq_poll_poll_args,				ZEND_ACC_PUBLIC)
@@ -1359,6 +1394,7 @@ static zend_function_entry php_zmq_poll_class_methods[] = {
 	PHP_ME(zmqpoll, remove,			zmq_poll_remove_args,			ZEND_ACC_PUBLIC)
 	PHP_ME(zmqpoll, count,			zmq_poll_count_args,			ZEND_ACC_PUBLIC)
 	PHP_ME(zmqpoll, clear,			zmq_poll_clear_args,			ZEND_ACC_PUBLIC)
+	PHP_ME(zmqpoll, __clone,		zmq_poll_clone_args,			ZEND_ACC_PRIVATE|ZEND_ACC_FINAL)
 	{NULL, NULL, NULL}
 };
 
@@ -1378,11 +1414,15 @@ ZEND_BEGIN_ARG_INFO_EX(zmq_device_setidletimeout_args, 0, 0, 1)
 	ZEND_ARG_INFO(0, timeout)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(zmq_device_clone_args, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
 static zend_function_entry php_zmq_device_class_methods[] = {
 	PHP_ME(zmqdevice, __construct,		zmq_device_construct_args,			ZEND_ACC_PUBLIC|ZEND_ACC_CTOR|ZEND_ACC_FINAL)
 	PHP_ME(zmqdevice, run,				zmq_device_run_args,				ZEND_ACC_PUBLIC)
 	PHP_ME(zmqdevice, setidlecallback,	zmq_device_setidlecallback_args,	ZEND_ACC_PUBLIC)
 	PHP_ME(zmqdevice, setidletimeout,	zmq_device_setidletimeout_args,		ZEND_ACC_PUBLIC)
+	PHP_ME(zmqdevice, __clone,          zmq_device_clone_args,				ZEND_ACC_PRIVATE|ZEND_ACC_FINAL)
 	{NULL, NULL, NULL}
 };
 
