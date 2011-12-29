@@ -10,7 +10,7 @@
   <email>mkoppanen@php.net</email>
   <active>yes</active>
  </lead>
- <date>2011-10-11</date>
+ <date>2011-12-29</date>
  <time>19:00:00</time>
  <version>
   <release>1.0.1</release>
@@ -22,8 +22,10 @@
  </stability>
  <license>BSD License</license>
  <notes>
-- Devices now work with XREP types in 3.0.x builds
-- Exposed RCVLABEL and SNDLABEL constants
+- Update to remove labels when built against 3.1
+- Add clone functions to objects
+- Improve version checking
+- Close messages on exit in devices
  </notes>
  <contents>
   <dir name="/">
