@@ -11,18 +11,13 @@ do {
     try {
         if ($sending) {
             echo "Sending message\n";
-            $queue->send("This is a message", ZMQ::MODE_NOBLOCK);
-            $sending = false;
+            $sending = ($queue->send("This is a message", ZMQ::MODE_NOBLOCK) !== false);
         } else {
-            echo "Got response: " . $queue->recv(ZMQ::MODE_NOBLOCK) . "\n";
+            echo "Got response: " . $queue->recv (ZMQ::MODE_NOBLOCK) . "\n";
             break;
         }
     } catch (ZMQSocketException $e) {
-        if ($e->getCode() === ZMQ::ERR_EAGAIN) {
-            echo " - Unable to execute operation, retrying ($retries)\n";
-        } else {
-            die(" - Error: " . $e->getMessage());
-        }
+        die(" - Error: " . $e->getMessage());
     }
     usleep(5);
 } while (1 && --$retries);
