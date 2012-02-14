@@ -472,8 +472,9 @@ PHP_METHOD(zmqsocket, __construct)
 
 	/* Need to add refcount if context is not persistent */
 	if (!internc->context->is_persistent) {
-		zend_objects_store_add_ref(obj TSRMLS_CC);
-		intern->context_obj = obj;
+	    intern->context_obj = obj;
+		zend_objects_store_add_ref(intern->context_obj TSRMLS_CC);
+        Z_ADDREF_P(intern->context_obj);
 	}
 
 	if (is_new) {	
@@ -1468,6 +1469,7 @@ static void php_zmq_socket_object_free_storage(void *object TSRMLS_DC)
 
 	if (intern->context_obj) {
 		zend_objects_store_del_ref(intern->context_obj TSRMLS_CC);
+		Z_DELREF_P(intern->context_obj);
 	}
 
 	zend_object_std_dtor(&intern->zo TSRMLS_CC);
