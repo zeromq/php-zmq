@@ -53,5 +53,13 @@ for ($i = 0; $i < 10; $i++)
 }
 ?>
 --EXPECT--
-string(13) "Hello server!"
-string(13) "Hello client!"
+client to server msg:0
+server to client msg:1
+client to server msg:2
+server to client msg:3
+client to server msg:4
+server to client msg:5
+client to server msg:6
+server to client msg:7
+client to server msg:8
+server to client msg:9

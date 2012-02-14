@@ -383,6 +383,7 @@ PHP_METHOD(zmqcontext, getsocket)
 	if (!intern->context->is_persistent) {
 		zend_objects_store_add_ref(getThis() TSRMLS_CC);
 		interns->context_obj = getThis();
+		Z_ADDREF_P(interns->context_obj);
 	}
 
 	if (is_new) {	

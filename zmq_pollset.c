@@ -83,7 +83,7 @@ void php_zmq_pollset_deinit(php_zmq_pollset *set TSRMLS_DC)
 		zval_ptr_dtor(&(set->php_items[i].entry));
 	}
 	php_zmq_pollset_clear(set, 0 TSRMLS_CC);
-	
+
 	zval_dtor(set->errors);
 	FREE_ZVAL(set->errors);
 }
