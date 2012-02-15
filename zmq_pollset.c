@@ -105,19 +105,19 @@ void php_zmq_pollset_delete_all(php_zmq_pollset *set TSRMLS_DC)
 static void php_spl_object_hash(zval *obj, char *result TSRMLS_DC) /* {{{*/
 {
 	PHP_MD5_CTX context;
-    unsigned char digest[16];
-	
+	unsigned char digest[16];
+
 	char *hash;
 	int len;
-	
+
 	len = spprintf(&hash, 0, "%p:%d", Z_OBJ_HT_P(obj), Z_OBJ_HANDLE_P(obj));
-    
-    result[0] = '\0';
-    PHP_MD5Init(&context);
-    PHP_MD5Update(&context, (unsigned char*) hash, len);
-    PHP_MD5Final(digest, &context);
-    make_digest(result, digest);
-    efree(hash);
+
+	result[0] = '\0';
+	PHP_MD5Init(&context);
+	PHP_MD5Update(&context, (unsigned char*) hash, len);
+	PHP_MD5Final(digest, &context);
+	make_digest(result, digest);
+	efree(hash);
 }
 /* }}} */
 #endif
@@ -273,7 +273,9 @@ static void php_zmq_pollitem_copy(php_zmq_pollitem *target, php_zmq_pollitem *so
 {
 	target->events  = source->events;
 	target->entry   = source->entry;
-	target->key_len = source->key_len;	
+	target->key_len = source->key_len;
+	target->socket  = source->socket;
+	target->fd      = source->fd;
 	memcpy(target->key, source->key, source->key_len + 1);
 }
 
@@ -289,7 +291,7 @@ zend_bool php_zmq_pollset_delete_by_key(php_zmq_pollset *set, char key[35], int 
 	for (i = 0; i < set->num_php_items; i++) {
 		if (!match && key_len == set->php_items[i].key_len &&
 			!memcmp(set->php_items[i].key, key, key_len)) {	
-				
+
 			if (Z_TYPE_P(set->php_items[i].entry) == IS_OBJECT) {
 				zend_objects_store_del_ref(set->php_items[i].entry TSRMLS_CC);
 			}
