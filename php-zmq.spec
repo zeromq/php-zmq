@@ -9,7 +9,6 @@ Version:       %{version}
 Release:       %{release}%{?dist}
 Summary:       PHP 0MQ/zmq/zeromq extension
 License:       BSD
-Group:         Web/Applications
 Group:         Development/Libraries
 URL:           http://github.com/mkoppanen/php-zmq
 Source:        php-zmq-0.6.0-2.20120613git516bd6f.tar.gz
