@@ -2,23 +2,27 @@
 %global version 0.6.0
 
 # Temporarily using git checkout since the release version won't build anymore.
-%global release 2.20120613git516bd6f
+%global release 3.20120613git516bd6f
 
 Name:          php-zmq
 Version:       %{version}
 Release:       %{release}%{?dist}
 Summary:       PHP 0MQ/zmq/zeromq extension
-License:       BSD
+# run-tests.php is PHP.  Everything else is BSD
+License:       BSD and PHP
 Group:         Development/Libraries
 URL:           http://github.com/mkoppanen/php-zmq
 Source:        php-zmq-0.6.0-2.20120613git516bd6f.tar.gz
 
-BuildRequires: gcc
 BuildRequires: php-devel
 BuildRequires: php-cli
 BuildRequires: zeromq-devel >= 2.0.7
 
 Requires:      zeromq >= 2.0.7
+
+# This is intended to silence a private-shared-object-provides rpmlint warning,
+# but it doesn't appear to have any effect.  See  http://bit.ly/MCCT50
+%filter_provides_in zmq.so
 
 %description
 PHP extension for the 0MQ/zmq/zeromq messaging system
@@ -49,6 +53,10 @@ echo "n" | make test
 %config(noreplace) %{_sysconfdir}/php.d/zmq.ini
 
 %changelog
+* Wed Jun 13 2012 Ralph Bean <rbean@redhat.com> - 0.6.0-3.20120613git516bd6f
+ - Updated License to BSD and PHP.
+ - Removed spurious gcc BuildRequires.
+ - Fixed private-shared-object-provides.
 * Wed Jun 13 2012 Ralph Bean <rbean@redhat.com> - 0.6.0-2.20120613git516bd6f
  - Using tarball of git checkout since the 0.6.0 release won't build anymore.
  - Using valid shortname for BSD license.
