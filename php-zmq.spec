@@ -2,7 +2,7 @@
 %global version 0.6.0
 
 # Temporarily using git checkout since the release version won't build anymore.
-%global release 3.20120613git516bd6f
+%global release 4.20120613git516bd6f
 
 Name:          php-zmq
 Version:       %{version}
@@ -20,9 +20,8 @@ BuildRequires: zeromq-devel >= 2.0.7
 
 Requires:      zeromq >= 2.0.7
 
-# This is intended to silence a private-shared-object-provides rpmlint warning,
-# but it doesn't appear to have any effect.  See  http://bit.ly/MCCT50
-%filter_provides_in zmq.so
+%filter_from_provides /^zmq.so/d
+%filter_setup
 
 %description
 PHP extension for the 0MQ/zmq/zeromq messaging system
@@ -53,6 +52,8 @@ echo "n" | make test
 %config(noreplace) %{_sysconfdir}/php.d/zmq.ini
 
 %changelog
+* Thu Jun 14 2012 Ralph Bean <rbean@redhat.com> - 0.6.0-4.20120613git516bd6f
+ - Fixed the private-shared-object-provides for reals with John Ciesla's help.
 * Wed Jun 13 2012 Ralph Bean <rbean@redhat.com> - 0.6.0-3.20120613git516bd6f
  - Updated License to BSD and PHP.
  - Removed spurious gcc BuildRequires.
