@@ -113,7 +113,9 @@ static void php_zmq_socket_destroy(php_zmq_socket *zmq_sock)
 	zend_hash_destroy(&(zmq_sock->connect));
 	zend_hash_destroy(&(zmq_sock->bind));
 
-	(void) zmq_close(zmq_sock->z_socket);
+	if (zmq_sock->pid == getpid ())
+		(void) zmq_close(zmq_sock->z_socket);
+
 	pefree(zmq_sock, zmq_sock->is_persistent);
 }
 /* }}} */
@@ -219,6 +221,7 @@ static php_zmq_socket *php_zmq_socket_new(php_zmq_context *context, int type, ze
 
 	zmq_sock           = pecalloc(1, sizeof(php_zmq_socket), is_persistent);
 	zmq_sock->z_socket = zmq_socket(context->z_ctx, type);
+	zmq_sock->pid      = getpid();
 
 	if (!zmq_sock->z_socket) {
 		pefree(zmq_sock, is_persistent);

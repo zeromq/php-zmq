@@ -102,6 +102,9 @@ typedef struct _php_zmq_socket  {
 	HashTable bind;
 
 	zend_bool is_persistent;
+
+	/* Who created me */
+    int pid;
 } php_zmq_socket;
 /* }}} */
 
