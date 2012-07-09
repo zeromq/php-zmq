@@ -86,6 +86,9 @@ typedef struct _php_zmq_context {
 	
 	/* Is this a persistent context */
 	zend_bool is_persistent;
+
+	/* Who created me */
+    int pid;
 } php_zmq_context;
 /* }}} */
 

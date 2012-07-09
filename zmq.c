@@ -98,7 +98,9 @@ static int php_zmq_context_list_entry(void)
 */
 static void php_zmq_context_destroy(php_zmq_context *context)
 {
-	(void) zmq_term(context->z_ctx);
+	if(context->pid == getpid())
+		(void) zmq_term(context->z_ctx);
+
 	pefree(context, context->is_persistent);
 }
 /* }}} */
@@ -135,6 +137,7 @@ static php_zmq_context *php_zmq_context_new(long io_threads, zend_bool is_persis
 
 	context->io_threads    = io_threads;
 	context->is_persistent = is_persistent;
+	context->pid           = getpid();
 	return context;
 }
 /* }}} */
