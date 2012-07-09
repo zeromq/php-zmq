@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <options script="sockopts">
-    <version major="2" comparison="ZMQ_VERSION_MAJOR == 2">
+    <version major="2" comparison="ZMQ_VERSION_MAJOR == 2 &amp;&amp; ZMQ_VERSION_MINOR &lt; 2">
         <option name="hwm" type="uint64_t" mode="rw"/>
         <option name="swap" type="int64_t" mode="rw"/>
         <option name="affinity" type="uint64_t" mode="rw"/>
