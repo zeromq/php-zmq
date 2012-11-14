@@ -306,6 +306,13 @@ class ZMQSocket {
      * @return boolean
      */
     public function isPersistent() {}
+
+    /**
+     * Turn a persistent socket to non-persistent
+     *
+     * @return boolean
+     */
+    public function transient() {}    
 }
 
 
