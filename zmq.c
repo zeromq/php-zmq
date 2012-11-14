@@ -335,6 +335,21 @@ static void php_zmq_socket_store(php_zmq_socket *zmq_sock_p, int type, const cha
 	efree(plist_key);
 }
 
+static void php_zmq_socket_unstore(php_zmq_socket *zmq_sock_p, int type, const char *persistent_id TSRMLS_DC)
+{
+	zend_rsrc_list_entry le;
+
+	char *plist_key = NULL;
+	int plist_key_len = 0;
+
+	plist_key = php_zmq_socket_plist_key(type, persistent_id, &plist_key_len);
+
+	if (zend_hash_del(&EG(persistent_list), plist_key, plist_key_len + 1) == FAILURE) {
+		php_error_docref(NULL TSRMLS_CC, E_ERROR, "Could not unregister persistent entry for the socket");
+	}
+	efree(plist_key);
+}
+
 /* {{{ static php_zmq_socket *php_zmq_socket_get(php_zmq_context *context, int type, const char *persistent_id, zend_bool *is_new TSRMLS_DC)
 	Tries to get context from plist and allocates a new context if context does not exist
 */
@@ -1047,6 +1062,33 @@ PHP_METHOD(zmqsocket, ispersistent)
 	Clones the instance of the ZMQSocket class
 */
 PHP_METHOD(zmqsocket, __clone) { }
+
+/* {{{ proto boolean ZMQSocket::transient()
+	Turn a persistent socket to transient
+*/
+PHP_METHOD(zmqsocket, transient)
+{
+	php_zmq_socket_object *intern;
+	zend_bool is_persistent;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "") == FAILURE) {
+		return;
+	}
+
+	intern = PHP_ZMQ_SOCKET_OBJECT;
+
+	if (intern->socket->is_persistent) {
+		int type;
+		size_t type_siz;
+		if (zmq_getsockopt(intern->socket->z_socket, ZMQ_TYPE, &type, &type_siz) == -1) {
+			RETURN_FALSE;
+		}
+
+		php_zmq_socket_unstore(intern->socket, type, intern->persistent_id TSRMLS_CC);
+	}
+
+	RETURN_TRUE;
+}
 /* }}} */
 
 /* -- END ZMQSocket--- */
@@ -1499,6 +1541,9 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(zmq_socket_clone_args, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(zmq_socket_transient_args, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
 static zend_function_entry php_zmq_socket_class_methods[] = {
 	PHP_ME(zmqsocket, __construct,			zmq_socket_construct_args,			ZEND_ACC_PUBLIC|ZEND_ACC_CTOR|ZEND_ACC_FINAL)
 	PHP_ME(zmqsocket, send,					zmq_socket_send_args,				ZEND_ACC_PUBLIC)
@@ -1518,6 +1563,7 @@ static zend_function_entry php_zmq_socket_class_methods[] = {
 	PHP_ME(zmqsocket, getpersistentid,		zmq_socket_getpersistentid_args,	ZEND_ACC_PUBLIC)
 	PHP_ME(zmqsocket, getsockopt,			zmq_socket_getsockopt_args,			ZEND_ACC_PUBLIC)
 	PHP_ME(zmqsocket, __clone,				zmq_socket_clone_args,				ZEND_ACC_PRIVATE|ZEND_ACC_FINAL)
+	PHP_ME(zmqsocket, transient,			zmq_socket_transient_args,			ZEND_ACC_PUBLIC)
 	PHP_MALIAS(zmqsocket,	sendmsg, send,	zmq_socket_send_args, 				ZEND_ACC_PUBLIC)
 	PHP_MALIAS(zmqsocket,	recvmsg, recv, 	zmq_socket_recv_args, 				ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
