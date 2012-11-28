@@ -22,7 +22,7 @@
 				<xsl:if test="@name != 'identity' and @name != 'fd'">	
 					<xsl:choose>
 						<xsl:when test="@mode = 'rw' or @mode = 'r'">
-							<xsl:call-template name="get-numeric-option">
+							<xsl:call-template name="get-option">
 								<xsl:with-param name="const-name" select="$const-name"/>
 								<xsl:with-param name="raw-name" select="$raw-name"/>
 								<xsl:with-param name="type" select="@type"/>
@@ -190,6 +190,45 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
+	</xsl:template>
+	
+	<xsl:template name="get-string-option">
+		<xsl:param name="const-name"/>
+		<xsl:param name="raw-name"/>	
+		case <xsl:value-of select="$const-name"/>:
+		{
+			char value[255];
+
+			value_len = 255;
+			if (zmq_getsockopt(intern->socket->z_socket, (int) key, &amp;value, &amp;value_len) != 0) {
+				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to get the option ZMQ::SOCKOPT_<xsl:value-of select="$raw-name"/> value: %s", zmq_strerror(errno));
+				return;
+			}
+			RETURN_STRINGL(value, value_len - 1, 1);
+		}
+		break;
+	</xsl:template>
+	
+	<xsl:template name="get-option">
+		<xsl:param name="const-name"/>
+		<xsl:param name="raw-name"/>
+		<xsl:param name="type"/>
+		
+		<xsl:choose>
+			<xsl:when test="$type = 'blob'">
+				<xsl:call-template name="get-string-option">
+					<xsl:with-param name="const-name" select="$const-name"/>
+					<xsl:with-param name="raw-name" select="$raw-name"/>
+				</xsl:call-template>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:call-template name="get-numeric-option">
+					<xsl:with-param name="const-name" select="$const-name"/>
+					<xsl:with-param name="type" select="$type"/>
+					<xsl:with-param name="raw-name" select="$raw-name"/>
+				</xsl:call-template>
+			</xsl:otherwise>
+		</xsl:choose>
 	</xsl:template>
 	
 	<xsl:template name="setsockopt-header">
