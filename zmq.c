@@ -891,6 +891,58 @@ PHP_METHOD(zmqsocket, connect)
 }
 /* }}} */
 
+#if ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR >= 2
+/* {{{ proto ZMQSocket ZMQSocket::unbind(string $dsn)
+	Unbind the socket from an endpoint
+*/
+PHP_METHOD(zmqsocket, unbind)
+{
+	php_zmq_socket_object *intern;
+	char *dsn;
+	int dsn_len;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &dsn, &dsn_len) == FAILURE) {
+		return;
+	}
+
+	intern = PHP_ZMQ_SOCKET_OBJECT;
+
+	if (zmq_unbind(intern->socket->z_socket, dsn) != 0) {
+		zend_throw_exception_ex(php_zmq_socket_exception_sc_entry, errno TSRMLS_CC, "Failed to unbind the ZMQ socket: %s", zmq_strerror(errno));
+		return;
+	}
+
+	zend_hash_del(&(intern->socket->bind), dsn, dsn_len + 1);
+	ZMQ_RETURN_THIS;
+}
+/* }}} */
+
+/* {{{ proto ZMQSocket ZMQSocket::disconnect(string $dsn)
+	Disconnect the socket from an endpoint
+*/
+PHP_METHOD(zmqsocket, disconnect)
+{
+	php_zmq_socket_object *intern;
+	char *dsn;
+	int dsn_len;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &dsn, &dsn_len) == FAILURE) {
+		return;
+	}
+
+	intern = PHP_ZMQ_SOCKET_OBJECT;
+
+	if (zmq_disconnect(intern->socket->z_socket, dsn) != 0) {
+		zend_throw_exception_ex(php_zmq_socket_exception_sc_entry, errno TSRMLS_CC, "Failed to disconnect the ZMQ socket: %s", zmq_strerror(errno));
+		return;
+	}
+
+	zend_hash_del(&(intern->socket->connect), dsn, dsn_len + 1);
+	ZMQ_RETURN_THIS;
+}
+/* }}} */
+#endif
+
 #if (PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION < 3)
 static int php_zmq_get_keys(zval **ppzval, int num_args, va_list args, zend_hash_key *hash_key)
 {
@@ -1400,6 +1452,14 @@ ZEND_BEGIN_ARG_INFO_EX(zmq_socket_connect_args, 0, 0, 1)
 	ZEND_ARG_INFO(0, force)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(zmq_socket_unbind_args, 0, 0, 1)
+	ZEND_ARG_INFO(0, dsn)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(zmq_socket_disconnect_args, 0, 0, 1)
+	ZEND_ARG_INFO(0, dsn)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_INFO_EX(zmq_socket_setsockopt_args, 0, 0, 2)
 	ZEND_ARG_INFO(0, key)
 	ZEND_ARG_INFO(0, value)
@@ -1441,6 +1501,8 @@ static zend_function_entry php_zmq_socket_class_methods[] = {
 	PHP_ME(zmqsocket, recvmulti,			zmq_socket_recv_args,				ZEND_ACC_PUBLIC)
 	PHP_ME(zmqsocket, bind,					zmq_socket_bind_args,				ZEND_ACC_PUBLIC)
 	PHP_ME(zmqsocket, connect,				zmq_socket_connect_args,			ZEND_ACC_PUBLIC)
+	PHP_ME(zmqsocket, unbind,				zmq_socket_unbind_args,				ZEND_ACC_PUBLIC)
+	PHP_ME(zmqsocket, disconnect,			zmq_socket_disconnect_args,			ZEND_ACC_PUBLIC)
 	PHP_ME(zmqsocket, setsockopt,			zmq_socket_setsockopt_args,			ZEND_ACC_PUBLIC)
 	PHP_ME(zmqsocket, getendpoints,			zmq_socket_getendpoints_args,		ZEND_ACC_PUBLIC)
 	PHP_ME(zmqsocket, getsockettype,		zmq_socket_getsockettype_args,		ZEND_ACC_PUBLIC)
