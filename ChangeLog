@@ -1,3 +1,7 @@
+?.?.?
+- Added 3.2.x context options
+- Added 3.2.x socket options
+
 1.0.0rc1
 - Changed poll timeout to milliseconds rather than microseconds
 - ZMQ::MODE_NOBLOCK is now called ZMQ::MODE_DONTWAIT, the old constant is 
