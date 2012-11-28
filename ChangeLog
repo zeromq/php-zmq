@@ -1,4 +1,4 @@
-?.?.?
+1.0.4
 - Added 3.2.x context options
 - Added 3.2.x socket options
 - Added unbind and disconnect for 3.2.x
