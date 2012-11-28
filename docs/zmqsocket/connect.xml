@@ -84,13 +84,6 @@ echo "<p>Server said: {$message}</p>";
   </para>
  </refsect1>
 
-  <refsect1 role="returnvalues">
-   &reftitle.returnvalues;
-   <para>
-    Throws ZMQContextException if context initialization fails.
-   </para>
-  </refsect1> 
-
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
