@@ -215,6 +215,66 @@
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
+     <varname linkend="zmq.constants.sockopt-ipv4only">ZMQ::SOCKOPT_IPV4ONLY</varname>
+     <initializer>25</initializer>
+    </fieldsynopsis>
+    <fieldsynopsis>
+     <modifier>const</modifier>
+     <type>integer</type>
+     <varname linkend="zmq.constants.sockopt-last-endpoint">ZMQ::SOCKOPT_LAST_ENDPOINT</varname>
+     <initializer>26</initializer>
+    </fieldsynopsis>
+    <fieldsynopsis>
+     <modifier>const</modifier>
+     <type>integer</type>
+     <varname linkend="zmq.constants.sockopt-tcp-keepalive-idle">ZMQ::SOCKOPT_TCP_KEEPALIVE_IDLE</varname>
+     <initializer>27</initializer>
+    </fieldsynopsis>
+    <fieldsynopsis>
+     <modifier>const</modifier>
+     <type>integer</type>
+     <varname linkend="zmq.constants.sockopt-tcp-keepalive-cnt">ZMQ::SOCKOPT_TCP_KEEPALIVE_CNT</varname>
+     <initializer>28</initializer>
+    </fieldsynopsis>
+    <fieldsynopsis>
+     <modifier>const</modifier>
+     <type>integer</type>
+     <varname linkend="zmq.constants.sockopt-tcp-keepalive-intvl">ZMQ::SOCKOPT_TCP_KEEPALIVE_INTVL</varname>
+     <initializer>29</initializer>
+    </fieldsynopsis>
+    <fieldsynopsis>
+     <modifier>const</modifier>
+     <type>integer</type>
+     <varname linkend="zmq.constants.sockopt-tcp-accept-filter">ZMQ::SOCKOPT_TCP_ACCEPT_FILTER</varname>
+     <initializer>30</initializer>
+    </fieldsynopsis>
+    <fieldsynopsis>
+     <modifier>const</modifier>
+     <type>integer</type>
+     <varname linkend="zmq.constants.sockopt-tcp-accept-filter">ZMQ::SOCKOPT_TCP_ACCEPT_FILTER</varname>
+     <initializer>31</initializer>
+    </fieldsynopsis>
+    <fieldsynopsis>
+     <modifier>const</modifier>
+     <type>integer</type>
+     <varname linkend="zmq.constants.sockopt-delay-attach-on-connect">ZMQ::SOCKOPT_DELAY_ATTACH_ON_CONNECT</varname>
+     <initializer>32</initializer>
+    </fieldsynopsis>
+    <fieldsynopsis>
+     <modifier>const</modifier>
+     <type>integer</type>
+     <varname linkend="zmq.constants.sockopt-xpub-verbose">ZMQ::SOCKOPT_XPUB_VERBOSE</varname>
+     <initializer>33</initializer>
+    </fieldsynopsis>
+    <fieldsynopsis>
+     <modifier>const</modifier>
+     <type>integer</type>
+     <varname linkend="zmq.constants.ctxopt-max-sockets">ZMQ::CTXOPT_MAX_SOCKETS</varname>
+     <initializer>1</initializer>
+    </fieldsynopsis>          
+    <fieldsynopsis>
+     <modifier>const</modifier>
+     <type>integer</type>
      <varname linkend="zmq.constants.poll-in">ZMQ::POLL_IN</varname>
      <initializer>1</initializer>
     </fieldsynopsis>

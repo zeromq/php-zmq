@@ -10,10 +10,10 @@
   <email>mkoppanen@php.net</email>
   <active>yes</active>
  </lead>
- <date>2012-02-17</date>
- <time>22:00:00</time>
+ <date>2012-11-29</date>
+ <time>21:00:00</time>
  <version>
-  <release>1.0.3</release>
+  <release>1.0.4</release>
   <api>1.0.0</api>
  </version>
  <stability>
@@ -22,14 +22,15 @@
  </stability>
  <license>BSD License</license>
  <notes>
-- Fix poll->remove bug
-- Fix segfault with non-persistent contexts
+ - Added 3.2.x context options
+ - Added 3.2.x socket options
+ - Added unbind and disconnect for 3.2.x
  </notes>
  <contents>
   <dir name="/">
    <!-- Support files -->
    <file name="config.m4" role="src" />
-   <file name="zmq.spec" role="src">
+   <file name="php-zmq.spec" role="src">
     <tasks:replace from="@PACKAGE_VERSION@" to="version" type="package-info" />
    </file>
    
