@@ -1416,6 +1416,7 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(zmq_context_clone_args, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
+#if ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR >= 2
 ZEND_BEGIN_ARG_INFO_EX(zmq_context_setopt_args, 0, 0, 2)
 	ZEND_ARG_INFO(0, option)
 	ZEND_ARG_INFO(0, value)
@@ -1424,14 +1425,17 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(zmq_context_getopt_args, 0, 0, 2)
 	ZEND_ARG_INFO(0, option)
 ZEND_END_ARG_INFO()
+#endif
 
 static zend_function_entry php_zmq_context_class_methods[] = {
 	PHP_ME(zmqcontext, __construct,		zmq_context_construct_args,		ZEND_ACC_PUBLIC|ZEND_ACC_CTOR|ZEND_ACC_FINAL)
 	PHP_ME(zmqcontext, getsocket,		zmq_context_getsocket_args,		ZEND_ACC_PUBLIC)
 	PHP_ME(zmqcontext, ispersistent,	zmq_context_ispersistent_args,	ZEND_ACC_PUBLIC)
 	PHP_ME(zmqcontext, __clone,			zmq_context_clone_args,			ZEND_ACC_PRIVATE|ZEND_ACC_FINAL)
+#if ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR >= 2
 	PHP_ME(zmqcontext, setOpt,			zmq_context_setopt_args,		ZEND_ACC_PUBLIC)
 	PHP_ME(zmqcontext, getOpt,			zmq_context_getopt_args,		ZEND_ACC_PUBLIC)
+#endif
 	{NULL, NULL, NULL}
 };
 
@@ -1452,6 +1456,7 @@ ZEND_BEGIN_ARG_INFO_EX(zmq_socket_connect_args, 0, 0, 1)
 	ZEND_ARG_INFO(0, force)
 ZEND_END_ARG_INFO()
 
+#if ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR >= 2
 ZEND_BEGIN_ARG_INFO_EX(zmq_socket_unbind_args, 0, 0, 1)
 	ZEND_ARG_INFO(0, dsn)
 ZEND_END_ARG_INFO()
@@ -1459,6 +1464,7 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(zmq_socket_disconnect_args, 0, 0, 1)
 	ZEND_ARG_INFO(0, dsn)
 ZEND_END_ARG_INFO()
+#endif
 
 ZEND_BEGIN_ARG_INFO_EX(zmq_socket_setsockopt_args, 0, 0, 2)
 	ZEND_ARG_INFO(0, key)
@@ -1501,8 +1507,10 @@ static zend_function_entry php_zmq_socket_class_methods[] = {
 	PHP_ME(zmqsocket, recvmulti,			zmq_socket_recv_args,				ZEND_ACC_PUBLIC)
 	PHP_ME(zmqsocket, bind,					zmq_socket_bind_args,				ZEND_ACC_PUBLIC)
 	PHP_ME(zmqsocket, connect,				zmq_socket_connect_args,			ZEND_ACC_PUBLIC)
+#if ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR >= 2
 	PHP_ME(zmqsocket, unbind,				zmq_socket_unbind_args,				ZEND_ACC_PUBLIC)
 	PHP_ME(zmqsocket, disconnect,			zmq_socket_disconnect_args,			ZEND_ACC_PUBLIC)
+#endif
 	PHP_ME(zmqsocket, setsockopt,			zmq_socket_setsockopt_args,			ZEND_ACC_PUBLIC)
 	PHP_ME(zmqsocket, getendpoints,			zmq_socket_getendpoints_args,		ZEND_ACC_PUBLIC)
 	PHP_ME(zmqsocket, getsockettype,		zmq_socket_getsockettype_args,		ZEND_ACC_PUBLIC)
