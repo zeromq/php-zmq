@@ -123,6 +123,6 @@
         <option name="tcp_accept_filter" type="blob" mode="rw"/>
         <option name="delay_attach_on_connect" type="int" mode="rw"/>
         <option name="xpub_verbose" type="int" mode="rw"/>
-        <option name="router_raw" type="int" mode="rw"/>
+        <!--<option name="router_raw" type="int" mode="rw"/> -->
     </version>
 </options>
