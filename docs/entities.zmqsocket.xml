@@ -1,6 +1,7 @@
 &reference.zmq.zmqsocket.bind;
 &reference.zmq.zmqsocket.connect;
 &reference.zmq.zmqsocket.construct;
+&reference.zmq.zmqsocket.disconnect;
 &reference.zmq.zmqsocket.getendpoints;
 &reference.zmq.zmqsocket.getpersistentid;
 &reference.zmq.zmqsocket.getsockettype;
@@ -11,3 +12,4 @@
 &reference.zmq.zmqsocket.send;
 &reference.zmq.zmqsocket.sendmulti;
 &reference.zmq.zmqsocket.setsockopt;
+&reference.zmq.zmqsocket.unbind;

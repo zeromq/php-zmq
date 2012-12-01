@@ -558,6 +558,69 @@
       </listitem>
      </varlistentry>
 
+     <varlistentry xml:id="zmq.constants.sockopt-ipv4only">
+      <term><constant>ZMQ::SOCKOPT_IPV4ONLY</constant></term>
+      <listitem>
+       <para>Disable IPV6 support if 1. Available if compiled against ZeroMQ 3.x (Value: &integer;)</para>
+      </listitem>
+     </varlistentry>    
+
+     <varlistentry xml:id="zmq.constants.sockopt-last-endpoint">
+      <term><constant>ZMQ::SOCKOPT_LAST_ENDPOINT</constant></term>
+      <listitem>
+       <para>Retrieve the last connected endpoint - for use with * wildcard ports. Available if compiled against ZeroMQ 3.x (Value: &string;)</para>
+      </listitem>
+     </varlistentry>
+
+     <varlistentry xml:id="zmq.constants.sockopt-tcp-keepalive-idle">
+      <term><constant>ZMQ::SOCKOPT_TCP_KEEPALIVE_IDLE</constant></term>
+      <listitem>
+       <para>Idle time for TCP keepalive. Available if compiled against ZeroMQ 3.x (Value: &integer;)</para>
+      </listitem>
+     </varlistentry>
+
+     <varlistentry xml:id="zmq.constants.sockopt-tcp-keepalive-cnt">
+      <term><constant>ZMQ::SOCKOPT_TCP_KEEPALIVE_CNT</constant></term>
+      <listitem>
+       <para>Count time for TCP keepalive. Available if compiled against ZeroMQ 3.x (Value: &integer;)</para>
+      </listitem>
+     </varlistentry>
+
+     <varlistentry xml:id="zmq.constants.sockopt-tcp-keepalive-intvl">
+      <term><constant>ZMQ::SOCKOPT_TCP_KEEPALIVE_INTVL</constant></term>
+      <listitem>
+       <para>Interval for TCP keepalive. Available if compiled against ZeroMQ 3.x (Value: &integer;)</para>
+      </listitem>
+     </varlistentry>
+
+     <varlistentry xml:id="zmq.constants.sockopt-delay-attach-on-connect">
+      <term><constant>ZMQ::SOCKOPT_DELAY_ATTACH_ON_CONNECT</constant></term>
+      <listitem>
+       <para>Set a CIDR string to match against incoming TCP connections. Available if compiled against ZeroMQ 3.x (Value: &string;)</para>
+      </listitem>
+     </varlistentry>
+
+      <varlistentry xml:id="zmq.constants.sockopt-tcp-accept-filter">
+       <term><constant>ZMQ::SOCKOPT_TCP_ACCEPT_FILTER</constant></term>
+       <listitem>
+        <para>Set a CIDR string to match against incoming TCP connections. Available if compiled against ZeroMQ 3.x (Value: &string;)</para>
+       </listitem>
+      </varlistentry>
+
+     <varlistentry xml:id="zmq.constants.sockopt-xpub-verbose">
+      <term><constant>ZMQ::SOCKOPT_XPUB_VERBOSE</constant></term>
+      <listitem>
+       <para>Set the XPUB to receive an application message on each instance of a subscription. Available if compiled against ZeroMQ 3.x (Value: &string;)</para>
+      </listitem>
+     </varlistentry>
+
+     <varlistentry xml:id="zmq.constants.ctxopt-max-sockets">
+      <term><constant>ZMQ::CTXOPT_MAX_SOCKETS</constant></term>
+      <listitem>
+       <para>The socket limit for this context. Available if compiled against ZeroMQ 3.x (Value: &integer;)</para>
+      </listitem>
+     </varlistentry>
+
      <varlistentry xml:id="zmq.constants.poll-in">
       <term><constant>ZMQ::POLL_IN</constant></term>
       <listitem>
