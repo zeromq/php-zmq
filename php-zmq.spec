@@ -56,7 +56,7 @@ echo "n" | make test
 %config(noreplace) %{_sysconfdir}/php.d/zmq.ini
 
 %changelog
-* Thu Dec 20 2012 Adrian Siminiceanu <asiminiceanu@gmail.com>
+* Thu Dec 20 2012 Adrian Siminiceanu <adrian.siminiceanu@gmail.com>
  - Fixed the %filter_from_provides and %filter_setup macros error in EPEL5.
  - Use the version define globally in all the places.
  - Fixed the release number match the number of changes the spec file suffered.
