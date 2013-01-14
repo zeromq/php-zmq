@@ -1054,7 +1054,7 @@ PHP_METHOD(zmqsocket, ispersistent)
 	}
 
 	intern = PHP_ZMQ_SOCKET_OBJECT;
-	RETURN_BOOL(intern->socket->is_persistent);
+	RETURN_BOOL(intern->socket->is_persistent && intern->persistent_id);
 }
 /* }}} */
 
@@ -1077,7 +1077,7 @@ PHP_METHOD(zmqsocket, transient)
 
 	intern = PHP_ZMQ_SOCKET_OBJECT;
 
-	if (intern->socket->is_persistent) {
+	if (intern->socket->is_persistent && intern->persistent_id) {
 		int type;
 		size_t type_siz;
 		if (zmq_getsockopt(intern->socket->z_socket, ZMQ_TYPE, &type, &type_siz) == -1) {
@@ -1085,6 +1085,8 @@ PHP_METHOD(zmqsocket, transient)
 		}
 
 		php_zmq_socket_unstore(intern->socket, type, intern->persistent_id TSRMLS_CC);
+		efree(intern->persistent_id);
+		intern->persistent_id = NULL;
 	}
 
 	RETURN_TRUE;

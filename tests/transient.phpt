@@ -15,7 +15,12 @@ unset($socket);
 $socket  = $context->getSocket(ZMQ::SOCKET_REQ, 'persistentId', function() {
     echo "2\n";
 });
+echo $socket->isPersistent() ? "1" : "0", "\n";
 $socket->transient();
+echo $socket->isPersistent() ? "1" : "0", "\n";
+
+$socket->transient();
+unset($socket);
 
 $socket  = $context->getSocket(ZMQ::SOCKET_REQ, 'persistentId', function() {
     echo "3\n";
@@ -25,4 +30,6 @@ unset($socket);
 
 --EXPECTF--
 1
+1
+0
 3
