@@ -74,7 +74,7 @@ static int le_zmq_socket, le_zmq_context;
 
 /** {{{ static void php_zmq_get_lib_version(char buffer[PHP_ZMQ_VERSION_LEN])
 */
-static void php_zmq_get_lib_version(char buffer[PHP_ZMQ_VERSION_LEN]) 
+static void php_zmq_get_lib_version(char buffer[PHP_ZMQ_VERSION_LEN])
 {
 	int major = 0, minor = 0, patch = 0;
 	zmq_version(&major, &minor, &patch);
@@ -115,6 +115,10 @@ static void php_zmq_context_destroy(php_zmq_context *context)
 */
 static void php_zmq_socket_destroy(php_zmq_socket *zmq_sock)
 {
+	if (zmq_sock->is_persistent && --zmq_sock->r) {
+		return;
+	}
+
 	zend_hash_destroy(&(zmq_sock->connect));
 	zend_hash_destroy(&(zmq_sock->bind));
 
@@ -232,7 +236,7 @@ PHP_METHOD(zmqcontext, setOpt)
 	intern = PHP_ZMQ_CONTEXT_OBJECT;
 
 	switch (option) {
-		
+
 		case ZMQ_MAX_SOCKETS:
 		{
 			if (zmq_ctx_set(intern->context->z_ctx, option, value) != 0) {
@@ -241,7 +245,7 @@ PHP_METHOD(zmqcontext, setOpt)
 			}
 		}
 		break;
-		
+
 		default:
 		{
 			zend_throw_exception(php_zmq_context_exception_sc_entry_get (), "Unknown option key", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
@@ -266,14 +270,14 @@ PHP_METHOD(zmqcontext, getOpt)
 	intern = PHP_ZMQ_CONTEXT_OBJECT;
 
 	switch (option) {
-		
+
 		case ZMQ_MAX_SOCKETS:
 		{
 			int value = zmq_ctx_get(intern->context->z_ctx, option);
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		default:
 		{
 			zend_throw_exception(php_zmq_context_exception_sc_entry_get (), "Unknown option key", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
@@ -303,9 +307,11 @@ static php_zmq_socket *php_zmq_socket_new(php_zmq_context *context, int type, ze
 	}
 
 	zmq_sock->is_persistent = is_persistent;
+	zmq_sock->r = 1;
 
 	zend_hash_init(&(zmq_sock->connect), 0, NULL, NULL, is_persistent);
 	zend_hash_init(&(zmq_sock->bind),    0, NULL, NULL, is_persistent);
+
 	return zmq_sock;
 }
 /* }}} */
@@ -332,20 +338,19 @@ static void php_zmq_socket_store(php_zmq_socket *zmq_sock_p, int type, const cha
 	if (zend_hash_update(&EG(persistent_list), plist_key, plist_key_len + 1, (void *)&le, sizeof(le), NULL) == FAILURE) {
 		php_error_docref(NULL TSRMLS_CC, E_ERROR, "Could not register persistent entry for the socket");
 	}
+
 	efree(plist_key);
 }
 
 static void php_zmq_socket_unstore(php_zmq_socket *zmq_sock_p, int type, const char *persistent_id TSRMLS_DC)
 {
-	zend_rsrc_list_entry le;
-
 	char *plist_key = NULL;
 	int plist_key_len = 0;
 
 	plist_key = php_zmq_socket_plist_key(type, persistent_id, &plist_key_len);
 
 	if (zend_hash_del(&EG(persistent_list), plist_key, plist_key_len + 1) == FAILURE) {
-		php_error_docref(NULL TSRMLS_CC, E_ERROR, "Could not unregister persistent entry for the socket");
+		//php_error_docref(NULL TSRMLS_CC, E_ERROR, "Could not unregister persistent entry for the socket");
 	}
 	efree(plist_key);
 }
@@ -403,7 +408,7 @@ static zend_bool php_zmq_connect_callback(zval *socket, zend_fcall_info *fci, ze
 		ZVAL_NULL(pid_z);
 	}
 
-	/* Call the cb */	
+	/* Call the cb */
 	params[0] = &socket;
 	params[1] = &pid_z;
 
@@ -481,7 +486,7 @@ PHP_METHOD(zmqcontext, getsocket)
 		Z_ADDREF_P(interns->context_obj);
 	}
 
-	if (is_new) {	
+	if (is_new) {
 		if (ZEND_NUM_ARGS() > 2) {
 			if (!php_zmq_connect_callback(return_value, &fci, &fci_cache, persistent_id TSRMLS_CC)) {
 				zval_dtor(return_value);
@@ -496,6 +501,7 @@ PHP_METHOD(zmqcontext, getsocket)
 	}
 	if (socket->is_persistent) {
 		interns->persistent_id = estrdup(persistent_id);
+		socket->r++;
 	}
 	return;
 }
@@ -573,13 +579,13 @@ PHP_METHOD(zmqsocket, __construct)
         Z_ADDREF_P(intern->context_obj);
 	}
 
-	if (is_new) {	
+	if (is_new) {
 		if (ZEND_NUM_ARGS() > 3) {
 			if (!php_zmq_connect_callback(getThis(), &fci, &fci_cache, persistent_id TSRMLS_CC)) {
 				php_zmq_socket_destroy(socket);
 				intern->socket = NULL;
 				return;
-			}	
+			}
 		}
 		if (socket->is_persistent) {
 			php_zmq_socket_store(socket, type, persistent_id TSRMLS_CC);
@@ -587,6 +593,7 @@ PHP_METHOD(zmqsocket, __construct)
 	}
 	if (socket->is_persistent) {
 		intern->persistent_id = estrdup(persistent_id);
+		socket->r++;
 	}
 
 	return;
@@ -792,7 +799,7 @@ PHP_METHOD(zmqsocket, recvmulti)
 	long flags = 0;
 	zend_bool retval;
 	zval *msg;
-#if ZMQ_VERSION_MAJOR < 3	
+#if ZMQ_VERSION_MAJOR < 3
 	int64_t value;
 #else
 	int value;
@@ -822,7 +829,7 @@ PHP_METHOD(zmqsocket, recvmulti)
 }
 /* }}} */
 
-/** {{{ string ZMQ::getPersistentId() 
+/** {{{ string ZMQ::getPersistentId()
 	Returns the persistent id of the object
 */
 PHP_METHOD(zmqsocket, getpersistentid)
@@ -1054,7 +1061,27 @@ PHP_METHOD(zmqsocket, ispersistent)
 	}
 
 	intern = PHP_ZMQ_SOCKET_OBJECT;
-	RETURN_BOOL(intern->socket->is_persistent && intern->persistent_id);
+	if (!intern->socket->is_persistent) {
+		RETURN_FALSE;
+	}
+
+	int type;
+	size_t type_siz;
+	if (zmq_getsockopt(intern->socket->z_socket, ZMQ_TYPE, &type, &type_siz) == -1) {
+		php_error_docref(NULL TSRMLS_CC, E_ERROR, "Unable to get the socket type");
+	}
+
+	char *plist_key = NULL;
+	int plist_key_len = 0;
+
+	plist_key = php_zmq_socket_plist_key(type, intern->persistent_id, &plist_key_len);
+
+	if (zend_hash_exists(&EG(persistent_list), plist_key, plist_key_len + 1)) {
+		efree(plist_key);
+		RETURN_TRUE;
+	}
+	efree(plist_key);
+	RETURN_FALSE;
 }
 /* }}} */
 
@@ -1077,7 +1104,7 @@ PHP_METHOD(zmqsocket, transient)
 
 	intern = PHP_ZMQ_SOCKET_OBJECT;
 
-	if (intern->socket->is_persistent && intern->persistent_id) {
+	if (intern->socket->is_persistent) {
 		int type;
 		size_t type_siz;
 		if (zmq_getsockopt(intern->socket->z_socket, ZMQ_TYPE, &type, &type_siz) == -1) {
@@ -1085,8 +1112,6 @@ PHP_METHOD(zmqsocket, transient)
 		}
 
 		php_zmq_socket_unstore(intern->socket, type, intern->persistent_id TSRMLS_CC);
-		efree(intern->persistent_id);
-		intern->persistent_id = NULL;
 	}
 
 	RETURN_TRUE;
@@ -1638,7 +1663,7 @@ static zend_function_entry php_zmq_device_class_methods[] = {
 };
 
 zend_function_entry zmq_functions[] = {
-	{NULL, NULL, NULL} 
+	{NULL, NULL, NULL}
 };
 
 static void php_zmq_context_object_free_storage(void *object TSRMLS_DC)
@@ -1672,9 +1697,9 @@ static void php_zmq_socket_object_free_storage(void *object TSRMLS_DC)
 			efree(intern->persistent_id);
 		}
 
-		if (!intern->socket->is_persistent) {
-			php_zmq_socket_destroy(intern->socket);
-		}
+		//if (!intern->socket->is_persistent) {
+		php_zmq_socket_destroy(intern->socket);
+		//}
 	}
 
 	if (intern->context_obj) {
