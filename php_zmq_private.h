@@ -105,6 +105,8 @@ typedef struct _php_zmq_socket  {
 
 	/* Who created me */
     int pid;
+
+    int r;
 } php_zmq_socket;
 /* }}} */
 
