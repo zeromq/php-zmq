@@ -1,30 +1,30 @@
 /*
 +-----------------------------------------------------------------------------------+
-|  ZMQ extension for PHP                                                            |
-|  Copyright (c) 2010, Mikko Koppanen <mkoppanen@php.net>                           |
-|  All rights reserved.                                                             |
+|	ZMQ extension for PHP																														|
+|	Copyright (c) 2010, Mikko Koppanen <mkoppanen@php.net>													 |
+|	All rights reserved.																														 |
 +-----------------------------------------------------------------------------------+
-|  Redistribution and use in source and binary forms, with or without               |
-|  modification, are permitted provided that the following conditions are met:      |
-|     * Redistributions of source code must retain the above copyright              |
-|       notice, this list of conditions and the following disclaimer.               |
-|     * Redistributions in binary form must reproduce the above copyright           |
-|       notice, this list of conditions and the following disclaimer in the         |
-|       documentation and/or other materials provided with the distribution.        |
-|     * Neither the name of the copyright holder nor the                            |
-|       names of its contributors may be used to endorse or promote products        |
-|       derived from this software without specific prior written permission.       |
+|	Redistribution and use in source and binary forms, with or without							 |
+|	modification, are permitted provided that the following conditions are met:			|
+|		 * Redistributions of source code must retain the above copyright							|
+|			 notice, this list of conditions and the following disclaimer.							 |
+|		 * Redistributions in binary form must reproduce the above copyright					 |
+|			 notice, this list of conditions and the following disclaimer in the				 |
+|			 documentation and/or other materials provided with the distribution.				|
+|		 * Neither the name of the copyright holder nor the														|
+|			 names of its contributors may be used to endorse or promote products				|
+|			 derived from this software without specific prior written permission.			 |
 +-----------------------------------------------------------------------------------+
-|  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND  |
-|  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED    |
-|  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE           |
-|  DISCLAIMED. IN NO EVENT SHALL MIKKO KOPPANEN BE LIABLE FOR ANY                   |
-|  DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES       |
-|  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;     |
-|  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND      |
-|  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT       |
-|  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS    |
-|  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                     |
+|	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND	|
+|	ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED		|
+|	WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE					 |
+|	DISCLAIMED. IN NO EVENT SHALL MIKKO KOPPANEN BE LIABLE FOR ANY									 |
+|	DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES			 |
+|	(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;		 |
+|	LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND			|
+|	ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT			 |
+|	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS		|
+|	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.										 |
 +-----------------------------------------------------------------------------------+
 */
 
@@ -43,21 +43,21 @@
 # include <stdint.h>
 #endif
 
-/* {{{ typedef struct _php_zmq_pollitem 
+/* {{{ typedef struct _php_zmq_pollitem
 */
 typedef struct _php_zmq_pollitem {
 	int events;
 	zval *entry;
 	char key[35];
 	int key_len;
-	
+
 	/* convenience pointer containing fd or socket */
 	void *socket;
 	int fd;
 } php_zmq_pollitem;
 /* }}} */
 
-/* {{{ typedef struct _php_zmq_pollset 
+/* {{{ typedef struct _php_zmq_pollset
 */
 typedef struct _php_zmq_pollset {
 	php_zmq_pollitem *php_items;
@@ -66,10 +66,10 @@ typedef struct _php_zmq_pollset {
 	/* items and a count */
 	zmq_pollitem_t *items;
 	int num_items;
-	
+
 	/* How many allocated */
 	int alloc_size;
-	
+
 	/* Errors in the last poll */
 	zval *errors;
 } php_zmq_pollset;
@@ -80,21 +80,21 @@ typedef struct _php_zmq_pollset {
 typedef struct _php_zmq_context {
 	/* zmq context */
 	void *z_ctx;
-	
+
 	/* Amount of io-threads */
 	int io_threads;
-	
+
 	/* Is this a persistent context */
 	zend_bool is_persistent;
 
 	/* Who created me */
-    int pid;
+		int pid;
 } php_zmq_context;
 /* }}} */
 
 /* {{{ typedef struct _php_zmq_socket
 */
-typedef struct _php_zmq_socket  {
+typedef struct _php_zmq_socket	{
 	void *z_socket;
 	php_zmq_context *ctx;
 
@@ -104,51 +104,51 @@ typedef struct _php_zmq_socket  {
 	zend_bool is_persistent;
 
 	/* Who created me */
-    int pid;
+		int pid;
 } php_zmq_socket;
 /* }}} */
 
-/* {{{ typedef struct _php_zmq_context_object 
+/* {{{ typedef struct _php_zmq_context_object
 */
-typedef struct _php_zmq_context_object  {
+typedef struct _php_zmq_context_object	{
 	zend_object zo;
 	php_zmq_context *context;
 } php_zmq_context_object;
 /* }}} */
 
-/* {{{ typedef struct _php_zmq_socket_object 
+/* {{{ typedef struct _php_zmq_socket_object
 */
-typedef struct _php_zmq_socket_object  {
+typedef struct _php_zmq_socket_object	{
 	zend_object zo;
 	php_zmq_socket *socket;
-	
+
 	/* options for the context */
 	char *persistent_id;
-	
+
 	/* zval of the context */
 	zval *context_obj;
 } php_zmq_socket_object;
 /* }}} */
 
-/* {{{ typedef struct _php_zmq_poll_object 
+/* {{{ typedef struct _php_zmq_poll_object
 */
-typedef struct _php_zmq_poll_object  {
+typedef struct _php_zmq_poll_object	{
 	zend_object zo;
 	php_zmq_pollset set;
 } php_zmq_poll_object;
 /* }}} */
 
-/* {{{ typedef struct _php_zmq_device_object 
+/* {{{ typedef struct _php_zmq_device_object
 */
-typedef struct _php_zmq_device_object  {
+typedef struct _php_zmq_device_object	{
 	zend_object zo;
-	
+
 	zend_bool has_callback;
 	long timeout;
 	zend_fcall_info fci;
 	zend_fcall_info_cache fci_cache;
 	zval *user_data;
-	
+
 	zval *front;
 	zval *back;
 } php_zmq_device_object;
@@ -205,16 +205,16 @@ typedef struct _php_zmq_device_object  {
 #	define ZMQ_DONTWAIT ZMQ_NOBLOCK
 #endif
 #ifndef ZMQ_HWM
-#   define ZMQ_HWM (ZMQ_DONTWAIT + 200)
+#	 define ZMQ_HWM (ZMQ_DONTWAIT + 200)
 #endif
 #ifndef ZMQ_FORWARDER
-#   define ZMQ_FORWARDER 0
+#	 define ZMQ_FORWARDER 0
 #endif
 #ifndef ZMQ_QUEUE
-#   define ZMQ_QUEUE 0
+#	 define ZMQ_QUEUE 0
 #endif
 #ifndef ZMQ_STREAMER
-#   define ZMQ_STREAMER 0
+#	 define ZMQ_STREAMER 0
 #endif
 #if ZMQ_VERSION_MAJOR == 2
 #	define zmq_sendmsg zmq_send

@@ -9,35 +9,35 @@
  <partintro>
 
 <!-- {{{ ZMQContext intro -->
-  <section xml:id="zmqcontext.intro">
-   &reftitle.intro;
-   <para>
+	<section xml:id="zmqcontext.intro">
+	 &reftitle.intro;
+	 <para>
 
-   </para>
-  </section>
+	 </para>
+	</section>
 <!-- }}} -->
 
-  <section xml:id="zmqcontext.synopsis">
-   &reftitle.classsynopsis;
+	<section xml:id="zmqcontext.synopsis">
+	 &reftitle.classsynopsis;
 
 <!-- {{{ Synopsis -->
-   <classsynopsis>
-    <ooclass><classname>ZMQContext</classname></ooclass>
+	 <classsynopsis>
+		<ooclass><classname>ZMQContext</classname></ooclass>
 
 <!-- {{{ Class synopsis -->
-    <classsynopsisinfo>
-     <ooclass>
-      <classname>ZMQContext</classname>
-     </ooclass>
-    </classsynopsisinfo>
-<!-- }}} -->
-    
-    <classsynopsisinfo role="comment">Methods</classsynopsisinfo>
-    <xi:include xpointer="xmlns(db=http://docbook.org/ns/docbook) xpointer(id('class.zmqcontext')/db:refentry/db:refsect1[@role='description']/descendant::db:methodsynopsis[1])" />
-   </classsynopsis>
+		<classsynopsisinfo>
+		 <ooclass>
+			<classname>ZMQContext</classname>
+		 </ooclass>
+		</classsynopsisinfo>
 <!-- }}} -->
 
-  </section>
+		<classsynopsisinfo role="comment">Methods</classsynopsisinfo>
+		<xi:include xpointer="xmlns(db=http://docbook.org/ns/docbook) xpointer(id('class.zmqcontext')/db:refentry/db:refsect1[@role='description']/descendant::db:methodsynopsis[1])" />
+	 </classsynopsis>
+<!-- }}} -->
+
+	</section>
 
  </partintro>
 

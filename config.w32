@@ -3,7 +3,7 @@ ARG_WITH("zmq", "0MQ support", "no");
 if (PHP_ZMQ != "no") {
 
 	if (CHECK_HEADER_ADD_INCLUDE("zmq.h", "CFLAGS_ZMQ", PHP_PHP_BUILD + "\\include;" + PHP_ZMQ)
-        && CHECK_LIB("libzmq.lib", "zmq", PHP_PHP_BUILD + "\\lib;" + PHP_ZMQ))
+				&& CHECK_LIB("libzmq.lib", "zmq", PHP_PHP_BUILD + "\\lib;" + PHP_ZMQ))
 	{
 		ADD_FLAG("CFLAGS_ZMQ", "/D HAVE_ZMQ_GETSOCKOPT");
 		EXTENSION('zmq', 'zmq.c zmq_pollset.c zmq_device.c zmq_sockopt.c zmq_fd_stream.c');

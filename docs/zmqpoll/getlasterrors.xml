@@ -3,32 +3,32 @@
 
 <refentry xml:id="zmqpoll.getlasterrors" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
-  <refname>ZMQPoll::getLastErrors</refname>
-  <refpurpose>Get poll errors</refpurpose>
+	<refname>ZMQPoll::getLastErrors</refname>
+	<refpurpose>Get poll errors</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
-  &reftitle.description;
-  <methodsynopsis>
-   <modifier>public</modifier> <type>array</type><methodname>ZMQPoll::getLastErrors</methodname>
-   <void />
-  </methodsynopsis>
-  <para>
-   Returns the ids of the objects that had errors in the last poll.
-  </para>
+	&reftitle.description;
+	<methodsynopsis>
+	 <modifier>public</modifier> <type>array</type><methodname>ZMQPoll::getLastErrors</methodname>
+	 <void />
+	</methodsynopsis>
+	<para>
+	 Returns the ids of the objects that had errors in the last poll.
+	</para>
  </refsect1>
 
  <refsect1 role="parameters">
-  &reftitle.parameters;
-  &no.function.parameters;
+	&reftitle.parameters;
+	&no.function.parameters;
  </refsect1>
 
  <refsect1 role="returnvalues">
-  &reftitle.returnvalues;
-  <para>
-   Returns an array containing ids for the items that had errors in the last poll. Empty array is 
-   returned if there were no errors.
-  </para>
+	&reftitle.returnvalues;
+	<para>
+	 Returns an array containing ids for the items that had errors in the last poll. Empty array is
+	 returned if there were no errors.
+	</para>
  </refsect1>
 
 

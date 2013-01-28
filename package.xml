@@ -5,61 +5,61 @@
  <summary>0MQ for PHP</summary>
  <description>PHP extension for 0MQ messaging system. See http://github.com/mkoppanen/php-zmq</description>
  <lead>
-  <name>Mikko Koppanen</name>
-  <user>mkoppanen</user>
-  <email>mkoppanen@php.net</email>
-  <active>yes</active>
+	<name>Mikko Koppanen</name>
+	<user>mkoppanen</user>
+	<email>mkoppanen@php.net</email>
+	<active>yes</active>
  </lead>
  <date>2012-12-01</date>
  <time>17:00:00</time>
  <version>
-  <release>1.0.5</release>
-  <api>1.0.0</api>
+	<release>1.0.5</release>
+	<api>1.0.0</api>
  </version>
  <stability>
-  <release>beta</release>
-  <api>beta</api>
+	<release>beta</release>
+	<api>beta</api>
  </stability>
  <license>BSD License</license>
  <notes>
  - Fix build issues
  </notes>
  <contents>
-  <dir name="/">
-   <!-- Support files -->
-   <file name="config.m4" role="src" />
-   <file name="php-zmq.spec" role="src">
-    <tasks:replace from="@PACKAGE_VERSION@" to="version" type="package-info" />
-   </file>
-   
-   <!-- Headers -->
-   <file name="php_zmq.h" role="src">
-    <tasks:replace from="@PACKAGE_VERSION@" to="version" type="package-info" />
-   </file>
-   <file name="php_zmq_private.h" role="src" />
-   <file name="php_zmq_pollset.h" role="src" />
-   
-   <!-- Source files -->
-   <file name="zmq.c" role="src" />
-   <file name="zmq_device.c" role="src" />
-   <file name="zmq_fd_stream.c" role="src" />
-   <file name="zmq_pollset.c" role="src" />
-   <file name="zmq_sockopt.c" role="src" />
+	<dir name="/">
+	 <!-- Support files -->
+	 <file name="config.m4" role="src" />
+	 <file name="php-zmq.spec" role="src">
+		<tasks:replace from="@PACKAGE_VERSION@" to="version" type="package-info" />
+	 </file>
 
-   <!-- misc files -->
-   <file name="README" role="doc" />
-   <file name="LICENSE" role="doc" />
-  </dir>
+	 <!-- Headers -->
+	 <file name="php_zmq.h" role="src">
+		<tasks:replace from="@PACKAGE_VERSION@" to="version" type="package-info" />
+	 </file>
+	 <file name="php_zmq_private.h" role="src" />
+	 <file name="php_zmq_pollset.h" role="src" />
+
+	 <!-- Source files -->
+	 <file name="zmq.c" role="src" />
+	 <file name="zmq_device.c" role="src" />
+	 <file name="zmq_fd_stream.c" role="src" />
+	 <file name="zmq_pollset.c" role="src" />
+	 <file name="zmq_sockopt.c" role="src" />
+
+	 <!-- misc files -->
+	 <file name="README" role="doc" />
+	 <file name="LICENSE" role="doc" />
+	</dir>
  </contents>
  <dependencies>
-  <required>
-   <php>
-    <min>5.2.0</min>
-   </php>
-   <pearinstaller>
-    <min>1.4.0</min>
-   </pearinstaller>
-  </required>
+	<required>
+	 <php>
+		<min>5.2.0</min>
+	 </php>
+	 <pearinstaller>
+		<min>1.4.0</min>
+	 </pearinstaller>
+	</required>
  </dependencies>
  <providesextension>zmq</providesextension>
  <extsrcrelease />

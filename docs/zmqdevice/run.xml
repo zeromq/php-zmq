@@ -3,33 +3,33 @@
 
 <refentry xml:id="zmqdevice.run" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
-  <refname>ZMQDevice::run</refname>
-  <refpurpose>Run the new device</refpurpose>
+	<refname>ZMQDevice::run</refname>
+	<refpurpose>Run the new device</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
-  &reftitle.description;
-  <methodsynopsis>
-   <modifier>public</modifier> <type>void</type><methodname>ZMQDevice::run</methodname>
-   <void />
-  </methodsynopsis>
-  <para>
-   Runs the device.
-  </para>
+	&reftitle.description;
+	<methodsynopsis>
+	 <modifier>public</modifier> <type>void</type><methodname>ZMQDevice::run</methodname>
+	 <void />
+	</methodsynopsis>
+	<para>
+	 Runs the device.
+	</para>
  </refsect1>
 
  <refsect1 role="parameters">
-  &reftitle.parameters;
-  &no.function.parameters;
+	&reftitle.parameters;
+	&no.function.parameters;
  </refsect1>
 
  <refsect1 role="returnvalues">
-  &reftitle.returnvalues;
-  <para>
-   Call to this method will block until the device is running. It is not recommended
-   that devices are used from interactive scripts. On failure this method will throw
-   ZMQDeviceException.
-  </para>
+	&reftitle.returnvalues;
+	<para>
+	 Call to this method will block until the device is running. It is not recommended
+	 that devices are used from interactive scripts. On failure this method will throw
+	 ZMQDeviceException.
+	</para>
  </refsect1>
 
 

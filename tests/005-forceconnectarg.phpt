@@ -18,12 +18,12 @@ var_dump($socket->getEndpoints());
 
 --EXPECTF--
 array(2) {
-  ["connect"]=>
-  array(1) {
-    [0]=>
-    string(20) "tcp://127.0.0.1:5566"
-  }
-  ["bind"]=>
-  array(0) {
-  }
+	["connect"]=>
+	array(1) {
+		[0]=>
+		string(20) "tcp://127.0.0.1:5566"
+	}
+	["bind"]=>
+	array(0) {
+	}
 }

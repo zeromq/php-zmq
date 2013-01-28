@@ -24,19 +24,19 @@ var_dump($e == $server);
 
 --EXPECT--
 array(3) {
-  [0]=>
-  string(5) "Hello"
-  [1]=>
-  string(5) "World"
-  [2]=>
-  int(12314)
+	[0]=>
+	string(5) "Hello"
+	[1]=>
+	string(5) "World"
+	[2]=>
+	int(12314)
 }
 array(3) {
-  [0]=>
-  string(5) "Hello"
-  [1]=>
-  string(5) "World"
-  [2]=>
-  string(5) "12314"
+	[0]=>
+	string(5) "Hello"
+	[1]=>
+	string(5) "World"
+	[2]=>
+	string(5) "12314"
 }
 bool(true)

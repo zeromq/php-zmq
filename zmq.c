@@ -1,30 +1,30 @@
 /*
 +-----------------------------------------------------------------------------------+
-|  ZMQ extension for PHP                                                            |
-|  Copyright (c) 2010, Mikko Koppanen <mkoppanen@php.net>                           |
-|  All rights reserved.                                                             |
+|	ZMQ extension for PHP																														|
+|	Copyright (c) 2010, Mikko Koppanen <mkoppanen@php.net>													 |
+|	All rights reserved.																														 |
 +-----------------------------------------------------------------------------------+
-|  Redistribution and use in source and binary forms, with or without               |
-|  modification, are permitted provided that the following conditions are met:      |
-|     * Redistributions of source code must retain the above copyright              |
-|       notice, this list of conditions and the following disclaimer.               |
-|     * Redistributions in binary form must reproduce the above copyright           |
-|       notice, this list of conditions and the following disclaimer in the         |
-|       documentation and/or other materials provided with the distribution.        |
-|     * Neither the name of the copyright holder nor the                            |
-|       names of its contributors may be used to endorse or promote products        |
-|       derived from this software without specific prior written permission.       |
+|	Redistribution and use in source and binary forms, with or without							 |
+|	modification, are permitted provided that the following conditions are met:			|
+|		 * Redistributions of source code must retain the above copyright							|
+|			 notice, this list of conditions and the following disclaimer.							 |
+|		 * Redistributions in binary form must reproduce the above copyright					 |
+|			 notice, this list of conditions and the following disclaimer in the				 |
+|			 documentation and/or other materials provided with the distribution.				|
+|		 * Neither the name of the copyright holder nor the														|
+|			 names of its contributors may be used to endorse or promote products				|
+|			 derived from this software without specific prior written permission.			 |
 +-----------------------------------------------------------------------------------+
-|  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND  |
-|  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED    |
-|  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE           |
-|  DISCLAIMED. IN NO EVENT SHALL MIKKO KOPPANEN BE LIABLE FOR ANY                   |
-|  DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES       |
-|  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;     |
-|  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND      |
-|  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT       |
-|  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS    |
-|  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                     |
+|	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND	|
+|	ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED		|
+|	WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE					 |
+|	DISCLAIMED. IN NO EVENT SHALL MIKKO KOPPANEN BE LIABLE FOR ANY									 |
+|	DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES			 |
+|	(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;		 |
+|	LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND			|
+|	ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT			 |
+|	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS		|
+|	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.										 |
 +-----------------------------------------------------------------------------------+
 */
 
@@ -74,7 +74,7 @@ static int le_zmq_socket, le_zmq_context;
 
 /** {{{ static void php_zmq_get_lib_version(char buffer[PHP_ZMQ_VERSION_LEN])
 */
-static void php_zmq_get_lib_version(char buffer[PHP_ZMQ_VERSION_LEN]) 
+static void php_zmq_get_lib_version(char buffer[PHP_ZMQ_VERSION_LEN])
 {
 	int major = 0, minor = 0, patch = 0;
 	zmq_version(&major, &minor, &patch);
@@ -134,7 +134,7 @@ static php_zmq_context *php_zmq_context_new(long io_threads, zend_bool is_persis
 {
 	php_zmq_context *context;
 
-	context        = pecalloc(1, sizeof(php_zmq_context), is_persistent);
+	context				= pecalloc(1, sizeof(php_zmq_context), is_persistent);
 	context->z_ctx = zmq_init(io_threads);
 
 	if (!context->z_ctx) {
@@ -142,9 +142,9 @@ static php_zmq_context *php_zmq_context_new(long io_threads, zend_bool is_persis
 		return NULL;
 	}
 
-	context->io_threads    = io_threads;
+	context->io_threads		= io_threads;
 	context->is_persistent = is_persistent;
-	context->pid           = getpid();
+	context->pid					 = getpid();
 	return context;
 }
 /* }}} */
@@ -160,7 +160,7 @@ static php_zmq_context *php_zmq_context_get(long io_threads, zend_bool is_persis
 	zend_rsrc_list_entry le, *le_p = NULL;
 
 	if (is_persistent) {
-		plist_key_len  = snprintf(plist_key, 48, "zmq_context:[%d]", io_threads);
+		plist_key_len	= snprintf(plist_key, 48, "zmq_context:[%d]", io_threads);
 		plist_key_len += 1;
 
 		if (zend_hash_find(&EG(persistent_list), plist_key, plist_key_len, (void *)&le_p) == SUCCESS) {
@@ -178,7 +178,7 @@ static php_zmq_context *php_zmq_context_get(long io_threads, zend_bool is_persis
 
 	if (is_persistent) {
 		le.type = php_zmq_context_list_entry();
-		le.ptr  = context;
+		le.ptr	= context;
 
 		if (zend_hash_update(&EG(persistent_list), (char *)plist_key, plist_key_len, (void *)&le, sizeof(le), NULL) == FAILURE) {
 			php_error_docref(NULL TSRMLS_CC, E_ERROR, "Could not register persistent entry for the context");
@@ -206,7 +206,7 @@ PHP_METHOD(zmqcontext, __construct)
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|lb", &io_threads, &is_persistent) == FAILURE) {
 		return;
 	}
-	intern          = PHP_ZMQ_CONTEXT_OBJECT;
+	intern					= PHP_ZMQ_CONTEXT_OBJECT;
 	intern->context = php_zmq_context_get(io_threads, is_persistent TSRMLS_CC);
 
 	if (!intern->context) {
@@ -232,7 +232,7 @@ PHP_METHOD(zmqcontext, setOpt)
 	intern = PHP_ZMQ_CONTEXT_OBJECT;
 
 	switch (option) {
-		
+
 		case ZMQ_MAX_SOCKETS:
 		{
 			if (zmq_ctx_set(intern->context->z_ctx, option, value) != 0) {
@@ -241,7 +241,7 @@ PHP_METHOD(zmqcontext, setOpt)
 			}
 		}
 		break;
-		
+
 		default:
 		{
 			zend_throw_exception(php_zmq_context_exception_sc_entry_get (), "Unknown option key", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
@@ -266,14 +266,14 @@ PHP_METHOD(zmqcontext, getOpt)
 	intern = PHP_ZMQ_CONTEXT_OBJECT;
 
 	switch (option) {
-		
+
 		case ZMQ_MAX_SOCKETS:
 		{
 			int value = zmq_ctx_get(intern->context->z_ctx, option);
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		default:
 		{
 			zend_throw_exception(php_zmq_context_exception_sc_entry_get (), "Unknown option key", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
@@ -293,9 +293,9 @@ static php_zmq_socket *php_zmq_socket_new(php_zmq_context *context, int type, ze
 {
 	php_zmq_socket *zmq_sock;
 
-	zmq_sock           = pecalloc(1, sizeof(php_zmq_socket), is_persistent);
+	zmq_sock					 = pecalloc(1, sizeof(php_zmq_socket), is_persistent);
 	zmq_sock->z_socket = zmq_socket(context->z_ctx, type);
-	zmq_sock->pid      = getpid();
+	zmq_sock->pid			= getpid();
 
 	if (!zmq_sock->z_socket) {
 		pefree(zmq_sock, is_persistent);
@@ -305,7 +305,7 @@ static php_zmq_socket *php_zmq_socket_new(php_zmq_context *context, int type, ze
 	zmq_sock->is_persistent = is_persistent;
 
 	zend_hash_init(&(zmq_sock->connect), 0, NULL, NULL, is_persistent);
-	zend_hash_init(&(zmq_sock->bind),    0, NULL, NULL, is_persistent);
+	zend_hash_init(&(zmq_sock->bind),		0, NULL, NULL, is_persistent);
 	return zmq_sock;
 }
 /* }}} */
@@ -327,7 +327,7 @@ static void php_zmq_socket_store(php_zmq_socket *zmq_sock_p, int type, const cha
 	plist_key = php_zmq_socket_plist_key(type, persistent_id, &plist_key_len);
 
 	le.type = php_zmq_socket_list_entry();
-	le.ptr  = zmq_sock_p;
+	le.ptr	= zmq_sock_p;
 
 	if (zend_hash_update(&EG(persistent_list), plist_key, plist_key_len + 1, (void *)&le, sizeof(le), NULL) == FAILURE) {
 		php_error_docref(NULL TSRMLS_CC, E_ERROR, "Could not register persistent entry for the socket");
@@ -344,7 +344,7 @@ static php_zmq_socket *php_zmq_socket_get(php_zmq_context *context, int type, co
 	zend_bool is_persistent;
 
 	is_persistent = (context->is_persistent && persistent_id) ? 1 : 0;
-	*is_new        = 0;
+	*is_new				= 0;
 
 	if (is_persistent) {
 		char *plist_key = NULL;
@@ -388,14 +388,14 @@ static zend_bool php_zmq_connect_callback(zval *socket, zend_fcall_info *fci, ze
 		ZVAL_NULL(pid_z);
 	}
 
-	/* Call the cb */	
+	/* Call the cb */
 	params[0] = &socket;
 	params[1] = &pid_z;
 
-	fci->params         = params;
-	fci->param_count    = 2;
+	fci->params				 = params;
+	fci->param_count		= 2;
 	fci->retval_ptr_ptr = &retval_ptr;
-	fci->no_separation  = 1;
+	fci->no_separation	= 1;
 
 	if (zend_call_function(fci, fci_cache TSRMLS_CC) == FAILURE) {
 		if (!EG(exception)) {
@@ -456,7 +456,7 @@ PHP_METHOD(zmqcontext, getsocket)
 	}
 
 	object_init_ex(return_value, php_zmq_socket_sc_entry);
-	interns         = (php_zmq_socket_object *)zend_object_store_get_object(return_value TSRMLS_CC);
+	interns				 = (php_zmq_socket_object *)zend_object_store_get_object(return_value TSRMLS_CC);
 	interns->socket = socket;
 
 	/* Need to add refcount if context is not persistent */
@@ -466,7 +466,7 @@ PHP_METHOD(zmqcontext, getsocket)
 		Z_ADDREF_P(interns->context_obj);
 	}
 
-	if (is_new) {	
+	if (is_new) {
 		if (ZEND_NUM_ARGS() > 2) {
 			if (!php_zmq_connect_callback(return_value, &fci, &fci_cache, persistent_id TSRMLS_CC)) {
 				zval_dtor(return_value);
@@ -541,30 +541,30 @@ PHP_METHOD(zmqsocket, __construct)
 	}
 
 	internc = (php_zmq_context_object *) zend_object_store_get_object(obj TSRMLS_CC);
-	socket  = php_zmq_socket_get(internc->context, type, persistent_id, &is_new TSRMLS_CC);
+	socket	= php_zmq_socket_get(internc->context, type, persistent_id, &is_new TSRMLS_CC);
 
 	if (!socket) {
 		zend_throw_exception_ex(php_zmq_socket_exception_sc_entry, errno TSRMLS_CC, "Error creating socket: %s", zmq_strerror(errno));
 		return;
 	}
 
-	intern         = PHP_ZMQ_SOCKET_OBJECT;
+	intern				 = PHP_ZMQ_SOCKET_OBJECT;
 	intern->socket = socket;
 
 	/* Need to add refcount if context is not persistent */
 	if (!internc->context->is_persistent) {
-	    intern->context_obj = obj;
+			intern->context_obj = obj;
 		zend_objects_store_add_ref(intern->context_obj TSRMLS_CC);
-        Z_ADDREF_P(intern->context_obj);
+				Z_ADDREF_P(intern->context_obj);
 	}
 
-	if (is_new) {	
+	if (is_new) {
 		if (ZEND_NUM_ARGS() > 3) {
 			if (!php_zmq_connect_callback(getThis(), &fci, &fci_cache, persistent_id TSRMLS_CC)) {
 				php_zmq_socket_destroy(socket);
 				intern->socket = NULL;
 				return;
-			}	
+			}
 		}
 		if (socket->is_persistent) {
 			php_zmq_socket_store(socket, type, persistent_id TSRMLS_CC);
@@ -597,9 +597,9 @@ static zend_bool php_zmq_send(php_zmq_socket_object *intern, char *message_param
 	zmq_msg_close(&message);
 
 	if (rc == -1) {
-	    if (errno_ == EAGAIN) {
+			if (errno_ == EAGAIN) {
 			return 0;
-	    }
+			}
 		zend_throw_exception_ex(php_zmq_socket_exception_sc_entry, errno_ TSRMLS_CC, "Failed to send message: %s", zmq_strerror(errno_));
 		return 0;
 	}
@@ -646,14 +646,14 @@ static int php_zmq_send_cb(zval **ppzval, int num_args, va_list args, zend_hash_
 static int php_zmq_send_cb(zval **ppzval TSRMLS_DC, int num_args, va_list args, zend_hash_key *hash_key)
 {
 #endif
-    zval tmpcopy;
+		zval tmpcopy;
 	php_zmq_socket_object *intern;
 	int flags, *rc, *to_send;
 
-	intern  = va_arg(args, php_zmq_socket_object *);
-	flags   = va_arg(args, int);
+	intern	= va_arg(args, php_zmq_socket_object *);
+	flags	 = va_arg(args, int);
 	to_send = va_arg(args, int *);
-	rc      = va_arg(args, int *);
+	rc			= va_arg(args, int *);
 
 	if (--(*to_send)) {
 		flags = flags | ZMQ_SNDMORE;
@@ -777,7 +777,7 @@ PHP_METHOD(zmqsocket, recvmulti)
 	long flags = 0;
 	zend_bool retval;
 	zval *msg;
-#if ZMQ_VERSION_MAJOR < 3	
+#if ZMQ_VERSION_MAJOR < 3
 	int64_t value;
 #else
 	int value;
@@ -807,7 +807,7 @@ PHP_METHOD(zmqsocket, recvmulti)
 }
 /* }}} */
 
-/** {{{ string ZMQ::getPersistentId() 
+/** {{{ string ZMQ::getPersistentId()
 	Returns the persistent id of the object
 */
 PHP_METHOD(zmqsocket, getpersistentid)
@@ -1282,7 +1282,7 @@ PHP_METHOD(zmqdevice, __construct)
 	intern = PHP_ZMQ_DEVICE_OBJECT;
 
 	intern->front = f;
-	intern->back  = b;
+	intern->back	= b;
 
 	zend_objects_store_add_ref(f TSRMLS_CC);
 	zend_objects_store_add_ref(b TSRMLS_CC);
@@ -1368,10 +1368,10 @@ PHP_METHOD(zmqdevice, setidlecallback)
 	intern->user_data = user_data;
 	Z_ADDREF_P(user_data);
 
-	intern->fci                = empty_fcall_info;
-	intern->fci.size           = sizeof(zend_fcall_info);
+	intern->fci								= empty_fcall_info;
+	intern->fci.size					 = sizeof(zend_fcall_info);
 	intern->fci.function_table = EG(function_table);
-	intern->fci.param_count    = 0;
+	intern->fci.param_count		= 0;
 
 	MAKE_STD_ZVAL(intern->fci.function_name);
 	ZVAL_ZVAL(intern->fci.function_name, fci.function_name, 1, 0);
@@ -1585,12 +1585,12 @@ static zend_function_entry php_zmq_device_class_methods[] = {
 	PHP_ME(zmqdevice, run,				zmq_device_run_args,				ZEND_ACC_PUBLIC)
 	PHP_ME(zmqdevice, setidlecallback,	zmq_device_setidlecallback_args,	ZEND_ACC_PUBLIC)
 	PHP_ME(zmqdevice, setidletimeout,	zmq_device_setidletimeout_args,		ZEND_ACC_PUBLIC)
-	PHP_ME(zmqdevice, __clone,          zmq_device_clone_args,				ZEND_ACC_PRIVATE|ZEND_ACC_FINAL)
+	PHP_ME(zmqdevice, __clone,					zmq_device_clone_args,				ZEND_ACC_PRIVATE|ZEND_ACC_FINAL)
 	{NULL, NULL, NULL}
 };
 
 zend_function_entry zmq_functions[] = {
-	{NULL, NULL, NULL} 
+	{NULL, NULL, NULL}
 };
 
 static void php_zmq_context_object_free_storage(void *object TSRMLS_DC)
@@ -1705,7 +1705,7 @@ static zend_object_value php_zmq_context_object_new_ex(zend_class_entry *class_t
 	zend_object_std_init(&intern->zo, class_type TSRMLS_CC);
 	object_properties_init(&intern->zo, class_type);
 
-	retval.handle   = zend_objects_store_put(intern, NULL, (zend_objects_free_object_storage_t) php_zmq_context_object_free_storage, NULL TSRMLS_CC);
+	retval.handle	 = zend_objects_store_put(intern, NULL, (zend_objects_free_object_storage_t) php_zmq_context_object_free_storage, NULL TSRMLS_CC);
 	retval.handlers = (zend_object_handlers *) &zmq_context_object_handlers;
 	return retval;
 }
@@ -1720,9 +1720,9 @@ static zend_object_value php_zmq_socket_object_new_ex(zend_class_entry *class_ty
 	intern = (php_zmq_socket_object *) emalloc(sizeof(php_zmq_socket_object));
 	memset(&intern->zo, 0, sizeof(zend_object));
 
-	intern->socket        = NULL;
+	intern->socket				= NULL;
 	intern->persistent_id = NULL;
-	intern->context_obj   = NULL;
+	intern->context_obj	 = NULL;
 
 	if (ptr) {
 		*ptr = intern;
@@ -1731,7 +1731,7 @@ static zend_object_value php_zmq_socket_object_new_ex(zend_class_entry *class_ty
 	zend_object_std_init(&intern->zo, class_type TSRMLS_CC);
 	object_properties_init(&intern->zo, class_type);
 
-	retval.handle   = zend_objects_store_put(intern, NULL, (zend_objects_free_object_storage_t) php_zmq_socket_object_free_storage, NULL TSRMLS_CC);
+	retval.handle	 = zend_objects_store_put(intern, NULL, (zend_objects_free_object_storage_t) php_zmq_socket_object_free_storage, NULL TSRMLS_CC);
 	retval.handlers = (zend_object_handlers *) &zmq_socket_object_handlers;
 	return retval;
 }
@@ -1770,9 +1770,9 @@ static zend_object_value php_zmq_device_object_new_ex(zend_class_entry *class_ty
 	intern = (php_zmq_device_object *) emalloc(sizeof(php_zmq_device_object));
 	memset(&intern->zo, 0, sizeof(zend_object));
 
-	intern->timeout      = -1;
+	intern->timeout			= -1;
 	intern->has_callback = 0;
-	intern->user_data    = NULL;
+	intern->user_data		= NULL;
 
 	if (ptr) {
 		*ptr = intern;
@@ -1831,7 +1831,7 @@ PHP_MINIT_FUNCTION(zmq)
 	zend_class_entry ce_exception, ce_context_exception, ce_socket_exception, ce_poll_exception, ce_device_exception;
 
 	le_zmq_context = zend_register_list_destructors_ex(NULL, php_zmq_context_dtor, "ZMQ persistent context", module_number);
-	le_zmq_socket  = zend_register_list_destructors_ex(NULL, php_zmq_socket_dtor, "ZMQ persistent socket", module_number);
+	le_zmq_socket	= zend_register_list_destructors_ex(NULL, php_zmq_socket_dtor, "ZMQ persistent socket", module_number);
 
 	memcpy(&zmq_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
 	memcpy(&zmq_context_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));

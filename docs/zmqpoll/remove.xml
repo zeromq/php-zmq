@@ -3,44 +3,44 @@
 
 <refentry xml:id="zmqpoll.remove" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
-  <refname>ZMQPoll::remove</refname>
-  <refpurpose>Remove item from poll set</refpurpose>
+	<refname>ZMQPoll::remove</refname>
+	<refpurpose>Remove item from poll set</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
-  &reftitle.description;
-  <methodsynopsis>
-   <modifier>public</modifier> <type>boolean</type><methodname>ZMQPoll::remove</methodname>
-   <methodparam><type>mixed</type><parameter>item</parameter></methodparam>
-  </methodsynopsis>
-  <para>
-   Remove item from the poll set. The <parameter>item</parameter> parameter can be ZMQSocket object,
-   a stream resource or the id returned from <function>ZMQPoll::add</function> method.
-  </para>
+	&reftitle.description;
+	<methodsynopsis>
+	 <modifier>public</modifier> <type>boolean</type><methodname>ZMQPoll::remove</methodname>
+	 <methodparam><type>mixed</type><parameter>item</parameter></methodparam>
+	</methodsynopsis>
+	<para>
+	 Remove item from the poll set. The <parameter>item</parameter> parameter can be ZMQSocket object,
+	 a stream resource or the id returned from <function>ZMQPoll::add</function> method.
+	</para>
  </refsect1>
 
  <refsect1 role="parameters">
-  &reftitle.parameters;
-  <para>
-   <variablelist>
-    <varlistentry>
-     <term><parameter>item</parameter></term>
-     <listitem>
-      <para>
-       The ZMQSocket object, PHP stream or &string; id of the item.
-      </para>
-     </listitem>
-    </varlistentry>
-   </variablelist>
-  </para>
+	&reftitle.parameters;
+	<para>
+	 <variablelist>
+		<varlistentry>
+		 <term><parameter>item</parameter></term>
+		 <listitem>
+			<para>
+			 The ZMQSocket object, PHP stream or &string; id of the item.
+			</para>
+		 </listitem>
+		</varlistentry>
+	 </variablelist>
+	</para>
  </refsect1>
 
  <refsect1 role="returnvalues">
-  &reftitle.returnvalues;
-  <para>
-   Returns true if the item was removed and false if the object 
-   with given id does not exist in the poll set.
-  </para>
+	&reftitle.returnvalues;
+	<para>
+	 Returns true if the item was removed and false if the object
+	 with given id does not exist in the poll set.
+	</para>
  </refsect1>
 
 

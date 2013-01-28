@@ -1,8 +1,8 @@
 <?php
 
 /*
-    The client sends two messages using two different sockets
-    and then exits
+		The client sends two messages using two different sockets
+		and then exits
 */
 
 /* Create new queue object */

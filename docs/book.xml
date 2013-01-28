@@ -6,17 +6,17 @@
  <titleabbrev>0MQ messaging</titleabbrev>
 
  <preface xml:id="intro.zmq">
-  &reftitle.intro;
-  <para>
-   "ØMQ is a software library that lets you quickly design and implement a fast message-based application." --0MQ Website
-  </para>
-  <para>
-   For more information about 0MQ, see <link xlink:href="&url.zeromq;">&url.zeromq;</link>.
-  </para>
+	&reftitle.intro;
+	<para>
+	 "ØMQ is a software library that lets you quickly design and implement a fast message-based application." --0MQ Website
+	</para>
+	<para>
+	 For more information about 0MQ, see <link xlink:href="&url.zeromq;">&url.zeromq;</link>.
+	</para>
  </preface>
 
  &reference.zmq.setup;
- 
+
  &reference.zmq.zmq;
  &reference.zmq.zmqcontext;
  &reference.zmq.zmqsocket;

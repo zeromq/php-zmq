@@ -6,7 +6,7 @@ Test setSockOpt param type
 <?php
 
 $poll = new ZMQPoll();
-$ctx  = new ZMQContext();
+$ctx	= new ZMQContext();
 $sock = new ZMQSocket($ctx, ZMQ::SOCKET_REP);
 
 $test = "1";

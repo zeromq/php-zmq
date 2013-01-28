@@ -15,9 +15,9 @@ $s = create_server();
 $fp = fsockopen("tcp://localhost:5566");
 usleep(1000);
 
-$poll   = new ZMQPoll();
+$poll	 = new ZMQPoll();
 $obj_id = $poll->add($z, ZMQ::POLL_IN);
-$fp_id  = $poll->add($fp, ZMQ::POLL_IN | ZMQ::POLL_OUT);
+$fp_id	= $poll->add($fp, ZMQ::POLL_IN | ZMQ::POLL_OUT);
 
 var_dump($obj_id, $fp_id, $poll->count());
 
@@ -41,16 +41,16 @@ string(34) "o:%s"
 string(3) "r:%d"
 int(2)
 array(1) {
-  [0]=>
-  resource(%d) of type (stream)
+	[0]=>
+	resource(%d) of type (stream)
 }
 array(1) {
-  [0]=>
-  resource(%d) of type (stream)
+	[0]=>
+	resource(%d) of type (stream)
 }
 int(1)
 array(1) {
-  [0]=>
-  string(3) "r:%d"
+	[0]=>
+	string(3) "r:%d"
 }
 int(0)

@@ -3,31 +3,31 @@
 
 <refentry xml:id="zmqpoll.count" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
-  <refname>ZMQPoll::count</refname>
-  <refpurpose>Count items in the poll set</refpurpose>
+	<refname>ZMQPoll::count</refname>
+	<refpurpose>Count items in the poll set</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
-  &reftitle.description;
-  <methodsynopsis>
-   <modifier>public</modifier> <type>integer</type><methodname>ZMQPoll::count</methodname>
-   <void />
-  </methodsynopsis>
-  <para>
-   Count the items in the poll set.
-  </para>
+	&reftitle.description;
+	<methodsynopsis>
+	 <modifier>public</modifier> <type>integer</type><methodname>ZMQPoll::count</methodname>
+	 <void />
+	</methodsynopsis>
+	<para>
+	 Count the items in the poll set.
+	</para>
  </refsect1>
 
  <refsect1 role="parameters">
-  &reftitle.parameters;
-  &no.function.parameters;
+	&reftitle.parameters;
+	&no.function.parameters;
  </refsect1>
 
  <refsect1 role="returnvalues">
-  &reftitle.returnvalues;
-  <para>
-   Returns an &integer; representing the amount of items in the poll set.
-  </para>
+	&reftitle.returnvalues;
+	<para>
+	 Returns an &integer; representing the amount of items in the poll set.
+	</para>
  </refsect1>
 
 

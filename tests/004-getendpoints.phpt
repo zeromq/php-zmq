@@ -18,30 +18,30 @@ var_dump($socket->getEndpoints());
 
 --EXPECTF--
 array(2) {
-  ["connect"]=>
-  array(1) {
-    [0]=>
-    string(%d) "tcp://%d.%d.%d.%d:%d"
-  }
-  ["bind"]=>
-  array(0) {
-  }
+	["connect"]=>
+	array(1) {
+		[0]=>
+		string(%d) "tcp://%d.%d.%d.%d:%d"
+	}
+	["bind"]=>
+	array(0) {
+	}
 }
 array(2) {
-  ["connect"]=>
-  array(0) {
-  }
-  ["bind"]=>
-  array(1) {
-    [0]=>
-    string(%d) "tcp://%d.%d.%d.%d:%d"
-  }
+	["connect"]=>
+	array(0) {
+	}
+	["bind"]=>
+	array(1) {
+		[0]=>
+		string(%d) "tcp://%d.%d.%d.%d:%d"
+	}
 }
 array(2) {
-  ["connect"]=>
-  array(0) {
-  }
-  ["bind"]=>
-  array(0) {
-  }
+	["connect"]=>
+	array(0) {
+	}
+	["bind"]=>
+	array(0) {
+	}
 }

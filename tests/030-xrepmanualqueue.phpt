@@ -1,9 +1,9 @@
 --TEST--
 Test send / recv with a manually created XREQ and XREP device
 --SKIPIF--
-<?php 
-    require_once(dirname(__FILE__) . '/skipif.inc'); 
-    if(!defined('ZMQ::SOCKOPT_RCVLABEL')) die('skip');
+<?php
+		require_once(dirname(__FILE__) . '/skipif.inc');
+		if(!defined('ZMQ::SOCKOPT_RCVLABEL')) die('skip');
 ?>
 --FILE--
 <?php
@@ -51,8 +51,8 @@ var_dump($req->recvMulti());
 
 --EXPECT--
 array(2) {
-  [0]=>
-  string(2) "oh"
-  [1]=>
-  string(6) "hello!"
+	[0]=>
+	string(2) "oh"
+	[1]=>
+	string(6) "hello!"
 }

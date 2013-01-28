@@ -3,31 +3,31 @@
 
 <refentry xml:id="zmqsocket.getpersistentid" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
-  <refname>ZMQSocket::getPersistentId</refname>
-  <refpurpose>Get the persistent id</refpurpose>
+	<refname>ZMQSocket::getPersistentId</refname>
+	<refpurpose>Get the persistent id</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
-  &reftitle.description;
-  <methodsynopsis>
-   <modifier>public</modifier> <type>string</type><methodname>ZMQSocket::getPersistentId</methodname>
-   <void />
-  </methodsynopsis>
-  <para>
-   Returns the persistent id of the socket.
-  </para>
+	&reftitle.description;
+	<methodsynopsis>
+	 <modifier>public</modifier> <type>string</type><methodname>ZMQSocket::getPersistentId</methodname>
+	 <void />
+	</methodsynopsis>
+	<para>
+	 Returns the persistent id of the socket.
+	</para>
  </refsect1>
 
  <refsect1 role="parameters">
-  &reftitle.parameters;
-  &no.function.parameters;
+	&reftitle.parameters;
+	&no.function.parameters;
  </refsect1>
 
  <refsect1 role="returnvalues">
-  &reftitle.returnvalues;
-  <para>
-   Returns the persistent id string assigned of the object and &null; if socket is not persistent.
-  </para>
+	&reftitle.returnvalues;
+	<para>
+	 Returns the persistent id string assigned of the object and &null; if socket is not persistent.
+	</para>
  </refsect1>
 
 

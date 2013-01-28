@@ -1,8 +1,8 @@
 --TEST--
 Test for Github issue #59
 --SKIPIF--
-<?php 
-    require_once(dirname(__FILE__) . '/skipif.inc');
+<?php
+		require_once(dirname(__FILE__) . '/skipif.inc');
 
 	if (!extension_loaded ('pcntl'))
 		die("skip");
@@ -12,19 +12,19 @@ Test for Github issue #59
 
 function forkRepWorker()
 {
-    $pid = pcntl_fork();
-    if ($pid != 0) {
-        return $pid;
-    }
+		$pid = pcntl_fork();
+		if ($pid != 0) {
+				return $pid;
+		}
 
-    $context = new ZMQContext();
-    $rep = $context->getSocket(\ZMQ::SOCKET_REP);
-    $rep->connect('ipc://test2.ipc');
+		$context = new ZMQContext();
+		$rep = $context->getSocket(\ZMQ::SOCKET_REP);
+		$rep->connect('ipc://test2.ipc');
 
-    $msg = $rep->recv();
-    $rep->send($msg.'bar');
-    sleep(2);
-    exit;
+		$msg = $rep->recv();
+		$rep->send($msg.'bar');
+		sleep(2);
+		exit;
 }
 
 $context = new ZMQContext(1, false);
@@ -44,7 +44,7 @@ $msgs[] = $dealer->recvmulti();
 $msgs[] = $dealer->recvmulti();
 
 foreach ($pids as $pid) {
-    pcntl_waitpid($pid, $status, WUNTRACED);
+		pcntl_waitpid($pid, $status, WUNTRACED);
 }
 
 var_dump(count ($msgs));

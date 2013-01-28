@@ -3,53 +3,53 @@
 
 <refentry xml:id="zmqdevice.construct" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
-  <refname>ZMQDevice::__construct</refname>
-  <refpurpose>Construct a new device</refpurpose>
+	<refname>ZMQDevice::__construct</refname>
+	<refpurpose>Construct a new device</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
-  &reftitle.description;
-  <methodsynopsis>
-   <methodname>ZMQDevice::__construct</methodname>
-   <methodparam><type>ZMQSocket</type><parameter>frontend</parameter></methodparam>
-   <methodparam><type>ZMQSocket</type><parameter>backend</parameter></methodparam>
-  </methodsynopsis>
-  <para>
-   "ØMQ devices can do intermediation of addresses, services, queues, or any other abstraction you care to define above the message and socket layers." -- zguide
-  </para>
+	&reftitle.description;
+	<methodsynopsis>
+	 <methodname>ZMQDevice::__construct</methodname>
+	 <methodparam><type>ZMQSocket</type><parameter>frontend</parameter></methodparam>
+	 <methodparam><type>ZMQSocket</type><parameter>backend</parameter></methodparam>
+	</methodsynopsis>
+	<para>
+	 "ØMQ devices can do intermediation of addresses, services, queues, or any other abstraction you care to define above the message and socket layers." -- zguide
+	</para>
  </refsect1>
 
  <refsect1 role="parameters">
-  &reftitle.parameters;
-  <variablelist>
-   <varlistentry>
-    <term><parameter>frontend</parameter></term>
-    <listitem>
-     <para>
-      Frontend parameter for the devices. Usually where there messages
-      are coming.
-     </para>
-    </listitem>
-   </varlistentry>
-   <varlistentry>
-    <term><parameter>backend</parameter></term>
-    <listitem>
-     <para>
-       Backend parameter for the devices. Usually where there messages
-       going to.
-     </para>
-    </listitem>
-   </varlistentry>
-  </variablelist>
+	&reftitle.parameters;
+	<variablelist>
+	 <varlistentry>
+		<term><parameter>frontend</parameter></term>
+		<listitem>
+		 <para>
+			Frontend parameter for the devices. Usually where there messages
+			are coming.
+		 </para>
+		</listitem>
+	 </varlistentry>
+	 <varlistentry>
+		<term><parameter>backend</parameter></term>
+		<listitem>
+		 <para>
+			 Backend parameter for the devices. Usually where there messages
+			 going to.
+		 </para>
+		</listitem>
+	 </varlistentry>
+	</variablelist>
  </refsect1>
 
  <refsect1 role="returnvalues">
-  &reftitle.returnvalues;
-  <para>
-   Call to this method will prepare the device. Usually devices are very long
-   running processes so running this method from interactive script is not recommended. This
-   method throw ZMQDeviceException if the device cannot be started.
-  </para>
+	&reftitle.returnvalues;
+	<para>
+	 Call to this method will prepare the device. Usually devices are very long
+	 running processes so running this method from interactive script is not recommended. This
+	 method throw ZMQDeviceException if the device cannot be started.
+	</para>
  </refsect1>
 
 

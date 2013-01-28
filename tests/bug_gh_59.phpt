@@ -1,8 +1,8 @@
 --TEST--
 Test for Github issue #59
 --SKIPIF--
-<?php 
-    require_once(dirname(__FILE__) . '/skipif.inc');
+<?php
+		require_once(dirname(__FILE__) . '/skipif.inc');
 
 	if (!extension_loaded ('pcntl'))
 		die("skip");

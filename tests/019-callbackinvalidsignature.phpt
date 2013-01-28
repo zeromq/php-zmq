@@ -5,7 +5,7 @@ Test callback edge-cases
 --FILE--
 <?php
 
-function try_to_force_ref(&$a, $b) 
+function try_to_force_ref(&$a, $b)
 {
 	echo "CALLED\n";
 }

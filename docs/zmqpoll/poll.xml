@@ -3,77 +3,77 @@
 
 <refentry xml:id="zmqpoll.poll" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
-  <refname>ZMQPoll::poll</refname>
-  <refpurpose>Poll the items</refpurpose>
+	<refname>ZMQPoll::poll</refname>
+	<refpurpose>Poll the items</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
-  &reftitle.description;
-  <methodsynopsis>
-   <modifier>public</modifier> <type>integer</type><methodname>ZMQPoll::poll</methodname>
-   <methodparam><type>array</type><parameter role="reference">readable</parameter></methodparam>
-   <methodparam><type>array</type><parameter role="reference">writable</parameter></methodparam>
-   <methodparam choice="opt"><type>integer</type><parameter>timeout</parameter><initializer>-1</initializer></methodparam>
-  </methodsynopsis>
-  <para>
-   Polls the items in the current poll set. The readable and writable items are returned in the 
-   <parameter>readable</parameter> and <parameter>writable</parameter> parameters. 
-   <function>ZMQPoll::getLastErrors</function> can be used to check if there were errors.
-  </para>
+	&reftitle.description;
+	<methodsynopsis>
+	 <modifier>public</modifier> <type>integer</type><methodname>ZMQPoll::poll</methodname>
+	 <methodparam><type>array</type><parameter role="reference">readable</parameter></methodparam>
+	 <methodparam><type>array</type><parameter role="reference">writable</parameter></methodparam>
+	 <methodparam choice="opt"><type>integer</type><parameter>timeout</parameter><initializer>-1</initializer></methodparam>
+	</methodsynopsis>
+	<para>
+	 Polls the items in the current poll set. The readable and writable items are returned in the
+	 <parameter>readable</parameter> and <parameter>writable</parameter> parameters.
+	 <function>ZMQPoll::getLastErrors</function> can be used to check if there were errors.
+	</para>
  </refsect1>
 
  <refsect1 role="parameters">
-  &reftitle.parameters;
-  <para>
-   <variablelist>
-    <varlistentry>
-     <term><parameter>readable</parameter></term>
-     <listitem>
-      <para>
-       Array where readable ZMQSockets/PHP streams are returned. The array
-       will be cleared at the beginning of the operation.
-      </para>
-     </listitem>
-    </varlistentry>
-    <varlistentry>
-     <term><parameter>writable</parameter></term>
-     <listitem>
-      <para>
-       Array where writable ZMQSockets/PHP streams are returned. The array
-       will be cleared at the beginning of the operation.
-      </para>
-     </listitem>
-    </varlistentry>
-    <varlistentry>
-     <term><parameter>timeout</parameter></term>
-     <listitem>
-      <para>
-       Timeout for the operation. -1 means that poll waits until
-       at least one item has activity. Please note that starting from 
-       version 1.0.0 the poll timeout is defined in milliseconds, rather
-       than microseconds.
-      </para>
-     </listitem>
-    </varlistentry>
-   </variablelist>
-  </para>
+	&reftitle.parameters;
+	<para>
+	 <variablelist>
+		<varlistentry>
+		 <term><parameter>readable</parameter></term>
+		 <listitem>
+			<para>
+			 Array where readable ZMQSockets/PHP streams are returned. The array
+			 will be cleared at the beginning of the operation.
+			</para>
+		 </listitem>
+		</varlistentry>
+		<varlistentry>
+		 <term><parameter>writable</parameter></term>
+		 <listitem>
+			<para>
+			 Array where writable ZMQSockets/PHP streams are returned. The array
+			 will be cleared at the beginning of the operation.
+			</para>
+		 </listitem>
+		</varlistentry>
+		<varlistentry>
+		 <term><parameter>timeout</parameter></term>
+		 <listitem>
+			<para>
+			 Timeout for the operation. -1 means that poll waits until
+			 at least one item has activity. Please note that starting from
+			 version 1.0.0 the poll timeout is defined in milliseconds, rather
+			 than microseconds.
+			</para>
+		 </listitem>
+		</varlistentry>
+	 </variablelist>
+	</para>
  </refsect1>
- 
+
  <refsect1 role="examples">
  &reftitle.examples;
-  <para>
-   <example>
-    <title>A <function>ZMQPoll</function> example</title>
-    <para>
-     Create a simple poll server
-    </para>
-    <programlisting role="php">
+	<para>
+	 <example>
+		<title>A <function>ZMQPoll</function> example</title>
+		<para>
+		 Create a simple poll server
+		</para>
+		<programlisting role="php">
 <![CDATA[
 <?php
 
 /* Create socket, request-reply pattern (reply socket) */
 $context = new ZMQContext();
-$server  = $context->getSocket(ZMQ::SOCKET_REP);
+$server	= $context->getSocket(ZMQ::SOCKET_REP);
 
 /* Bind to port 5555 on 127.0.0.1 */
 $server->bind("tcp://127.0.0.1:5555");
@@ -90,55 +90,55 @@ $readable = array();
 $writable = array();
 
 while (true) {
-   /* Amount of events retrieved */
-   $events = 0;
+	 /* Amount of events retrieved */
+	 $events = 0;
 
-   try {
-       /* Poll until there is something to do */
-       $events = $poll->poll($readable, $writable, -1);
-       $errors = $poll->getLastErrors();
+	 try {
+			 /* Poll until there is something to do */
+			 $events = $poll->poll($readable, $writable, -1);
+			 $errors = $poll->getLastErrors();
 
-       if (count($errors) > 0) {
-           foreach ($errors as $error) {
-               echo "Error polling object " . $error . "\n";
-           }
-       }
-   } catch (ZMQPollException $e) {
-       echo "poll failed: " . $e->getMessage() . "\n";
-   }
+			 if (count($errors) > 0) {
+					 foreach ($errors as $error) {
+							 echo "Error polling object " . $error . "\n";
+					 }
+			 }
+	 } catch (ZMQPollException $e) {
+			 echo "poll failed: " . $e->getMessage() . "\n";
+	 }
 
-   if ($events > 0) {
-       /* Loop through readable objects and recv messages */
-       foreach ($readable as $r) {
-           try {
-               echo "Received message: " . $r->recv() . "\n";
-           } catch (ZMQException $e) {
-               echo "recv failed: " . $e->getMessage() . "\n";
-           }
-       }
+	 if ($events > 0) {
+			 /* Loop through readable objects and recv messages */
+			 foreach ($readable as $r) {
+					 try {
+							 echo "Received message: " . $r->recv() . "\n";
+					 } catch (ZMQException $e) {
+							 echo "recv failed: " . $e->getMessage() . "\n";
+					 }
+			 }
 
-       /* Loop through writable and send back messages */
-       foreach ($writable as $w) {
-           try {
-               $w->send("Got it!");
-           } catch (ZMQException $e) {
-               echo "send failed: " . $e->getMessage() . "\n";
-           }
-       }
-   }
+			 /* Loop through writable and send back messages */
+			 foreach ($writable as $w) {
+					 try {
+							 $w->send("Got it!");
+					 } catch (ZMQException $e) {
+							 echo "send failed: " . $e->getMessage() . "\n";
+					 }
+			 }
+	 }
 }
 ?>
 ]]>
-    </programlisting>
-   </example>
-  </para>
- </refsect1> 
+		</programlisting>
+	 </example>
+	</para>
+ </refsect1>
 
  <refsect1 role="returnvalues">
-  &reftitle.returnvalues;
-  <para>
-   Returns an integer representing amount of items with activity. Throws ZMQPollException on error.
-  </para>
+	&reftitle.returnvalues;
+	<para>
+	 Returns an integer representing amount of items with activity. Throws ZMQPollException on error.
+	</para>
  </refsect1>
 
 

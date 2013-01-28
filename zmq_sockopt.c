@@ -1,37 +1,36 @@
-
 /*
 +-----------------------------------------------------------------------------------+
-|  ZMQ extension for PHP                                                            |
-|  Copyright (c) 2010, Mikko Koppanen <mkoppanen@php.net>                           |
-|  All rights reserved.                                                             |
+|	ZMQ extension for PHP																														|
+|	Copyright (c) 2010, Mikko Koppanen <mkoppanen@php.net>													 |
+|	All rights reserved.																														 |
 +-----------------------------------------------------------------------------------+
-|  Redistribution and use in source and binary forms, with or without               |
-|  modification, are permitted provided that the following conditions are met:      |
-|     * Redistributions of source code must retain the above copyright              |
-|       notice, this list of conditions and the following disclaimer.               |
-|     * Redistributions in binary form must reproduce the above copyright           |
-|       notice, this list of conditions and the following disclaimer in the         |
-|       documentation and/or other materials provided with the distribution.        |
-|     * Neither the name of the copyright holder nor the                            |
-|       names of its contributors may be used to endorse or promote products        |
-|       derived from this software without specific prior written permission.       |
+|	Redistribution and use in source and binary forms, with or without							 |
+|	modification, are permitted provided that the following conditions are met:			|
+|		 * Redistributions of source code must retain the above copyright							|
+|			 notice, this list of conditions and the following disclaimer.							 |
+|		 * Redistributions in binary form must reproduce the above copyright					 |
+|			 notice, this list of conditions and the following disclaimer in the				 |
+|			 documentation and/or other materials provided with the distribution.				|
+|		 * Neither the name of the copyright holder nor the														|
+|			 names of its contributors may be used to endorse or promote products				|
+|			 derived from this software without specific prior written permission.			 |
 +-----------------------------------------------------------------------------------+
-|  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND  |
-|  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED    |
-|  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE           |
-|  DISCLAIMED. IN NO EVENT SHALL MIKKO KOPPANEN BE LIABLE FOR ANY                   |
-|  DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES       |
-|  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;     |
-|  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND      |
-|  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT       |
-|  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS    |
-|  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                     |
+|	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND	|
+|	ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED		|
+|	WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE					 |
+|	DISCLAIMED. IN NO EVENT SHALL MIKKO KOPPANEN BE LIABLE FOR ANY									 |
+|	DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES			 |
+|	(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;		 |
+|	LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND			|
+|	ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT			 |
+|	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS		|
+|	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.										 |
 +-----------------------------------------------------------------------------------+
 */
 
 #include "php_zmq.h"
-#include "php_zmq_private.h"		
-	
+#include "php_zmq_private.h"
+
 #if ZMQ_VERSION_MAJOR == 2 && ZMQ_VERSION_MINOR < 2
 
 /* {{{ proto mixed ZMQSocket::getSockOpt()
@@ -56,7 +55,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 
 	switch (key) {
 
-		
+
 		case ZMQ_HWM:
 		{
 			uint64_t value;
@@ -69,7 +68,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_SWAP:
 		{
 			int64_t value;
@@ -82,7 +81,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_AFFINITY:
 		{
 			uint64_t value;
@@ -95,7 +94,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_RATE:
 		{
 			int64_t value;
@@ -108,7 +107,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_RECOVERY_IVL:
 		{
 			int64_t value;
@@ -121,7 +120,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_RECOVERY_IVL_MSEC:
 		{
 			int64_t value;
@@ -134,7 +133,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_MCAST_LOOP:
 		{
 			int64_t value;
@@ -147,7 +146,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_SNDBUF:
 		{
 			uint64_t value;
@@ -160,7 +159,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_RCVBUF:
 		{
 			uint64_t value;
@@ -173,7 +172,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_LINGER:
 		{
 			int value;
@@ -186,7 +185,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_RECONNECT_IVL:
 		{
 			int value;
@@ -199,7 +198,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_RECONNECT_IVL_MAX:
 		{
 			int value;
@@ -212,7 +211,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_BACKLOG:
 		{
 			int value;
@@ -225,21 +224,21 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-	
+
 		case ZMQ_SUBSCRIBE:
 		{
 			zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Getting ZMQ::SOCKOPT_SUBSCRIBE is not supported", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
 			return;
 		}
 		break;
-	
+
 		case ZMQ_UNSUBSCRIBE:
 		{
 			zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Getting ZMQ::SOCKOPT_UNSUBSCRIBE is not supported", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
 			return;
 		}
 		break;
-		
+
 		case ZMQ_TYPE:
 		{
 			int value;
@@ -252,7 +251,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_RCVMORE:
 		{
 			int64_t value;
@@ -265,7 +264,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_EVENTS:
 		{
 			uint32_t value;
@@ -278,8 +277,8 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-	
-		
+
+
 		case ZMQ_FD:
 		{
 			php_stream *stm = php_zmq_create_zmq_fd(getThis() TSRMLS_CC);
@@ -312,7 +311,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 	}
 }
 
-	
+
 
 /* {{{ proto ZMQSocket ZMQSocket::setSockOpt(integer $SOCKOPT, mixed $value)
 	Set a socket option
@@ -337,16 +336,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 
 	switch (key) {
 
-	
+
 
 		case ZMQ_HWM:
 		{
 			uint64_t value;
 			convert_to_long(pz_value);
-			
-			value  = (uint64_t) Z_LVAL_P(pz_value);
+
+			value	= (uint64_t) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(uint64_t));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_HWM option: %s", zmq_strerror(errno));
 				return;
@@ -354,16 +353,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_SWAP:
 		{
 			int64_t value;
 			convert_to_long(pz_value);
-			
-			value  = (int64_t) Z_LVAL_P(pz_value);
+
+			value	= (int64_t) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int64_t));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_SWAP option: %s", zmq_strerror(errno));
 				return;
@@ -371,16 +370,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_AFFINITY:
 		{
 			uint64_t value;
 			convert_to_long(pz_value);
-			
-			value  = (uint64_t) Z_LVAL_P(pz_value);
+
+			value	= (uint64_t) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(uint64_t));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_AFFINITY option: %s", zmq_strerror(errno));
 				return;
@@ -388,7 +387,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_IDENTITY:
 		{
@@ -400,18 +399,18 @@ PHP_METHOD(zmqsocket, setsockopt)
 				return;
 			}
 		}
-		break;		
+		break;
 
-	
+
 
 		case ZMQ_RATE:
 		{
 			int64_t value;
 			convert_to_long(pz_value);
-			
-			value  = (int64_t) Z_LVAL_P(pz_value);
+
+			value	= (int64_t) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int64_t));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_RATE option: %s", zmq_strerror(errno));
 				return;
@@ -419,16 +418,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_RECOVERY_IVL:
 		{
 			int64_t value;
 			convert_to_long(pz_value);
-			
-			value  = (int64_t) Z_LVAL_P(pz_value);
+
+			value	= (int64_t) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int64_t));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_RECOVERY_IVL option: %s", zmq_strerror(errno));
 				return;
@@ -436,16 +435,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_RECOVERY_IVL_MSEC:
 		{
 			int64_t value;
 			convert_to_long(pz_value);
-			
-			value  = (int64_t) Z_LVAL_P(pz_value);
+
+			value	= (int64_t) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int64_t));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_RECOVERY_IVL_MSEC option: %s", zmq_strerror(errno));
 				return;
@@ -453,16 +452,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_MCAST_LOOP:
 		{
 			int64_t value;
 			convert_to_long(pz_value);
-			
-			value  = (int64_t) Z_LVAL_P(pz_value);
+
+			value	= (int64_t) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int64_t));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_MCAST_LOOP option: %s", zmq_strerror(errno));
 				return;
@@ -470,16 +469,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_SNDBUF:
 		{
 			uint64_t value;
 			convert_to_long(pz_value);
-			
-			value  = (uint64_t) Z_LVAL_P(pz_value);
+
+			value	= (uint64_t) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(uint64_t));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_SNDBUF option: %s", zmq_strerror(errno));
 				return;
@@ -487,16 +486,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_RCVBUF:
 		{
 			uint64_t value;
 			convert_to_long(pz_value);
-			
-			value  = (uint64_t) Z_LVAL_P(pz_value);
+
+			value	= (uint64_t) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(uint64_t));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_RCVBUF option: %s", zmq_strerror(errno));
 				return;
@@ -504,16 +503,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_LINGER:
 		{
 			int value;
 			convert_to_long(pz_value);
-			
-			value  = (int) Z_LVAL_P(pz_value);
+
+			value	= (int) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_LINGER option: %s", zmq_strerror(errno));
 				return;
@@ -521,16 +520,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_RECONNECT_IVL:
 		{
 			int value;
 			convert_to_long(pz_value);
-			
-			value  = (int) Z_LVAL_P(pz_value);
+
+			value	= (int) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_RECONNECT_IVL option: %s", zmq_strerror(errno));
 				return;
@@ -538,16 +537,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_RECONNECT_IVL_MAX:
 		{
 			int value;
 			convert_to_long(pz_value);
-			
-			value  = (int) Z_LVAL_P(pz_value);
+
+			value	= (int) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_RECONNECT_IVL_MAX option: %s", zmq_strerror(errno));
 				return;
@@ -555,16 +554,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_BACKLOG:
 		{
 			int value;
 			convert_to_long(pz_value);
-			
-			value  = (int) Z_LVAL_P(pz_value);
+
+			value	= (int) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_BACKLOG option: %s", zmq_strerror(errno));
 				return;
@@ -572,7 +571,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_SUBSCRIBE:
 		{
@@ -584,9 +583,9 @@ PHP_METHOD(zmqsocket, setsockopt)
 				return;
 			}
 		}
-		break;		
+		break;
 
-	
+
 
 		case ZMQ_UNSUBSCRIBE:
 		{
@@ -598,23 +597,23 @@ PHP_METHOD(zmqsocket, setsockopt)
 				return;
 			}
 		}
-		break;		
+		break;
 
-	
+
 		case ZMQ_TYPE:
 		{
 			zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Setting ZMQ::SOCKOPT_TYPE is not supported", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
 			return;
 		}
 		break;
-	
+
 		case ZMQ_RCVMORE:
 		{
 			zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Setting ZMQ::SOCKOPT_RCVMORE is not supported", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
 			return;
 		}
 		break;
-	
+
 
 		default:
 		{
@@ -626,56 +625,56 @@ PHP_METHOD(zmqsocket, setsockopt)
 	ZMQ_RETURN_THIS;
 }
 
-	
+
 
 void php_zmq_register_sockopt_constants (zend_class_entry *php_zmq_sc_entry TSRMLS_DC)
 {
 #define PHP_ZMQ_REGISTER_SOCKOPT(const_name, value) \
 	zend_declare_class_constant_long(php_zmq_sc_entry, const_name, sizeof(const_name)-1, (long)value TSRMLS_CC);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_HWM", ZMQ_HWM);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_SWAP", ZMQ_SWAP);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_AFFINITY", ZMQ_AFFINITY);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_IDENTITY", ZMQ_IDENTITY);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RATE", ZMQ_RATE);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RECOVERY_IVL", ZMQ_RECOVERY_IVL);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RECOVERY_IVL_MSEC", ZMQ_RECOVERY_IVL_MSEC);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_MCAST_LOOP", ZMQ_MCAST_LOOP);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_SNDBUF", ZMQ_SNDBUF);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RCVBUF", ZMQ_RCVBUF);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_LINGER", ZMQ_LINGER);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RECONNECT_IVL", ZMQ_RECONNECT_IVL);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RECONNECT_IVL_MAX", ZMQ_RECONNECT_IVL_MAX);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_BACKLOG", ZMQ_BACKLOG);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_SUBSCRIBE", ZMQ_SUBSCRIBE);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_UNSUBSCRIBE", ZMQ_UNSUBSCRIBE);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_TYPE", ZMQ_TYPE);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RCVMORE", ZMQ_RCVMORE);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_FD", ZMQ_FD);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_EVENTS", ZMQ_EVENTS);
-			
+
 #undef PHP_ZMQ_REGISTER_SOCKOPT
 }
-			
+
 #endif
 
 #if ZMQ_VERSION_MAJOR == 2 && ZMQ_VERSION_MINOR >= 2
@@ -702,7 +701,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 
 	switch (key) {
 
-		
+
 		case ZMQ_HWM:
 		{
 			uint64_t value;
@@ -715,7 +714,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_SWAP:
 		{
 			int64_t value;
@@ -728,7 +727,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_AFFINITY:
 		{
 			uint64_t value;
@@ -741,7 +740,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_RATE:
 		{
 			int64_t value;
@@ -754,7 +753,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_RECOVERY_IVL:
 		{
 			int64_t value;
@@ -767,7 +766,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_RECOVERY_IVL_MSEC:
 		{
 			int64_t value;
@@ -780,7 +779,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_MCAST_LOOP:
 		{
 			int64_t value;
@@ -793,7 +792,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_SNDBUF:
 		{
 			uint64_t value;
@@ -806,7 +805,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_RCVBUF:
 		{
 			uint64_t value;
@@ -819,7 +818,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_LINGER:
 		{
 			int value;
@@ -832,7 +831,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_RECONNECT_IVL:
 		{
 			int value;
@@ -845,7 +844,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_RECONNECT_IVL_MAX:
 		{
 			int value;
@@ -858,7 +857,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_BACKLOG:
 		{
 			int value;
@@ -871,21 +870,21 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-	
+
 		case ZMQ_SUBSCRIBE:
 		{
 			zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Getting ZMQ::SOCKOPT_SUBSCRIBE is not supported", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
 			return;
 		}
 		break;
-	
+
 		case ZMQ_UNSUBSCRIBE:
 		{
 			zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Getting ZMQ::SOCKOPT_UNSUBSCRIBE is not supported", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
 			return;
 		}
 		break;
-		
+
 		case ZMQ_TYPE:
 		{
 			int value;
@@ -898,7 +897,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_RCVMORE:
 		{
 			int64_t value;
@@ -911,7 +910,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_EVENTS:
 		{
 			uint32_t value;
@@ -924,7 +923,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_SNDTIMEO:
 		{
 			int value;
@@ -937,7 +936,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_RCVTIMEO:
 		{
 			int value;
@@ -950,8 +949,8 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-	
-		
+
+
 		case ZMQ_FD:
 		{
 			php_stream *stm = php_zmq_create_zmq_fd(getThis() TSRMLS_CC);
@@ -984,7 +983,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 	}
 }
 
-	
+
 
 /* {{{ proto ZMQSocket ZMQSocket::setSockOpt(integer $SOCKOPT, mixed $value)
 	Set a socket option
@@ -1009,16 +1008,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 
 	switch (key) {
 
-	
+
 
 		case ZMQ_HWM:
 		{
 			uint64_t value;
 			convert_to_long(pz_value);
-			
-			value  = (uint64_t) Z_LVAL_P(pz_value);
+
+			value	= (uint64_t) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(uint64_t));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_HWM option: %s", zmq_strerror(errno));
 				return;
@@ -1026,16 +1025,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_SWAP:
 		{
 			int64_t value;
 			convert_to_long(pz_value);
-			
-			value  = (int64_t) Z_LVAL_P(pz_value);
+
+			value	= (int64_t) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int64_t));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_SWAP option: %s", zmq_strerror(errno));
 				return;
@@ -1043,16 +1042,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_AFFINITY:
 		{
 			uint64_t value;
 			convert_to_long(pz_value);
-			
-			value  = (uint64_t) Z_LVAL_P(pz_value);
+
+			value	= (uint64_t) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(uint64_t));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_AFFINITY option: %s", zmq_strerror(errno));
 				return;
@@ -1060,7 +1059,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_IDENTITY:
 		{
@@ -1072,18 +1071,18 @@ PHP_METHOD(zmqsocket, setsockopt)
 				return;
 			}
 		}
-		break;		
+		break;
 
-	
+
 
 		case ZMQ_RATE:
 		{
 			int64_t value;
 			convert_to_long(pz_value);
-			
-			value  = (int64_t) Z_LVAL_P(pz_value);
+
+			value	= (int64_t) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int64_t));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_RATE option: %s", zmq_strerror(errno));
 				return;
@@ -1091,16 +1090,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_RECOVERY_IVL:
 		{
 			int64_t value;
 			convert_to_long(pz_value);
-			
-			value  = (int64_t) Z_LVAL_P(pz_value);
+
+			value	= (int64_t) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int64_t));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_RECOVERY_IVL option: %s", zmq_strerror(errno));
 				return;
@@ -1108,16 +1107,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_RECOVERY_IVL_MSEC:
 		{
 			int64_t value;
 			convert_to_long(pz_value);
-			
-			value  = (int64_t) Z_LVAL_P(pz_value);
+
+			value	= (int64_t) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int64_t));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_RECOVERY_IVL_MSEC option: %s", zmq_strerror(errno));
 				return;
@@ -1125,16 +1124,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_MCAST_LOOP:
 		{
 			int64_t value;
 			convert_to_long(pz_value);
-			
-			value  = (int64_t) Z_LVAL_P(pz_value);
+
+			value	= (int64_t) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int64_t));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_MCAST_LOOP option: %s", zmq_strerror(errno));
 				return;
@@ -1142,16 +1141,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_SNDBUF:
 		{
 			uint64_t value;
 			convert_to_long(pz_value);
-			
-			value  = (uint64_t) Z_LVAL_P(pz_value);
+
+			value	= (uint64_t) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(uint64_t));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_SNDBUF option: %s", zmq_strerror(errno));
 				return;
@@ -1159,16 +1158,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_RCVBUF:
 		{
 			uint64_t value;
 			convert_to_long(pz_value);
-			
-			value  = (uint64_t) Z_LVAL_P(pz_value);
+
+			value	= (uint64_t) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(uint64_t));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_RCVBUF option: %s", zmq_strerror(errno));
 				return;
@@ -1176,16 +1175,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_LINGER:
 		{
 			int value;
 			convert_to_long(pz_value);
-			
-			value  = (int) Z_LVAL_P(pz_value);
+
+			value	= (int) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_LINGER option: %s", zmq_strerror(errno));
 				return;
@@ -1193,16 +1192,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_RECONNECT_IVL:
 		{
 			int value;
 			convert_to_long(pz_value);
-			
-			value  = (int) Z_LVAL_P(pz_value);
+
+			value	= (int) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_RECONNECT_IVL option: %s", zmq_strerror(errno));
 				return;
@@ -1210,16 +1209,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_RECONNECT_IVL_MAX:
 		{
 			int value;
 			convert_to_long(pz_value);
-			
-			value  = (int) Z_LVAL_P(pz_value);
+
+			value	= (int) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_RECONNECT_IVL_MAX option: %s", zmq_strerror(errno));
 				return;
@@ -1227,16 +1226,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_BACKLOG:
 		{
 			int value;
 			convert_to_long(pz_value);
-			
-			value  = (int) Z_LVAL_P(pz_value);
+
+			value	= (int) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_BACKLOG option: %s", zmq_strerror(errno));
 				return;
@@ -1244,7 +1243,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_SUBSCRIBE:
 		{
@@ -1256,9 +1255,9 @@ PHP_METHOD(zmqsocket, setsockopt)
 				return;
 			}
 		}
-		break;		
+		break;
 
-	
+
 
 		case ZMQ_UNSUBSCRIBE:
 		{
@@ -1270,32 +1269,32 @@ PHP_METHOD(zmqsocket, setsockopt)
 				return;
 			}
 		}
-		break;		
+		break;
 
-	
+
 		case ZMQ_TYPE:
 		{
 			zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Setting ZMQ::SOCKOPT_TYPE is not supported", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
 			return;
 		}
 		break;
-	
+
 		case ZMQ_RCVMORE:
 		{
 			zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Setting ZMQ::SOCKOPT_RCVMORE is not supported", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
 			return;
 		}
 		break;
-	
+
 
 		case ZMQ_SNDTIMEO:
 		{
 			int value;
 			convert_to_long(pz_value);
-			
-			value  = (int) Z_LVAL_P(pz_value);
+
+			value	= (int) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_SNDTIMEO option: %s", zmq_strerror(errno));
 				return;
@@ -1303,16 +1302,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_RCVTIMEO:
 		{
 			int value;
 			convert_to_long(pz_value);
-			
-			value  = (int) Z_LVAL_P(pz_value);
+
+			value	= (int) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_RCVTIMEO option: %s", zmq_strerror(errno));
 				return;
@@ -1320,7 +1319,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		default:
 		{
@@ -1332,60 +1331,60 @@ PHP_METHOD(zmqsocket, setsockopt)
 	ZMQ_RETURN_THIS;
 }
 
-	
+
 
 void php_zmq_register_sockopt_constants (zend_class_entry *php_zmq_sc_entry TSRMLS_DC)
 {
 #define PHP_ZMQ_REGISTER_SOCKOPT(const_name, value) \
 	zend_declare_class_constant_long(php_zmq_sc_entry, const_name, sizeof(const_name)-1, (long)value TSRMLS_CC);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_HWM", ZMQ_HWM);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_SWAP", ZMQ_SWAP);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_AFFINITY", ZMQ_AFFINITY);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_IDENTITY", ZMQ_IDENTITY);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RATE", ZMQ_RATE);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RECOVERY_IVL", ZMQ_RECOVERY_IVL);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RECOVERY_IVL_MSEC", ZMQ_RECOVERY_IVL_MSEC);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_MCAST_LOOP", ZMQ_MCAST_LOOP);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_SNDBUF", ZMQ_SNDBUF);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RCVBUF", ZMQ_RCVBUF);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_LINGER", ZMQ_LINGER);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RECONNECT_IVL", ZMQ_RECONNECT_IVL);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RECONNECT_IVL_MAX", ZMQ_RECONNECT_IVL_MAX);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_BACKLOG", ZMQ_BACKLOG);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_SUBSCRIBE", ZMQ_SUBSCRIBE);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_UNSUBSCRIBE", ZMQ_UNSUBSCRIBE);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_TYPE", ZMQ_TYPE);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RCVMORE", ZMQ_RCVMORE);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_FD", ZMQ_FD);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_EVENTS", ZMQ_EVENTS);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_SNDTIMEO", ZMQ_SNDTIMEO);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RCVTIMEO", ZMQ_RCVTIMEO);
-			
+
 #undef PHP_ZMQ_REGISTER_SOCKOPT
 }
-			
+
 #endif
 
 #if ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR == 0
@@ -1412,7 +1411,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 
 	switch (key) {
 
-		
+
 		case ZMQ_SNDHWM:
 		{
 			int value;
@@ -1425,7 +1424,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_RCVHWM:
 		{
 			int value;
@@ -1438,7 +1437,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_AFFINITY:
 		{
 			uint64_t value;
@@ -1451,7 +1450,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_RATE:
 		{
 			int value;
@@ -1464,7 +1463,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_RECOVERY_IVL:
 		{
 			int value;
@@ -1477,7 +1476,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_SNDBUF:
 		{
 			int value;
@@ -1490,7 +1489,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_RCVBUF:
 		{
 			int value;
@@ -1503,7 +1502,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_LINGER:
 		{
 			int value;
@@ -1516,7 +1515,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_RECONNECT_IVL:
 		{
 			int value;
@@ -1529,7 +1528,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_RECONNECT_IVL_MAX:
 		{
 			int value;
@@ -1542,7 +1541,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_BACKLOG:
 		{
 			int value;
@@ -1555,7 +1554,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_MAXMSGSIZE:
 		{
 			int64_t value;
@@ -1568,21 +1567,21 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-	
+
 		case ZMQ_SUBSCRIBE:
 		{
 			zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Getting ZMQ::SOCKOPT_SUBSCRIBE is not supported", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
 			return;
 		}
 		break;
-	
+
 		case ZMQ_UNSUBSCRIBE:
 		{
 			zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Getting ZMQ::SOCKOPT_UNSUBSCRIBE is not supported", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
 			return;
 		}
 		break;
-		
+
 		case ZMQ_TYPE:
 		{
 			int value;
@@ -1595,7 +1594,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_RCVMORE:
 		{
 			int value;
@@ -1608,7 +1607,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_EVENTS:
 		{
 			int value;
@@ -1621,7 +1620,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_SNDTIMEO:
 		{
 			int value;
@@ -1634,7 +1633,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_RCVTIMEO:
 		{
 			int value;
@@ -1647,7 +1646,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_RCVLABEL:
 		{
 			int value;
@@ -1660,8 +1659,8 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-	
-		
+
+
 		case ZMQ_FD:
 		{
 			php_stream *stm = php_zmq_create_zmq_fd(getThis() TSRMLS_CC);
@@ -1694,7 +1693,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 	}
 }
 
-	
+
 
 /* {{{ proto ZMQSocket ZMQSocket::setSockOpt(integer $SOCKOPT, mixed $value)
 	Set a socket option
@@ -1719,16 +1718,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 
 	switch (key) {
 
-	
+
 
 		case ZMQ_SNDHWM:
 		{
 			int value;
 			convert_to_long(pz_value);
-			
-			value  = (int) Z_LVAL_P(pz_value);
+
+			value	= (int) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_SNDHWM option: %s", zmq_strerror(errno));
 				return;
@@ -1736,16 +1735,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_RCVHWM:
 		{
 			int value;
 			convert_to_long(pz_value);
-			
-			value  = (int) Z_LVAL_P(pz_value);
+
+			value	= (int) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_RCVHWM option: %s", zmq_strerror(errno));
 				return;
@@ -1753,16 +1752,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_AFFINITY:
 		{
 			uint64_t value;
 			convert_to_long(pz_value);
-			
-			value  = (uint64_t) Z_LVAL_P(pz_value);
+
+			value	= (uint64_t) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(uint64_t));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_AFFINITY option: %s", zmq_strerror(errno));
 				return;
@@ -1770,7 +1769,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_IDENTITY:
 		{
@@ -1782,18 +1781,18 @@ PHP_METHOD(zmqsocket, setsockopt)
 				return;
 			}
 		}
-		break;		
+		break;
 
-	
+
 
 		case ZMQ_RATE:
 		{
 			int value;
 			convert_to_long(pz_value);
-			
-			value  = (int) Z_LVAL_P(pz_value);
+
+			value	= (int) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_RATE option: %s", zmq_strerror(errno));
 				return;
@@ -1801,16 +1800,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_RECOVERY_IVL:
 		{
 			int value;
 			convert_to_long(pz_value);
-			
-			value  = (int) Z_LVAL_P(pz_value);
+
+			value	= (int) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_RECOVERY_IVL option: %s", zmq_strerror(errno));
 				return;
@@ -1818,16 +1817,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_SNDBUF:
 		{
 			int value;
 			convert_to_long(pz_value);
-			
-			value  = (int) Z_LVAL_P(pz_value);
+
+			value	= (int) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_SNDBUF option: %s", zmq_strerror(errno));
 				return;
@@ -1835,16 +1834,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_RCVBUF:
 		{
 			int value;
 			convert_to_long(pz_value);
-			
-			value  = (int) Z_LVAL_P(pz_value);
+
+			value	= (int) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_RCVBUF option: %s", zmq_strerror(errno));
 				return;
@@ -1852,16 +1851,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_LINGER:
 		{
 			int value;
 			convert_to_long(pz_value);
-			
-			value  = (int) Z_LVAL_P(pz_value);
+
+			value	= (int) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_LINGER option: %s", zmq_strerror(errno));
 				return;
@@ -1869,16 +1868,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_RECONNECT_IVL:
 		{
 			int value;
 			convert_to_long(pz_value);
-			
-			value  = (int) Z_LVAL_P(pz_value);
+
+			value	= (int) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_RECONNECT_IVL option: %s", zmq_strerror(errno));
 				return;
@@ -1886,16 +1885,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_RECONNECT_IVL_MAX:
 		{
 			int value;
 			convert_to_long(pz_value);
-			
-			value  = (int) Z_LVAL_P(pz_value);
+
+			value	= (int) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_RECONNECT_IVL_MAX option: %s", zmq_strerror(errno));
 				return;
@@ -1903,16 +1902,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_BACKLOG:
 		{
 			int value;
 			convert_to_long(pz_value);
-			
-			value  = (int) Z_LVAL_P(pz_value);
+
+			value	= (int) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_BACKLOG option: %s", zmq_strerror(errno));
 				return;
@@ -1920,16 +1919,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_MAXMSGSIZE:
 		{
 			int64_t value;
 			convert_to_long(pz_value);
-			
-			value  = (int64_t) Z_LVAL_P(pz_value);
+
+			value	= (int64_t) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int64_t));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_MAXMSGSIZE option: %s", zmq_strerror(errno));
 				return;
@@ -1937,7 +1936,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_SUBSCRIBE:
 		{
@@ -1949,9 +1948,9 @@ PHP_METHOD(zmqsocket, setsockopt)
 				return;
 			}
 		}
-		break;		
+		break;
 
-	
+
 
 		case ZMQ_UNSUBSCRIBE:
 		{
@@ -1963,32 +1962,32 @@ PHP_METHOD(zmqsocket, setsockopt)
 				return;
 			}
 		}
-		break;		
+		break;
 
-	
+
 		case ZMQ_TYPE:
 		{
 			zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Setting ZMQ::SOCKOPT_TYPE is not supported", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
 			return;
 		}
 		break;
-	
+
 		case ZMQ_RCVMORE:
 		{
 			zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Setting ZMQ::SOCKOPT_RCVMORE is not supported", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
 			return;
 		}
 		break;
-	
+
 
 		case ZMQ_SNDTIMEO:
 		{
 			int value;
 			convert_to_long(pz_value);
-			
-			value  = (int) Z_LVAL_P(pz_value);
+
+			value	= (int) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_SNDTIMEO option: %s", zmq_strerror(errno));
 				return;
@@ -1996,16 +1995,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_RCVTIMEO:
 		{
 			int value;
 			convert_to_long(pz_value);
-			
-			value  = (int) Z_LVAL_P(pz_value);
+
+			value	= (int) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_RCVTIMEO option: %s", zmq_strerror(errno));
 				return;
@@ -2013,15 +2012,15 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 		case ZMQ_RCVLABEL:
 		{
 			zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Setting ZMQ::SOCKOPT_RCVLABEL is not supported", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
 			return;
 		}
 		break;
-	
-		
+
+
 		case ZMQ_HWM:
 		{
 			int value;
@@ -2037,14 +2036,14 @@ PHP_METHOD(zmqsocket, setsockopt)
 			if (status == 0) {
 				status = zmq_setsockopt(intern->socket->z_socket, ZMQ_RCVHWM, &value, sizeof(int));
 			}
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_HWM option: %s", zmq_strerror(errno));
 				return;
 			}
 		}
 		break;
-	
+
 
 		default:
 		{
@@ -2056,62 +2055,62 @@ PHP_METHOD(zmqsocket, setsockopt)
 	ZMQ_RETURN_THIS;
 }
 
-	
+
 
 void php_zmq_register_sockopt_constants (zend_class_entry *php_zmq_sc_entry TSRMLS_DC)
 {
 #define PHP_ZMQ_REGISTER_SOCKOPT(const_name, value) \
 	zend_declare_class_constant_long(php_zmq_sc_entry, const_name, sizeof(const_name)-1, (long)value TSRMLS_CC);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_HWM", ZMQ_HWM);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_SNDHWM", ZMQ_SNDHWM);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RCVHWM", ZMQ_RCVHWM);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_AFFINITY", ZMQ_AFFINITY);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_IDENTITY", ZMQ_IDENTITY);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RATE", ZMQ_RATE);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RECOVERY_IVL", ZMQ_RECOVERY_IVL);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_SNDBUF", ZMQ_SNDBUF);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RCVBUF", ZMQ_RCVBUF);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_LINGER", ZMQ_LINGER);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RECONNECT_IVL", ZMQ_RECONNECT_IVL);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RECONNECT_IVL_MAX", ZMQ_RECONNECT_IVL_MAX);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_BACKLOG", ZMQ_BACKLOG);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_MAXMSGSIZE", ZMQ_MAXMSGSIZE);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_SUBSCRIBE", ZMQ_SUBSCRIBE);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_UNSUBSCRIBE", ZMQ_UNSUBSCRIBE);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_TYPE", ZMQ_TYPE);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RCVMORE", ZMQ_RCVMORE);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_FD", ZMQ_FD);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_EVENTS", ZMQ_EVENTS);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_SNDTIMEO", ZMQ_SNDTIMEO);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RCVTIMEO", ZMQ_RCVTIMEO);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RCVLABEL", ZMQ_RCVLABEL);
-			
+
 #undef PHP_ZMQ_REGISTER_SOCKOPT
 }
-			
+
 #endif
 
 #if ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR == 1
@@ -2138,7 +2137,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 
 	switch (key) {
 
-		
+
 		case ZMQ_SNDHWM:
 		{
 			int value;
@@ -2151,7 +2150,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_RCVHWM:
 		{
 			int value;
@@ -2164,7 +2163,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_AFFINITY:
 		{
 			uint64_t value;
@@ -2177,7 +2176,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_RATE:
 		{
 			int value;
@@ -2190,7 +2189,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_RECOVERY_IVL:
 		{
 			int value;
@@ -2203,7 +2202,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_SNDBUF:
 		{
 			int value;
@@ -2216,7 +2215,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_RCVBUF:
 		{
 			int value;
@@ -2229,7 +2228,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_LINGER:
 		{
 			int value;
@@ -2242,7 +2241,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_RECONNECT_IVL:
 		{
 			int value;
@@ -2255,7 +2254,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_RECONNECT_IVL_MAX:
 		{
 			int value;
@@ -2268,7 +2267,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_BACKLOG:
 		{
 			int value;
@@ -2281,7 +2280,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_MAXMSGSIZE:
 		{
 			int64_t value;
@@ -2294,21 +2293,21 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-	
+
 		case ZMQ_SUBSCRIBE:
 		{
 			zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Getting ZMQ::SOCKOPT_SUBSCRIBE is not supported", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
 			return;
 		}
 		break;
-	
+
 		case ZMQ_UNSUBSCRIBE:
 		{
 			zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Getting ZMQ::SOCKOPT_UNSUBSCRIBE is not supported", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
 			return;
 		}
 		break;
-		
+
 		case ZMQ_TYPE:
 		{
 			int value;
@@ -2321,7 +2320,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_RCVMORE:
 		{
 			int value;
@@ -2334,7 +2333,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_EVENTS:
 		{
 			int value;
@@ -2347,7 +2346,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_SNDTIMEO:
 		{
 			int value;
@@ -2360,7 +2359,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_RCVTIMEO:
 		{
 			int value;
@@ -2373,8 +2372,8 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-	
-		
+
+
 		case ZMQ_FD:
 		{
 			php_stream *stm = php_zmq_create_zmq_fd(getThis() TSRMLS_CC);
@@ -2407,7 +2406,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 	}
 }
 
-	
+
 
 /* {{{ proto ZMQSocket ZMQSocket::setSockOpt(integer $SOCKOPT, mixed $value)
 	Set a socket option
@@ -2432,16 +2431,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 
 	switch (key) {
 
-	
+
 
 		case ZMQ_SNDHWM:
 		{
 			int value;
 			convert_to_long(pz_value);
-			
-			value  = (int) Z_LVAL_P(pz_value);
+
+			value	= (int) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_SNDHWM option: %s", zmq_strerror(errno));
 				return;
@@ -2449,16 +2448,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_RCVHWM:
 		{
 			int value;
 			convert_to_long(pz_value);
-			
-			value  = (int) Z_LVAL_P(pz_value);
+
+			value	= (int) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_RCVHWM option: %s", zmq_strerror(errno));
 				return;
@@ -2466,16 +2465,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_AFFINITY:
 		{
 			uint64_t value;
 			convert_to_long(pz_value);
-			
-			value  = (uint64_t) Z_LVAL_P(pz_value);
+
+			value	= (uint64_t) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(uint64_t));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_AFFINITY option: %s", zmq_strerror(errno));
 				return;
@@ -2483,7 +2482,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_IDENTITY:
 		{
@@ -2495,18 +2494,18 @@ PHP_METHOD(zmqsocket, setsockopt)
 				return;
 			}
 		}
-		break;		
+		break;
 
-	
+
 
 		case ZMQ_RATE:
 		{
 			int value;
 			convert_to_long(pz_value);
-			
-			value  = (int) Z_LVAL_P(pz_value);
+
+			value	= (int) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_RATE option: %s", zmq_strerror(errno));
 				return;
@@ -2514,16 +2513,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_RECOVERY_IVL:
 		{
 			int value;
 			convert_to_long(pz_value);
-			
-			value  = (int) Z_LVAL_P(pz_value);
+
+			value	= (int) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_RECOVERY_IVL option: %s", zmq_strerror(errno));
 				return;
@@ -2531,16 +2530,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_SNDBUF:
 		{
 			int value;
 			convert_to_long(pz_value);
-			
-			value  = (int) Z_LVAL_P(pz_value);
+
+			value	= (int) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_SNDBUF option: %s", zmq_strerror(errno));
 				return;
@@ -2548,16 +2547,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_RCVBUF:
 		{
 			int value;
 			convert_to_long(pz_value);
-			
-			value  = (int) Z_LVAL_P(pz_value);
+
+			value	= (int) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_RCVBUF option: %s", zmq_strerror(errno));
 				return;
@@ -2565,16 +2564,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_LINGER:
 		{
 			int value;
 			convert_to_long(pz_value);
-			
-			value  = (int) Z_LVAL_P(pz_value);
+
+			value	= (int) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_LINGER option: %s", zmq_strerror(errno));
 				return;
@@ -2582,16 +2581,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_RECONNECT_IVL:
 		{
 			int value;
 			convert_to_long(pz_value);
-			
-			value  = (int) Z_LVAL_P(pz_value);
+
+			value	= (int) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_RECONNECT_IVL option: %s", zmq_strerror(errno));
 				return;
@@ -2599,16 +2598,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_RECONNECT_IVL_MAX:
 		{
 			int value;
 			convert_to_long(pz_value);
-			
-			value  = (int) Z_LVAL_P(pz_value);
+
+			value	= (int) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_RECONNECT_IVL_MAX option: %s", zmq_strerror(errno));
 				return;
@@ -2616,16 +2615,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_BACKLOG:
 		{
 			int value;
 			convert_to_long(pz_value);
-			
-			value  = (int) Z_LVAL_P(pz_value);
+
+			value	= (int) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_BACKLOG option: %s", zmq_strerror(errno));
 				return;
@@ -2633,16 +2632,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_MAXMSGSIZE:
 		{
 			int64_t value;
 			convert_to_long(pz_value);
-			
-			value  = (int64_t) Z_LVAL_P(pz_value);
+
+			value	= (int64_t) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int64_t));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_MAXMSGSIZE option: %s", zmq_strerror(errno));
 				return;
@@ -2650,7 +2649,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_SUBSCRIBE:
 		{
@@ -2662,9 +2661,9 @@ PHP_METHOD(zmqsocket, setsockopt)
 				return;
 			}
 		}
-		break;		
+		break;
 
-	
+
 
 		case ZMQ_UNSUBSCRIBE:
 		{
@@ -2676,32 +2675,32 @@ PHP_METHOD(zmqsocket, setsockopt)
 				return;
 			}
 		}
-		break;		
+		break;
 
-	
+
 		case ZMQ_TYPE:
 		{
 			zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Setting ZMQ::SOCKOPT_TYPE is not supported", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
 			return;
 		}
 		break;
-	
+
 		case ZMQ_RCVMORE:
 		{
 			zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Setting ZMQ::SOCKOPT_RCVMORE is not supported", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
 			return;
 		}
 		break;
-	
+
 
 		case ZMQ_SNDTIMEO:
 		{
 			int value;
 			convert_to_long(pz_value);
-			
-			value  = (int) Z_LVAL_P(pz_value);
+
+			value	= (int) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_SNDTIMEO option: %s", zmq_strerror(errno));
 				return;
@@ -2709,16 +2708,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_RCVTIMEO:
 		{
 			int value;
 			convert_to_long(pz_value);
-			
-			value  = (int) Z_LVAL_P(pz_value);
+
+			value	= (int) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_RCVTIMEO option: %s", zmq_strerror(errno));
 				return;
@@ -2726,8 +2725,8 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
-		
+
+
 		case ZMQ_HWM:
 		{
 			int value;
@@ -2743,14 +2742,14 @@ PHP_METHOD(zmqsocket, setsockopt)
 			if (status == 0) {
 				status = zmq_setsockopt(intern->socket->z_socket, ZMQ_RCVHWM, &value, sizeof(int));
 			}
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_HWM option: %s", zmq_strerror(errno));
 				return;
 			}
 		}
 		break;
-	
+
 
 		default:
 		{
@@ -2762,60 +2761,60 @@ PHP_METHOD(zmqsocket, setsockopt)
 	ZMQ_RETURN_THIS;
 }
 
-	
+
 
 void php_zmq_register_sockopt_constants (zend_class_entry *php_zmq_sc_entry TSRMLS_DC)
 {
 #define PHP_ZMQ_REGISTER_SOCKOPT(const_name, value) \
 	zend_declare_class_constant_long(php_zmq_sc_entry, const_name, sizeof(const_name)-1, (long)value TSRMLS_CC);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_HWM", ZMQ_HWM);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_SNDHWM", ZMQ_SNDHWM);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RCVHWM", ZMQ_RCVHWM);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_AFFINITY", ZMQ_AFFINITY);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_IDENTITY", ZMQ_IDENTITY);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RATE", ZMQ_RATE);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RECOVERY_IVL", ZMQ_RECOVERY_IVL);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_SNDBUF", ZMQ_SNDBUF);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RCVBUF", ZMQ_RCVBUF);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_LINGER", ZMQ_LINGER);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RECONNECT_IVL", ZMQ_RECONNECT_IVL);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RECONNECT_IVL_MAX", ZMQ_RECONNECT_IVL_MAX);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_BACKLOG", ZMQ_BACKLOG);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_MAXMSGSIZE", ZMQ_MAXMSGSIZE);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_SUBSCRIBE", ZMQ_SUBSCRIBE);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_UNSUBSCRIBE", ZMQ_UNSUBSCRIBE);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_TYPE", ZMQ_TYPE);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RCVMORE", ZMQ_RCVMORE);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_FD", ZMQ_FD);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_EVENTS", ZMQ_EVENTS);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_SNDTIMEO", ZMQ_SNDTIMEO);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RCVTIMEO", ZMQ_RCVTIMEO);
-			
+
 #undef PHP_ZMQ_REGISTER_SOCKOPT
 }
-			
+
 #endif
 
 #if ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR >= 2
@@ -2842,7 +2841,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 
 	switch (key) {
 
-		
+
 		case ZMQ_SNDHWM:
 		{
 			int value;
@@ -2855,7 +2854,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_RCVHWM:
 		{
 			int value;
@@ -2868,7 +2867,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_AFFINITY:
 		{
 			uint64_t value;
@@ -2881,7 +2880,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_RATE:
 		{
 			int value;
@@ -2894,7 +2893,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_RECOVERY_IVL:
 		{
 			int value;
@@ -2907,7 +2906,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_SNDBUF:
 		{
 			int value;
@@ -2920,7 +2919,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_RCVBUF:
 		{
 			int value;
@@ -2933,7 +2932,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_LINGER:
 		{
 			int value;
@@ -2946,7 +2945,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_RECONNECT_IVL:
 		{
 			int value;
@@ -2959,7 +2958,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_RECONNECT_IVL_MAX:
 		{
 			int value;
@@ -2972,7 +2971,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_BACKLOG:
 		{
 			int value;
@@ -2985,7 +2984,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_MAXMSGSIZE:
 		{
 			int64_t value;
@@ -2998,21 +2997,21 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-	
+
 		case ZMQ_SUBSCRIBE:
 		{
 			zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Getting ZMQ::SOCKOPT_SUBSCRIBE is not supported", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
 			return;
 		}
 		break;
-	
+
 		case ZMQ_UNSUBSCRIBE:
 		{
 			zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Getting ZMQ::SOCKOPT_UNSUBSCRIBE is not supported", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
 			return;
 		}
 		break;
-		
+
 		case ZMQ_TYPE:
 		{
 			int value;
@@ -3025,7 +3024,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_RCVMORE:
 		{
 			int value;
@@ -3038,7 +3037,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_EVENTS:
 		{
 			int value;
@@ -3051,7 +3050,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_SNDTIMEO:
 		{
 			int value;
@@ -3064,7 +3063,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_RCVTIMEO:
 		{
 			int value;
@@ -3077,7 +3076,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_IPV4ONLY:
 		{
 			int value;
@@ -3090,7 +3089,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_LAST_ENDPOINT:
 		{
 			char value[255];
@@ -3103,7 +3102,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_STRINGL(value, value_len - 1, 1);
 		}
 		break;
-		
+
 		case ZMQ_TCP_KEEPALIVE_IDLE:
 		{
 			int value;
@@ -3116,7 +3115,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_TCP_KEEPALIVE_CNT:
 		{
 			int value;
@@ -3129,7 +3128,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_TCP_KEEPALIVE_INTVL:
 		{
 			int value;
@@ -3142,7 +3141,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_TCP_ACCEPT_FILTER:
 		{
 			char value[255];
@@ -3155,7 +3154,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_STRINGL(value, value_len - 1, 1);
 		}
 		break;
-		
+
 		case ZMQ_DELAY_ATTACH_ON_CONNECT:
 		{
 			int value;
@@ -3168,7 +3167,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		case ZMQ_XPUB_VERBOSE:
 		{
 			int value;
@@ -3181,8 +3180,8 @@ PHP_METHOD(zmqsocket, getsockopt)
 			RETURN_LONG(value);
 		}
 		break;
-	
-		
+
+
 		case ZMQ_FD:
 		{
 			php_stream *stm = php_zmq_create_zmq_fd(getThis() TSRMLS_CC);
@@ -3215,7 +3214,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 	}
 }
 
-	
+
 
 /* {{{ proto ZMQSocket ZMQSocket::setSockOpt(integer $SOCKOPT, mixed $value)
 	Set a socket option
@@ -3240,16 +3239,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 
 	switch (key) {
 
-	
+
 
 		case ZMQ_SNDHWM:
 		{
 			int value;
 			convert_to_long(pz_value);
-			
-			value  = (int) Z_LVAL_P(pz_value);
+
+			value	= (int) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_SNDHWM option: %s", zmq_strerror(errno));
 				return;
@@ -3257,16 +3256,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_RCVHWM:
 		{
 			int value;
 			convert_to_long(pz_value);
-			
-			value  = (int) Z_LVAL_P(pz_value);
+
+			value	= (int) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_RCVHWM option: %s", zmq_strerror(errno));
 				return;
@@ -3274,16 +3273,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_AFFINITY:
 		{
 			uint64_t value;
 			convert_to_long(pz_value);
-			
-			value  = (uint64_t) Z_LVAL_P(pz_value);
+
+			value	= (uint64_t) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(uint64_t));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_AFFINITY option: %s", zmq_strerror(errno));
 				return;
@@ -3291,7 +3290,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_IDENTITY:
 		{
@@ -3303,18 +3302,18 @@ PHP_METHOD(zmqsocket, setsockopt)
 				return;
 			}
 		}
-		break;		
+		break;
 
-	
+
 
 		case ZMQ_RATE:
 		{
 			int value;
 			convert_to_long(pz_value);
-			
-			value  = (int) Z_LVAL_P(pz_value);
+
+			value	= (int) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_RATE option: %s", zmq_strerror(errno));
 				return;
@@ -3322,16 +3321,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_RECOVERY_IVL:
 		{
 			int value;
 			convert_to_long(pz_value);
-			
-			value  = (int) Z_LVAL_P(pz_value);
+
+			value	= (int) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_RECOVERY_IVL option: %s", zmq_strerror(errno));
 				return;
@@ -3339,16 +3338,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_SNDBUF:
 		{
 			int value;
 			convert_to_long(pz_value);
-			
-			value  = (int) Z_LVAL_P(pz_value);
+
+			value	= (int) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_SNDBUF option: %s", zmq_strerror(errno));
 				return;
@@ -3356,16 +3355,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_RCVBUF:
 		{
 			int value;
 			convert_to_long(pz_value);
-			
-			value  = (int) Z_LVAL_P(pz_value);
+
+			value	= (int) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_RCVBUF option: %s", zmq_strerror(errno));
 				return;
@@ -3373,16 +3372,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_LINGER:
 		{
 			int value;
 			convert_to_long(pz_value);
-			
-			value  = (int) Z_LVAL_P(pz_value);
+
+			value	= (int) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_LINGER option: %s", zmq_strerror(errno));
 				return;
@@ -3390,16 +3389,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_RECONNECT_IVL:
 		{
 			int value;
 			convert_to_long(pz_value);
-			
-			value  = (int) Z_LVAL_P(pz_value);
+
+			value	= (int) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_RECONNECT_IVL option: %s", zmq_strerror(errno));
 				return;
@@ -3407,16 +3406,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_RECONNECT_IVL_MAX:
 		{
 			int value;
 			convert_to_long(pz_value);
-			
-			value  = (int) Z_LVAL_P(pz_value);
+
+			value	= (int) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_RECONNECT_IVL_MAX option: %s", zmq_strerror(errno));
 				return;
@@ -3424,16 +3423,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_BACKLOG:
 		{
 			int value;
 			convert_to_long(pz_value);
-			
-			value  = (int) Z_LVAL_P(pz_value);
+
+			value	= (int) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_BACKLOG option: %s", zmq_strerror(errno));
 				return;
@@ -3441,16 +3440,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_MAXMSGSIZE:
 		{
 			int64_t value;
 			convert_to_long(pz_value);
-			
-			value  = (int64_t) Z_LVAL_P(pz_value);
+
+			value	= (int64_t) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int64_t));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_MAXMSGSIZE option: %s", zmq_strerror(errno));
 				return;
@@ -3458,7 +3457,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_SUBSCRIBE:
 		{
@@ -3470,9 +3469,9 @@ PHP_METHOD(zmqsocket, setsockopt)
 				return;
 			}
 		}
-		break;		
+		break;
 
-	
+
 
 		case ZMQ_UNSUBSCRIBE:
 		{
@@ -3484,32 +3483,32 @@ PHP_METHOD(zmqsocket, setsockopt)
 				return;
 			}
 		}
-		break;		
+		break;
 
-	
+
 		case ZMQ_TYPE:
 		{
 			zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Setting ZMQ::SOCKOPT_TYPE is not supported", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
 			return;
 		}
 		break;
-	
+
 		case ZMQ_RCVMORE:
 		{
 			zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Setting ZMQ::SOCKOPT_RCVMORE is not supported", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
 			return;
 		}
 		break;
-	
+
 
 		case ZMQ_SNDTIMEO:
 		{
 			int value;
 			convert_to_long(pz_value);
-			
-			value  = (int) Z_LVAL_P(pz_value);
+
+			value	= (int) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_SNDTIMEO option: %s", zmq_strerror(errno));
 				return;
@@ -3517,16 +3516,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_RCVTIMEO:
 		{
 			int value;
 			convert_to_long(pz_value);
-			
-			value  = (int) Z_LVAL_P(pz_value);
+
+			value	= (int) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_RCVTIMEO option: %s", zmq_strerror(errno));
 				return;
@@ -3534,16 +3533,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_IPV4ONLY:
 		{
 			int value;
 			convert_to_long(pz_value);
-			
-			value  = (int) Z_LVAL_P(pz_value);
+
+			value	= (int) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_IPV4ONLY option: %s", zmq_strerror(errno));
 				return;
@@ -3551,7 +3550,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_LAST_ENDPOINT:
 		{
@@ -3563,18 +3562,18 @@ PHP_METHOD(zmqsocket, setsockopt)
 				return;
 			}
 		}
-		break;		
+		break;
 
-	
+
 
 		case ZMQ_TCP_KEEPALIVE_IDLE:
 		{
 			int value;
 			convert_to_long(pz_value);
-			
-			value  = (int) Z_LVAL_P(pz_value);
+
+			value	= (int) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_TCP_KEEPALIVE_IDLE option: %s", zmq_strerror(errno));
 				return;
@@ -3582,16 +3581,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_TCP_KEEPALIVE_CNT:
 		{
 			int value;
 			convert_to_long(pz_value);
-			
-			value  = (int) Z_LVAL_P(pz_value);
+
+			value	= (int) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_TCP_KEEPALIVE_CNT option: %s", zmq_strerror(errno));
 				return;
@@ -3599,16 +3598,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_TCP_KEEPALIVE_INTVL:
 		{
 			int value;
 			convert_to_long(pz_value);
-			
-			value  = (int) Z_LVAL_P(pz_value);
+
+			value	= (int) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_TCP_KEEPALIVE_INTVL option: %s", zmq_strerror(errno));
 				return;
@@ -3616,7 +3615,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_TCP_ACCEPT_FILTER:
 		{
@@ -3628,18 +3627,18 @@ PHP_METHOD(zmqsocket, setsockopt)
 				return;
 			}
 		}
-		break;		
+		break;
 
-	
+
 
 		case ZMQ_DELAY_ATTACH_ON_CONNECT:
 		{
 			int value;
 			convert_to_long(pz_value);
-			
-			value  = (int) Z_LVAL_P(pz_value);
+
+			value	= (int) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_DELAY_ATTACH_ON_CONNECT option: %s", zmq_strerror(errno));
 				return;
@@ -3647,16 +3646,16 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
+
 
 		case ZMQ_XPUB_VERBOSE:
 		{
 			int value;
 			convert_to_long(pz_value);
-			
-			value  = (int) Z_LVAL_P(pz_value);
+
+			value	= (int) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_XPUB_VERBOSE option: %s", zmq_strerror(errno));
 				return;
@@ -3664,8 +3663,8 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 
-	
-		
+
+
 		case ZMQ_HWM:
 		{
 			int value;
@@ -3681,14 +3680,14 @@ PHP_METHOD(zmqsocket, setsockopt)
 			if (status == 0) {
 				status = zmq_setsockopt(intern->socket->z_socket, ZMQ_RCVHWM, &value, sizeof(int));
 			}
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_HWM option: %s", zmq_strerror(errno));
 				return;
 			}
 		}
 		break;
-	
+
 
 		default:
 		{
@@ -3700,74 +3699,74 @@ PHP_METHOD(zmqsocket, setsockopt)
 	ZMQ_RETURN_THIS;
 }
 
-	
+
 
 void php_zmq_register_sockopt_constants (zend_class_entry *php_zmq_sc_entry TSRMLS_DC)
 {
 #define PHP_ZMQ_REGISTER_SOCKOPT(const_name, value) \
 	zend_declare_class_constant_long(php_zmq_sc_entry, const_name, sizeof(const_name)-1, (long)value TSRMLS_CC);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_HWM", ZMQ_HWM);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_SNDHWM", ZMQ_SNDHWM);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RCVHWM", ZMQ_RCVHWM);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_AFFINITY", ZMQ_AFFINITY);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_IDENTITY", ZMQ_IDENTITY);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RATE", ZMQ_RATE);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RECOVERY_IVL", ZMQ_RECOVERY_IVL);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_SNDBUF", ZMQ_SNDBUF);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RCVBUF", ZMQ_RCVBUF);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_LINGER", ZMQ_LINGER);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RECONNECT_IVL", ZMQ_RECONNECT_IVL);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RECONNECT_IVL_MAX", ZMQ_RECONNECT_IVL_MAX);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_BACKLOG", ZMQ_BACKLOG);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_MAXMSGSIZE", ZMQ_MAXMSGSIZE);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_SUBSCRIBE", ZMQ_SUBSCRIBE);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_UNSUBSCRIBE", ZMQ_UNSUBSCRIBE);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_TYPE", ZMQ_TYPE);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RCVMORE", ZMQ_RCVMORE);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_FD", ZMQ_FD);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_EVENTS", ZMQ_EVENTS);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_SNDTIMEO", ZMQ_SNDTIMEO);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RCVTIMEO", ZMQ_RCVTIMEO);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_IPV4ONLY", ZMQ_IPV4ONLY);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_LAST_ENDPOINT", ZMQ_LAST_ENDPOINT);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_TCP_KEEPALIVE_IDLE", ZMQ_TCP_KEEPALIVE_IDLE);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_TCP_KEEPALIVE_CNT", ZMQ_TCP_KEEPALIVE_CNT);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_TCP_KEEPALIVE_INTVL", ZMQ_TCP_KEEPALIVE_INTVL);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_TCP_ACCEPT_FILTER", ZMQ_TCP_ACCEPT_FILTER);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_DELAY_ATTACH_ON_CONNECT", ZMQ_DELAY_ATTACH_ON_CONNECT);
-			
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_XPUB_VERBOSE", ZMQ_XPUB_VERBOSE);
-			
+
 #undef PHP_ZMQ_REGISTER_SOCKOPT
 }
-			
+
 #endif

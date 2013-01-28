@@ -5,19 +5,19 @@
 
 1.0.0rc1
 - Changed poll timeout to milliseconds rather than microseconds
-- ZMQ::MODE_NOBLOCK is now called ZMQ::MODE_DONTWAIT, the old constant is 
-  kept for backwards compatibility
+- ZMQ::MODE_NOBLOCK is now called ZMQ::MODE_DONTWAIT, the old constant is
+	kept for backwards compatibility
 - ZMQ::SOCKOPT_HWM sets both ZMQ::SOCKOPT_SNDHWM and ZMQ::SOCKOPT_RCVHWM,
-  the latter constants are available if compiled against version 3.x of ZeroMQ
+	the latter constants are available if compiled against version 3.x of ZeroMQ
 - ZMQ::SOCKOPT_MCAST_LOOP has been removed
 - ZMQ::SOCKOPT_SWAP has been removed
 - The devices has been refactored: the constructor now takes two arguments, front
-  and back socket. Starting the device has been moved to separate run method and 
-  two new methods setIdleTimeout and setIdleCallback has been added.
+	and back socket. Starting the device has been moved to separate run method and
+	two new methods setIdleTimeout and setIdleCallback has been added.
 - ZMQSocket::send/recv have been deprecated in favour of ZMQSocket::sendmsg/recvmsg.
-  The old methods will be removed in the next major version.
-- Changed ZMQPoll::poll to take readable and writable arrays by reference, possibly 
-  breaks code that tries to pass 'null' or 'false'
+	The old methods will be removed in the next major version.
+- Changed ZMQPoll::poll to take readable and writable arrays by reference, possibly
+	breaks code that tries to pass 'null' or 'false'
 - Added ZMQ::SOCKOPT_SNDTIMEO and ZMQ::SOCKOPT_RCVTIMEO (Ben Gray)
 
 0.9.0

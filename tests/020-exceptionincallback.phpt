@@ -5,7 +5,7 @@ Test throwing exception from callback
 --FILE--
 <?php
 
-function this_throws($a, $b) 
+function this_throws($a, $b)
 {
 	throw new Exception("Hello there");
 }

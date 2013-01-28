@@ -5,7 +5,7 @@ Test warning in callback
 --FILE--
 <?php
 
-function generate_warning($a, $b) 
+function generate_warning($a, $b)
 {
 	in_array(1, 1);
 }

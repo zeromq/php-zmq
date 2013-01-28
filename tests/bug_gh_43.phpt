@@ -1,8 +1,8 @@
 --TEST--
 Test for Github issue #43
 --SKIPIF--
-<?php 
-    require_once(dirname(__FILE__) . '/skipif.inc'); 
+<?php
+		require_once(dirname(__FILE__) . '/skipif.inc');
 ?>
 --FILE--
 <?php
