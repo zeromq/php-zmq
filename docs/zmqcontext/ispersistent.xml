@@ -3,32 +3,32 @@
 
 <refentry xml:id="zmqcontext.ispersistent" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
-  <refname>ZMQContext::isPersistent</refname>
-  <refpurpose>Whether the context is persistent</refpurpose>
+	<refname>ZMQContext::isPersistent</refname>
+	<refpurpose>Whether the context is persistent</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
-  &reftitle.description;
-  <methodsynopsis>
-   <modifier>public</modifier> <type>boolean</type><methodname>ZMQContext::isPersistent</methodname>
-   <void />
-  </methodsynopsis>
-  <para>
-    Whether the context is persistent. Persistent context is needed for persistent connections as each
-    socket is allocated from a context.
-  </para>
+	&reftitle.description;
+	<methodsynopsis>
+	 <modifier>public</modifier> <type>boolean</type><methodname>ZMQContext::isPersistent</methodname>
+	 <void />
+	</methodsynopsis>
+	<para>
+		Whether the context is persistent. Persistent context is needed for persistent connections as each
+		socket is allocated from a context.
+	</para>
  </refsect1>
 
  <refsect1 role="parameters">
-  &reftitle.parameters;
-  &no.function.parameters;
+	&reftitle.parameters;
+	&no.function.parameters;
  </refsect1>
 
  <refsect1 role="returnvalues">
-  &reftitle.returnvalues;
-  <para>
-   Returns &true; if the context is persistent and &false; if the context is non-persistent.
-  </para>
+	&reftitle.returnvalues;
+	<para>
+	 Returns &true; if the context is persistent and &false; if the context is non-persistent.
+	</para>
  </refsect1>
 
 

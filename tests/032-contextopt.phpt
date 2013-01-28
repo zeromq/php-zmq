@@ -1,9 +1,9 @@
 --TEST--
 Test context options
 --SKIPIF--
-<?php 
-    require_once(dirname(__FILE__) . '/skipif.inc'); 
-    if(!defined('ZMQ::CTXOPT_MAX_SOCKETS')) die('skip');
+<?php
+		require_once(dirname(__FILE__) . '/skipif.inc');
+		if(!defined('ZMQ::CTXOPT_MAX_SOCKETS')) die('skip');
 ?>
 --FILE--
 <?php

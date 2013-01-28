@@ -3,54 +3,54 @@
 
 <refentry xml:id="zmqsocket.sendmulti" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
-  <refname>ZMQSocket::sendmulti</refname>
-  <refpurpose>Sends a multipart message</refpurpose>
+	<refname>ZMQSocket::sendmulti</refname>
+	<refpurpose>Sends a multipart message</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
-  &reftitle.description;
-  <methodsynopsis>
-   <modifier>public</modifier> <type>ZMQSocket</type><methodname>ZMQSocket::send</methodname>
-   <methodparam><type>array</type><parameter>message</parameter></methodparam>
-   <methodparam choice="opt"><type>integer</type><parameter>mode</parameter><initializer>0</initializer></methodparam>
-  </methodsynopsis>
-  <para>
-   Send a multipart message using the socket. The operation can block unless <constant>ZMQ::MODE_NOBLOCK</constant> is used.
-  </para>
+	&reftitle.description;
+	<methodsynopsis>
+	 <modifier>public</modifier> <type>ZMQSocket</type><methodname>ZMQSocket::send</methodname>
+	 <methodparam><type>array</type><parameter>message</parameter></methodparam>
+	 <methodparam choice="opt"><type>integer</type><parameter>mode</parameter><initializer>0</initializer></methodparam>
+	</methodsynopsis>
+	<para>
+	 Send a multipart message using the socket. The operation can block unless <constant>ZMQ::MODE_NOBLOCK</constant> is used.
+	</para>
  </refsect1>
 
  <refsect1 role="parameters">
-  &reftitle.parameters;
-  <para>
-   <variablelist>
-    <varlistentry>
-     <term><parameter>message</parameter></term>
-     <listitem>
-      <para>
-       The message to send - an array of strings
-      </para>
-     </listitem>
-    </varlistentry>
-    <varlistentry>
-     <term><parameter>mode</parameter></term>
-     <listitem>
-      <para>
-       Pass mode flags to receive multipart messages or non-blocking operation. 
-       See <constant>ZMQ::MODE_*</constant> constants.
-      </para>
-     </listitem>
-    </varlistentry>
-   </variablelist>
-  </para>
+	&reftitle.parameters;
+	<para>
+	 <variablelist>
+		<varlistentry>
+		 <term><parameter>message</parameter></term>
+		 <listitem>
+			<para>
+			 The message to send - an array of strings
+			</para>
+		 </listitem>
+		</varlistentry>
+		<varlistentry>
+		 <term><parameter>mode</parameter></term>
+		 <listitem>
+			<para>
+			 Pass mode flags to receive multipart messages or non-blocking operation.
+			 See <constant>ZMQ::MODE_*</constant> constants.
+			</para>
+		 </listitem>
+		</varlistentry>
+	 </variablelist>
+	</para>
  </refsect1>
 
  <refsect1 role="returnvalues">
-  &reftitle.returnvalues;
-  <para>
-   Returns the current object. Throws ZMQSocketException on error. 
-   If <constant>ZMQ::MODE_NOBLOCK</constant> is used and the operation would 
-   block &boolean; false shall be returned.
-  </para>
+	&reftitle.returnvalues;
+	<para>
+	 Returns the current object. Throws ZMQSocketException on error.
+	 If <constant>ZMQ::MODE_NOBLOCK</constant> is used and the operation would
+	 block &boolean; false shall be returned.
+	</para>
  </refsect1>
 </refentry>
 

@@ -4,7 +4,7 @@ Test that high-watermark works
 <?php require_once(dirname(__FILE__) . '/skipif.inc'); ?>
 
 if (!defined('ZMQ::SOCKOPT_LINGER'))
-    die ("Skip Not compiled against new enough version");
+		die ("Skip Not compiled against new enough version");
 
 --FILE--
 <?php
@@ -13,7 +13,7 @@ $readable = array();
 $writable = array();
 
 $poll = new ZMQPoll();
-$ctx  = new ZMQContext();
+$ctx	= new ZMQContext();
 
 $req = new ZMQSocket($ctx, ZMQ::SOCKET_REQ);
 $req->setSockOpt(ZMQ::SOCKOPT_HWM, 1);
@@ -45,15 +45,15 @@ echo "OK\n";
 ?>
 --EXPECTF--
 array(1) {
-  [0]=>
-  object(ZMQSocket)#3 (0) {
-  }
+	[0]=>
+	object(ZMQSocket)#3 (0) {
+	}
 }
 array(0) {
 }
 array(1) {
-  [0]=>
-  object(ZMQSocket)#3 (0) {
-  }
+	[0]=>
+	object(ZMQSocket)#3 (0) {
+	}
 }
 OK

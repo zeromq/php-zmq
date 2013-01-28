@@ -4,22 +4,22 @@
 	<xsl:output indent="no" method="text"/>
 	<xsl:template match="/">
 		<xsl:call-template name="file-header"/>
-		
+
 		<xsl:for-each select="/options/version">
 #if <xsl:value-of select="@comparison" />
 
 			<!-- start ZMQSocket::getSockOpt -->
 			<xsl:call-template name="getsockopt-header"/>
 			<xsl:for-each select="option">
-				
+
 				<xsl:variable name="raw-name">
 					<xsl:call-template name="convert-to-uppercase">
 						<xsl:with-param name="input-string" select="@name"/>
 					</xsl:call-template>
 				</xsl:variable>
-				<xsl:variable name="const-name" select="concat('ZMQ_', $raw-name)"/>				
-				
-				<xsl:if test="@name != 'identity' and @name != 'fd'">	
+				<xsl:variable name="const-name" select="concat('ZMQ_', $raw-name)"/>
+
+				<xsl:if test="@name != 'identity' and @name != 'fd'">
 					<xsl:choose>
 						<xsl:when test="@mode = 'rw' or @mode = 'r'">
 							<xsl:call-template name="get-option">
@@ -70,11 +70,11 @@
 					</xsl:choose>
 				</xsl:if>
 			</xsl:for-each>
-			
+
 			<xsl:if test="@major = 3">
 				<xsl:call-template name="set-hwm-bwc"/>
 			</xsl:if>
-	
+
 			<xsl:call-template name="setsockopt-footer" />
 
 void php_zmq_register_sockopt_constants (zend_class_entry *php_zmq_sc_entry TSRMLS_DC)
@@ -98,8 +98,8 @@ void php_zmq_register_sockopt_constants (zend_class_entry *php_zmq_sc_entry TSRM
 #endif
 </xsl:for-each>
 	</xsl:template>
-	
-	
+
+
 	<xsl:template name="getsockopt-header">
 
 /* {{{ proto mixed ZMQSocket::getSockOpt()
@@ -125,9 +125,9 @@ PHP_METHOD(zmqsocket, getsockopt)
 	switch (key) {
 
 	</xsl:template>
-	
+
 	<xsl:template name="getsockopt-footer">
-		
+
 		case ZMQ_FD:
 		{
 			php_stream *stm = php_zmq_create_zmq_fd(getThis() TSRMLS_CC);
@@ -177,7 +177,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 	<xsl:template name="get-numeric-option">
 		<xsl:param name="const-name"/>
 		<xsl:param name="raw-name"/>
-		<xsl:param name="type"/>	
+		<xsl:param name="type"/>
 		case <xsl:value-of select="$const-name"/>:
 		{
 			<xsl:value-of select="$type"/> value;
@@ -191,10 +191,10 @@ PHP_METHOD(zmqsocket, getsockopt)
 		}
 		break;
 	</xsl:template>
-	
+
 	<xsl:template name="get-string-option">
 		<xsl:param name="const-name"/>
-		<xsl:param name="raw-name"/>	
+		<xsl:param name="raw-name"/>
 		case <xsl:value-of select="$const-name"/>:
 		{
 			char value[255];
@@ -208,12 +208,12 @@ PHP_METHOD(zmqsocket, getsockopt)
 		}
 		break;
 	</xsl:template>
-	
+
 	<xsl:template name="get-option">
 		<xsl:param name="const-name"/>
 		<xsl:param name="raw-name"/>
 		<xsl:param name="type"/>
-		
+
 		<xsl:choose>
 			<xsl:when test="$type = 'blob'">
 				<xsl:call-template name="get-string-option">
@@ -230,7 +230,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 			</xsl:otherwise>
 		</xsl:choose>
 	</xsl:template>
-	
+
 	<xsl:template name="setsockopt-header">
 
 /* {{{ proto ZMQSocket ZMQSocket::setSockOpt(integer $SOCKOPT, mixed $value)
@@ -271,7 +271,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 }
 
 	</xsl:template>
-	
+
 	<xsl:template name="set-string-option">
 		<xsl:param name="const-name"/>
 		<xsl:param name="raw-name"/>
@@ -286,10 +286,10 @@ PHP_METHOD(zmqsocket, setsockopt)
 				return;
 			}
 		}
-		break;		
+		break;
 
 	</xsl:template>
-	
+
 	<xsl:template name="set-numeric-option">
 		<xsl:param name="const-name"/>
 		<xsl:param name="raw-name"/>
@@ -305,9 +305,9 @@ PHP_METHOD(zmqsocket, setsockopt)
 				return;
 			}
 			</xsl:if>
-			value  = (<xsl:value-of select="$type"/>) Z_LVAL_P(pz_value);
+			value	= (<xsl:value-of select="$type"/>) Z_LVAL_P(pz_value);
 			status = zmq_setsockopt(intern->socket->z_socket, key, &amp;value, sizeof(<xsl:value-of select="$type"/>));
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_<xsl:value-of select="$raw-name"/> option: %s", zmq_strerror(errno));
 				return;
@@ -321,7 +321,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 		<xsl:param name="const-name"/>
 		<xsl:param name="raw-name"/>
 		<xsl:param name="type"/>
-		
+
 		<xsl:choose>
 			<xsl:when test="$type = 'blob'">
 				<xsl:call-template name="set-string-option">
@@ -338,9 +338,9 @@ PHP_METHOD(zmqsocket, setsockopt)
 			</xsl:otherwise>
 		</xsl:choose>
 	</xsl:template>
-	
+
 	<xsl:template name="set-hwm-bwc">
-		
+
 		case ZMQ_HWM:
 		{
 			int value;
@@ -356,7 +356,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 			if (status == 0) {
 				status = zmq_setsockopt(intern->socket->z_socket, ZMQ_RCVHWM, &amp;value, sizeof(int));
 			}
-			
+
 			if (status != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_HWM option: %s", zmq_strerror(errno));
 				return;
@@ -364,49 +364,49 @@ PHP_METHOD(zmqsocket, setsockopt)
 		}
 		break;
 	</xsl:template>
-	
+
 	<xsl:template name="convert-to-uppercase">
 		<xsl:param name="input-string"/>
-	
+
 		<xsl:variable name="lower" select="'abcdefghijklmnopqrstuvwxyz'" />
 		<xsl:variable name="upper" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'" />
 
-	  	<xsl:value-of select="translate($input-string, $lower, $upper)" />
+			<xsl:value-of select="translate($input-string, $lower, $upper)" />
 	</xsl:template>
-	
+
 	<xsl:template name="file-header">
 /*
 +-----------------------------------------------------------------------------------+
-|  ZMQ extension for PHP                                                            |
-|  Copyright (c) 2010, Mikko Koppanen &lt;mkoppanen@php.net&gt;                           |
-|  All rights reserved.                                                             |
+|	ZMQ extension for PHP																														|
+|	Copyright (c) 2010, Mikko Koppanen &lt;mkoppanen@php.net&gt;													 |
+|	All rights reserved.																														 |
 +-----------------------------------------------------------------------------------+
-|  Redistribution and use in source and binary forms, with or without               |
-|  modification, are permitted provided that the following conditions are met:      |
-|     * Redistributions of source code must retain the above copyright              |
-|       notice, this list of conditions and the following disclaimer.               |
-|     * Redistributions in binary form must reproduce the above copyright           |
-|       notice, this list of conditions and the following disclaimer in the         |
-|       documentation and/or other materials provided with the distribution.        |
-|     * Neither the name of the copyright holder nor the                            |
-|       names of its contributors may be used to endorse or promote products        |
-|       derived from this software without specific prior written permission.       |
+|	Redistribution and use in source and binary forms, with or without							 |
+|	modification, are permitted provided that the following conditions are met:			|
+|		 * Redistributions of source code must retain the above copyright							|
+|			 notice, this list of conditions and the following disclaimer.							 |
+|		 * Redistributions in binary form must reproduce the above copyright					 |
+|			 notice, this list of conditions and the following disclaimer in the				 |
+|			 documentation and/or other materials provided with the distribution.				|
+|		 * Neither the name of the copyright holder nor the														|
+|			 names of its contributors may be used to endorse or promote products				|
+|			 derived from this software without specific prior written permission.			 |
 +-----------------------------------------------------------------------------------+
-|  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND  |
-|  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED    |
-|  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE           |
-|  DISCLAIMED. IN NO EVENT SHALL MIKKO KOPPANEN BE LIABLE FOR ANY                   |
-|  DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES       |
-|  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;     |
-|  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND      |
-|  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT       |
-|  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS    |
-|  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                     |
+|	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND	|
+|	ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED		|
+|	WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE					 |
+|	DISCLAIMED. IN NO EVENT SHALL MIKKO KOPPANEN BE LIABLE FOR ANY									 |
+|	DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES			 |
+|	(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;		 |
+|	LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND			|
+|	ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT			 |
+|	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS		|
+|	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.										 |
 +-----------------------------------------------------------------------------------+
 */
 
 #include "php_zmq.h"
-#include "php_zmq_private.h"		
+#include "php_zmq_private.h"
 	</xsl:template>
-	
+
 </xsl:stylesheet>

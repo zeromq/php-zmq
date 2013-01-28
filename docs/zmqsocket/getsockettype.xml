@@ -3,32 +3,32 @@
 
 <refentry xml:id="zmqsocket.getsockettype" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
-  <refname>ZMQSocket::getSocketType</refname>
-  <refpurpose>Get the socket type</refpurpose>
+	<refname>ZMQSocket::getSocketType</refname>
+	<refpurpose>Get the socket type</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
-  &reftitle.description;
-  <methodsynopsis>
-   <modifier>public</modifier> <type>integer</type><methodname>ZMQSocket::getSocketType</methodname>
-   <void />
-  </methodsynopsis>
-  <para>
-   Gets the socket type.
-  </para>
+	&reftitle.description;
+	<methodsynopsis>
+	 <modifier>public</modifier> <type>integer</type><methodname>ZMQSocket::getSocketType</methodname>
+	 <void />
+	</methodsynopsis>
+	<para>
+	 Gets the socket type.
+	</para>
  </refsect1>
 
  <refsect1 role="parameters">
-  &reftitle.parameters;
-  &no.function.parameters;
+	&reftitle.parameters;
+	&no.function.parameters;
  </refsect1>
 
  <refsect1 role="returnvalues">
-  &reftitle.returnvalues;
-  <para>
-   Returns an integer representing the socket type. The integer can be compared against
-   <constant>ZMQ::SOCKET_*</constant> constants.
-  </para>
+	&reftitle.returnvalues;
+	<para>
+	 Returns an integer representing the socket type. The integer can be compared against
+	 <constant>ZMQ::SOCKET_*</constant> constants.
+	</para>
  </refsect1>
 
 

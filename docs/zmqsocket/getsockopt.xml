@@ -3,44 +3,44 @@
 
 <refentry xml:id="zmqsocket.getsockopt" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
-  <refname>ZMQSocket::getSockOpt</refname>
-  <refpurpose>Get socket option</refpurpose>
+	<refname>ZMQSocket::getSockOpt</refname>
+	<refpurpose>Get socket option</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
-  &reftitle.description;
-  <methodsynopsis>
-   <modifier>public</modifier> <type>mixed</type><methodname>ZMQSocket::getSockOpt</methodname>
-   <methodparam><type>string</type><parameter>key</parameter></methodparam>
-  </methodsynopsis>
-  <para>
-   Returns the value of a socket option. 
-  </para>
+	&reftitle.description;
+	<methodsynopsis>
+	 <modifier>public</modifier> <type>mixed</type><methodname>ZMQSocket::getSockOpt</methodname>
+	 <methodparam><type>string</type><parameter>key</parameter></methodparam>
+	</methodsynopsis>
+	<para>
+	 Returns the value of a socket option.
+	</para>
  </refsect1>
 
  <refsect1 role="parameters">
-  &reftitle.parameters;
-  <para>
-   <variablelist>
-    <varlistentry>
-     <term><parameter>key</parameter></term>
-     <listitem>
-      <para>
-       An integer representing the option.
-       See the <constant>ZMQ::SOCKOPT_*</constant> constants.
-      </para>
-     </listitem>
-    </varlistentry>
-   </variablelist>
-  </para>
+	&reftitle.parameters;
+	<para>
+	 <variablelist>
+		<varlistentry>
+		 <term><parameter>key</parameter></term>
+		 <listitem>
+			<para>
+			 An integer representing the option.
+			 See the <constant>ZMQ::SOCKOPT_*</constant> constants.
+			</para>
+		 </listitem>
+		</varlistentry>
+	 </variablelist>
+	</para>
  </refsect1>
 
  <refsect1 role="returnvalues">
-  &reftitle.returnvalues;
-  <para>
-   Returns either a &string; or an &integer; depending on <parameter>key</parameter>. Throws
-   ZMQSocketException on error. 
-  </para>
+	&reftitle.returnvalues;
+	<para>
+	 Returns either a &string; or an &integer; depending on <parameter>key</parameter>. Throws
+	 ZMQSocketException on error.
+	</para>
  </refsect1>
 
 

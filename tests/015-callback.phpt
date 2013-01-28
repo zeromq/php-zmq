@@ -17,22 +17,22 @@ var_dump($socket->getEndpoints());
 
 --EXPECT--
 array(2) {
-  ["connect"]=>
-  array(0) {
-  }
-  ["bind"]=>
-  array(1) {
-    [0]=>
-    string(20) "tcp://127.0.0.1:5566"
-  }
+	["connect"]=>
+	array(0) {
+	}
+	["bind"]=>
+	array(1) {
+		[0]=>
+		string(20) "tcp://127.0.0.1:5566"
+	}
 }
 array(2) {
-  ["connect"]=>
-  array(0) {
-  }
-  ["bind"]=>
-  array(1) {
-    [0]=>
-    string(20) "tcp://127.0.0.1:5567"
-  }
+	["connect"]=>
+	array(0) {
+	}
+	["bind"]=>
+	array(1) {
+		[0]=>
+		string(20) "tcp://127.0.0.1:5567"
+	}
 }

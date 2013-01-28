@@ -5,7 +5,7 @@ Test callback arguments on persistent and non-persistent socket
 --FILE--
 <?php
 
-function dump_args(ZMQSocket $s, $p = null) 
+function dump_args(ZMQSocket $s, $p = null)
 {
 	var_dump($s, $p);
 }

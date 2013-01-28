@@ -3,56 +3,56 @@
 
 <refentry xml:id="zmqsocket.connect" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
-  <refname>ZMQSocket::connect</refname>
-  <refpurpose>Connect the socket</refpurpose>
+	<refname>ZMQSocket::connect</refname>
+	<refpurpose>Connect the socket</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
-  &reftitle.description;
-  <methodsynopsis>
-   <modifier>public</modifier> <type>ZMQSocket</type><methodname>ZMQSocket::connect</methodname>
-   <methodparam><type>string</type><parameter>dsn</parameter></methodparam>
-   <methodparam choice="opt"><type>boolean</type><parameter>force</parameter><initializer>false</initializer></methodparam>
-  </methodsynopsis>
-  <para>
-   Connect the socket to a remote endpoint. The endpoint is defined in format <literal>transport://address</literal> where 
-   transport is one of the following: inproc, ipc, tcp, pgm or epgm.
-  </para>
+	&reftitle.description;
+	<methodsynopsis>
+	 <modifier>public</modifier> <type>ZMQSocket</type><methodname>ZMQSocket::connect</methodname>
+	 <methodparam><type>string</type><parameter>dsn</parameter></methodparam>
+	 <methodparam choice="opt"><type>boolean</type><parameter>force</parameter><initializer>false</initializer></methodparam>
+	</methodsynopsis>
+	<para>
+	 Connect the socket to a remote endpoint. The endpoint is defined in format <literal>transport://address</literal> where
+	 transport is one of the following: inproc, ipc, tcp, pgm or epgm.
+	</para>
  </refsect1>
 
  <refsect1 role="parameters">
-  &reftitle.parameters;
-  <para>
-   <variablelist>
-    <varlistentry>
-     <term><parameter>dsn</parameter></term>
-     <listitem>
-      <para>
-       The connect dsn, for example <literal>transport://address</literal>.
-      </para>
-     </listitem>
-    </varlistentry>
-    <varlistentry>
-     <term><parameter>force</parameter></term>
-     <listitem>
-      <para>
-       Tries to connect even if the socket has already been connected to given endpoint.
-      </para>
-     </listitem>
-    </varlistentry>
-   </variablelist>
-  </para>
+	&reftitle.parameters;
+	<para>
+	 <variablelist>
+		<varlistentry>
+		 <term><parameter>dsn</parameter></term>
+		 <listitem>
+			<para>
+			 The connect dsn, for example <literal>transport://address</literal>.
+			</para>
+		 </listitem>
+		</varlistentry>
+		<varlistentry>
+		 <term><parameter>force</parameter></term>
+		 <listitem>
+			<para>
+			 Tries to connect even if the socket has already been connected to given endpoint.
+			</para>
+		 </listitem>
+		</varlistentry>
+	 </variablelist>
+	</para>
  </refsect1>
- 
+
  <refsect1 role="examples">
  &reftitle.examples;
-  <para>
-   <example>
-    <title>A <function>ZMQContext</function> example</title>
-    <para>
-     Construct a new context and allocate request socket from it
-    </para>
-    <programlisting role="php">
+	<para>
+	 <example>
+		<title>A <function>ZMQContext</function> example</title>
+		<para>
+		 Construct a new context and allocate request socket from it
+		</para>
+		<programlisting role="php">
 <![CDATA[
 <?php
 /* Server hostname */
@@ -66,10 +66,10 @@ $endpoints = $socket->getEndpoints();
 
 /* Check if the socket is connected */
 if (!in_array($dsn, $endpoints['connect'])) {
-    echo "<p>Connecting to $dsn</p>";
-    $socket->connect($dsn);
+		echo "<p>Connecting to $dsn</p>";
+		$socket->connect($dsn);
 } else {
-    echo "<p>Already connected to $dsn</p>";
+		echo "<p>Already connected to $dsn</p>";
 }
 
 /* Send and receive */
@@ -79,16 +79,16 @@ $message = $socket->recv();
 echo "<p>Server said: {$message}</p>";
 ?>
 ]]>
-    </programlisting>
-   </example>
-  </para>
+		</programlisting>
+	 </example>
+	</para>
  </refsect1>
 
  <refsect1 role="returnvalues">
-  &reftitle.returnvalues;
-  <para>
-   Returns the current object. Throws ZMQSocketException on error.
-  </para>
+	&reftitle.returnvalues;
+	<para>
+	 Returns the current object. Throws ZMQSocketException on error.
+	</para>
  </refsect1>
 
 

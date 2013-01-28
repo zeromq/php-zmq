@@ -5,12 +5,12 @@ Test that failing callback does not add socket to plist
 --FILE--
 <?php
 
-function throw_stuff($a, $b) 
+function throw_stuff($a, $b)
 {
 	throw new Exception("failed");
 }
 
-function just_echo($a, $b) 
+function just_echo($a, $b)
 {
 	echo "called just_echo\n";
 }
@@ -18,48 +18,48 @@ function just_echo($a, $b)
 $context = new ZMQContext();
 
 try {
-    $socket = $context->getSocket(ZMQ::SOCKET_PUSH, 'test id', 'throw_stuff');
-    echo "fail\n";
+		$socket = $context->getSocket(ZMQ::SOCKET_PUSH, 'test id', 'throw_stuff');
+		echo "fail\n";
 } catch (Exception $e) {
-    echo "success\n";
+		echo "success\n";
 }
 
 try {
-    $socket = $context->getSocket(ZMQ::SOCKET_PUSH, 'test id', 'throw_stuff');
-    echo "fail\n";
+		$socket = $context->getSocket(ZMQ::SOCKET_PUSH, 'test id', 'throw_stuff');
+		echo "fail\n";
 } catch (Exception $e) {
-    echo "success\n";
+		echo "success\n";
 }
 
 try {
-    $socket = $context->getSocket(ZMQ::SOCKET_PUSH, 'test id', 'just_echo');
-    echo "success\n";
+		$socket = $context->getSocket(ZMQ::SOCKET_PUSH, 'test id', 'just_echo');
+		echo "success\n";
 } catch (Exception $e) {
-    echo "fail\n";
+		echo "fail\n";
 }
 
 echo "OK\n";
 /**/
 
 try {
-    $socket = new ZMQSocket($context, ZMQ::SOCKET_PUSH, 'xx id', 'throw_stuff');
-    echo "fail\n";
+		$socket = new ZMQSocket($context, ZMQ::SOCKET_PUSH, 'xx id', 'throw_stuff');
+		echo "fail\n";
 } catch (Exception $e) {
-    echo "success\n";
+		echo "success\n";
 }
 
 try {
-    $socket = new ZMQSocket($context, ZMQ::SOCKET_PUSH, 'xx id', 'throw_stuff');
-    echo "fail\n";
+		$socket = new ZMQSocket($context, ZMQ::SOCKET_PUSH, 'xx id', 'throw_stuff');
+		echo "fail\n";
 } catch (Exception $e) {
-    echo "success\n";
+		echo "success\n";
 }
 
 try {
-    $socket = new ZMQSocket($context, ZMQ::SOCKET_PUSH, 'xx id', 'just_echo');
-    echo "success\n";
+		$socket = new ZMQSocket($context, ZMQ::SOCKET_PUSH, 'xx id', 'just_echo');
+		echo "success\n";
 } catch (Exception $e) {
-    echo "fail\n";
+		echo "fail\n";
 }
 
 

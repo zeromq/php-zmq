@@ -1,8 +1,8 @@
 --TEST--
 Test send / recv with an XREQ and XREP device
 --SKIPIF--
-<?php 
-    require_once(dirname(__FILE__) . '/skipif.inc'); 
+<?php
+		require_once(dirname(__FILE__) . '/skipif.inc');
 ?>
 --FILE--
 <?php
@@ -11,7 +11,7 @@ require dirname(__FILE__) . '/zeromq_test_helper.inc';
 
 function idle_func($val)
 {
-  return false;
+	return false;
 }
 
 $context = new ZMQContext();

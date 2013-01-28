@@ -7,25 +7,25 @@ Test ispersistent on context and socket
 
 /* Persistent context */
 $context = new ZMQContext();
-$socket  = $context->getSocket(ZMQ::SOCKET_REQ, 'persistentId');
+$socket	= $context->getSocket(ZMQ::SOCKET_REQ, 'persistentId');
 $socket2 = $context->getSocket(ZMQ::SOCKET_REQ, null);
 
-var_dump($context->isPersistent(), 
-         $socket->isPersistent(),
-         $socket->getPersistentId(),
-         $socket2->isPersistent(),
-         $socket2->getPersistentId());
+var_dump($context->isPersistent(),
+				 $socket->isPersistent(),
+				 $socket->getPersistentId(),
+				 $socket2->isPersistent(),
+				 $socket2->getPersistentId());
 
 /* Non-persistent context */
 $context = new ZMQContext(1, false);
-$socket  = $context->getSocket(ZMQ::SOCKET_REQ, 'persistentId');
+$socket	= $context->getSocket(ZMQ::SOCKET_REQ, 'persistentId');
 $socket2 = $context->getSocket(ZMQ::SOCKET_REQ, null);
 
-var_dump($context->isPersistent(), 
-         $socket->isPersistent(),
-         $socket->getPersistentId(),
-         $socket2->isPersistent(),
-         $socket2->getPersistentId());
+var_dump($context->isPersistent(),
+				 $socket->isPersistent(),
+				 $socket->getPersistentId(),
+				 $socket2->isPersistent(),
+				 $socket2->getPersistentId());
 
 
 --EXPECTF--

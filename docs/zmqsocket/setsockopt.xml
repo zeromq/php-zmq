@@ -3,52 +3,52 @@
 
 <refentry xml:id="zmqsocket.setsockopt" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
-  <refname>ZMQSocket::setSockOpt</refname>
-  <refpurpose>Set a socket option</refpurpose>
+	<refname>ZMQSocket::setSockOpt</refname>
+	<refpurpose>Set a socket option</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
-  &reftitle.description;
-  <methodsynopsis>
-   <modifier>public</modifier> <type>ZMQSocket</type><methodname>ZMQSocket::setSockOpt</methodname>
-   <methodparam><type>integer</type><parameter>key</parameter></methodparam>
-   <methodparam><type>mixed</type><parameter>value</parameter></methodparam>
-  </methodsynopsis>
-  <para>
-   Sets a ZMQ socket option. The type of the <parameter>value</parameter> depends on the <parameter>key</parameter>.
-   See <link linkend="zmq.constants">ZMQ Constant Types</link> for more information.
-  </para>
+	&reftitle.description;
+	<methodsynopsis>
+	 <modifier>public</modifier> <type>ZMQSocket</type><methodname>ZMQSocket::setSockOpt</methodname>
+	 <methodparam><type>integer</type><parameter>key</parameter></methodparam>
+	 <methodparam><type>mixed</type><parameter>value</parameter></methodparam>
+	</methodsynopsis>
+	<para>
+	 Sets a ZMQ socket option. The type of the <parameter>value</parameter> depends on the <parameter>key</parameter>.
+	 See <link linkend="zmq.constants">ZMQ Constant Types</link> for more information.
+	</para>
  </refsect1>
 
  <refsect1 role="parameters">
-  &reftitle.parameters;
-  <para>
-   <variablelist>
-    <varlistentry>
-     <term><parameter>key</parameter></term>
-     <listitem>
-      <para>
-       One of the <constant>ZMQ::SOCKOPT_*</constant> constants.
-      </para>
-     </listitem>
-    </varlistentry>
-    <varlistentry>
-     <term><parameter>value</parameter></term>
-     <listitem>
-      <para>
-       The value of the parameter.
-      </para>
-     </listitem>
-    </varlistentry>
-   </variablelist>
-  </para>
+	&reftitle.parameters;
+	<para>
+	 <variablelist>
+		<varlistentry>
+		 <term><parameter>key</parameter></term>
+		 <listitem>
+			<para>
+			 One of the <constant>ZMQ::SOCKOPT_*</constant> constants.
+			</para>
+		 </listitem>
+		</varlistentry>
+		<varlistentry>
+		 <term><parameter>value</parameter></term>
+		 <listitem>
+			<para>
+			 The value of the parameter.
+			</para>
+		 </listitem>
+		</varlistentry>
+	 </variablelist>
+	</para>
  </refsect1>
 
  <refsect1 role="returnvalues">
-  &reftitle.returnvalues;
-  <para>
-   Returns the current object. Throws ZMQSocketException on error.
-  </para>
+	&reftitle.returnvalues;
+	<para>
+	 Returns the current object. Throws ZMQSocketException on error.
+	</para>
  </refsect1>
 
 

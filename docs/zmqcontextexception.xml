@@ -9,78 +9,78 @@
  <partintro>
 
 <!-- {{{ ZMQContextException intro -->
-  <section xml:id="zmqcontextexception.intro">
-   &reftitle.intro;
-   <para>
+	<section xml:id="zmqcontextexception.intro">
+	 &reftitle.intro;
+	 <para>
 
-   </para>
-  </section>
+	 </para>
+	</section>
 <!-- }}} -->
 
-  <section xml:id="zmqcontextexception.synopsis">
-   &reftitle.classsynopsis;
+	<section xml:id="zmqcontextexception.synopsis">
+	 &reftitle.classsynopsis;
 
 <!-- {{{ Synopsis -->
-   <classsynopsis>
-    <ooclass><classname>ZMQContextException</classname></ooclass>
+	 <classsynopsis>
+		<ooclass><classname>ZMQContextException</classname></ooclass>
 
 <!-- {{{ Class synopsis -->
-    <classsynopsisinfo>
-     <ooclass>
-      <classname>ZMQContextException</classname>
-     </ooclass>
-     
-     <ooclass>
-      <modifier>extends</modifier>
-      <classname>ZMQException</classname>
-     </ooclass>
-    </classsynopsisinfo>
+		<classsynopsisinfo>
+		 <ooclass>
+			<classname>ZMQContextException</classname>
+		 </ooclass>
+
+		 <ooclass>
+			<modifier>extends</modifier>
+			<classname>ZMQException</classname>
+		 </ooclass>
+		</classsynopsisinfo>
 <!-- }}} -->
-    <classsynopsisinfo role="comment">Properties</classsynopsisinfo>
+		<classsynopsisinfo role="comment">Properties</classsynopsisinfo>
 
-    
-    <classsynopsisinfo role="comment">Methods</classsynopsisinfo>
-    <xi:include xpointer="xmlns(db=http://docbook.org/ns/docbook) xpointer(id('class.zmqcontextexception')/db:refentry/db:refsect1[@role='description']/descendant::db:methodsynopsis[1])" />
-    
-    <classsynopsisinfo role="comment">Inherited methods</classsynopsisinfo>
-    <xi:include xpointer="xmlns(db=http://docbook.org/ns/docbook) xpointer(id('class.zmqexception')/db:refentry/db:refsect1[@role='description']/descendant::db:methodsynopsis[1])" />
 
-   </classsynopsis>
+		<classsynopsisinfo role="comment">Methods</classsynopsisinfo>
+		<xi:include xpointer="xmlns(db=http://docbook.org/ns/docbook) xpointer(id('class.zmqcontextexception')/db:refentry/db:refsect1[@role='description']/descendant::db:methodsynopsis[1])" />
+
+		<classsynopsisinfo role="comment">Inherited methods</classsynopsisinfo>
+		<xi:include xpointer="xmlns(db=http://docbook.org/ns/docbook) xpointer(id('class.zmqexception')/db:refentry/db:refsect1[@role='description']/descendant::db:methodsynopsis[1])" />
+
+	 </classsynopsis>
 <!-- }}} -->
 
-  </section>
+	</section>
 
-  
+
 <!-- {{{ ZMQContextException properties -->
-  <section xml:id="zmqcontextexception.props">
-   &reftitle.properties;
-   <variablelist>
-    <varlistentry xml:id="zmqcontextexception.props.message">
-     <term><varname>message</varname></term>
-     <listitem>
-      <para></para>
-     </listitem>
-    </varlistentry>
-    <varlistentry xml:id="zmqcontextexception.props.code">
-     <term><varname>code</varname></term>
-     <listitem>
-      <para></para>
-     </listitem>
-    </varlistentry>
-    <varlistentry xml:id="zmqcontextexception.props.file">
-     <term><varname>file</varname></term>
-     <listitem>
-      <para></para>
-     </listitem>
-    </varlistentry>
-    <varlistentry xml:id="zmqcontextexception.props.line">
-     <term><varname>line</varname></term>
-     <listitem>
-      <para></para>
-     </listitem>
-    </varlistentry>
-   </variablelist>
-  </section>
+	<section xml:id="zmqcontextexception.props">
+	 &reftitle.properties;
+	 <variablelist>
+		<varlistentry xml:id="zmqcontextexception.props.message">
+		 <term><varname>message</varname></term>
+		 <listitem>
+			<para></para>
+		 </listitem>
+		</varlistentry>
+		<varlistentry xml:id="zmqcontextexception.props.code">
+		 <term><varname>code</varname></term>
+		 <listitem>
+			<para></para>
+		 </listitem>
+		</varlistentry>
+		<varlistentry xml:id="zmqcontextexception.props.file">
+		 <term><varname>file</varname></term>
+		 <listitem>
+			<para></para>
+		 </listitem>
+		</varlistentry>
+		<varlistentry xml:id="zmqcontextexception.props.line">
+		 <term><varname>line</varname></term>
+		 <listitem>
+			<para></para>
+		 </listitem>
+		</varlistentry>
+	 </variablelist>
+	</section>
 <!-- }}} -->
 
 

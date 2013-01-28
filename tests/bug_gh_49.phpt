@@ -1,8 +1,8 @@
 --TEST--
 Test for Github issue #49
 --SKIPIF--
-<?php 
-    require_once(dirname(__FILE__) . '/skipif.inc'); 
+<?php
+		require_once(dirname(__FILE__) . '/skipif.inc');
 ?>
 --FILE--
 <?php
@@ -21,35 +21,35 @@ $poll->add ($client, ZMQ::POLL_IN);
 
 for ($i = 0; $i < 10; $i++)
 {
-    $readable = array();
-    $writable = array();
+		$readable = array();
+		$writable = array();
 
-    if ($i % 2)
-    {
-        $server->send ($i);
-    }
-    else
-    {
-        $client->send ($i);
-    }
-    $event = $poll->poll ($readable, $writable);
+		if ($i % 2)
+		{
+				$server->send ($i);
+		}
+		else
+		{
+				$client->send ($i);
+		}
+		$event = $poll->poll ($readable, $writable);
 
-    if (!$event)
-    {
-        continue;
-    }
-    foreach ($readable as $socket)
-    {
-        $msg = $socket->recv();
-        if ($socket === $server)
-        {
-            echo 'client to server msg:' . $msg . PHP_EOL;
-        }
-        else
-        {
-            echo 'server to client msg:' . $msg . PHP_EOL;
-        }
-    }
+		if (!$event)
+		{
+				continue;
+		}
+		foreach ($readable as $socket)
+		{
+				$msg = $socket->recv();
+				if ($socket === $server)
+				{
+						echo 'client to server msg:' . $msg . PHP_EOL;
+				}
+				else
+				{
+						echo 'server to client msg:' . $msg . PHP_EOL;
+				}
+		}
 }
 ?>
 --EXPECT--
