@@ -117,6 +117,7 @@
         <option name="rcvtimeo" type="int" mode="rw"/>
         <option name="ipv4only" type="int" mode="rw"/>
         <option name="last_endpoint" type="blob" mode="rw"/>
+        <option name="tcp_keepalive" type="int" mode="rw"/>
         <option name="tcp_keepalive_idle" type="int" mode="rw"/>
         <option name="tcp_keepalive_cnt" type="int" mode="rw"/>
         <option name="tcp_keepalive_intvl" type="int" mode="rw"/>
