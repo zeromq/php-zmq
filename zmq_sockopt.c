@@ -3104,6 +3104,19 @@ PHP_METHOD(zmqsocket, getsockopt)
 		}
 		break;
 		
+		case ZMQ_TCP_KEEPALIVE:
+		{
+			int value;
+
+			value_len = sizeof(int);
+			if (zmq_getsockopt(intern->socket->z_socket, (int) key, &value, &value_len) != 0) {
+				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to get the option ZMQ::SOCKOPT_TCP_KEEPALIVE value: %s", zmq_strerror(errno));
+				return;
+			}
+			RETURN_LONG(value);
+		}
+		break;
+		
 		case ZMQ_TCP_KEEPALIVE_IDLE:
 		{
 			int value;
@@ -3567,6 +3580,23 @@ PHP_METHOD(zmqsocket, setsockopt)
 
 	
 
+		case ZMQ_TCP_KEEPALIVE:
+		{
+			int value;
+			convert_to_long(pz_value);
+			
+			value  = (int) Z_LVAL_P(pz_value);
+			status = zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int));
+			
+			if (status != 0) {
+				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to set socket ZMQ::SOCKOPT_TCP_KEEPALIVE option: %s", zmq_strerror(errno));
+				return;
+			}
+		}
+		break;
+
+	
+
 		case ZMQ_TCP_KEEPALIVE_IDLE:
 		{
 			int value;
@@ -3755,6 +3785,8 @@ void php_zmq_register_sockopt_constants (zend_class_entry *php_zmq_sc_entry TSRM
 			
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_LAST_ENDPOINT", ZMQ_LAST_ENDPOINT);
 			
+	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_TCP_KEEPALIVE", ZMQ_TCP_KEEPALIVE);
+
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_TCP_KEEPALIVE_IDLE", ZMQ_TCP_KEEPALIVE_IDLE);
 			
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_TCP_KEEPALIVE_CNT", ZMQ_TCP_KEEPALIVE_CNT);
