@@ -385,14 +385,14 @@
      <varlistentry xml:id="zmq.constants.socket-xreq">
       <term><constant>ZMQ::SOCKET_XREQ</constant></term>
       <listitem>
-       <para>Extended REQ socket that load balances to all connected peers.</para>
+       <para>Alias for SOCKET_DEALER</para>
       </listitem>
      </varlistentry>
 
      <varlistentry xml:id="zmq.constants.socket-xrep">
       <term><constant>ZMQ::SOCKET_XREP</constant></term>
       <listitem>
-       <para>Extended REP socket that can route replies to requesters.</para>
+       <para>Alias for SOCKET_ROUTER</para>
       </listitem>
      </varlistentry>
 
@@ -413,14 +413,14 @@
      <varlistentry xml:id="zmq.constants.socket-router">
       <term><constant>ZMQ::SOCKET_ROUTER</constant></term>
       <listitem>
-       <para>Alias for SOCKET_XREP</para>
+       <para>Extended REP socket that can route replies to requesters</para>
       </listitem>
      </varlistentry>
 
      <varlistentry xml:id="zmq.constants.socket-dealer">
-      <term><constant>ZMQ::SOCKET_PULL</constant></term>
+      <term><constant>ZMQ::SOCKET_DEALER</constant></term>
       <listitem>
-       <para>Alias for SOCKET_XREQ</para>
+       <para>Extended REQ socket that load balances to all connected peers</para>
       </listitem>
      </varlistentry>
 
