@@ -34,7 +34,7 @@
 	
 #if ZMQ_VERSION_MAJOR == 2 && ZMQ_VERSION_MINOR < 2
 
-/* {{{ proto mixed ZMQSocket::getSockOpt()
+/*  proto mixed ZMQSocket::getSockOpt()
 	Get a socket option
 */
 PHP_METHOD(zmqsocket, getsockopt)
@@ -314,7 +314,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 
 	
 
-/* {{{ proto ZMQSocket ZMQSocket::setSockOpt(integer $SOCKOPT, mixed $value)
+/*  proto ZMQSocket ZMQSocket::setSockOpt(integer $SOCKOPT, mixed $value)
 	Set a socket option
 */
 PHP_METHOD(zmqsocket, setsockopt)
@@ -680,7 +680,7 @@ void php_zmq_register_sockopt_constants (zend_class_entry *php_zmq_sc_entry TSRM
 
 #if ZMQ_VERSION_MAJOR == 2 && ZMQ_VERSION_MINOR >= 2
 
-/* {{{ proto mixed ZMQSocket::getSockOpt()
+/*  proto mixed ZMQSocket::getSockOpt()
 	Get a socket option
 */
 PHP_METHOD(zmqsocket, getsockopt)
@@ -986,7 +986,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 
 	
 
-/* {{{ proto ZMQSocket ZMQSocket::setSockOpt(integer $SOCKOPT, mixed $value)
+/*  proto ZMQSocket ZMQSocket::setSockOpt(integer $SOCKOPT, mixed $value)
 	Set a socket option
 */
 PHP_METHOD(zmqsocket, setsockopt)
@@ -1390,7 +1390,7 @@ void php_zmq_register_sockopt_constants (zend_class_entry *php_zmq_sc_entry TSRM
 
 #if ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR == 0
 
-/* {{{ proto mixed ZMQSocket::getSockOpt()
+/*  proto mixed ZMQSocket::getSockOpt()
 	Get a socket option
 */
 PHP_METHOD(zmqsocket, getsockopt)
@@ -1696,7 +1696,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 
 	
 
-/* {{{ proto ZMQSocket ZMQSocket::setSockOpt(integer $SOCKOPT, mixed $value)
+/*  proto ZMQSocket ZMQSocket::setSockOpt(integer $SOCKOPT, mixed $value)
 	Set a socket option
 */
 PHP_METHOD(zmqsocket, setsockopt)
@@ -2116,7 +2116,7 @@ void php_zmq_register_sockopt_constants (zend_class_entry *php_zmq_sc_entry TSRM
 
 #if ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR == 1
 
-/* {{{ proto mixed ZMQSocket::getSockOpt()
+/*  proto mixed ZMQSocket::getSockOpt()
 	Get a socket option
 */
 PHP_METHOD(zmqsocket, getsockopt)
@@ -2409,7 +2409,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 
 	
 
-/* {{{ proto ZMQSocket ZMQSocket::setSockOpt(integer $SOCKOPT, mixed $value)
+/*  proto ZMQSocket ZMQSocket::setSockOpt(integer $SOCKOPT, mixed $value)
 	Set a socket option
 */
 PHP_METHOD(zmqsocket, setsockopt)
@@ -2820,11 +2820,11 @@ void php_zmq_register_sockopt_constants (zend_class_entry *php_zmq_sc_entry TSRM
 
 #if ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR >= 2
 
-/* {{{ proto mixed ZMQSocket::getSockOpt()
+/*  proto mixed ZMQSocket::getSockOpt() ZMQSocketMonitor::getSockOpt()
 	Get a socket option
 */
-PHP_METHOD(zmqsocket, getsockopt)
-{
+static void php_zmq_getsockopt_impl(INTERNAL_FUNCTION_PARAMETERS) {
+
 	php_zmq_socket_object *intern;
 	long key;
 	size_t value_len;
@@ -3227,10 +3227,28 @@ PHP_METHOD(zmqsocket, getsockopt)
 		}
 	}
 }
+/*  */
 
+/*  proto mixed ZMQSocket::getSockOpt()
+	Get a socket option
+*/
+PHP_METHOD(zmqsocket, getsockopt)
+{
+	php_zmq_getsockopt_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU);
+}
+/*  */
 	
 
-/* {{{ proto ZMQSocket ZMQSocket::setSockOpt(integer $SOCKOPT, mixed $value)
+/*  proto mixed ZMQSocketMonitor::getSockOpt()
+	Get a socket option
+*/
+PHP_METHOD(zmqsocketmonitor, getsockopt)
+{
+	php_zmq_getsockopt_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU);
+}
+/*  */
+
+/*  proto ZMQSocket ZMQSocket::setSockOpt(integer $SOCKOPT, mixed $value)
 	Set a socket option
 */
 PHP_METHOD(zmqsocket, setsockopt)
@@ -3798,6 +3816,28 @@ void php_zmq_register_sockopt_constants (zend_class_entry *php_zmq_sc_entry TSRM
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_DELAY_ATTACH_ON_CONNECT", ZMQ_DELAY_ATTACH_ON_CONNECT);
 			
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_XPUB_VERBOSE", ZMQ_XPUB_VERBOSE);
+
+	PHP_ZMQ_REGISTER_SOCKOPT("SOCK_EVENT_ALL", ZMQ_EVENT_ALL);
+
+	PHP_ZMQ_REGISTER_SOCKOPT("SOCK_EVENT_CONNECTED", ZMQ_EVENT_CONNECTED);
+
+	PHP_ZMQ_REGISTER_SOCKOPT("SOCK_EVENT_CONNECT_DELAYED", ZMQ_EVENT_CONNECT_DELAYED);
+
+	PHP_ZMQ_REGISTER_SOCKOPT("SOCK_EVENT_CONNECT_RETRIED", ZMQ_EVENT_CONNECT_RETRIED);
+
+	PHP_ZMQ_REGISTER_SOCKOPT("SOCK_EVENT_LISTENING", ZMQ_EVENT_LISTENING);
+
+	PHP_ZMQ_REGISTER_SOCKOPT("SOCK_EVENT_BIND_FAILED", ZMQ_EVENT_BIND_FAILED);
+
+	PHP_ZMQ_REGISTER_SOCKOPT("SOCK_EVENT_ACCEPTED", ZMQ_EVENT_ACCEPTED);
+
+	PHP_ZMQ_REGISTER_SOCKOPT("SOCK_EVENT_ACCEPT_FAILED", ZMQ_EVENT_ACCEPT_FAILED);
+
+	PHP_ZMQ_REGISTER_SOCKOPT("SOCK_EVENT_CLOSED", ZMQ_EVENT_CLOSED);
+
+	PHP_ZMQ_REGISTER_SOCKOPT("SOCK_EVENT_CLOSE_FAILED", ZMQ_EVENT_CLOSE_FAILED);
+
+	PHP_ZMQ_REGISTER_SOCKOPT("SOCK_EVENT_DISCONNECTED", ZMQ_EVENT_DISCONNECTED);
 			
 #undef PHP_ZMQ_REGISTER_SOCKOPT
 }

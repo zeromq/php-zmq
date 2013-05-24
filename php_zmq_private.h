@@ -101,6 +101,9 @@ typedef struct _php_zmq_socket  {
 	HashTable connect;
 	HashTable bind;
 
+	/* Used by ZMQSocketMonitor::connect() */
+	void *monitored_z_socket;
+
 	zend_bool is_persistent;
 
 	/* Who created me */
@@ -155,9 +158,11 @@ typedef struct _php_zmq_device_object  {
 /* }}} */
 
 #ifdef ZTS
-# define ZMQ_G(v) TSRMG(php_zmq_globals_id, zend_php_zmq_globals *, v)
+# define ZMQ_G(v) TSRMG(zmq_globals_id, zend_zmq_globals *, v)
+extern int zmq_globals_id;
 #else
-# define ZMQ_G(v) (php_zmq_globals.v)
+# define ZMQ_G(v) (zmq_globals.v)
+extern zend_zmq_globals zmq_globals;
 #endif
 
 #define PHP_ZMQ_CONTEXT_OBJECT (php_zmq_context_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
@@ -231,6 +236,7 @@ typedef struct _php_zmq_device_object  {
 #define PHP_ZMQ_VERSION_LEN 24
 
 PHP_METHOD(zmqsocket, getsockopt);
+PHP_METHOD(zmqsocketmonitor, getsockopt);
 PHP_METHOD(zmqsocket, setsockopt);
 int php_zmq_device(php_zmq_device_object *intern TSRMLS_DC);
 
