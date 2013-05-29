@@ -116,7 +116,7 @@ PHP_FUNCTION(zmq_erik_ctx_new)
 	
 	if(context->ptr == NULL) {
 
-		php_error(E_ERROR, "zmq_ctx_new failed: %d", errno, zmq_strerror(errno));
+		php_error(E_ERROR, "zmq_ctx_new failed: %d %s", errno, zmq_strerror(errno));
 	}
 
 	ZEND_REGISTER_RESOURCE(return_value, context, le_zmq_erik_context);
@@ -136,7 +136,6 @@ PHP_FUNCTION(zmq_erik_ctx_destroy)
 	}
 
 	ZEND_FETCH_RESOURCE(context, php_zmq_erik_context *, &z_context, -1, PHP_ZMQ_ERIK_CONTEXT_RES_NAME, le_zmq_erik_context);
-	php_printf("zmq_erik_ctx_destroy %d\n", __LINE__);
 
 	if(context->ptr) {
 
@@ -177,7 +176,7 @@ PHP_FUNCTION(zmq_erik_socket)
 	
 	if(socket->ptr == NULL) {
 
-		php_error(E_ERROR, "zmq_socket failed: %d", errno, zmq_strerror(errno));
+		php_error(E_ERROR, "zmq_socket failed: %d %s", errno, zmq_strerror(errno));
 	}
 
 	ZEND_REGISTER_RESOURCE(return_value, socket, le_zmq_erik_socket);
@@ -217,6 +216,235 @@ PHP_FUNCTION(zmq_erik_close)
 	}
 	zend_list_delete(Z_LVAL_P(z_socket));
 	RETURN_TRUE;
+}
+/* }}} */
+
+/* {{{ proto bool zmq_erik_bind(resource $socket, string $endpoint) */
+PHP_FUNCTION(zmq_erik_bind)
+{
+	zval *z_socket;
+	php_zmq_erik_socket *socket;
+	char *endpoint;
+	int endpoint_len;
+	int rc;
+
+	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rs", &z_socket, &endpoint, &endpoint_len) == FAILURE) {
+
+		RETURN_FALSE;
+	}
+
+	ZEND_FETCH_RESOURCE(socket, php_zmq_erik_socket *, &z_socket, -1, PHP_ZMQ_ERIK_SOCKET_RES_NAME, le_zmq_erik_socket);
+	rc = zmq_bind(socket->ptr, endpoint);
+	
+	php_printf("bind: %d %d\n", rc, __LINE__);
+	
+	if(rc != 0) {
+
+		php_error(E_ERROR, "zmq_bind failed: %d %s", errno, zmq_strerror(errno));
+		RETURN_FALSE;
+	}
+
+	RETURN_TRUE;
+}
+/* }}} */
+
+/* {{{ proto bool zmq_erik_unbind(resource $socket, string $endpoint) */
+PHP_FUNCTION(zmq_erik_unbind)
+{
+	zval *z_socket;
+	php_zmq_erik_socket *socket;
+	char *endpoint;
+	int endpoint_len;
+	int rc;
+
+	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rs", &z_socket, &endpoint, &endpoint_len) == FAILURE) {
+
+		RETURN_FALSE;
+	}
+
+	ZEND_FETCH_RESOURCE(socket, php_zmq_erik_socket *, &z_socket, -1, PHP_ZMQ_ERIK_SOCKET_RES_NAME, le_zmq_erik_socket);
+	rc = zmq_unbind(socket->ptr, endpoint);
+	
+	if(rc != 0) {
+
+		php_error(E_ERROR, "zmq_unbind failed: %d %s", errno, zmq_strerror(errno));
+		RETURN_FALSE;
+	}
+
+	RETURN_TRUE;
+}
+/* }}} */
+
+/* {{{ proto bool zmq_erik_bind(resource $socket, string $endpoint) */
+PHP_FUNCTION(zmq_erik_connect)
+{
+	zval *z_socket;
+	php_zmq_erik_socket *socket;
+	char *endpoint;
+	int endpoint_len;
+	int rc;
+
+	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rs", &z_socket, &endpoint, &endpoint_len) == FAILURE) {
+
+		RETURN_FALSE;
+	}
+
+	ZEND_FETCH_RESOURCE(socket, php_zmq_erik_socket *, &z_socket, -1, PHP_ZMQ_ERIK_SOCKET_RES_NAME, le_zmq_erik_socket);
+	rc = zmq_connect(socket->ptr, endpoint);
+	php_printf("zmq_connect: %d %d\n", rc, __LINE__);
+	
+	if(rc != 0) {
+
+		php_error(E_ERROR, "zmq_connect failed: %d %s", errno, zmq_strerror(errno));
+		RETURN_FALSE;
+	}
+
+	RETURN_TRUE;
+}
+/* }}} */
+
+/* {{{ proto bool zmq_erik_disconnect(resource $socket, string $endpoint) */
+PHP_FUNCTION(zmq_erik_disconnect)
+{
+	zval *z_socket;
+	php_zmq_erik_socket *socket;
+	char *endpoint;
+	int endpoint_len;
+	int rc;
+
+	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rs", &z_socket, &endpoint, &endpoint_len) == FAILURE) {
+
+		RETURN_FALSE;
+	}
+
+	ZEND_FETCH_RESOURCE(socket, php_zmq_erik_socket *, &z_socket, -1, PHP_ZMQ_ERIK_SOCKET_RES_NAME, le_zmq_erik_socket);
+	rc = zmq_disconnect(socket->ptr, endpoint);
+	
+	if(rc != 0) {
+
+		php_error(E_ERROR, "zmq_disconnect failed: %d %s", errno, zmq_strerror(errno));
+		RETURN_FALSE;
+	}
+
+	RETURN_TRUE;
+}
+/* }}} */
+
+/* {{{ proto long zmq_erik_send(resource $socket, string $content [, long $flags = 0]) */
+PHP_FUNCTION(zmq_erik_send)
+{
+	zval *z_socket;
+	php_zmq_erik_socket *socket;
+	char *content;
+	int content_len;
+	long flags = 0;
+	int rc;
+
+	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rs|l", &z_socket, &content, &content_len, &flags) == FAILURE) {
+
+		RETURN_FALSE;
+	}
+
+	ZEND_FETCH_RESOURCE(socket, php_zmq_erik_socket *, &z_socket, -1, PHP_ZMQ_ERIK_SOCKET_RES_NAME, le_zmq_erik_socket);
+/*
+	zmq_msg_t message;
+
+	if (zmq_msg_init_size(&message, content_len) != 0) {
+		zend_throw_exception_ex(php_zmq_socket_exception_sc_entry, errno TSRMLS_CC, "Failed to initialize message structure: %s", zmq_strerror(errno));
+		RETURN_NULL();
+	}
+	memcpy(zmq_msg_data(&message), content, content_len);
+
+	rc = zmq_sendmsg(socket->ptr, &message, flags);
+
+	zmq_msg_close(&message);
+
+	if (rc == -1) {
+	    if (errno == EAGAIN) {
+			RETURN_NULL();
+	    }
+		zend_throw_exception_ex(php_zmq_socket_exception_sc_entry, errno TSRMLS_CC, "Failed to send message: %s", zmq_strerror(errno));
+		RETURN_NULL();
+	}
+*/
+
+	rc = zmq_send(socket->ptr, content, content_len, flags);
+	
+	if(rc == -1) {
+
+		php_error(E_NOTICE, "zmq_send failed: %d %s", errno, zmq_strerror(errno));
+		RETURN_FALSE;
+	}
+
+	RETURN_LONG(rc);	
+}
+/* }}} */
+
+/* {{{ proto bool zmq_erik_setsockopt(resource $socket, int $option, mixed $value) */
+PHP_FUNCTION(zmq_erik_setsockopt)
+{
+	zval *z_socket;
+	php_zmq_erik_socket *socket;
+	long key;
+	zval *pz_value;
+	int rc;
+
+	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rlz/", &z_socket, &key, &pz_value) == FAILURE) {
+
+		RETURN_FALSE;
+	}
+
+	ZEND_FETCH_RESOURCE(socket, php_zmq_erik_socket *, &z_socket, -1, PHP_ZMQ_ERIK_SOCKET_RES_NAME, le_zmq_erik_socket);
+
+	if(key == ZMQ_RECOVERY_IVL) {
+
+		int value;
+		convert_to_long(pz_value);
+		value = (int) Z_LVAL_P(pz_value);
+		rc = zmq_setsockopt(socket->ptr, key, &value, sizeof(int));
+	}
+	else if(key == ZMQ_SUBSCRIBE) {
+
+		convert_to_string(pz_value);
+ 		rc = zmq_setsockopt(socket->ptr, key, Z_STRVAL_P(pz_value), Z_STRLEN_P(pz_value));
+
+	}
+
+	if(rc == -1) {
+
+		php_error(E_ERROR, "setsockopt failed: %d %s", errno, zmq_strerror(errno));
+		RETURN_FALSE;
+	}
+
+	RETURN_TRUE;
+}
+/* }}} */
+
+/* {{{ proto string zmq_erik_recv(resource $socket [, long $flags = 0]) */
+PHP_FUNCTION(zmq_erik_recv)
+{
+	zval *z_socket;
+	php_zmq_erik_socket *socket;
+	char buf[256];
+	long flags = 0;
+	int rc;
+	zmq_msg_t msg;
+
+	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r|l", &z_socket, &flags) == FAILURE) {
+
+		RETURN_FALSE;
+	}
+
+	ZEND_FETCH_RESOURCE(socket, php_zmq_erik_socket *, &z_socket, -1, PHP_ZMQ_ERIK_SOCKET_RES_NAME, le_zmq_erik_socket);
+	rc = zmq_recv(socket->ptr, buf, 256, flags);
+	
+	if(rc == -1) {
+
+		php_error(E_NOTICE, "zmq_recv failed: %d %s", errno, zmq_strerror(errno));
+		RETURN_FALSE;
+	}
+
+	RETURN_STRINGL(buf, rc, 1);
 }
 /* }}} */
 
@@ -2212,12 +2440,56 @@ ZEND_BEGIN_ARG_INFO_EX(zmq_erik_close_args, 0, 0, 1)
 	ZEND_ARG_INFO(0, socket)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(zmq_erik_bind_args, 0, 0, 2)
+	ZEND_ARG_INFO(0, socket)
+	ZEND_ARG_INFO(0, endpoint)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(zmq_erik_unbind_args, 0, 0, 2)
+	ZEND_ARG_INFO(0, socket)
+	ZEND_ARG_INFO(0, endpoint)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(zmq_erik_connect_args, 0, 0, 2)
+	ZEND_ARG_INFO(0, socket)
+	ZEND_ARG_INFO(0, endpoint)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(zmq_erik_disconnect_args, 0, 0, 2)
+	ZEND_ARG_INFO(0, socket)
+	ZEND_ARG_INFO(0, endpoint)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(zmq_erik_send_args, 0, 0, 2)
+	ZEND_ARG_INFO(0, socket)
+	ZEND_ARG_INFO(0, content)
+	ZEND_ARG_INFO(0, flags)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(zmq_erik_recv_args, 0, 0, 1)
+	ZEND_ARG_INFO(0, socket)
+	ZEND_ARG_INFO(0, flags)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(zmq_erik_setsockopt_args, 0, 0, 3)
+	ZEND_ARG_INFO(0, socket)
+	ZEND_ARG_INFO(0, option)
+	ZEND_ARG_INFO(0, value)
+ZEND_END_ARG_INFO()
+
 zend_function_entry zmq_functions[] = {
 
 	PHP_FE(zmq_erik_ctx_new, zmq_erik_ctx_new_args)
 	PHP_FE(zmq_erik_ctx_destroy, zmq_erik_ctx_destroy_args)
 	PHP_FE(zmq_erik_socket, zmq_erik_socket_args)
 	PHP_FE(zmq_erik_close, zmq_erik_close_args)
+	PHP_FE(zmq_erik_bind, zmq_erik_bind_args)
+	PHP_FE(zmq_erik_unbind, zmq_erik_unbind_args)
+	PHP_FE(zmq_erik_connect, zmq_erik_connect_args)
+	PHP_FE(zmq_erik_disconnect, zmq_erik_disconnect_args)
+	PHP_FE(zmq_erik_send, zmq_erik_send_args)
+	PHP_FE(zmq_erik_recv, zmq_erik_recv_args)
+	PHP_FE(zmq_erik_setsockopt, zmq_erik_setsockopt_args)
 	{NULL, NULL, NULL} 
 };
 
@@ -2458,8 +2730,6 @@ ZEND_RSRC_DTOR_FUNC(zmq_erik_context_dtor)
 	php_zmq_erik_context *context = (php_zmq_erik_context*) rsrc->ptr;
 	int rc;
 
-	php_printf("zmq_erik_context_dtor %d\n", __LINE__);
-	
 	if(context) {
 
 		if(context->ptr) {
@@ -2472,10 +2742,6 @@ ZEND_RSRC_DTOR_FUNC(zmq_erik_context_dtor)
 				php_error(E_ERROR, "zmq_ctx_destroy failed: %d %s", errno, zmq_strerror(errno) );
 			}
 		}
-		else {
-
-			php_printf("ptr is null %d\n", __LINE__);
-		}
 	}
 }
 /* }}} */
@@ -2485,8 +2751,6 @@ ZEND_RSRC_DTOR_FUNC(zmq_erik_socket_dtor)
 {
 	php_zmq_erik_socket *socket = (php_zmq_erik_socket*) rsrc->ptr;
 	int rc;
-
-	php_printf("zmq_erik_socket_dtor %d\n", __LINE__);
 	
 	if(socket) {
 
@@ -2499,10 +2763,6 @@ ZEND_RSRC_DTOR_FUNC(zmq_erik_socket_dtor)
 
 				php_error(E_ERROR, "zmq_erik_socket_close failed: %d %s", errno, zmq_strerror(errno) );
 			}
-		}
-		else {
-
-			php_printf("ptr is null %d\n", __LINE__);
 		}
 	}
 }
