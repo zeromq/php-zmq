@@ -101,9 +101,6 @@ typedef struct _php_zmq_socket  {
 	HashTable connect;
 	HashTable bind;
 
-	/* Used by ZMQSocketMonitor::connect() */
-	void *monitored_z_socket;
-
 	zend_bool is_persistent;
 
 	/* Who created me */
@@ -133,6 +130,26 @@ typedef struct _php_zmq_socket_object  {
 } php_zmq_socket_object;
 /* }}} */
 
+/* {{{ typedef struct _php_zmq_socket_monitor_object 
+*/
+typedef struct _php_zmq_socket_monitor_object  {
+	zend_object zo;
+	php_zmq_socket *socket;
+	
+	/* options for the context */
+	char *persistent_id;
+	
+	/* zval of the context */
+	zval *context_obj;
+
+	/* The socket being watched/monitored */
+	zval *monitored_socket;
+
+	char *monitor_url;
+
+} php_zmq_socket_monitor_object;
+/* }}} */
+
 /* {{{ typedef struct _php_zmq_poll_object 
 */
 typedef struct _php_zmq_poll_object  {
@@ -158,10 +175,10 @@ typedef struct _php_zmq_device_object  {
 /* }}} */
 
 #ifdef ZTS
-# define ZMQ_G(v) TSRMG(zmq_globals_id, zend_zmq_globals *, v)
+#define ZMQ_G(v) TSRMG(zmq_globals_id, zend_zmq_globals*, v)
 extern int zmq_globals_id;
 #else
-# define ZMQ_G(v) (zmq_globals.v)
+#define ZMQ_G(v) (zmq_globals.v)
 extern zend_zmq_globals zmq_globals;
 #endif
 

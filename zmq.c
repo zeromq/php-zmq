@@ -36,6 +36,7 @@ zend_class_entry *php_zmq_sc_entry;
 zend_class_entry *php_zmq_context_sc_entry;
 zend_class_entry *php_zmq_socket_sc_entry;
 zend_class_entry *php_zmq_socket_monitor_sc_entry;
+zend_class_entry *php_zmq_event_sc_entry;
 zend_class_entry *php_zmq_poll_sc_entry;
 zend_class_entry *php_zmq_device_sc_entry;
 zend_class_entry *php_zmq_socket_monitor_entry;
@@ -48,6 +49,8 @@ zend_class_entry *php_zmq_device_exception_sc_entry;
 
 static zend_object_handlers zmq_object_handlers;
 static zend_object_handlers zmq_socket_object_handlers;
+static zend_object_handlers zmq_socket_monitor_object_handlers;
+static zend_object_handlers zmq_event_object_handlers;
 static zend_object_handlers zmq_context_object_handlers;
 static zend_object_handlers zmq_poll_object_handlers;
 static zend_object_handlers zmq_device_object_handlers;
@@ -60,7 +63,7 @@ ZEND_DECLARE_MODULE_GLOBALS(zmq)
 
 static void zmq_globals_ctor(zend_zmq_globals *globals) {
 
-	globals->monitor_pair_instance = 0;
+	globals->monitor_instance = 0;
 }
 
 zend_class_entry *php_zmq_context_exception_sc_entry_get ()
@@ -78,500 +81,10 @@ zend_class_entry *php_zmq_device_exception_sc_entry_get ()
 	return php_zmq_device_exception_sc_entry;
 }
 
+/* void (*zend_object_set_t)(zval **object, zval *value TSRMLS_DC); */
+
 /* list entries */
-static int le_zmq_socket, le_zmq_context;
-static int le_zmq_erik_context, le_zmq_erik_socket;
-
-typedef struct _php_zmq_erik_context {
-
-	void *ptr;
-
-} php_zmq_erik_context;
-
-#define PHP_ZMQ_ERIK_CONTEXT_RES_NAME "ZMQ Erik Context"
-
-typedef struct _php_zmq_erik_socket {
-
-	void *ptr;
-
-} php_zmq_erik_socket;
-
-#define PHP_ZMQ_ERIK_SOCKET_RES_NAME "ZMQ Erik Socket"
-
-/* {{{ proto resource zmq_erik_ctx_new()
-	Create a new context
-*/
-PHP_FUNCTION(zmq_erik_ctx_new)
-{
-	php_zmq_erik_context *context;
-
-	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "") == FAILURE) {
-
-		php_error(E_ERROR, "Bad Arguments");
-		RETURN_FALSE;
-	}
-
-	context = emalloc(sizeof(php_zmq_erik_context));
-	context->ptr = zmq_ctx_new();
-	
-	if(context->ptr == NULL) {
-
-		php_error(E_ERROR, "zmq_ctx_new failed: %d %s", errno, zmq_strerror(errno));
-	}
-
-	ZEND_REGISTER_RESOURCE(return_value, context, le_zmq_erik_context);
-}
-/* }}} */
-
-/* {{{ proto bool zmq_erik_ctx_destroy(resorce $context) */
-PHP_FUNCTION(zmq_erik_ctx_destroy)
-{
-	zval *z_context; 
-	php_zmq_erik_context *context;
-	int rc;
-
-	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &z_context) == FAILURE) {
-
-		RETURN_FALSE;
-	}
-
-	ZEND_FETCH_RESOURCE(context, php_zmq_erik_context *, &z_context, -1, PHP_ZMQ_ERIK_CONTEXT_RES_NAME, le_zmq_erik_context);
-
-	if(context->ptr) {
-
-		rc = zmq_ctx_destroy(context->ptr);
-		context->ptr = NULL;
-
-		if(rc != 0) {
-			
-			php_error(E_ERROR, "zmq_ctx_destroy failed: %d %s", errno, zmq_strerror(errno) );
-		}
-	}
-	else {
-
-		php_printf("context->ptr is null %d", __LINE__);
-	}
-
-	zend_list_delete(Z_LVAL_P(z_context));
-	RETURN_TRUE;
-}
-/* }}} */
-
-/* {{{ proto resource zmq_erik_socket(resource $context, int $type) */
-PHP_FUNCTION(zmq_erik_socket)
-{
-	zval *z_context;
-	php_zmq_erik_context *context;
-	php_zmq_erik_socket  *socket;
-	long type;
-
-	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rl", &z_context, &type) == FAILURE) {
-
-		RETURN_FALSE;
-	}
-
-	ZEND_FETCH_RESOURCE(context, php_zmq_erik_context *, &z_context, -1, PHP_ZMQ_ERIK_CONTEXT_RES_NAME, le_zmq_erik_context);
-	socket = emalloc(sizeof(php_zmq_erik_socket));
-	socket->ptr = zmq_socket(context->ptr, type); 
-	
-	if(socket->ptr == NULL) {
-
-		php_error(E_ERROR, "zmq_socket failed: %d %s", errno, zmq_strerror(errno));
-	}
-
-	ZEND_REGISTER_RESOURCE(return_value, socket, le_zmq_erik_socket);
-}
-/* }}} */
-
-/* {{{ proto resource zmq_erik_close(resource $socket) */
-PHP_FUNCTION(zmq_erik_close)
-{
-	zval *z_socket;
-	php_zmq_erik_socket  *socket;
-	int rc;
-
-	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &z_socket) == FAILURE) {
-
-		RETURN_FALSE;
-	}
-
-	ZEND_FETCH_RESOURCE(socket, php_zmq_erik_socket *, &z_socket, -1, PHP_ZMQ_ERIK_SOCKET_RES_NAME, le_zmq_erik_socket);
-
-	if(socket) {
-
-		if(socket->ptr) {
-
-			rc = zmq_close(socket->ptr);
-			socket->ptr = NULL;
-
-			if(rc != 0) {
-
-				php_error(E_ERROR, "zmq_erik_socket_close failed: %d %s", errno, zmq_strerror(errno) );
-			}
-		}
-		else {
-
-			php_printf("ptr is null %d\n", __LINE__);
-		}
-	}
-	zend_list_delete(Z_LVAL_P(z_socket));
-	RETURN_TRUE;
-}
-/* }}} */
-
-/* {{{ proto bool zmq_erik_bind(resource $socket, string $endpoint) */
-PHP_FUNCTION(zmq_erik_bind)
-{
-	zval *z_socket;
-	php_zmq_erik_socket *socket;
-	char *endpoint;
-	int endpoint_len;
-	int rc;
-
-	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rs", &z_socket, &endpoint, &endpoint_len) == FAILURE) {
-
-		RETURN_FALSE;
-	}
-
-	ZEND_FETCH_RESOURCE(socket, php_zmq_erik_socket *, &z_socket, -1, PHP_ZMQ_ERIK_SOCKET_RES_NAME, le_zmq_erik_socket);
-	rc = zmq_bind(socket->ptr, endpoint);
-	
-	if(rc != 0) {
-
-		php_error(E_ERROR, "zmq_bind failed: %d %s", errno, zmq_strerror(errno));
-		RETURN_FALSE;
-	}
-
-	RETURN_TRUE;
-}
-/* }}} */
-
-/* {{{ proto bool zmq_erik_unbind(resource $socket, string $endpoint) */
-PHP_FUNCTION(zmq_erik_unbind)
-{
-	zval *z_socket;
-	php_zmq_erik_socket *socket;
-	char *endpoint;
-	int endpoint_len;
-	int rc;
-
-	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rs", &z_socket, &endpoint, &endpoint_len) == FAILURE) {
-
-		RETURN_FALSE;
-	}
-
-	ZEND_FETCH_RESOURCE(socket, php_zmq_erik_socket *, &z_socket, -1, PHP_ZMQ_ERIK_SOCKET_RES_NAME, le_zmq_erik_socket);
-	rc = zmq_unbind(socket->ptr, endpoint);
-	
-	if(rc != 0) {
-
-		php_error(E_ERROR, "zmq_unbind failed: %d %s", errno, zmq_strerror(errno));
-		RETURN_FALSE;
-	}
-
-	RETURN_TRUE;
-}
-/* }}} */
-
-/* {{{ proto bool zmq_erik_bind(resource $socket, string $endpoint) */
-PHP_FUNCTION(zmq_erik_connect)
-{
-	zval *z_socket;
-	php_zmq_erik_socket *socket;
-	char *endpoint;
-	int endpoint_len;
-	int rc;
-
-	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rs", &z_socket, &endpoint, &endpoint_len) == FAILURE) {
-
-		RETURN_FALSE;
-	}
-
-	ZEND_FETCH_RESOURCE(socket, php_zmq_erik_socket *, &z_socket, -1, PHP_ZMQ_ERIK_SOCKET_RES_NAME, le_zmq_erik_socket);
-	rc = zmq_connect(socket->ptr, endpoint);
-	
-	if(rc != 0) {
-
-		php_error(E_ERROR, "zmq_connect failed: %d %s", errno, zmq_strerror(errno));
-		RETURN_FALSE;
-	}
-
-	RETURN_TRUE;
-}
-/* }}} */
-
-/* {{{ proto bool zmq_erik_disconnect(resource $socket, string $endpoint) */
-PHP_FUNCTION(zmq_erik_disconnect)
-{
-	zval *z_socket;
-	php_zmq_erik_socket *socket;
-	char *endpoint;
-	int endpoint_len;
-	int rc;
-
-	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rs", &z_socket, &endpoint, &endpoint_len) == FAILURE) {
-
-		RETURN_FALSE;
-	}
-
-	ZEND_FETCH_RESOURCE(socket, php_zmq_erik_socket *, &z_socket, -1, PHP_ZMQ_ERIK_SOCKET_RES_NAME, le_zmq_erik_socket);
-	rc = zmq_disconnect(socket->ptr, endpoint);
-	
-	if(rc != 0) {
-
-		php_error(E_ERROR, "zmq_disconnect failed: %d %s", errno, zmq_strerror(errno));
-		RETURN_FALSE;
-	}
-
-	RETURN_TRUE;
-}
-/* }}} */
-
-/* {{{ proto long zmq_erik_send(resource $socket, string $content [, long $flags = 0]) */
-PHP_FUNCTION(zmq_erik_send)
-{
-	zval *z_socket;
-	php_zmq_erik_socket *socket;
-	char *content;
-	int content_len;
-	long flags = 0;
-	int rc;
-
-	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rs|l", &z_socket, &content, &content_len, &flags) == FAILURE) {
-
-		RETURN_FALSE;
-	}
-
-	ZEND_FETCH_RESOURCE(socket, php_zmq_erik_socket *, &z_socket, -1, PHP_ZMQ_ERIK_SOCKET_RES_NAME, le_zmq_erik_socket);
-/*
-	zmq_msg_t message;
-
-	if (zmq_msg_init_size(&message, content_len) != 0) {
-		zend_throw_exception_ex(php_zmq_socket_exception_sc_entry, errno TSRMLS_CC, "Failed to initialize message structure: %s", zmq_strerror(errno));
-		RETURN_NULL();
-	}
-	memcpy(zmq_msg_data(&message), content, content_len);
-
-	rc = zmq_sendmsg(socket->ptr, &message, flags);
-
-	zmq_msg_close(&message);
-
-	if (rc == -1) {
-	    if (errno == EAGAIN) {
-			RETURN_NULL();
-	    }
-		zend_throw_exception_ex(php_zmq_socket_exception_sc_entry, errno TSRMLS_CC, "Failed to send message: %s", zmq_strerror(errno));
-		RETURN_NULL();
-	}
-*/
-
-	rc = zmq_send(socket->ptr, content, content_len, flags);
-	
-	if(rc == -1) {
-
-		php_error(E_NOTICE, "zmq_send failed: %d %s", errno, zmq_strerror(errno));
-		RETURN_FALSE;
-	}
-
-	RETURN_LONG(rc);	
-}
-/* }}} */
-
-/* {{{ proto bool zmq_erik_setsockopt(resource $socket, int $option, mixed $value) */
-PHP_FUNCTION(zmq_erik_setsockopt)
-{
-	zval *z_socket;
-	php_zmq_erik_socket *socket;
-	long key;
-	zval *pz_value;
-	int rc;
-
-	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rlz/", &z_socket, &key, &pz_value) == FAILURE) {
-
-		RETURN_FALSE;
-	}
-
-	ZEND_FETCH_RESOURCE(socket, php_zmq_erik_socket *, &z_socket, -1, PHP_ZMQ_ERIK_SOCKET_RES_NAME, le_zmq_erik_socket);
-
-	if(key == ZMQ_RECOVERY_IVL) {
-
-		int value;
-		convert_to_long(pz_value);
-		value = (int) Z_LVAL_P(pz_value);
-		rc = zmq_setsockopt(socket->ptr, key, &value, sizeof(int));
-	}
-	if(key == ZMQ_LINGER) {
-
-		int value;
-		convert_to_long(pz_value);
-		value = (int) Z_LVAL_P(pz_value);
-		rc = zmq_setsockopt(socket->ptr, key, &value, sizeof(int));
-	}
-	else if(key == ZMQ_SUBSCRIBE) {
-
-		convert_to_string(pz_value);
- 		rc = zmq_setsockopt(socket->ptr, key, Z_STRVAL_P(pz_value), Z_STRLEN_P(pz_value));
-
-	}
-
-	if(rc == -1) {
-
-		php_error(E_ERROR, "setsockopt failed: %d %s", errno, zmq_strerror(errno));
-		RETURN_FALSE;
-	}
-
-	RETURN_TRUE;
-}
-/* }}} */
-
-/* {{{ proto string zmq_erik_recv(resource $socket [, long $flags = 0]) */
-PHP_FUNCTION(zmq_erik_recv)
-{
-	zval *z_socket;
-	php_zmq_erik_socket *socket;
-	char buf[256];
-	long flags = 0;
-	int rc;
-	zmq_msg_t msg;
-
-	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r|l", &z_socket, &flags) == FAILURE) {
-
-		RETURN_FALSE;
-	}
-
-	ZEND_FETCH_RESOURCE(socket, php_zmq_erik_socket *, &z_socket, -1, PHP_ZMQ_ERIK_SOCKET_RES_NAME, le_zmq_erik_socket);
-	rc = zmq_recv(socket->ptr, buf, 256, flags);
-	
-	if(rc == -1) {
-
-		php_error(E_NOTICE, "zmq_recv failed: %d %s", errno, zmq_strerror(errno));
-		RETURN_FALSE;
-	}
-
-	RETURN_STRINGL(buf, rc, 1);
-}
-/* }}} */
-
-/* {{{ proto array zmq_erik_recv_event(resource $socket [, long $flags = 0]) */
-PHP_FUNCTION(zmq_erik_recv_event)
-{
-	zval *z_socket;
-	php_zmq_erik_socket *socket;
-	char buf[256];
-	long flags = 0;
-	int rc;
-
-	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r|l", &z_socket, &flags) == FAILURE) {
-
-		RETURN_FALSE;
-	}
-
-	ZEND_FETCH_RESOURCE(socket, php_zmq_erik_socket *, &z_socket, -1, PHP_ZMQ_ERIK_SOCKET_RES_NAME, le_zmq_erik_socket);
-	zmq_event_t event;
-	zmq_msg_t msg;
-	zmq_msg_init(&msg);
-	rc = zmq_recvmsg(socket->ptr, &msg, flags);
-
-	if(rc == -1) {
-
-		if(errno != EAGAIN) {
-		
-			php_error(E_NOTICE, "zmq_recv_event failed: %d %s", errno, zmq_strerror(errno));
-		}
-
-		RETURN_FALSE;
-	}
-
-	memcpy(&event, zmq_msg_data(&msg), sizeof(event));
-
-	array_init(return_value);
-	add_assoc_long(return_value, "event", event.event);
-	php_printf("event: %d %d\n", event.event, __LINE__);
-
-	switch (event.event) {
-
-	case ZMQ_EVENT_CONNECTED:
-		add_assoc_string(return_value, "desc", "connected", 1);
-		add_assoc_string(return_value, "addr", event.data.connected.addr, 1);
-		add_assoc_long(return_value, "fd", event.data.connected.fd);
-		break;
-	case ZMQ_EVENT_CONNECT_DELAYED:
-		add_assoc_string(return_value, "desc", "connect_delayed", 1);
-		add_assoc_string(return_value, "addr", event.data.connect_delayed.addr, 1);
-		add_assoc_long(return_value, "err", event.data.connect_delayed.err);
-		break;
-	case ZMQ_EVENT_CONNECT_RETRIED:
-		add_assoc_string(return_value, "desc", "connect_retried", 1);
-		add_assoc_string(return_value, "addr", event.data.connect_retried.addr, 1);
-		add_assoc_long(return_value, "interval", event.data.connect_retried.interval);
-		break;
-	case ZMQ_EVENT_LISTENING:
-		add_assoc_string(return_value, "desc", "listening", 1);
-		add_assoc_string(return_value, "addr", event.data.listening.addr, 1);
-		add_assoc_long(return_value, "fd", event.data.listening.fd);
-		break;
-	case ZMQ_EVENT_BIND_FAILED:
-		add_assoc_string(return_value, "desc", "bind_failed", 1);
-		add_assoc_string(return_value, "addr", event.data.bind_failed.addr, 1);
-		add_assoc_long(return_value, "err", event.data.bind_failed.err);
-		break;
-	case ZMQ_EVENT_ACCEPTED:
-		add_assoc_string(return_value, "desc", "accepted", 1);
-		add_assoc_string(return_value, "addr", event.data.accepted.addr, 1);
-		add_assoc_long(return_value, "fd", event.data.accepted.fd);
-		break;
-	case ZMQ_EVENT_ACCEPT_FAILED:
-		add_assoc_string(return_value, "desc", "accept_failed", 1);
-		add_assoc_string(return_value, "addr", event.data.accept_failed.addr, 1);
-		add_assoc_long(return_value, "err", event.data.accept_failed.err);
-		break;
-	case ZMQ_EVENT_CLOSED:
-		add_assoc_string(return_value, "desc", "closed", 1);
-		add_assoc_string(return_value, "addr", event.data.closed.addr, 1);
-		add_assoc_long(return_value, "fd", event.data.closed.fd);
-		break;
-	case ZMQ_EVENT_CLOSE_FAILED:
-		add_assoc_string(return_value, "desc", "close_failed", 1);
-		add_assoc_string(return_value, "addr", event.data.close_failed.addr, 1);
-		add_assoc_long(return_value, "err", event.data.close_failed.err);
-		break;
-	case ZMQ_EVENT_DISCONNECTED:
-		add_assoc_string(return_value, "desc", "disconnected", 1);
-		add_assoc_string(return_value, "addr", event.data.disconnected.addr, 1);
-		add_assoc_long(return_value, "fd", event.data.disconnected.fd);
-		break;
-	}
-}
-/* }}} */
-
-/* {{{ proto bool zmq_erik_socket_monitor(resource $socket, string $addr [, int $events = \ZMQ::EVENT_ALL]) */
-PHP_FUNCTION(zmq_erik_socket_monitor)
-{
-	zval *z_socket;
-	php_zmq_erik_socket *socket;
-	char *addr;
-	int addr_len;
-	long events = ZMQ_EVENT_ALL;
-	int rc;
-
-	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rs|l", &z_socket, &addr, &addr_len, &events) == FAILURE) {
-
-		RETURN_FALSE;
-	}
-
-	ZEND_FETCH_RESOURCE(socket, php_zmq_erik_socket *, &z_socket, -1, PHP_ZMQ_ERIK_SOCKET_RES_NAME, le_zmq_erik_socket);
-	rc = zmq_socket_monitor(socket->ptr, addr, events);
-	
-	if(rc != 0) {
-
-		php_error(E_ERROR, "zmq_erik_socket_monitor failed: %d %s", errno, zmq_strerror(errno));
-		RETURN_FALSE;
-	}
-
-	RETURN_TRUE;
-}
-/* }}} */
-
+static int le_zmq_socket, le_zmq_context, le_zmq_socket_monitor;
 /** {{{ static void php_zmq_get_lib_version(char buffer[PHP_ZMQ_VERSION_LEN])
 */
 static void php_zmq_get_lib_version(char buffer[PHP_ZMQ_VERSION_LEN]) 
@@ -617,12 +130,6 @@ static void php_zmq_socket_destroy(php_zmq_socket *zmq_sock)
 {
 	zend_hash_destroy(&(zmq_sock->connect));
 	zend_hash_destroy(&(zmq_sock->bind));
-
-	if(zmq_sock->monitored_z_socket) { 
-
-		zmq_socket_monitor(zmq_sock->monitored_z_socket, NULL, 0);
-		zmq_sock->monitored_z_socket = NULL;
-	}
 
 	if (zmq_sock->pid == getpid ()) {
 		(void) zmq_close(zmq_sock->z_socket);
@@ -813,7 +320,6 @@ static php_zmq_socket *php_zmq_socket_new(php_zmq_context *context, int type, ze
 
 	zend_hash_init(&(zmq_sock->connect), 0, NULL, NULL, is_persistent);
 	zend_hash_init(&(zmq_sock->bind),    0, NULL, NULL, is_persistent);
-	zmq_sock->monitored_z_socket = NULL;
 	return zmq_sock;
 }
 /* }}} */
@@ -936,8 +442,6 @@ PHP_METHOD(zmqcontext, getsocket)
 	char *persistent_id = NULL;
 	int rc, persistent_id_len;
 	zend_bool is_new;
-	char *inproc = NULL;
-	int inproc_len;
 
 	zend_fcall_info fci;
 	fci.size = 0;
@@ -946,7 +450,7 @@ PHP_METHOD(zmqcontext, getsocket)
 	PHP_ZMQ_ERROR_HANDLING_INIT()
 	PHP_ZMQ_ERROR_HANDLING_THROW()
 
-	rc = zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l|s!f!s", &type, &persistent_id, &persistent_id_len, &fci, &fci_cache, &inproc, &inproc_len);
+	rc = zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l|s!f!", &type, &persistent_id, &persistent_id_len, &fci, &fci_cache);
 
 	PHP_ZMQ_ERROR_HANDLING_RESTORE()
 
@@ -965,16 +469,6 @@ PHP_METHOD(zmqcontext, getsocket)
 	object_init_ex(return_value, php_zmq_socket_sc_entry);
 	interns         = (php_zmq_socket_object *)zend_object_store_get_object(return_value TSRMLS_CC);
 	interns->socket = socket;
-
-	if(inproc) {
-
-		php_printf("starting monitor: %s %d\n", inproc, __LINE__);
-
-		if(zmq_socket_monitor(interns->socket->z_socket, inproc, ZMQ_EVENT_ALL) < 0) {
-			zend_throw_exception_ex(php_zmq_socket_exception_sc_entry, errno TSRMLS_CC, "Failed to launch zmq_socket_monitor: %s", inproc);
-			return;
-		}
-	}
 
 	/* Need to add refcount if context is not persistent */
 	if (!intern->context->is_persistent) {
@@ -1029,7 +523,7 @@ PHP_METHOD(zmqcontext, __clone) { }
 
 /* --- START ZMQSocket --- */
 
-/* {{{ proto ZMQSocket ZMQSocket::__construct(ZMQContext $context, integer $type[, string $persistent_id = null[, callback $on_new_socket = null[, string $inproc]]])
+/* {{{ proto ZMQSocket ZMQSocket::__construct(ZMQContext $context, integer $type[, string $persistent_id = null[, callback $on_new_socket = null]])
 	Build a new ZMQSocket object
 */
 PHP_METHOD(zmqsocket, __construct)
@@ -1040,8 +534,6 @@ PHP_METHOD(zmqsocket, __construct)
 	long type;
 	char *persistent_id = NULL;
 	int rc, persistent_id_len;
-	char *inproc = NULL;
-	int inproc_len;
 	zval *obj;
 	zend_bool is_new;
 
@@ -1052,7 +544,7 @@ PHP_METHOD(zmqsocket, __construct)
 	PHP_ZMQ_ERROR_HANDLING_INIT()
 	PHP_ZMQ_ERROR_HANDLING_THROW()
 
-	rc = zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "Ol|s!f!s", &obj, php_zmq_context_sc_entry, &type, &persistent_id, &persistent_id_len, &fci, &fci_cache, &inproc, &inproc_len);
+	rc = zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "Ol|s!f!", &obj, php_zmq_context_sc_entry, &type, &persistent_id, &persistent_id_len, &fci, &fci_cache);
 
 	PHP_ZMQ_ERROR_HANDLING_RESTORE()
 
@@ -1070,16 +562,6 @@ PHP_METHOD(zmqsocket, __construct)
 
 	intern         = PHP_ZMQ_SOCKET_OBJECT;
 	intern->socket = socket;
-
-	if(inproc) {
-
-		php_printf("starting monitor: %s %d\n", inproc, __LINE__);
-
-		if(zmq_socket_monitor(intern->socket->z_socket, inproc, ZMQ_EVENT_ALL) < 0) {
-			zend_throw_exception_ex(php_zmq_socket_exception_sc_entry, errno TSRMLS_CC, "Failed to launch zmq_socket_monitor: %s", inproc);
-			return;
-		}
-	}
 
 	/* Need to add refcount if context is not persistent */
 	if (!internc->context->is_persistent) {
@@ -1262,12 +744,9 @@ static zend_bool php_zmq_recv(php_zmq_socket_object *intern, long flags, zval *r
 		return 0;
 	}
 
-	if(! intern->socket->monitored_z_socket) {
-		/* I'm a ZMQSocket */
 		ZVAL_STRINGL(return_value, zmq_msg_data(&message), zmq_msg_size(&message), 1);
-	}
+/*
 	else {
-		/* I'm a ZMQSocketMonitor, decode the event */
 		zmq_event_t event;
 		memcpy(&event, zmq_msg_data(&message), sizeof (event));
 		array_init(return_value);
@@ -1326,6 +805,7 @@ static zend_bool php_zmq_recv(php_zmq_socket_object *intern, long flags, zval *r
             break;
         }
 	}
+	*/
 	zmq_msg_close(&message);
 	return 1;
 }
@@ -1472,15 +952,6 @@ PHP_METHOD(zmqsocket, connect)
 	/* already connected ? */
 	if (!force && zend_hash_exists(&(intern->socket->connect), dsn, dsn_len + 1)) {
 		ZMQ_RETURN_THIS;
-	}
-
-
-	pos = zend_memnstr(dsn, "inproc://monitor", sizeof("inproc://monitor")-1, dsn + dsn_len);
-
-	if(pos) {
-
-		php_printf("connect is inproc: %s %d\n", dsn, __LINE__);
-		intern->socket->monitored_z_socket = (void *)1;
 	}
 
 	if (zmq_connect(intern->socket->z_socket, dsn) != 0) {
@@ -1652,303 +1123,132 @@ PHP_METHOD(zmqsocket, ispersistent)
 PHP_METHOD(zmqsocket, __clone) { }
 /* }}} */
 
-/* -- END ZMQSocket--- */
-
-/* --- START ZMQSocketMonitor --- */
-
-/* {{{ proto ZMQSocketMonitor ZMQSocketMonitor::__construct(ZMQContext $context[, string $persistent_id = null[, callback $on_new_socket = null]])
-	Build a new ZMQSocketMonitor object
+/* {{{ proto ZMQSocketMonitor ZMQSocket::getSocketMonitor([$events = ZMQEvent::EVENT_ALL]) 
+	Obtain a new ZMQSocketMonitor object
 */
-PHP_METHOD(zmqsocketmonitor, __construct)
+PHP_METHOD(zmqsocket, getsocketmonitor)
 {
+	long events = ZMQ_EVENT_ALL;
 	php_zmq_socket *socket;
 	php_zmq_socket_object *intern;
-	php_zmq_context_object *internc;
-	char *persistent_id = NULL;
-	int rc, persistent_id_len;
-	zval *obj;
+	php_zmq_socket_monitor_object *interns;
 	zend_bool is_new;
-	long type = ZMQ_PAIR;
 
-	zend_fcall_info fci;
-	fci.size = 0;
-	zend_fcall_info_cache fci_cache;
+	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|l", &events) == FAILURE) {
 
-	PHP_ZMQ_ERROR_HANDLING_INIT()
-	PHP_ZMQ_ERROR_HANDLING_THROW()
-
-	rc = zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "O|s!f!", &obj, php_zmq_context_sc_entry, &persistent_id, &persistent_id_len, &fci, &fci_cache);
-
-	PHP_ZMQ_ERROR_HANDLING_RESTORE()
-
-	if (rc == FAILURE) {
 		return;
 	}
 
-	internc = (php_zmq_context_object *) zend_object_store_get_object(obj TSRMLS_CC);
-	socket  = php_zmq_socket_get(internc->context, type, persistent_id, &is_new TSRMLS_CC);
 
-	if (!socket) {
-		zend_throw_exception_ex(php_zmq_socket_exception_sc_entry, errno TSRMLS_CC, "Error creating socket: %s", zmq_strerror(errno));
-		return;
-	}
+	/*
+
+	1) make new SocketMonitor
+	2) set php_zmq_socket
+
+	*/
 
 	intern = PHP_ZMQ_SOCKET_OBJECT;
-	intern->socket = socket;
+	php_printf("instance: %d %d\n", ZMQ_G(monitor_instance)++, __LINE__);
+	socket = php_zmq_socket_get(intern->socket->ctx, ZMQ_PAIR, intern->persistent_id, &is_new TSRMLS_CC);
 
-	/* Need to add refcount if context is not persistent */
-	if (!internc->context->is_persistent) {
-	    intern->context_obj = obj;
-		zend_objects_store_add_ref(intern->context_obj TSRMLS_CC);
-        Z_ADDREF_P(intern->context_obj);
+	if (!socket) {
+		zend_throw_exception(NULL, "Error creating ZMQSocketMonitor", 0 TSRMLS_CC);
+		return;
 	}
 
+	object_init_ex(return_value, php_zmq_socket_monitor_sc_entry);
+	interns         = (php_zmq_socket_monitor_object *)zend_object_store_get_object(return_value TSRMLS_CC);
+	interns->socket = socket;
+	interns->monitored_socket = getThis(); 
+	Z_ADDREF_P(interns->monitored_socket);
+	spprintf(&interns->monitor_url, 0, "inproc://monitor.%d", ZMQ_G(monitor_instance)++); 
+	php_printf("inproc is %s %d", interns->monitor_url, __LINE__);
+
+	/* Need to add refcount if context is not persistent */
+	/*
+	if (!intern->context->is_persistent) {
+		zend_objects_store_add_ref(getThis() TSRMLS_CC);
+		interns->context_obj = getThis();
+		Z_ADDREF_P(interns->context_obj);
+	}
+	*/
+/*
 	if (is_new) {	
-		if (fci.size) {
-			if (!php_zmq_connect_callback(getThis(), &fci, &fci_cache, persistent_id TSRMLS_CC)) {
+		if(fci.size) {
+			if (!php_zmq_connect_callback(return_value, &fci, &fci_cache, persistent_id TSRMLS_CC)) {
+				zval_dtor(return_value);
 				php_zmq_socket_destroy(socket);
-				intern->socket = NULL;
+				interns->socket = NULL;
 				return;
-			}	
+			}
 		}
 		if (socket->is_persistent) {
 			php_zmq_socket_store(socket, type, persistent_id TSRMLS_CC);
 		}
 	}
-	if (socket->is_persistent) {
-		intern->persistent_id = estrdup(persistent_id);
-	}
-	return;
-}
-/* }}} */
-
-#if ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR >= 2
-/* {{{ proto ZMQSocketMonitor ZMQSocketMonitor::disconnect(string $dsn)
-	Disconnect the socket from an endpoint
-*/
-PHP_METHOD(zmqsocketmonitor, disconnect)
-{
-	php_zmq_socket_object *intern;
-	char *dsn;
-	int dsn_len;
-
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &dsn, &dsn_len) == FAILURE) {
-		return;
-	}
-
-	intern = PHP_ZMQ_SOCKET_OBJECT;
-
-	if (zmq_disconnect(intern->socket->z_socket, dsn) != 0) {
-		zend_throw_exception_ex(php_zmq_socket_exception_sc_entry, errno TSRMLS_CC, "Failed to disconnect the ZMQ socket monitor: %s", zmq_strerror(errno));
-		return;
-	}
-
-	zend_hash_del(&(intern->socket->connect), dsn, dsn_len + 1);
-	ZMQ_RETURN_THIS;
-}
-/* }}} */
-#endif
-
-/* {{{ proto array ZMQSocketMonitor::getEndpoints()
-	Returns endpoints where this socket is connected/bound to. Contains two keys ('bind', 'connect')
-*/
-PHP_METHOD(zmqsocketmonitor, getendpoints)
-{
-	php_zmq_socket_object *intern;
-	zval *connect, *bind;
-
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "") == FAILURE) {
-		return;
-	}
-
-	intern = PHP_ZMQ_SOCKET_OBJECT;
-	array_init(return_value);
-
-	MAKE_STD_ZVAL(connect);
-	MAKE_STD_ZVAL(bind);
-
-	array_init(connect);
-	array_init(bind);
-
-#if (PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION < 3)
-	zend_hash_apply_with_arguments(&(intern->socket->connect), (apply_func_args_t) php_zmq_get_keys, 1, connect);
-	zend_hash_apply_with_arguments(&(intern->socket->bind), (apply_func_args_t) php_zmq_get_keys, 1, bind);
-#else
-	zend_hash_apply_with_arguments(&(intern->socket->connect) TSRMLS_CC, (apply_func_args_t) php_zmq_get_keys, 1, connect);
-	zend_hash_apply_with_arguments(&(intern->socket->bind) TSRMLS_CC, (apply_func_args_t) php_zmq_get_keys, 1, bind);
-#endif
-
-	add_assoc_zval(return_value, "connect", connect);
-	add_assoc_zval(return_value, "bind", bind);
-	return;
-}
-/* }}} */
-
-/* {{{ proto integer ZMQSocketMonitor::getSocketType()
-	Returns the socket type
-*/
-PHP_METHOD(zmqsocketmonitor, getsockettype)
-{
-	int type;
-	size_t type_siz;
-	php_zmq_socket_object *intern;
-
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "") == FAILURE) {
-		return;
-	}
-	intern = PHP_ZMQ_SOCKET_OBJECT;
-	type_siz = sizeof (int);
-
-	if (zmq_getsockopt(intern->socket->z_socket, ZMQ_TYPE, &type, &type_siz) != -1) {
-		RETURN_LONG(type);
-	}
-	RETURN_LONG(-1);
-}
-/* }}} */
-
-/* {{{ proto boolean ZMQSocketMonitor::isPersistent()
-	Whether the socket is persistent
-*/
-PHP_METHOD(zmqsocketmonitor, ispersistent)
-{
-	php_zmq_socket_object *intern;
-
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "") == FAILURE) {
-		return;
-	}
-
-	intern = PHP_ZMQ_SOCKET_OBJECT;
-	RETURN_BOOL(intern->socket->is_persistent);
-}
-/* }}} */
-
-/* {{{ proto array ZMQSocketMonitor::recvmulti([integer $flags = 0])
-	Receive an array of message parts
-*/
-PHP_METHOD(zmqsocketmonitor, recvmulti)
-{
-	php_zmq_socket_object *intern;
-	size_t value_len;
-	long flags = 0;
-	zend_bool retval;
-	zval *msg;
-#if ZMQ_VERSION_MAJOR < 3	
-	int64_t value;
-#else
-	int value;
-#endif
-
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|l", &flags) == FAILURE) {
-		return;
-	}
-
-	intern = PHP_ZMQ_SOCKET_OBJECT;
-	array_init(return_value);
-	value_len = sizeof (value);
-
-	do {
-		MAKE_STD_ZVAL(msg);
-		retval = php_zmq_recv(intern, flags, msg TSRMLS_CC);
-		if (retval == 0) {
-			FREE_ZVAL(msg);
-			zval_dtor(return_value);
-			RETURN_FALSE;
-		}
-		add_next_index_zval(return_value, msg);
-		zmq_getsockopt(intern->socket->z_socket, ZMQ_RCVMORE, &value, &value_len);
-	} while (value > 0);
-
-	return;
-}
-/* }}} */
-
-/* {{{ proto ZMQSocketMonitor ZMQSocketMonitor::connect(ZMQSocket $socket[, int $events = ZMQ::SOCK_EVENT_ALL])
-	Connect the socket to an endpoint. Only one socket can be monitored
-*/
-PHP_METHOD(zmqsocketmonitor, connect)
-{
-	php_zmq_socket_object *intern;
-	php_zmq_socket_object *intern_monitored;
-	char *dsn;
-	int dsn_len, rc;
-	char z_socket_hash[33];
-	void *dummy = (void *)1;
-	zval* obj;
-	int events = ZMQ_EVENT_ALL; 
-
-
-	PHP_ZMQ_ERROR_HANDLING_INIT()
-	PHP_ZMQ_ERROR_HANDLING_THROW()
-
-	rc = zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "O|l", &obj, php_zmq_socket_sc_entry, &events);
-
-	PHP_ZMQ_ERROR_HANDLING_RESTORE()
-
-	if(rc == FAILURE) {
-		return;
-	}
-
-	intern = PHP_ZMQ_SOCKET_OBJECT;
-	intern_monitored = (php_zmq_socket_object *) zend_object_store_get_object(obj TSRMLS_CC);
-
-	/*
-	1) Check for existing ZMQSocket. If yes, return
-	2) Create dsn: inproc://monitor.<monitor_pair_instance>.  Launch zmq_socket_monitor(dsn)
-	3) Add z_socket_hash to intern->socket->monitored 
-	4) Call zmq_connect(dsn) with ZMQ::SocketMonitor intern
-	5) Add connect dsn to intern->socket->connect	
 	*/
-
-	if(intern->socket->monitored_z_socket) {
-		ZMQ_RETURN_THIS;
+	if (socket->is_persistent) {
+		interns->persistent_id = estrdup(intern->persistent_id);
 	}
-
-	dsn_len = spprintf(&dsn, 0, "inproc://monitor.%d", ZMQ_G(monitor_pair_instance)++);
-
-	if(zmq_socket_monitor(intern_monitored->socket->z_socket, dsn, events) < 0) {
-		zend_throw_exception_ex(php_zmq_socket_exception_sc_entry, errno TSRMLS_CC, "Failed to launch zmq_socket_monitor: %s", dsn);
-		efree(dsn);
-		return;
-	}
-
-	intern->socket->monitored_z_socket = intern_monitored->socket->z_socket;
-
-	if (zmq_connect(intern->socket->z_socket, dsn) != 0) {
-		zend_throw_exception_ex(php_zmq_socket_exception_sc_entry, errno TSRMLS_CC, "Failed to connect the ZMQ: %s", zmq_strerror(errno));
-		return;
-	}
-
-	(void) zend_hash_add(&(intern->socket->connect), dsn, dsn_len + 1, (void *)&dummy, sizeof(void *), NULL);
-	ZMQ_RETURN_THIS;
+	return;
 }
 /* }}} */
 
-/** {{{ proto string ZMQSocketMonitor::getPersistentId() 
-	Returns the persistent id of the object
+/* -- END ZMQSocket--- */
+
+/* --- START ZMQSocketMonitor --- */
+
+/* {{{ proto ZMQSocketMonitor ZMQSocketMonitor::__construct(string $name)
+	Build a new ZMQSocketMonitor object
 */
-PHP_METHOD(zmqsocketmonitor, getpersistentid)
+PHP_METHOD(zmqsocketmonitor, __construct) {}
+
+/*
+ {{{ proto ZMQEvent ZMQSocketMonitor::read()
+*/
+PHP_METHOD(zmqsocketmonitor, read)
 {
-	php_zmq_socket_object *intern;
-
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "") == FAILURE) {
-		return;
-	}
-
-	intern = PHP_ZMQ_SOCKET_OBJECT;
-
-	if (intern->socket->is_persistent && intern->persistent_id) {
-		RETURN_STRING(intern->persistent_id, 1);
-	}
-	RETURN_NULL();
+	object_init_ex(return_value, php_zmq_event_sc_entry);
 }
 /* }}} */
 
-/* {{{ proto ZMQSocket ZMQSocketMonitor::__clone()
-	Clones the instance of the ZMQSocketMonitor class
+/* {{{ proto ZMQSocketMonitor ZMQSocketMonitor::__clone()
+	Private
 */
-PHP_METHOD(zmqsocketmonitor, __clone) { }
+PHP_METHOD(zmqsocketmonitor, __clone) {}
 /* }}} */
+
 /* --- END ZMQSocketMonitor --- */
+
+/* --- START ZMQEvent --- */
+/*
+ {{{ proto ZMQEvent::__construct()
+	Private
+*/
+PHP_METHOD(zmqevent, __construct) {}
+/* }}} */
+
+/* {{{ proto mixed ZMQEvent::__get(string $name)
+	All properties are private and accessible via __get(). This make them readonly.
+*/
+PHP_METHOD(zmqevent, __get)
+{
+	char *name;
+	int name_len;
+	zval *value;
+
+	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &name, &name_len) == FAILURE) {
+
+		RETURN_NULL();
+	}
+
+	value = zend_read_property(php_zmq_event_sc_entry, getThis(), name, name_len, 0 TSRMLS_CC);
+	*return_value = *value;
+	zval_copy_ctor(value);
+}
+/* }}} */
+
+/* --- END ZMQEvent --- */
 
 /* -- START ZMQPoll --- */
 
@@ -2402,44 +1702,8 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(zmq_socket_clone_args, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(zmq_socket_monitor_construct_args, 0, 0, 2)
-	ZEND_ARG_OBJ_INFO(0, ZMQContext, ZMQContext, 0)
-	ZEND_ARG_INFO(0, type)
-	ZEND_ARG_INFO(0, persistent_id)
-	ZEND_ARG_INFO(0, on_new_socket)
-ZEND_END_ARG_INFO()
-
-
-ZEND_BEGIN_ARG_INFO_EX(zmq_socket_monitor_connect_args, 0, 0, 1)
-	ZEND_ARG_OBJ_INFO(0, ZMQSocket, ZMQSocket, 0)
+ZEND_BEGIN_ARG_INFO_EX(zmq_socket_getsocketmonitor_args, 0, 0, 0)
 	ZEND_ARG_INFO(0, events)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(zmq_socket_monitor_disconnect_args, 0, 0, 1)
-	ZEND_ARG_INFO(0, dsn)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(zmq_socket_monitor_getendpoints_args, 0, 0, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(zmq_socket_monitor_getsockettype_args, 0, 0, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(zmq_socket_monitor_recv_args, 0, 0, 0)
-	ZEND_ARG_INFO(0, mode)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(zmq_socket_monitor_getpersistentid_args, 0, 0, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(zmq_socket_monitor_getsockopt_args, 0, 0, 1)
-	ZEND_ARG_INFO(0, key)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(zmq_socket_monitor_ispersistent_args, 0, 0, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(zmq_socket_monitor_clone_args, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
 static zend_function_entry php_zmq_socket_class_methods[] = {
@@ -2461,24 +1725,37 @@ static zend_function_entry php_zmq_socket_class_methods[] = {
 	PHP_ME(zmqsocket, getpersistentid,		zmq_socket_getpersistentid_args,	ZEND_ACC_PUBLIC)
 	PHP_ME(zmqsocket, getsockopt,			zmq_socket_getsockopt_args,			ZEND_ACC_PUBLIC)
 	PHP_ME(zmqsocket, __clone,				zmq_socket_clone_args,				ZEND_ACC_PRIVATE|ZEND_ACC_FINAL)
+	PHP_ME(zmqsocket, getsocketmonitor,		zmq_socket_getsocketmonitor_args,	ZEND_ACC_PUBLIC|ZEND_ACC_FINAL)
 	PHP_MALIAS(zmqsocket,	sendmsg, send,	zmq_socket_send_args, 				ZEND_ACC_PUBLIC)
 	PHP_MALIAS(zmqsocket,	recvmsg, recv, 	zmq_socket_recv_args, 				ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 
+
+ZEND_BEGIN_ARG_INFO_EX(zmq_socket_monitor_construct_args, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(zmq_socket_monitor_read_args, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
 static zend_function_entry php_zmq_socket_monitor_class_methods[] = {
-	PHP_ME(zmqsocketmonitor, __construct,			zmq_socket_monitor_construct_args,			ZEND_ACC_PUBLIC|ZEND_ACC_CTOR|ZEND_ACC_FINAL)
-	PHP_ME(zmqsocketmonitor, recvmulti,				zmq_socket_monitor_recv_args,				ZEND_ACC_PUBLIC)
-	PHP_ME(zmqsocketmonitor, connect,				zmq_socket_monitor_connect_args,			ZEND_ACC_PUBLIC)
-#if ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR >= 2
-	PHP_ME(zmqsocketmonitor, disconnect,			zmq_socket_monitor_disconnect_args,			ZEND_ACC_PUBLIC)
-#endif
-	PHP_ME(zmqsocketmonitor, getendpoints,			zmq_socket_monitor_getendpoints_args,		ZEND_ACC_PUBLIC)
-	PHP_ME(zmqsocketmonitor, getsockettype,			zmq_socket_monitor_getsockettype_args,		ZEND_ACC_PUBLIC)
-	PHP_ME(zmqsocketmonitor, ispersistent,			zmq_socket_monitor_ispersistent_args,		ZEND_ACC_PUBLIC)
-	PHP_ME(zmqsocketmonitor, getpersistentid,		zmq_socket_monitor_getpersistentid_args,	ZEND_ACC_PUBLIC)
-	PHP_ME(zmqsocketmonitor, getsockopt,			zmq_socket_monitor_getsockopt_args,			ZEND_ACC_PUBLIC)
-	PHP_ME(zmqsocketmonitor, __clone,				zmq_socket_monitor_clone_args,				ZEND_ACC_PRIVATE|ZEND_ACC_FINAL)
+	PHP_ME(zmqsocketmonitor, __construct, zmq_socket_monitor_construct_args, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR|ZEND_ACC_FINAL)
+	PHP_ME(zmqsocketmonitor, __clone, NULL, ZEND_ACC_PRIVATE|ZEND_ACC_FINAL)
+	PHP_ME(zmqsocketmonitor, read, zmq_socket_monitor_read_args, ZEND_ACC_PUBLIC|ZEND_ACC_CTOR|ZEND_ACC_FINAL)
+	{NULL, NULL, NULL}
+};
+
+
+ZEND_BEGIN_ARG_INFO_EX(zmq_event_construct_args, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(zmq_event_get_args, 0, 0, 1)
+	ZEND_ARG_INFO(0, name)
+ZEND_END_ARG_INFO()
+
+static zend_function_entry php_zmq_event_class_methods[] = {
+	PHP_ME(zmqevent, __construct,			zmq_event_construct_args,			ZEND_ACC_PRIVATE|ZEND_ACC_CTOR|ZEND_ACC_FINAL)
+	PHP_ME(zmqevent, __get,			zmq_event_get_args,			ZEND_ACC_PUBLIC|ZEND_ACC_FINAL)
 	{NULL, NULL, NULL}
 };
 
@@ -2548,85 +1825,8 @@ static zend_function_entry php_zmq_device_class_methods[] = {
 	{NULL, NULL, NULL}
 };
 
-ZEND_BEGIN_ARG_INFO(zmq_erik_ctx_new_args, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(zmq_erik_ctx_destroy_args, 0, 0, 1)
-	ZEND_ARG_INFO(0, context)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(zmq_erik_socket_args, 0, 0, 2)
-	ZEND_ARG_INFO(0, context)
-	ZEND_ARG_INFO(0, type)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(zmq_erik_close_args, 0, 0, 1)
-	ZEND_ARG_INFO(0, socket)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(zmq_erik_bind_args, 0, 0, 2)
-	ZEND_ARG_INFO(0, socket)
-	ZEND_ARG_INFO(0, endpoint)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(zmq_erik_unbind_args, 0, 0, 2)
-	ZEND_ARG_INFO(0, socket)
-	ZEND_ARG_INFO(0, endpoint)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(zmq_erik_connect_args, 0, 0, 2)
-	ZEND_ARG_INFO(0, socket)
-	ZEND_ARG_INFO(0, endpoint)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(zmq_erik_disconnect_args, 0, 0, 2)
-	ZEND_ARG_INFO(0, socket)
-	ZEND_ARG_INFO(0, endpoint)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(zmq_erik_send_args, 0, 0, 2)
-	ZEND_ARG_INFO(0, socket)
-	ZEND_ARG_INFO(0, content)
-	ZEND_ARG_INFO(0, flags)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(zmq_erik_recv_args, 0, 0, 1)
-	ZEND_ARG_INFO(0, socket)
-	ZEND_ARG_INFO(0, flags)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(zmq_erik_recv_event_args, 0, 0, 1)
-	ZEND_ARG_INFO(0, socket)
-	ZEND_ARG_INFO(0, flags)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(zmq_erik_setsockopt_args, 0, 0, 3)
-	ZEND_ARG_INFO(0, socket)
-	ZEND_ARG_INFO(0, option)
-	ZEND_ARG_INFO(0, value)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(zmq_erik_socket_monitor_args, 0, 0, 2)
-	ZEND_ARG_INFO(0, socket)
-	ZEND_ARG_INFO(0, addr)
-	ZEND_ARG_INFO(0, events)
-ZEND_END_ARG_INFO()
-
 zend_function_entry zmq_functions[] = {
 
-	PHP_FE(zmq_erik_ctx_new, zmq_erik_ctx_new_args)
-	PHP_FE(zmq_erik_ctx_destroy, zmq_erik_ctx_destroy_args)
-	PHP_FE(zmq_erik_socket, zmq_erik_socket_args)
-	PHP_FE(zmq_erik_close, zmq_erik_close_args)
-	PHP_FE(zmq_erik_bind, zmq_erik_bind_args)
-	PHP_FE(zmq_erik_unbind, zmq_erik_unbind_args)
-	PHP_FE(zmq_erik_connect, zmq_erik_connect_args)
-	PHP_FE(zmq_erik_disconnect, zmq_erik_disconnect_args)
-	PHP_FE(zmq_erik_send, zmq_erik_send_args)
-	PHP_FE(zmq_erik_recv, zmq_erik_recv_args)
-	PHP_FE(zmq_erik_recv_event, zmq_erik_recv_event_args)
-	PHP_FE(zmq_erik_setsockopt, zmq_erik_setsockopt_args)
-	PHP_FE(zmq_erik_socket_monitor, zmq_erik_socket_monitor_args)
 	{NULL, NULL, NULL} 
 };
 
@@ -2669,6 +1869,50 @@ static void php_zmq_socket_object_free_storage(void *object TSRMLS_DC)
 	if (intern->context_obj) {
 		zend_objects_store_del_ref(intern->context_obj TSRMLS_CC);
 		Z_DELREF_P(intern->context_obj);
+	}
+
+	zend_object_std_dtor(&intern->zo TSRMLS_CC);
+	efree(intern);
+}
+
+static void php_zmq_socket_monitor_object_free_storage(void *object TSRMLS_DC) {
+
+	php_zmq_socket_monitor_object *intern = (php_zmq_socket_monitor_object *)object;
+
+	if (!intern) {
+		return;
+	}
+
+	if (intern->socket) {
+		if (intern->socket->is_persistent && intern->persistent_id) {
+			efree(intern->persistent_id);
+		}
+
+		if (!intern->socket->is_persistent) {
+			php_zmq_socket_destroy(intern->socket);
+		}
+	}
+
+	if (intern->context_obj) {
+		zend_objects_store_del_ref(intern->context_obj TSRMLS_CC);
+		Z_DELREF_P(intern->context_obj);
+	}
+
+	if(intern->monitored_socket) {
+
+		php_zmq_socket_object *so = (php_zmq_socket_object *) zend_object_store_get_object(intern->monitored_socket TSRMLS_CC);
+		int rc = zmq_socket_monitor(so->socket->z_socket, NULL, 0);
+
+		if(rc != 0) {
+
+			php_printf("zmq_socket_monitor null failed: %d %s %d", errno, zmq_strerror(errno), __LINE__);
+		}
+		Z_DELREF_P(intern->monitored_socket);
+		intern->monitored_socket = NULL;
+	}
+
+	if(intern->monitor_url) {
+		efree(intern->monitor_url);
 	}
 
 	zend_object_std_dtor(&intern->zo TSRMLS_CC);
@@ -2773,6 +2017,29 @@ static zend_object_value php_zmq_socket_object_new_ex(zend_class_entry *class_ty
 	return retval;
 }
 
+static zend_object_value php_zmq_socket_monitor_object_new(zend_class_entry *class_type TSRMLS_DC) {
+
+	zval *tmp;
+	zend_object_value retval;
+	php_zmq_socket_monitor_object *intern;
+
+	intern = (php_zmq_socket_monitor_object *) emalloc(sizeof(php_zmq_socket_monitor_object));
+	memset(&intern->zo, 0, sizeof(zend_object));
+
+	intern->socket        = NULL;
+	intern->persistent_id = NULL;
+	intern->context_obj   = NULL;
+	intern->monitored_socket = NULL;
+	intern->monitor_url   = NULL;
+
+	zend_object_std_init(&intern->zo, class_type TSRMLS_CC);
+	object_properties_init(&intern->zo, class_type);
+
+	retval.handle   = zend_objects_store_put(intern, NULL, (zend_objects_free_object_storage_t) php_zmq_socket_monitor_object_free_storage, NULL TSRMLS_CC);
+	retval.handlers = (zend_object_handlers *) &zmq_socket_monitor_object_handlers;
+	return retval;
+}
+
 static zend_object_value php_zmq_poll_object_new_ex(zend_class_entry *class_type, php_zmq_poll_object **ptr TSRMLS_DC)
 {
 	zval *tmp;
@@ -2861,68 +2128,15 @@ ZEND_RSRC_DTOR_FUNC(php_zmq_socket_dtor)
 	}
 }
 
-/* {{{ static void zmq_erik_context_dtor */
-ZEND_RSRC_DTOR_FUNC(zmq_erik_context_dtor)
-{
-	php_zmq_erik_context *context = (php_zmq_erik_context*) rsrc->ptr;
-	int rc;
-
-	if(context) {
-
-		if(context->ptr) {
-
-			rc = zmq_ctx_destroy(context->ptr);
-			context->ptr = NULL;
-
-			if(rc != 0) {
-
-				php_error(E_ERROR, "zmq_ctx_destroy failed: %d %s", errno, zmq_strerror(errno) );
-			}
-		}
-	}
-}
-/* }}} */
-
-/* {{{ static void zmq_erik_socket_dtor */
-ZEND_RSRC_DTOR_FUNC(zmq_erik_socket_dtor)
-{
-	php_zmq_erik_socket *socket = (php_zmq_erik_socket*) rsrc->ptr;
-	int rc;
-	
-	if(socket) {
-
-		if(socket->ptr) {
-
-			rc = zmq_close(socket->ptr);
-			socket->ptr = NULL;
-
-			if(rc != 0) {
-
-				php_error(E_ERROR, "zmq_erik_socket_close failed: %d %s", errno, zmq_strerror(errno) );
-			}
-		}
-
-		efree(socket);
-	}
-	else {
-
-		php_printf("no socket %d\n", __LINE__);
-	}
-}
-/* }}} */
-
 PHP_MINIT_FUNCTION(zmq)
 {
 	ZEND_INIT_MODULE_GLOBALS(zmq, zmq_globals_ctor, NULL);
 	char version[PHP_ZMQ_VERSION_LEN];
-	zend_class_entry ce, ce_context, ce_socket, ce_poll, ce_device, ce_socket_monitor;
+	zend_class_entry ce, ce_context, ce_socket, ce_poll, ce_device;
 	zend_class_entry ce_exception, ce_context_exception, ce_socket_exception, ce_poll_exception, ce_device_exception;
 
 	le_zmq_context = zend_register_list_destructors_ex(NULL, php_zmq_context_dtor, "ZMQ persistent context", module_number);
 	le_zmq_socket  = zend_register_list_destructors_ex(NULL, php_zmq_socket_dtor, "ZMQ persistent socket", module_number);
-
-	le_zmq_erik_context = zend_register_list_destructors_ex(zmq_erik_context_dtor, NULL, PHP_ZMQ_ERIK_CONTEXT_RES_NAME, module_number);
-	le_zmq_erik_socket = zend_register_list_destructors_ex(zmq_erik_socket_dtor, NULL, PHP_ZMQ_ERIK_SOCKET_RES_NAME, module_number);
 
 	memcpy(&zmq_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
 	memcpy(&zmq_context_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
@@ -2945,10 +2159,34 @@ PHP_MINIT_FUNCTION(zmq)
 	zmq_socket_object_handlers.clone_obj = NULL;
 	php_zmq_socket_sc_entry = zend_register_internal_class(&ce_socket TSRMLS_CC);
 
+	zend_class_entry ce_socket_monitor;
 	INIT_CLASS_ENTRY(ce_socket_monitor, "ZMQSocketMonitor", php_zmq_socket_monitor_class_methods);
-	ce_socket_monitor.create_object = php_zmq_socket_object_new;
-	zmq_socket_object_handlers.clone_obj = NULL;
+	ce_socket_monitor.create_object = php_zmq_socket_monitor_object_new;
+	memcpy(&zmq_socket_monitor_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+	zmq_socket_monitor_object_handlers.clone_obj = NULL;
 	php_zmq_socket_monitor_sc_entry = zend_register_internal_class(&ce_socket_monitor TSRMLS_CC);
+
+	zend_class_entry ce_event;
+	INIT_CLASS_ENTRY(ce_event, "ZMQEvent", php_zmq_event_class_methods);
+	memcpy(&zmq_event_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+	php_zmq_event_sc_entry = zend_register_internal_class(&ce_event TSRMLS_CC);
+	zend_declare_property_null(php_zmq_event_sc_entry, "code", strlen("code"), ZEND_ACC_PRIVATE TSRMLS_CC);
+	zend_declare_property_null(php_zmq_event_sc_entry, "desc", strlen("desc"), ZEND_ACC_PRIVATE TSRMLS_CC);
+	zend_declare_property_null(php_zmq_event_sc_entry, "addr", strlen("addr"), ZEND_ACC_PRIVATE TSRMLS_CC);
+	zend_declare_property_null(php_zmq_event_sc_entry, "fd", strlen("fd"), ZEND_ACC_PRIVATE TSRMLS_CC);
+	zend_declare_property_null(php_zmq_event_sc_entry, "err", strlen("err"), ZEND_ACC_PRIVATE TSRMLS_CC);
+	zend_declare_property_null(php_zmq_event_sc_entry, "interval", strlen("interval"), ZEND_ACC_PUBLIC TSRMLS_CC);
+	zend_declare_class_constant_long(php_zmq_event_sc_entry, "EVENT_ALL", strlen("EVENT_ALL"), ZMQ_EVENT_ALL TSRMLS_CC);
+	zend_declare_class_constant_long(php_zmq_event_sc_entry, "EVENT_CONNECTED", strlen("EVENT_CONNECTED"), ZMQ_EVENT_CONNECTED TSRMLS_CC);
+	zend_declare_class_constant_long(php_zmq_event_sc_entry, "EVENT_CONNECT_DELAYED", strlen("EVENT_CONNECT_DELAYED"), ZMQ_EVENT_CONNECT_DELAYED TSRMLS_CC);
+	zend_declare_class_constant_long(php_zmq_event_sc_entry, "EVENT_CONNECT_RETRIED", strlen("EVENT_CONNECT_RETRIED"), ZMQ_EVENT_CONNECT_RETRIED TSRMLS_CC);
+	zend_declare_class_constant_long(php_zmq_event_sc_entry, "EVENT_LISTENING", strlen("EVENT_LISTENING"), ZMQ_EVENT_LISTENING TSRMLS_CC);
+	zend_declare_class_constant_long(php_zmq_event_sc_entry, "EVENT_BIND_FAILED", strlen("EVENT_BIND_FAILED"), ZMQ_EVENT_BIND_FAILED TSRMLS_CC);
+	zend_declare_class_constant_long(php_zmq_event_sc_entry, "EVENT_ACCEPTED", strlen("EVENT_ACCEPTED"), ZMQ_EVENT_ACCEPTED TSRMLS_CC);
+	zend_declare_class_constant_long(php_zmq_event_sc_entry, "EVENT_ACCEPT_FAILED", strlen("EVENT_ACCEPT_FAILED"), ZMQ_EVENT_ACCEPT_FAILED TSRMLS_CC);
+	zend_declare_class_constant_long(php_zmq_event_sc_entry, "EVENT_CLOSED", strlen("EVENT_CLOSED"), ZMQ_EVENT_CLOSED TSRMLS_CC);
+	zend_declare_class_constant_long(php_zmq_event_sc_entry, "EVENT_CLOSE_FAILED", strlen("EVENT_CLOSE_FAILED"), ZMQ_EVENT_CLOSE_FAILED TSRMLS_CC);
+	zend_declare_class_constant_long(php_zmq_event_sc_entry, "EVENT_DISCONNECTED", strlen("EVENT_DISCONNECTED"), ZMQ_EVENT_DISCONNECTED TSRMLS_CC);
 
 	INIT_CLASS_ENTRY(ce_poll, "ZMQPoll", php_zmq_poll_class_methods);
 	ce_poll.create_object = php_zmq_poll_object_new;
@@ -2957,7 +2195,7 @@ PHP_MINIT_FUNCTION(zmq)
 
 	INIT_CLASS_ENTRY(ce_device, "ZMQDevice", php_zmq_device_class_methods);
 	ce_device.create_object = php_zmq_device_object_new;
-	zmq_device_object_handlers.clone_obj = NULL;
+	/* zmq_device_object_handlers.clone_obj = NULL;*/
 	php_zmq_device_sc_entry = zend_register_internal_class(&ce_device TSRMLS_CC);
 
 	INIT_CLASS_ENTRY(ce_exception, "ZMQException", NULL);
@@ -3061,7 +2299,7 @@ zend_module_entry zmq_module_entry =
 {
 	STANDARD_MODULE_HEADER,
 	PHP_ZMQ_EXTNAME,
-	zmq_functions,			/* Functions */
+	NULL,					/* Functions */
 	PHP_MINIT(zmq),			/* MINIT */
 	NULL,					/* MSHUTDOWN */
 	NULL,					/* RINIT */
