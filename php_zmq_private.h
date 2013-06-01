@@ -186,6 +186,8 @@ extern zend_zmq_globals zmq_globals;
 
 #define PHP_ZMQ_SOCKET_OBJECT (php_zmq_socket_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
 
+#define PHP_ZMQ_SOCKET_MONITOR_OBJECT (php_zmq_socket_monitor_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
+
 #define PHP_ZMQ_POLL_OBJECT (php_zmq_poll_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
 
 #define PHP_ZMQ_DEVICE_OBJECT (php_zmq_device_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
