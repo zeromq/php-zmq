@@ -755,68 +755,7 @@ static zend_bool php_zmq_recv(php_zmq_socket_object *intern, long flags, zval *r
 		return 0;
 	}
 
-		ZVAL_STRINGL(return_value, zmq_msg_data(&message), zmq_msg_size(&message), 1);
-/*
-	else {
-		zmq_event_t event;
-		memcpy(&event, zmq_msg_data(&message), sizeof (event));
-		array_init(return_value);
-		add_assoc_long(return_value, "event", event.event);
-		php_printf("event: %d %d\n", event.event, __LINE__);
-        switch (event.event) {
-        case ZMQ_EVENT_CONNECTED:
-			add_assoc_string(return_value, "desc", "connected", 1);
-			add_assoc_string(return_value, "addr", event.data.connected.addr, 1);
-			add_assoc_long(return_value, "fd", event.data.connected.fd);
-            break;
-        case ZMQ_EVENT_CONNECT_DELAYED:
-			add_assoc_string(return_value, "desc", "connect_delayed", 1);
-			add_assoc_string(return_value, "addr", event.data.connect_delayed.addr, 1);
-			add_assoc_long(return_value, "err", event.data.connect_delayed.err);
-            break;
-        case ZMQ_EVENT_CONNECT_RETRIED:
-			add_assoc_string(return_value, "desc", "connect_retried", 1);
-			add_assoc_string(return_value, "addr", event.data.connect_retried.addr, 1);
-			add_assoc_long(return_value, "interval", event.data.connect_retried.interval);
-            break;
-        case ZMQ_EVENT_LISTENING:
-			add_assoc_string(return_value, "desc", "listening", 1);
-			add_assoc_string(return_value, "addr", event.data.listening.addr, 1);
-			add_assoc_long(return_value, "fd", event.data.listening.fd);
-            break;
-        case ZMQ_EVENT_BIND_FAILED:
-			add_assoc_string(return_value, "desc", "bind_failed", 1);
-			add_assoc_string(return_value, "addr", event.data.bind_failed.addr, 1);
-			add_assoc_long(return_value, "err", event.data.bind_failed.err);
-            break;
-        case ZMQ_EVENT_ACCEPTED:
-			add_assoc_string(return_value, "desc", "accepted", 1);
-			add_assoc_string(return_value, "addr", event.data.accepted.addr, 1);
-			add_assoc_long(return_value, "fd", event.data.accepted.fd);
-            break;
-        case ZMQ_EVENT_ACCEPT_FAILED:
-			add_assoc_string(return_value, "desc", "accept_failed", 1);
-			add_assoc_string(return_value, "addr", event.data.accept_failed.addr, 1);
-			add_assoc_long(return_value, "err", event.data.accept_failed.err);
-            break;
-        case ZMQ_EVENT_CLOSED:
-			add_assoc_string(return_value, "desc", "closed", 1);
-			add_assoc_string(return_value, "addr", event.data.closed.addr, 1);
-			add_assoc_long(return_value, "fd", event.data.closed.fd);
-            break;
-        case ZMQ_EVENT_CLOSE_FAILED:
-			add_assoc_string(return_value, "desc", "close_failed", 1);
-			add_assoc_string(return_value, "addr", event.data.close_failed.addr, 1);
-			add_assoc_long(return_value, "err", event.data.close_failed.err);
-            break;
-        case ZMQ_EVENT_DISCONNECTED:
-			add_assoc_string(return_value, "desc", "disconnected", 1);
-			add_assoc_string(return_value, "addr", event.data.disconnected.addr, 1);
-			add_assoc_long(return_value, "fd", event.data.disconnected.fd);
-            break;
-        }
-	}
-	*/
+	ZVAL_STRINGL(return_value, zmq_msg_data(&message), zmq_msg_size(&message), 1);
 	zmq_msg_close(&message);
 	return 1;
 }
@@ -1021,7 +960,6 @@ PHP_METHOD(zmqsocket, disconnect)
 	}
 
 	zend_hash_del(&(intern->socket->connect), dsn, dsn_len + 1);
-	//php_printf("closing %d %d\n", __LINE__, zmq_close(intern->socket->z_socket) );
 	ZMQ_RETURN_THIS;
 }
 /* }}} */
@@ -1212,6 +1150,38 @@ PHP_METHOD(zmqsocketmonitor, __construct) {}
 /* {{{ proto bool ZMQSocketMonitor::connect([int $events = ZMQEvent::EVENT_ALL])
 	Connect and receive events. Call before ZMQSocket::connect() | ZMQSocket::bind()	
 */
+
+/* {{{ void socket_monitor_disconnect()
+*/
+static void socket_monitor_disconnect(php_zmq_socket_monitor_object *smo TSRMLS_DC) {
+
+	if(smo->monitor_url) {
+		php_zmq_socket_object *so = (php_zmq_socket_object *) zend_object_store_get_object(smo->monitored_socket TSRMLS_CC);
+
+		if(zmq_disconnect(smo->socket->z_socket, smo->monitor_url) != 0) {
+			zend_throw_exception_ex(NULL, errno TSRMLS_CC, "Failed to disconnect ZMQSocketMonitor: %s", zmq_strerror(errno));
+		}
+
+		zend_hash_del(&(smo->socket->connect), smo->monitor_url, (strlen(smo->monitor_url)+1));
+		zmq_socket_monitor(so->socket->z_socket, NULL, 0);
+
+		if(zend_hash_exists(&(smo->socket->connect), smo->monitor_url, (strlen(smo->monitor_url)+1))) {
+			zend_hash_del(&(smo->socket->connect), smo->monitor_url, (strlen(smo->monitor_url)+1));
+		}
+
+		efree(smo->monitor_url);
+		smo->monitor_url = NULL;
+		/* Yes, this is ugly. However, zmq_socket_monitor needs time to close a previous socket
+			A hang occurs for ->connect() ; ->disconnect() ; ->connect(), but who is going to do this?
+		*/
+		usleep(250000);
+	}
+}
+/* }}} */
+
+/* {{{ proto bool ZMQSocketMonitor::connect()
+	Start a zmq_socket_monitor and connect
+*/
 PHP_METHOD(zmqsocketmonitor, connect)
 {
 	php_zmq_socket_monitor_object *smo;
@@ -1225,21 +1195,14 @@ PHP_METHOD(zmqsocketmonitor, connect)
 	}
 
 	smo = PHP_ZMQ_SOCKET_MONITOR_OBJECT;
+	socket_monitor_disconnect(smo TSRMLS_CC);
 	so = (php_zmq_socket_object *) zend_object_store_get_object(smo->monitored_socket TSRMLS_CC);
 
-	if(smo->monitor_url) {
-		efree(smo->monitor_url);
-	}
-
-	spprintf(&smo->monitor_url, 0, "inproc://monitor.%d", ZMQ_G(monitor_instance)++); 
-	php_printf("url: %s %d\n", smo->monitor_url, __LINE__);
-
-
-	if(zend_hash_exists(&(smo->socket->connect), smo->monitor_url, (strlen(smo->monitor_url)+1))) {
-		RETURN_TRUE;
-	}
+	spprintf(&(smo->monitor_url), 0, "inproc://monitor.%d", ZMQ_G(monitor_instance)++); 
+	/* php_printf("url: %s %d\n", smo->monitor_url, __LINE__); */
 
 	if(zmq_socket_monitor(so->socket->z_socket, smo->monitor_url, events) != 0) {
+		php_printf("here: %d\n", __LINE__);
 		zend_throw_exception_ex(NULL, errno TSRMLS_CC, "Failed to create monitor: %s zmq_socket_monitor(%s)", zmq_strerror(errno), smo->monitor_url);
 		RETURN_FALSE;
 	}
@@ -1267,21 +1230,7 @@ PHP_METHOD(zmqsocketmonitor, disconnect)
 	}
 
 	smo = PHP_ZMQ_SOCKET_MONITOR_OBJECT;
-	so = (php_zmq_socket_object *) zend_object_store_get_object(smo->monitored_socket TSRMLS_CC);
-
-	if(smo->monitor_url) {
-
-		if(zmq_disconnect(smo->socket->z_socket, smo->monitor_url) != 0) {
-			zend_throw_exception_ex(NULL, errno TSRMLS_CC, "Failed to disconnect ZMQSocketMonitor: %s", zmq_strerror(errno));
-			RETURN_FALSE;
-		}
-	
-		zend_hash_del(&(smo->socket->connect), smo->monitor_url, (strlen(smo->monitor_url)+1));
-		efree(smo->monitor_url);
-		smo->monitor_url = NULL;
-	}
-
-	zmq_socket_monitor(so->socket->z_socket, NULL, 0);
+	socket_monitor_disconnect(smo TSRMLS_CC);
 	RETURN_TRUE;
 }
 /* }}} */
@@ -1937,6 +1886,7 @@ static zend_function_entry php_zmq_socket_monitor_class_methods[] = {
 
 ZEND_BEGIN_ARG_INFO_EX(zmq_event_construct_args, 0, 0, 0)
 ZEND_END_ARG_INFO()
+
 /*
 ZEND_BEGIN_ARG_INFO_EX(zmq_event_get_args, 0, 0, 1)
 	ZEND_ARG_INFO(0, name)
@@ -2088,14 +2038,11 @@ static void php_zmq_socket_monitor_object_free_storage(void *object TSRMLS_DC) {
 		Z_DELREF_P(intern->context_obj);
 	}
 
+	socket_monitor_disconnect(intern TSRMLS_CC);
+
 	if(intern->monitored_socket) {
 		php_zmq_socket_object *so = (php_zmq_socket_object *) zend_object_store_get_object(intern->monitored_socket TSRMLS_CC);
-		int rc = zmq_socket_monitor(so->socket->z_socket, NULL, 0);
-
-		if(rc != 0) {
-
-			php_printf("zmq_socket_monitor null failed: %d %s %d", errno, zmq_strerror(errno), __LINE__);
-		}
+		socket_monitor_disconnect(intern TSRMLS_CC);
 
 		Z_DELREF_P(intern->monitored_socket);
 	}
