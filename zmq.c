@@ -1259,7 +1259,8 @@ PHP_METHOD(zmqsocketmonitor, read)
 		RETURN_FALSE;
 	}
 
-	if(zmq_recvmsg(smo->socket->z_socket, &message, flags) == -1) {
+	if(zmq_msg_recv(&message, smo->socket->z_socket, flags) == -1) {
+
 		save_errno = errno;
 		zmq_msg_close(&message);
 
