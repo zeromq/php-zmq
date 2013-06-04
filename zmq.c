@@ -39,7 +39,6 @@ zend_class_entry *php_zmq_socket_monitor_sc_entry;
 zend_class_entry *php_zmq_event_sc_entry;
 zend_class_entry *php_zmq_poll_sc_entry;
 zend_class_entry *php_zmq_device_sc_entry;
-zend_class_entry *php_zmq_socket_monitor_entry;
 
 zend_class_entry *php_zmq_exception_sc_entry;
 zend_class_entry *php_zmq_context_exception_sc_entry;
@@ -81,10 +80,9 @@ zend_class_entry *php_zmq_device_exception_sc_entry_get ()
 	return php_zmq_device_exception_sc_entry;
 }
 
-/* void (*zend_object_set_t)(zval **object, zval *value TSRMLS_DC); */
-
 /* list entries */
 static int le_zmq_socket, le_zmq_context, le_zmq_socket_monitor;
+
 /** {{{ static void php_zmq_get_lib_version(char buffer[PHP_ZMQ_VERSION_LEN])
 */
 static void php_zmq_get_lib_version(char buffer[PHP_ZMQ_VERSION_LEN]) 
@@ -131,14 +129,8 @@ static void php_zmq_socket_destroy(php_zmq_socket *zmq_sock)
 	zend_hash_destroy(&(zmq_sock->connect));
 	zend_hash_destroy(&(zmq_sock->bind));
 
-	if (zmq_sock->pid == getpid ()) {
+	if (zmq_sock->pid == getpid ())
 		(void) zmq_close(zmq_sock->z_socket);
-	}
-
-	if(zmq_sock->ctx) {
-
-		zmq_sock->ctx = NULL;
-	}
 
 	pefree(zmq_sock, zmq_sock->is_persistent);
 }
@@ -147,7 +139,7 @@ static void php_zmq_socket_destroy(php_zmq_socket *zmq_sock)
 /* --- START ZMQContext --- */
 
 /* {{{ static php_zmq_context *php_zmq_context_new(long io_threads, zend_bool is_persistent TSRMLS_DC)
-    Create a new zmq context
+	Create a new zmq context
 */
 static php_zmq_context *php_zmq_context_new(long io_threads, zend_bool is_persistent TSRMLS_DC)
 {
@@ -596,6 +588,7 @@ PHP_METHOD(zmqsocket, __construct)
 	if (socket->is_persistent) {
 		intern->persistent_id = estrdup(persistent_id);
 	}
+
 	return;
 }
 /* }}} */
@@ -1967,7 +1960,6 @@ static zend_function_entry php_zmq_device_class_methods[] = {
 };
 
 zend_function_entry zmq_functions[] = {
-
 	{NULL, NULL, NULL} 
 };
 
@@ -2334,7 +2326,7 @@ PHP_MINIT_FUNCTION(zmq)
 
 	INIT_CLASS_ENTRY(ce_device, "ZMQDevice", php_zmq_device_class_methods);
 	ce_device.create_object = php_zmq_device_object_new;
-	/* zmq_device_object_handlers.clone_obj = NULL;*/
+	zmq_device_object_handlers.clone_obj = NULL;
 	php_zmq_device_sc_entry = zend_register_internal_class(&ce_device TSRMLS_CC);
 
 	INIT_CLASS_ENTRY(ce_exception, "ZMQException", NULL);
@@ -2438,7 +2430,7 @@ zend_module_entry zmq_module_entry =
 {
 	STANDARD_MODULE_HEADER,
 	PHP_ZMQ_EXTNAME,
-	NULL,					/* Functions */
+	zmq_functions,			/* Functions */
 	PHP_MINIT(zmq),			/* MINIT */
 	NULL,					/* MSHUTDOWN */
 	NULL,					/* RINIT */
