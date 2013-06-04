@@ -1,5 +1,12 @@
 --TEST--
 Test socket_monitor
+--SKIPIF--
+<?php
+
+//Output is too variable at this point. Test will be fixed in the future.
+	die("Test requires pcntl_fork (Missing in windows)");
+	//if( function_exists("pcntl_fork") ) die("Test requires pcntl_fork (Missing in windows)");
+?>
 --FILE--
 <?php
 error_reporting(E_ALL | E_STRICT);
