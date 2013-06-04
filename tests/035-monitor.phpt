@@ -1,14 +1,10 @@
 --TEST--
 Test socket_monitor
---SKIPIF--
-<?php
-
-//Output is too variable at this point. Test will be fixed in the future.
-	die("Test requires pcntl_fork (Missing in windows)");
-	//if( function_exists("pcntl_fork") ) die("Test requires pcntl_fork (Missing in windows)");
-?>
+--XFAIL--
+Output is too variable at this point. Execute: php 035-monitor.phpt
 --FILE--
 <?php
+
 error_reporting(E_ALL | E_STRICT);
 $url = "tcp://127.0.0.1:7000";
 
@@ -113,7 +109,4 @@ $p->clear();
 $client->disconnect($url);
 $monitor->disconnect();
 ?>
-===DONE===
-<?php exit(0); ?>
 --EXPECT--
-===DONE===
