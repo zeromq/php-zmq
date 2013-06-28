@@ -43,7 +43,6 @@
 #endif
 
 #include "php.h"
-#include "zmq.h"
 
 extern zend_module_entry zmq_module_entry;
 #define phpext_zmq_ptr &zmq_module_entry

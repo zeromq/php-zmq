@@ -309,11 +309,6 @@ static php_zmq_socket *php_zmq_socket_new(php_zmq_context *context, int type, ze
 	zmq_sock->pid      = getpid();
 	zmq_sock->ctx      = context;
 
-	if(zmq_sock->z_socket == NULL) {
-
-		php_printf("zmq_socket %d %s %d", errno, zmq_strerror(errno), __LINE__);
-	}
-
 	if (!zmq_sock->z_socket) {
 		pefree(zmq_sock, is_persistent);
 		return NULL;
@@ -1192,10 +1187,8 @@ PHP_METHOD(zmqsocketmonitor, connect)
 	so = (php_zmq_socket_object *) zend_object_store_get_object(smo->monitored_socket TSRMLS_CC);
 
 	spprintf(&(smo->monitor_url), 0, "inproc://monitor.%d", ZMQ_G(monitor_instance)++); 
-	/* php_printf("url: %s %d\n", smo->monitor_url, __LINE__); */
 
 	if(zmq_socket_monitor(so->socket->z_socket, smo->monitor_url, events) != 0) {
-		php_printf("here: %d\n", __LINE__);
 		zend_throw_exception_ex(NULL, errno TSRMLS_CC, "Failed to create monitor: %s zmq_socket_monitor(%s)", zmq_strerror(errno), smo->monitor_url);
 		RETURN_FALSE;
 	}
@@ -1395,7 +1388,6 @@ PHP_METHOD(zmqpoll, add)
 				   (!instanceof_function(Z_OBJCE_P(object), php_zmq_socket_sc_entry TSRMLS_CC))
 				&& (!instanceof_function(Z_OBJCE_P(object), php_zmq_socket_monitor_sc_entry TSRMLS_CC))
 			) {
-				php_printf("failed instanceof_function: %s %d\n", __FILE__, __LINE__);
 				zend_throw_exception(php_zmq_poll_exception_sc_entry, "The first argument must be an instance of ZMQSocket, ZMQSocketMonitor, or a resource", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
 				return;
 			}
