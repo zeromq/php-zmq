@@ -130,6 +130,26 @@ typedef struct _php_zmq_socket_object  {
 } php_zmq_socket_object;
 /* }}} */
 
+/* {{{ typedef struct _php_zmq_socket_monitor_object 
+*/
+typedef struct _php_zmq_socket_monitor_object  {
+	zend_object zo;
+	php_zmq_socket *socket;
+	
+	/* options for the context */
+	char *persistent_id;
+	
+	/* zval of the context */
+	zval *context_obj;
+
+	/* The socket being watched/monitored */
+	zval *monitored_socket;
+
+	char *monitor_url;
+
+} php_zmq_socket_monitor_object;
+/* }}} */
+
 /* {{{ typedef struct _php_zmq_poll_object 
 */
 typedef struct _php_zmq_poll_object  {
@@ -155,14 +175,18 @@ typedef struct _php_zmq_device_object  {
 /* }}} */
 
 #ifdef ZTS
-# define ZMQ_G(v) TSRMG(php_zmq_globals_id, zend_php_zmq_globals *, v)
+#define ZMQ_G(v) TSRMG(zmq_globals_id, zend_zmq_globals*, v)
+extern int zmq_globals_id;
 #else
-# define ZMQ_G(v) (php_zmq_globals.v)
+#define ZMQ_G(v) (zmq_globals.v)
+extern zend_zmq_globals zmq_globals;
 #endif
 
 #define PHP_ZMQ_CONTEXT_OBJECT (php_zmq_context_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
 
 #define PHP_ZMQ_SOCKET_OBJECT (php_zmq_socket_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
+
+#define PHP_ZMQ_SOCKET_MONITOR_OBJECT (php_zmq_socket_monitor_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
 
 #define PHP_ZMQ_POLL_OBJECT (php_zmq_poll_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
 
@@ -231,6 +255,7 @@ typedef struct _php_zmq_device_object  {
 #define PHP_ZMQ_VERSION_LEN 24
 
 PHP_METHOD(zmqsocket, getsockopt);
+PHP_METHOD(zmqsocketmonitor, getsockopt);
 PHP_METHOD(zmqsocket, setsockopt);
 int php_zmq_device(php_zmq_device_object *intern TSRMLS_DC);
 
