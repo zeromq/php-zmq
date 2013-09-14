@@ -188,11 +188,11 @@ int php_zmq_pollset_add(php_zmq_pollset *pollset, zval *entry, int events TSRMLS
 			return PHP_ZMQ_POLLSET_ERR_NO_STREAM;
 		}
 
-		if (php_stream_can_cast(stream, (PHP_STREAM_AS_FD | PHP_STREAM_CAST_INTERNAL) & ~REPORT_ERRORS) == FAILURE) {
+		if (php_stream_can_cast(stream, (PHP_STREAM_AS_FD | PHP_STREAM_CAST_INTERNAL | PHP_STREAM_AS_SOCKETD) & ~REPORT_ERRORS) == FAILURE) {
 			return PHP_ZMQ_POLLSET_ERR_CANNOT_CAST;
 		}
 
-		if (php_stream_cast(stream, (PHP_STREAM_AS_FD | PHP_STREAM_CAST_INTERNAL) & ~REPORT_ERRORS, (void*)&fd, 0) == FAILURE) {
+		if (php_stream_cast(stream, (PHP_STREAM_AS_FD | PHP_STREAM_CAST_INTERNAL | PHP_STREAM_AS_SOCKETD) & ~REPORT_ERRORS, (void*)&fd, 0) == FAILURE) {
 			return PHP_ZMQ_POLLSET_ERR_CAST_FAILED;
 		}
 		
