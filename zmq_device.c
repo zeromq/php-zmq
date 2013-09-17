@@ -88,6 +88,7 @@ int s_capture_message (void *socket, zmq_msg_t *msg, int more)
 
 int php_zmq_device(php_zmq_device_object *intern TSRMLS_DC)
 {
+    void *capture_sock;
 	php_zmq_socket_object *front, *back;
 
     zmq_msg_t msg;
@@ -123,7 +124,7 @@ int php_zmq_device(php_zmq_device_object *intern TSRMLS_DC)
     items [1].events = ZMQ_POLLIN;
     items [1].revents = 0;
 
-	void *capture_sock = NULL;
+	capture_sock = NULL;
 	if (intern->capture) {
 		php_zmq_socket_object *capture = (php_zmq_socket_object *)zend_object_store_get_object(intern->capture TSRMLS_CC);
 		capture_sock = capture->socket->z_socket;
