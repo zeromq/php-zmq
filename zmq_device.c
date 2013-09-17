@@ -67,7 +67,7 @@ static zend_bool php_zmq_invoke_idle_callback (php_zmq_device_object *intern TSR
 }
 
 static
-int s_capture_message (void *socket, zmq_msg_t *msg, bool more)
+int s_capture_message (void *socket, zmq_msg_t *msg, int more)
 {
 	int rc;
 	zmq_msg_t msg_cp;
