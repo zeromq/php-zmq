@@ -36,6 +36,7 @@
 #include "main/php_ini.h"
 
 #include <zmq.h>
+#include <stdbool.h>
 
 #ifdef PHP_WIN32
 # include "win32/php_stdint.h"
