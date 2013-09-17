@@ -1271,9 +1271,9 @@ PHP_METHOD(zmqpoll, __clone) { }
 PHP_METHOD(zmqdevice, __construct)
 {
 	php_zmq_device_object *intern;
-	zval *f, *b;
+	zval *f, *b, *c = NULL;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "OO", &f, php_zmq_socket_sc_entry, &b, php_zmq_socket_sc_entry) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "OO|O!", &f, php_zmq_socket_sc_entry, &b, php_zmq_socket_sc_entry, &c, php_zmq_socket_sc_entry) == FAILURE) {
 		return;
 	}
 
@@ -1281,9 +1281,18 @@ PHP_METHOD(zmqdevice, __construct)
 
 	intern->front = f;
 	intern->back  = b;
+	if (c) {
+		intern->capture = c;
+		zend_objects_store_add_ref(c TSRMLS_CC);
+		Z_ADDREF_P(c);
+	} else
+		intern->capture = NULL;
 
 	zend_objects_store_add_ref(f TSRMLS_CC);
+	Z_ADDREF_P(f);
+
 	zend_objects_store_add_ref(b TSRMLS_CC);
+	Z_ADDREF_P(b);
 }
 /* }}} */
 
@@ -1560,8 +1569,9 @@ static zend_function_entry php_zmq_poll_class_methods[] = {
 };
 
 ZEND_BEGIN_ARG_INFO_EX(zmq_device_construct_args, 0, 0, 2)
-	ZEND_ARG_INFO(0, frontend)
-	ZEND_ARG_INFO(0, backend)
+	ZEND_ARG_OBJ_INFO(0, frontend, ZMQSocket, 0)
+	ZEND_ARG_OBJ_INFO(0, backend, ZMQSocket, 0)
+	ZEND_ARG_OBJ_INFO(0, capture, ZMQSocket, 0)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(zmq_device_run_args, 0, 0, 0)
@@ -1588,7 +1598,7 @@ static zend_function_entry php_zmq_device_class_methods[] = {
 };
 
 zend_function_entry zmq_functions[] = {
-	{NULL, NULL, NULL} 
+	{NULL, NULL, NULL}
 };
 
 static void php_zmq_context_object_free_storage(void *object TSRMLS_DC)
@@ -1661,10 +1671,17 @@ static void php_zmq_device_object_free_storage(void *object TSRMLS_DC)
 
 	if (intern->front) {
 		zend_objects_store_del_ref(intern->front TSRMLS_CC);
+		Z_DELREF_P (intern->front);
 	}
 
 	if (intern->back) {
 		zend_objects_store_del_ref(intern->back TSRMLS_CC);
+		Z_DELREF_P (intern->back);
+	}
+
+	if (intern->capture) {
+		zend_objects_store_del_ref(intern->capture TSRMLS_CC);
+		Z_DELREF_P (intern->capture);
 	}
 
 	zend_object_std_dtor(&intern->zo TSRMLS_CC);

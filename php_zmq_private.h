@@ -151,6 +151,7 @@ typedef struct _php_zmq_device_object  {
 	
 	zval *front;
 	zval *back;
+    zval *capture;
 } php_zmq_device_object;
 /* }}} */
 

@@ -66,6 +66,25 @@ static zend_bool php_zmq_invoke_idle_callback (php_zmq_device_object *intern TSR
 	return retval;
 }
 
+static
+int s_capture_message (void *socket, zmq_msg_t *msg, bool more)
+{
+	int rc;
+	zmq_msg_t msg_cp;
+	rc = zmq_msg_init (&msg_cp);
+	if (rc == -1)
+		return -1;
+
+	rc = zmq_msg_copy (&msg_cp, msg);
+	if (rc == -1) {
+		zmq_msg_close (&msg_cp);
+		return -1;
+	}
+
+	return
+		zmq_sendmsg (socket, &msg_cp, more ? ZMQ_SNDMORE : 0);
+}
+
 
 int php_zmq_device(php_zmq_device_object *intern TSRMLS_DC)
 {
@@ -104,10 +123,17 @@ int php_zmq_device(php_zmq_device_object *intern TSRMLS_DC)
     items [1].events = ZMQ_POLLIN;
     items [1].revents = 0;
 
+	void *capture_sock = NULL;
+	if (intern->capture) {
+		php_zmq_socket_object *capture = (php_zmq_socket_object *)zend_object_store_get_object(intern->capture TSRMLS_CC);
+		capture_sock = capture->socket->z_socket;
+	}
+
     while (1) {
 
         rc = zmq_poll(&items [0], 2, intern->timeout);
         if (rc < 0) {
+            zmq_msg_close (&msg);
             return -1;
         }
 
@@ -126,12 +152,14 @@ int php_zmq_device(php_zmq_device_object *intern TSRMLS_DC)
 
                 rc = zmq_recvmsg(items [0].socket, &msg, 0);
                 if (rc == -1) {
+                    zmq_msg_close (&msg);
                     return -1;
                 }
 
                 moresz = sizeof(more);
                 rc = zmq_getsockopt(items [0].socket, ZMQ_RCVMORE, &more, &moresz);
                 if (rc < 0) {
+                    zmq_msg_close (&msg);
                     return -1;
                 }
 
@@ -140,15 +168,25 @@ int php_zmq_device(php_zmq_device_object *intern TSRMLS_DC)
 
 				rc = zmq_getsockopt(items [0].socket, ZMQ_RCVLABEL, &label, &labelsz);
                 if(rc < 0) {
+                    zmq_msg_close (&msg);
                     return -1;
                 }
 
                 rc = zmq_sendmsg (items [1].socket, &msg, label ? ZMQ_SNDLABEL : (more ? ZMQ_SNDMORE : 0));
                 more = more | label;
 #else
+                if (capture_sock) {
+                    rc = s_capture_message (capture_sock, &msg, more);
+
+                    if (rc == -1) {
+                        zmq_msg_close (&msg);
+                        return -1;
+                    }
+                }
                 rc = zmq_sendmsg (items [1].socket, &msg, more ? ZMQ_SNDMORE : 0);
 #endif
                 if (rc == -1) {
+                    zmq_msg_close (&msg);
                     return -1;
                 }
 
@@ -161,12 +199,14 @@ int php_zmq_device(php_zmq_device_object *intern TSRMLS_DC)
             while (1) {
                 rc = zmq_recvmsg(items [1].socket, &msg, 0);
                 if (rc == -1) {
+                    zmq_msg_close (&msg);
                     return -1;
                 }
 
                 moresz = sizeof (more);
                 rc = zmq_getsockopt(items [1].socket, ZMQ_RCVMORE, &more, &moresz);
                 if (rc < 0) {
+                    zmq_msg_close (&msg);
                     return -1;
                 }
 
@@ -174,15 +214,25 @@ int php_zmq_device(php_zmq_device_object *intern TSRMLS_DC)
                 labelsz = sizeof(label);
                 rc = zmq_getsockopt(items [1].socket, ZMQ_RCVLABEL, &label, &labelsz);
                 if(rc < 0) {
+                    zmq_msg_close (&msg);
                     return -1;
                 }
 
                 rc = zmq_sendmsg (items [0].socket, &msg, label ? ZMQ_SNDLABEL : (more ? ZMQ_SNDMORE : 0));
                 more = more | label;
 #else
+                if (capture_sock) {
+                    rc = s_capture_message (capture_sock, &msg, more);
+
+                    if (rc == -1) {
+                        zmq_msg_close (&msg);
+                        return -1;
+                    }
+                }
                 rc = zmq_sendmsg (items [0].socket, &msg, more ? ZMQ_SNDMORE : 0);
 #endif
                 if (rc == -1) {
+                    zmq_msg_close (&msg);
                     return -1;
                 }
 
@@ -191,6 +241,7 @@ int php_zmq_device(php_zmq_device_object *intern TSRMLS_DC)
             }
         }
     }
+    zmq_msg_close (&msg);
     return 0;
 }
 
