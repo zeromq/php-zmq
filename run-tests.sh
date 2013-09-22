@@ -7,6 +7,7 @@ make install
 cd ..
 phpize
 ./configure --with-zmq=/tmp/zeromq-2.2.0
+make
 export NO_INTERACTION=1
 export REPORT_EXIT_STATUS=1
 # See https://github.com/reeze/php-leveldb/blob/master/travis/run-test.sh
