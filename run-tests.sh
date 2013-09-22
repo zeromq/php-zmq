@@ -15,4 +15,4 @@ export NO_INTERACTION=1
 export REPORT_EXIT_STATUS=1
 export TEST_PHP_EXECUTABLE=`which php`
 export USE_ZEND_ALLOC=0
-php run-tests.php -m ./tests/*.phpt
+php run-tests.php ./tests/*.phpt
