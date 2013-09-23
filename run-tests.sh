@@ -20,6 +20,11 @@ install_zeromq() {
         cd ./zeromq3-x
         git checkout tags/$zeromq_version
         ;;
+    v4*)
+        git clone https://github.com/zeromq/zeromq4-x
+        cd ./zeromq4-x
+        git checkout tags/$zeromq_version
+        ;;
     esac
     ./autogen.sh
     ./configure

@@ -10,6 +10,7 @@ env:
     - ZEROMQ_VERSION=v3.2.2
     - ZEROMQ_VERSION=v3.2.3
     - ZEROMQ_VERSION=v3.2.4
+    - ZEROMQ_VERSION=v4.0.0
 before_install:
     - sudo apt-get update
     - sudo apt-get install uuid-dev
