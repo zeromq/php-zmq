@@ -221,7 +221,7 @@ typedef struct _php_zmq_device_object  {
 #	define zmq_sendmsg zmq_send
 #	define zmq_recvmsg zmq_recv
 #	define PHP_ZMQ_TIMEOUT 1000
-#elif ZMQ_VERSION_MAJOR == 3
+#else
 #	define PHP_ZMQ_TIMEOUT 1
 #endif
 
