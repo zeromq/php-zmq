@@ -13,6 +13,7 @@
    <methodname>ZMQDevice::__construct</methodname>
    <methodparam><type>ZMQSocket</type><parameter>frontend</parameter></methodparam>
    <methodparam><type>ZMQSocket</type><parameter>backend</parameter></methodparam>
+   <methodparam choice="opt"><type>ZMQSocket</type><parameter>listener</parameter></methodparam>
   </methodsynopsis>
   <para>
    "ØMQ devices can do intermediation of addresses, services, queues, or any other abstraction you care to define above the message and socket layers." -- zguide
@@ -37,6 +38,15 @@
      <para>
        Backend parameter for the devices. Usually where there messages
        going to.
+     </para>
+    </listitem>
+   </varlistentry>
+   <varlistentry>
+    <term><parameter>listener</parameter></term>
+    <listitem>
+     <para>
+       Listener socket, which receives a copy of all messages going both directions.
+       The type of this socket should be PUB, PUSH or DEALER.
      </para>
     </listitem>
    </varlistentry>
