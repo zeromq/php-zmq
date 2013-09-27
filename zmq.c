@@ -217,7 +217,7 @@ PHP_METHOD(zmqcontext, __construct)
 }
 /* }}} */
 
-#if ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR >= 2
+#if (ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR >= 2) || ZMQ_VERSION_MAJOR > 3
 /* {{{ proto ZMQContext ZMQContext::setOpt(int option, int value)
 	Set a context option
 */
@@ -232,7 +232,6 @@ PHP_METHOD(zmqcontext, setOpt)
 	intern = PHP_ZMQ_CONTEXT_OBJECT;
 
 	switch (option) {
-		
 		case ZMQ_MAX_SOCKETS:
 		{
 			if (zmq_ctx_set(intern->context->z_ctx, option, value) != 0) {
@@ -241,7 +240,7 @@ PHP_METHOD(zmqcontext, setOpt)
 			}
 		}
 		break;
-		
+
 		default:
 		{
 			zend_throw_exception(php_zmq_context_exception_sc_entry_get (), "Unknown option key", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
@@ -889,7 +888,7 @@ PHP_METHOD(zmqsocket, connect)
 }
 /* }}} */
 
-#if ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR >= 2
+#if (ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR >= 2) || ZMQ_VERSION_MAJOR > 3
 /* {{{ proto ZMQSocket ZMQSocket::unbind(string $dsn)
 	Unbind the socket from an endpoint
 */
@@ -941,7 +940,7 @@ PHP_METHOD(zmqsocket, disconnect)
 /* }}} */
 #endif
 
-#if (PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION < 3)
+#if (ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR >= 2) || ZMQ_VERSION_MAJOR > 3
 static int php_zmq_get_keys(zval **ppzval, int num_args, va_list args, zend_hash_key *hash_key)
 {
 	TSRMLS_FETCH();
@@ -1423,7 +1422,7 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(zmq_context_clone_args, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
-#if ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR >= 2
+#if (ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR >= 2) || ZMQ_VERSION_MAJOR > 3
 ZEND_BEGIN_ARG_INFO_EX(zmq_context_setopt_args, 0, 0, 2)
 	ZEND_ARG_INFO(0, option)
 	ZEND_ARG_INFO(0, value)
@@ -1439,7 +1438,7 @@ static zend_function_entry php_zmq_context_class_methods[] = {
 	PHP_ME(zmqcontext, getsocket,		zmq_context_getsocket_args,		ZEND_ACC_PUBLIC)
 	PHP_ME(zmqcontext, ispersistent,	zmq_context_ispersistent_args,	ZEND_ACC_PUBLIC)
 	PHP_ME(zmqcontext, __clone,			zmq_context_clone_args,			ZEND_ACC_PRIVATE|ZEND_ACC_FINAL)
-#if ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR >= 2
+#if (ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR >= 2) || ZMQ_VERSION_MAJOR > 3
 	PHP_ME(zmqcontext, setOpt,			zmq_context_setopt_args,		ZEND_ACC_PUBLIC)
 	PHP_ME(zmqcontext, getOpt,			zmq_context_getopt_args,		ZEND_ACC_PUBLIC)
 #endif
@@ -1463,7 +1462,7 @@ ZEND_BEGIN_ARG_INFO_EX(zmq_socket_connect_args, 0, 0, 1)
 	ZEND_ARG_INFO(0, force)
 ZEND_END_ARG_INFO()
 
-#if ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR >= 2
+#if (ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR >= 2) || ZMQ_VERSION_MAJOR > 3
 ZEND_BEGIN_ARG_INFO_EX(zmq_socket_unbind_args, 0, 0, 1)
 	ZEND_ARG_INFO(0, dsn)
 ZEND_END_ARG_INFO()
@@ -1514,7 +1513,7 @@ static zend_function_entry php_zmq_socket_class_methods[] = {
 	PHP_ME(zmqsocket, recvmulti,			zmq_socket_recv_args,				ZEND_ACC_PUBLIC)
 	PHP_ME(zmqsocket, bind,					zmq_socket_bind_args,				ZEND_ACC_PUBLIC)
 	PHP_ME(zmqsocket, connect,				zmq_socket_connect_args,			ZEND_ACC_PUBLIC)
-#if ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR >= 2
+#if (ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR >= 2) || ZMQ_VERSION_MAJOR > 3
 	PHP_ME(zmqsocket, unbind,				zmq_socket_unbind_args,				ZEND_ACC_PUBLIC)
 	PHP_ME(zmqsocket, disconnect,			zmq_socket_disconnect_args,			ZEND_ACC_PUBLIC)
 #endif
@@ -1951,7 +1950,7 @@ PHP_MINIT_FUNCTION(zmq)
 
 	php_zmq_register_sockopt_constants (php_zmq_sc_entry TSRMLS_CC);
 
-#if ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR >= 2
+#if (ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR >= 2) || ZMQ_VERSION_MAJOR > 3
 	PHP_ZMQ_REGISTER_CONST_LONG("CTXOPT_MAX_SOCKETS", ZMQ_MAX_SOCKETS);
 #endif
 

@@ -93,7 +93,7 @@
         <option name="sndtimeo" type="int" mode="rw"/>
         <option name="rcvtimeo" type="int" mode="rw"/>
     </version>
-    <version major="3" comparison="(ZMQ_VERSION_MAJOR == 3 &amp;&amp; ZMQ_VERSION_MINOR &gt;= 2) || ZMQ_VERSION_MAJOR >= 4">
+    <version major="3" comparison="(ZMQ_VERSION_MAJOR == 3 &amp;&amp; ZMQ_VERSION_MINOR >= 2) || ZMQ_VERSION_MAJOR > 3">
         <option name="sndhwm" type="int" mode="rw"/>
         <option name="rcvhwm" type="int" mode="rw"/>
         <option name="affinity" type="uint64_t" mode="rw"/>

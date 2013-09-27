@@ -2818,7 +2818,7 @@ void php_zmq_register_sockopt_constants (zend_class_entry *php_zmq_sc_entry TSRM
 			
 #endif
 
-#if (ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR >= 2) || ZMQ_VERSION_MAJOR >= 4
+#if (ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR >= 2) || ZMQ_VERSION_MAJOR > 3
 
 /* {{{ proto mixed ZMQSocket::getSockOpt()
 	Get a socket option
