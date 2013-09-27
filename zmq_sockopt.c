@@ -2,7 +2,7 @@
 /*
 +-----------------------------------------------------------------------------------+
 |  ZMQ extension for PHP                                                            |
-|  Copyright (c) 2010-2013, Mikko Koppanen <mkoppanen@php.net>                      |
+|  Copyright (c) 2010, Mikko Koppanen <mkoppanen@php.net>                           |
 |  All rights reserved.                                                             |
 +-----------------------------------------------------------------------------------+
 |  Redistribution and use in source and binary forms, with or without               |
@@ -2818,7 +2818,7 @@ void php_zmq_register_sockopt_constants (zend_class_entry *php_zmq_sc_entry TSRM
 			
 #endif
 
-#if ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR >= 2
+#if (ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR >= 2) || ZMQ_VERSION_MAJOR >= 4
 
 /* {{{ proto mixed ZMQSocket::getSockOpt()
 	Get a socket option
@@ -3786,7 +3786,7 @@ void php_zmq_register_sockopt_constants (zend_class_entry *php_zmq_sc_entry TSRM
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_LAST_ENDPOINT", ZMQ_LAST_ENDPOINT);
 			
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_TCP_KEEPALIVE", ZMQ_TCP_KEEPALIVE);
-
+			
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_TCP_KEEPALIVE_IDLE", ZMQ_TCP_KEEPALIVE_IDLE);
 			
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_TCP_KEEPALIVE_CNT", ZMQ_TCP_KEEPALIVE_CNT);
