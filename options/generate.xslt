@@ -17,15 +17,25 @@
 						<xsl:with-param name="input-string" select="@name"/>
 					</xsl:call-template>
 				</xsl:variable>
-				<xsl:variable name="const-name" select="concat('ZMQ_', $raw-name)"/>				
-				
-				<xsl:if test="@name != 'identity' and @name != 'fd'">	
+				<xsl:variable name="const-name" select="concat('ZMQ_', $raw-name)"/>
+
+				<xsl:variable name="max-length">
+					<xsl:choose>
+    					<xsl:when test="@max-length">
+							<xsl:value-of select="@max-length"/>
+						</xsl:when>
+    					<xsl:otherwise>255</xsl:otherwise>
+					</xsl:choose>
+				</xsl:variable>
+
+				<xsl:if test="@name != 'fd'">	
 					<xsl:choose>
 						<xsl:when test="@mode = 'rw' or @mode = 'r'">
 							<xsl:call-template name="get-option">
 								<xsl:with-param name="const-name" select="$const-name"/>
 								<xsl:with-param name="raw-name" select="$raw-name"/>
 								<xsl:with-param name="type" select="@type"/>
+								<xsl:with-param name="max-length" select="$max-length"/>
 							</xsl:call-template>
 						</xsl:when>
 						<xsl:otherwise>
@@ -71,7 +81,7 @@
 				</xsl:if>
 			</xsl:for-each>
 			
-			<xsl:if test="@major = 3">
+			<xsl:if test="@major = 3 or @major = 4">
 				<xsl:call-template name="set-hwm-bwc"/>
 			</xsl:if>
 	
@@ -81,7 +91,7 @@ void php_zmq_register_sockopt_constants (zend_class_entry *php_zmq_sc_entry TSRM
 {
 #define PHP_ZMQ_REGISTER_SOCKOPT(const_name, value) \
 	zend_declare_class_constant_long(php_zmq_sc_entry, const_name, sizeof(const_name)-1, (long)value TSRMLS_CC);
-			<xsl:if test="@major = 3">
+			<xsl:if test="@major = 3 or @major = 4">
 	PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_HWM", ZMQ_HWM);
 			</xsl:if>
 			<xsl:for-each select="option">
@@ -139,19 +149,6 @@ PHP_METHOD(zmqsocket, getsockopt)
 		}
 		break;
 
-		case ZMQ_IDENTITY:
-		{
-			unsigned char value[PHP_ZMQ_IDENTITY_LEN];
-
-			value_len = PHP_ZMQ_IDENTITY_LEN;
-			if (zmq_getsockopt(intern->socket->z_socket, (int) key, value, &amp;value_len) != 0) {
-				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to get the option ZMQ::SOCKOPT_IDENTITY value: %s", zmq_strerror(errno));
-				return;
-			}
-			RETURN_STRINGL((char *) value, value_len, 1);
-		}
-		break;
-
 		default:
 		{
 			zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Unknown option key", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
@@ -191,15 +188,34 @@ PHP_METHOD(zmqsocket, getsockopt)
 		}
 		break;
 	</xsl:template>
-	
-	<xsl:template name="get-string-option">
+
+	<xsl:template name="get-blob-option">
 		<xsl:param name="const-name"/>
-		<xsl:param name="raw-name"/>	
+		<xsl:param name="raw-name"/>
+		<xsl:param name="max-length"/>
 		case <xsl:value-of select="$const-name"/>:
 		{
-			char value[255];
+			char value[<xsl:value-of select="$max-length"/>];
 
-			value_len = 255;
+			value_len = <xsl:value-of select="$max-length"/>;
+			if (zmq_getsockopt(intern->socket->z_socket, (int) key, &amp;value, &amp;value_len) != 0) {
+				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to get the option ZMQ::SOCKOPT_<xsl:value-of select="$raw-name"/> value: %s", zmq_strerror(errno));
+				return;
+			}
+			RETURN_STRINGL(value, value_len, 1);
+		}
+		break;
+	</xsl:template>
+
+	<xsl:template name="get-string-option">
+		<xsl:param name="const-name"/>
+		<xsl:param name="raw-name"/>
+		<xsl:param name="max-length"/>
+		case <xsl:value-of select="$const-name"/>:
+		{
+			char value[<xsl:value-of select="$max-length"/>];
+
+			value_len = <xsl:value-of select="$max-length"/>;
 			if (zmq_getsockopt(intern->socket->z_socket, (int) key, &amp;value, &amp;value_len) != 0) {
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to get the option ZMQ::SOCKOPT_<xsl:value-of select="$raw-name"/> value: %s", zmq_strerror(errno));
 				return;
@@ -213,12 +229,21 @@ PHP_METHOD(zmqsocket, getsockopt)
 		<xsl:param name="const-name"/>
 		<xsl:param name="raw-name"/>
 		<xsl:param name="type"/>
+		<xsl:param name="max-length" select="'xyz'"/>
 		
 		<xsl:choose>
 			<xsl:when test="$type = 'blob'">
+				<xsl:call-template name="get-blob-option">
+					<xsl:with-param name="const-name" select="$const-name"/>
+					<xsl:with-param name="raw-name" select="$raw-name"/>
+					<xsl:with-param name="max-length" select="$max-length"/>
+				</xsl:call-template>
+			</xsl:when>
+			<xsl:when test="$type = 'string'">
 				<xsl:call-template name="get-string-option">
 					<xsl:with-param name="const-name" select="$const-name"/>
 					<xsl:with-param name="raw-name" select="$raw-name"/>
+					<xsl:with-param name="max-length" select="$max-length"/>
 				</xsl:call-template>
 			</xsl:when>
 			<xsl:otherwise>

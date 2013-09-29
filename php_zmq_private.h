@@ -227,8 +227,6 @@ typedef struct _php_zmq_device_object  {
 
 #define PHP_ZMQ_INTERNAL_ERROR -99
 
-#define PHP_ZMQ_IDENTITY_LEN 255
-
 #define PHP_ZMQ_VERSION_LEN 24
 
 PHP_METHOD(zmqsocket, getsockopt);
