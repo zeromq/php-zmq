@@ -940,7 +940,7 @@ PHP_METHOD(zmqsocket, disconnect)
 /* }}} */
 #endif
 
-#if (ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR >= 2) || ZMQ_VERSION_MAJOR > 3
+#if (PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION < 3)
 static int php_zmq_get_keys(zval **ppzval, int num_args, va_list args, zend_hash_key *hash_key)
 {
 	TSRMLS_FETCH();
