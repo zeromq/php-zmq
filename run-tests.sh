@@ -39,6 +39,7 @@ install_zeromq() {
 #
 # Parameters: ~
 build_zeromq_php_extension() {
+	local zeromq_version=$1
     phpize
     ./configure --with-zmq="${HOME}/zeromq-${zeromq_version}"
     make
@@ -62,5 +63,5 @@ run_zeromq_extension_tests() {
 
 ZEROMQ_VERSION=$1
 install_zeromq $ZEROMQ_VERSION
-build_zeromq_php_extension
+build_zeromq_php_extension $ZEROMQ_VERSION
 run_zeromq_extension_tests
