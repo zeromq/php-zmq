@@ -2,8 +2,10 @@
 Test disconnect
 --SKIPIF--
 <?php 
-    require_once(dirname(__FILE__) . '/skipif.inc'); 
-    if(!method_exists(array ('zmqsocket', 'disconnect')) die('skip');
+    require_once(dirname(__FILE__) . '/skipif.inc');
+
+	if (!in_array ('disconnect', get_class_methods ('zmqsocket')))
+		die ('skip disconnect not supported in libzmq version');
 ?>
 --FILE--
 <?php

@@ -3,7 +3,8 @@ Test unbind
 --SKIPIF--
 <?php 
     require_once(dirname(__FILE__) . '/skipif.inc'); 
-    if(!method_exists(array ('zmqsocket', 'unbind')) die('skip');
+	if (!in_array ('unbind', get_class_methods ('zmqsocket')))
+		die ('skip unbind not supported in libzmq version');
 ?>
 --FILE--
 <?php
