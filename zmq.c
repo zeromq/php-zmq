@@ -555,13 +555,13 @@ PHP_METHOD(zmqsocket, __construct)
         Z_ADDREF_P(intern->context_obj);
 	}
 
-	if (is_new) {	
+	if (is_new) {
 		if (fci.size) {
 			if (!php_zmq_connect_callback(getThis(), &fci, &fci_cache, persistent_id TSRMLS_CC)) {
 				php_zmq_socket_destroy(socket);
 				intern->socket = NULL;
 				return;
-			}	
+			}
 		}
 		if (socket->is_persistent) {
 			php_zmq_socket_store(socket, type, persistent_id TSRMLS_CC);
