@@ -23,12 +23,12 @@ var_dump($obj_id, $fp_id, $poll->count());
 
 $a = array();
 $b = array();
-$poll->poll($a, $b, 100);
+$poll->poll($a, $b, 1000);
 var_dump($a, $b);
 
 fclose($fp);
 
-var_dump($poll->poll($a, $b, 100));
+var_dump($poll->poll($a, $b, 1000));
 var_dump($poll->getLastErrors());
 
 $poll->remove($fp_id);
