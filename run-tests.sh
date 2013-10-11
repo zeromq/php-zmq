@@ -54,6 +54,10 @@ run_zeromq_extension_tests() {
     export REPORT_EXIT_STATUS=1
     export TEST_PHP_EXECUTABLE=`which php`
     php run-tests.php -d extension=zmq.so -d extension_dir=modules -n ./tests/*.phpt
+	exit_code=$?
+
+    for i in `ls tests/*.out 2>/dev/null`; do echo "-- START ${i}"; cat $i; echo "-- END"; done
+	return $exit_code
 }
 
 ZEROMQ_VERSION=$1
