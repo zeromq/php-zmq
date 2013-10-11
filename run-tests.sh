@@ -28,7 +28,7 @@ install_zeromq() {
     esac
     ./autogen.sh
     ./configure --prefix="${HOME}/zeromq-${zeromq_version}"
-    make
+    make -j 8
     sudo make install
     cd ..
 }
