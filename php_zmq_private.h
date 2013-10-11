@@ -202,25 +202,21 @@ typedef struct _php_zmq_device_object  {
 #endif
 
 /* Compatibility macros between zeromq 2.x and 3.x */
-#if ZMQ_MAJOR_VERSION < 4
-#  ifndef ZMQ_DONTWAIT
-#    define ZMQ_DONTWAIT ZMQ_NOBLOCK
-#  endif
-#  ifndef ZMQ_FORWARDER
-#    define ZMQ_FORWARDER 0
-#  endif
-#  ifndef ZMQ_QUEUE
-#    define ZMQ_QUEUE 0
-#  endif
-#  ifndef ZMQ_STREAMER
-#    define ZMQ_STREAMER 0
-#  endif
+#ifndef ZMQ_DONTWAIT
+#	define ZMQ_DONTWAIT ZMQ_NOBLOCK
 #endif
-
-#if ZMQ_VERSION_MAJOR > 2
-#  define ZMQ_HWM (ZMQ_DONTWAIT + 2000)
+#ifndef ZMQ_HWM
+#   define ZMQ_HWM (ZMQ_DONTWAIT + 200)
 #endif
-
+#ifndef ZMQ_FORWARDER
+#   define ZMQ_FORWARDER 0
+#endif
+#ifndef ZMQ_QUEUE
+#   define ZMQ_QUEUE 0
+#endif
+#ifndef ZMQ_STREAMER
+#   define ZMQ_STREAMER 0
+#endif
 #if ZMQ_VERSION_MAJOR == 2
 #	define zmq_sendmsg zmq_send
 #	define zmq_recvmsg zmq_recv
