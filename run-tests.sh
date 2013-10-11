@@ -27,7 +27,7 @@ install_zeromq() {
         ;;
     esac
     ./autogen.sh
-    ./configure
+    ./configure --prefix="${HOME}/zeromq-${zeromq_version}"
     make
     sudo make install
     cd ..
@@ -38,12 +38,10 @@ install_zeromq() {
 # Installs the ØMQ PHP extension.
 #
 # Parameters: ~
-install_zeromq_php_extension() {
+build_zeromq_php_extension() {
     phpize
-    ./configure
+    ./configure --with-zmq="${HOME}/zeromq-${zeromq_version}"
     make
-    sudo make install
-    echo "extension=zmq.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
 }
 
 # run_zeromq_extension_tests
@@ -55,11 +53,10 @@ run_zeromq_extension_tests() {
     export NO_INTERACTION=1
     export REPORT_EXIT_STATUS=1
     export TEST_PHP_EXECUTABLE=`which php`
-    export USE_ZEND_ALLOC=0
-    php run-tests.php ./tests/*.phpt
+    php run-tests.php -d extension=zmq.so -d extension_dir=modules -n ./tests/*.phpt
 }
 
 ZEROMQ_VERSION=$1
 install_zeromq $ZEROMQ_VERSION
-install_zeromq_php_extension
+build_zeromq_php_extension
 run_zeromq_extension_tests
