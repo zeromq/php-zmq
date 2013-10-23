@@ -36,325 +36,286 @@
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.socket-pair">ZMQ::SOCKET_PAIR</varname>
-     <initializer>0</initializer>
     </fieldsynopsis>
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.socket-pub">ZMQ::SOCKET_PUB</varname>
-     <initializer>1</initializer>
     </fieldsynopsis>
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.socket-sub">ZMQ::SOCKET_SUB</varname>
-     <initializer>2</initializer>
     </fieldsynopsis>
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.socket-req">ZMQ::SOCKET_REQ</varname>
-     <initializer>3</initializer>
     </fieldsynopsis>
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.socket-rep">ZMQ::SOCKET_REP</varname>
-     <initializer>4</initializer>
     </fieldsynopsis>
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.socket-xreq">ZMQ::SOCKET_XREQ</varname>
-     <initializer>5</initializer>
     </fieldsynopsis>
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.socket-xrep">ZMQ::SOCKET_XREP</varname>
-     <initializer>6</initializer>
     </fieldsynopsis>
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.socket-push">ZMQ::SOCKET_PUSH</varname>
-     <initializer>7</initializer>
     </fieldsynopsis>
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.socket-pull">ZMQ::SOCKET_PULL</varname>
-     <initializer>8</initializer>
     </fieldsynopsis>
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.socket-router">ZMQ::SOCKET_ROUTER</varname>
-     <initializer>5</initializer>
     </fieldsynopsis>
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.socket-dealer">ZMQ::SOCKET_DEALER</varname>
-     <initializer>6</initializer>
+    </fieldsynopsis>
+    <fieldsynopsis>
+     <modifier>const</modifier>
+     <type>integer</type>
+     <varname linkend="zmq.constants.socket-xpub">ZMQ::SOCKET_XPUB</varname>
+    </fieldsynopsis>
+    <fieldsynopsis>
+     <modifier>const</modifier>
+     <type>integer</type>
+     <varname linkend="zmq.constants.socket-xsub">ZMQ::SOCKET_XSUB</varname>
+    </fieldsynopsis>
+    <fieldsynopsis>
+     <modifier>const</modifier>
+     <type>integer</type>
+     <varname linkend="zmq.constants.socket-stream">ZMQ::SOCKET_STREAM</varname>
     </fieldsynopsis>
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.sockopt-hwm">ZMQ::SOCKOPT_HWM</varname>
-     <initializer>1</initializer>
     </fieldsynopsis>    
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.sockopt-sndhwm">ZMQ::SOCKOPT_SNDHWM</varname>
-     <initializer>23</initializer>
     </fieldsynopsis>
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.sockopt-rcvhwm">ZMQ::SOCKOPT_RCVHWM</varname>
-     <initializer>24</initializer>
     </fieldsynopsis>    
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.sockopt-affinity">ZMQ::SOCKOPT_AFFINITY</varname>
-     <initializer>4</initializer>
     </fieldsynopsis>
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.sockopt-identity">ZMQ::SOCKOPT_IDENTITY</varname>
-     <initializer>5</initializer>
     </fieldsynopsis>
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.sockopt-subscribe">ZMQ::SOCKOPT_SUBSCRIBE</varname>
-     <initializer>6</initializer>
     </fieldsynopsis>
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.sockopt-unsubscribe">ZMQ::SOCKOPT_UNSUBSCRIBE</varname>
-     <initializer>7</initializer>
     </fieldsynopsis>
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.sockopt-rate">ZMQ::SOCKOPT_RATE</varname>
-     <initializer>8</initializer>
     </fieldsynopsis>
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.sockopt-recovery-ivl">ZMQ::SOCKOPT_RECOVERY_IVL</varname>
-     <initializer>9</initializer>
     </fieldsynopsis>
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.sockopt-reconnect-ivl">ZMQ::SOCKOPT_RECONNECT_IVL</varname>
-     <initializer>9</initializer>
     </fieldsynopsis>
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.sockopt-reconnect-ivl-max">ZMQ::SOCKOPT_RECONNECT_IVL_MAX</varname>
-     <initializer>9</initializer>
     </fieldsynopsis>
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.sockopt-mcast-loop">ZMQ::SOCKOPT_MCAST_LOOP</varname>
-     <initializer>10</initializer>
     </fieldsynopsis>
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.sockopt-sndbuf">ZMQ::SOCKOPT_SNDBUF</varname>
-     <initializer>11</initializer>
     </fieldsynopsis>
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.sockopt-rcvbuf">ZMQ::SOCKOPT_RCVBUF</varname>
-     <initializer>12</initializer>
     </fieldsynopsis>
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.sockopt-rcvmore">ZMQ::SOCKOPT_RCVMORE</varname>
-     <initializer>13</initializer>
     </fieldsynopsis>
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.sockopt-type">ZMQ::SOCKOPT_TYPE</varname>
-     <initializer>16</initializer>
     </fieldsynopsis>
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.sockopt-linger">ZMQ::SOCKOPT_LINGER</varname>
-     <initializer>17</initializer>
     </fieldsynopsis>  
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.sockopt-backlog">ZMQ::SOCKOPT_BACKLOG</varname>
-     <initializer>19</initializer>
     </fieldsynopsis>
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.sockopt-maxmsgsize">ZMQ::SOCKOPT_MAXMSGSIZE</varname>
-     <initializer>22</initializer>
     </fieldsynopsis>
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.sockopt-sndtimeo">ZMQ::SOCKOPT_SNDTIMEO</varname>
-     <initializer>23</initializer>
     </fieldsynopsis>
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.sockopt-rcvtimeo">ZMQ::SOCKOPT_RCVTIMEO</varname>
-     <initializer>24</initializer>
     </fieldsynopsis>
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.sockopt-ipv4only">ZMQ::SOCKOPT_IPV4ONLY</varname>
-     <initializer>25</initializer>
     </fieldsynopsis>
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.sockopt-last-endpoint">ZMQ::SOCKOPT_LAST_ENDPOINT</varname>
-     <initializer>26</initializer>
     </fieldsynopsis>
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.sockopt-tcp-keepalive-idle">ZMQ::SOCKOPT_TCP_KEEPALIVE_IDLE</varname>
-     <initializer>27</initializer>
     </fieldsynopsis>
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.sockopt-tcp-keepalive-cnt">ZMQ::SOCKOPT_TCP_KEEPALIVE_CNT</varname>
-     <initializer>28</initializer>
     </fieldsynopsis>
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.sockopt-tcp-keepalive-intvl">ZMQ::SOCKOPT_TCP_KEEPALIVE_INTVL</varname>
-     <initializer>29</initializer>
     </fieldsynopsis>
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.sockopt-tcp-accept-filter">ZMQ::SOCKOPT_TCP_ACCEPT_FILTER</varname>
-     <initializer>30</initializer>
     </fieldsynopsis>
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.sockopt-tcp-accept-filter">ZMQ::SOCKOPT_TCP_ACCEPT_FILTER</varname>
-     <initializer>31</initializer>
     </fieldsynopsis>
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.sockopt-delay-attach-on-connect">ZMQ::SOCKOPT_DELAY_ATTACH_ON_CONNECT</varname>
-     <initializer>32</initializer>
     </fieldsynopsis>
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.sockopt-xpub-verbose">ZMQ::SOCKOPT_XPUB_VERBOSE</varname>
-     <initializer>33</initializer>
     </fieldsynopsis>
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.sockopt-router-raw">ZMQ::SOCKOPT_ROUTER_RAW</varname>
-     <initializer>34</initializer>
     </fieldsynopsis>
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.sockopt-ipv6">ZMQ::SOCKOPT_IPV6</varname>
-     <initializer>35</initializer>
     </fieldsynopsis>
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.ctxopt-max-sockets">ZMQ::CTXOPT_MAX_SOCKETS</varname>
-     <initializer>1</initializer>
     </fieldsynopsis>
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.poll-in">ZMQ::POLL_IN</varname>
-     <initializer>1</initializer>
     </fieldsynopsis>
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.poll-out">ZMQ::POLL_OUT</varname>
-     <initializer>2</initializer>
     </fieldsynopsis>
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.mode-noblock">ZMQ::MODE_NOBLOCK</varname>
-     <initializer>1</initializer>
     </fieldsynopsis>
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.mode-dontwait">ZMQ::MODE_DONTWAIT</varname>
-     <initializer>1</initializer>
     </fieldsynopsis>    
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.mode-sndmore">ZMQ::MODE_SNDMORE</varname>
-     <initializer>2</initializer>
     </fieldsynopsis>
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.err-internal">ZMQ::ERR_INTERNAL</varname>
-     <initializer>-99</initializer>
     </fieldsynopsis>
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.err-eagain">ZMQ::ERR_EAGAIN</varname>
-     <initializer>11</initializer>
     </fieldsynopsis>
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.err-enotsup">ZMQ::ERR_ENOTSUP</varname>
-     <initializer>95</initializer>
     </fieldsynopsis>
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.err-efsm">ZMQ::ERR_EFSM</varname>
-     <initializer>156384763</initializer>
     </fieldsynopsis>
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
      <varname linkend="zmq.constants.err-eterm">ZMQ::ERR_ETERM</varname>
-     <initializer>156384765</initializer>
     </fieldsynopsis>
     
     <classsynopsisinfo role="comment">Methods</classsynopsisinfo>
@@ -445,6 +406,28 @@
       <term><constant>ZMQ::SOCKET_DEALER</constant></term>
       <listitem>
        <para>Extended REQ socket that load balances to all connected peers</para>
+      </listitem>
+     </varlistentry>
+
+     <varlistentry xml:id="zmq.constants.socket-xpub">
+      <term><constant>ZMQ::SOCKET_XPUB</constant></term>
+      <listitem>
+       <para>Similar to SOCKET_PUB, except you can receive subscriptions as messages.
+             The subscription message is 0 (unsubscribe) or 1 (subscribe) followed by the topic.</para>
+      </listitem>
+     </varlistentry>
+
+     <varlistentry xml:id="zmq.constants.socket-xsub">
+      <term><constant>ZMQ::SOCKET_XSUB</constant></term>
+      <listitem>
+       <para>Similar to SOCKET_SUB, except you can send subscriptions as messages. See SOCKET_XPUB for format.</para>
+      </listitem>
+     </varlistentry>
+
+     <varlistentry xml:id="zmq.constants.socket-stream">
+      <term><constant>ZMQ::SOCKET_STREAM</constant></term>
+      <listitem>
+       <para>Used to send and receive TCP data from a non-ØMQ peer</para>
       </listitem>
      </varlistentry>
 
