@@ -10,10 +10,10 @@
   <email>mkoppanen@php.net</email>
   <active>yes</active>
  </lead>
- <date>2012-12-01</date>
+ <date>2013-10-23</date>
  <time>17:00:00</time>
  <version>
-  <release>1.0.6</release>
+  <release>1.0.7</release>
   <api>1.0.0</api>
  </version>
  <stability>
@@ -22,7 +22,8 @@
  </stability>
  <license>BSD License</license>
  <notes>
- - Add constants
+ - Added optional listener socket to ZMQDevice
+ - Added support for ZeroMQ 4.x
  </notes>
  <contents>
   <dir name="/">
