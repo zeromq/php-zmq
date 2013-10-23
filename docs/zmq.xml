@@ -723,7 +723,7 @@
      <varlistentry xml:id="zmq.constants.err-eagain">
       <term><constant>ZMQ::ERR_EAGAIN</constant></term>
       <listitem>
-       <para>Implies that the operation would block when MODE_NOBLOCK is used</para>
+       <para>Implies that the operation would block when ZMQ::MODE_DONTWAIT is used</para>
       </listitem>
      </varlistentry>
 
