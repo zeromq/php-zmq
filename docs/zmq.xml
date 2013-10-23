@@ -427,7 +427,7 @@
      <varlistentry xml:id="zmq.constants.socket-stream">
       <term><constant>ZMQ::SOCKET_STREAM</constant></term>
       <listitem>
-       <para>Used to send and receive TCP data from a non-ØMQ peer</para>
+       <para>Used to send and receive TCP data from a non-ØMQ peer. Available if compiled against ZeroMQ 4.x or higher (Value: &integer;).</para>
       </listitem>
      </varlistentry>
 
@@ -441,14 +441,14 @@
      <varlistentry xml:id="zmq.constants.sockopt-sndhwm">
       <term><constant>ZMQ::SOCKOPT_SNDHWM</constant></term>
       <listitem>
-       <para>The ZMQ_SNDHWM option shall set the high water mark for outbound messages on the specified socket. Available if compiled against ZeroMQ 3.x (Value: &integer;).</para>
+       <para>The ZMQ_SNDHWM option shall set the high water mark for outbound messages on the specified socket. Available if compiled against ZeroMQ 3.x or higher (Value: &integer;).</para>
       </listitem>
      </varlistentry>
      
      <varlistentry xml:id="zmq.constants.sockopt-rcvhwm">
       <term><constant>ZMQ::SOCKOPT_RCVHWM</constant></term>
       <listitem>
-       <para>The ZMQ_SNDHWM option shall set the high water mark for inbound messages on the specified socket. Available if compiled against ZeroMQ 3.x (Value: &integer;).</para>
+       <para>The ZMQ_SNDHWM option shall set the high water mark for inbound messages on the specified socket. Available if compiled against ZeroMQ 3.x or higher (Value: &integer;).</para>
       </listitem>
      </varlistentry>
 
@@ -561,21 +561,21 @@
      <varlistentry xml:id="zmq.constants.sockopt-maxmsgsize">
       <term><constant>ZMQ::SOCKOPT_MAXMSGSIZE</constant></term>
       <listitem>
-       <para>Limits the maximum size of the inbound message. Value -1 means no limit. Available if compiled against ZeroMQ 3.x (Value: &integer;)</para>
+       <para>Limits the maximum size of the inbound message. Value -1 means no limit. Available if compiled against ZeroMQ 3.x or higher (Value: &integer;)</para>
       </listitem>
      </varlistentry>
 
      <varlistentry xml:id="zmq.constants.sockopt-sndtimeo">
       <term><constant>ZMQ::SOCKOPT_SNDTIMEO</constant></term>
       <listitem>
-       <para>Sets the timeout for send operation on the socket. Value -1 means no limit. Available if compiled against ZeroMQ 3.x (Value: &integer;)</para>
+       <para>Sets the timeout for send operation on the socket. Value -1 means no limit. Available if compiled against ZeroMQ 3.x or higher (Value: &integer;)</para>
       </listitem>
      </varlistentry>
 
      <varlistentry xml:id="zmq.constants.sockopt-rcvtimeo">
       <term><constant>ZMQ::SOCKOPT_RCVTIMEO</constant></term>
       <listitem>
-       <para>Sets the timeout for receive operation on the socket. Value -1 means no limit. Available if compiled against ZeroMQ 3.x (Value: &integer;)</para>
+       <para>Sets the timeout for receive operation on the socket. Value -1 means no limit. Available if compiled against ZeroMQ 3.x or higher (Value: &integer;)</para>
       </listitem>
      </varlistentry>
 
@@ -589,49 +589,49 @@
      <varlistentry xml:id="zmq.constants.sockopt-last-endpoint">
       <term><constant>ZMQ::SOCKOPT_LAST_ENDPOINT</constant></term>
       <listitem>
-       <para>Retrieve the last connected endpoint - for use with * wildcard ports. Available if compiled against ZeroMQ 3.x (Value: &string;)</para>
+       <para>Retrieve the last connected endpoint - for use with * wildcard ports. Available if compiled against ZeroMQ 3.x or higher (Value: &string;)</para>
       </listitem>
      </varlistentry>
 
      <varlistentry xml:id="zmq.constants.sockopt-tcp-keepalive-idle">
       <term><constant>ZMQ::SOCKOPT_TCP_KEEPALIVE_IDLE</constant></term>
       <listitem>
-       <para>Idle time for TCP keepalive. Available if compiled against ZeroMQ 3.x (Value: &integer;)</para>
+       <para>Idle time for TCP keepalive. Available if compiled against ZeroMQ 3.x or higher (Value: &integer;)</para>
       </listitem>
      </varlistentry>
 
      <varlistentry xml:id="zmq.constants.sockopt-tcp-keepalive-cnt">
       <term><constant>ZMQ::SOCKOPT_TCP_KEEPALIVE_CNT</constant></term>
       <listitem>
-       <para>Count time for TCP keepalive. Available if compiled against ZeroMQ 3.x (Value: &integer;)</para>
+       <para>Count time for TCP keepalive. Available if compiled against ZeroMQ 3.x or higher (Value: &integer;)</para>
       </listitem>
      </varlistentry>
 
      <varlistentry xml:id="zmq.constants.sockopt-tcp-keepalive-intvl">
       <term><constant>ZMQ::SOCKOPT_TCP_KEEPALIVE_INTVL</constant></term>
       <listitem>
-       <para>Interval for TCP keepalive. Available if compiled against ZeroMQ 3.x (Value: &integer;)</para>
+       <para>Interval for TCP keepalive. Available if compiled against ZeroMQ 3.x or higher (Value: &integer;)</para>
       </listitem>
      </varlistentry>
 
      <varlistentry xml:id="zmq.constants.sockopt-delay-attach-on-connect">
       <term><constant>ZMQ::SOCKOPT_DELAY_ATTACH_ON_CONNECT</constant></term>
       <listitem>
-       <para>Set a CIDR string to match against incoming TCP connections. Available if compiled against ZeroMQ 3.x (Value: &string;)</para>
+       <para>Set a CIDR string to match against incoming TCP connections. Available if compiled against ZeroMQ 3.x or higher (Value: &string;)</para>
       </listitem>
      </varlistentry>
 
       <varlistentry xml:id="zmq.constants.sockopt-tcp-accept-filter">
        <term><constant>ZMQ::SOCKOPT_TCP_ACCEPT_FILTER</constant></term>
        <listitem>
-        <para>Set a CIDR string to match against incoming TCP connections. Available if compiled against ZeroMQ 3.x (Value: &string;)</para>
+        <para>Set a CIDR string to match against incoming TCP connections. Available if compiled against ZeroMQ 3.x or higher (Value: &string;)</para>
        </listitem>
       </varlistentry>
 
      <varlistentry xml:id="zmq.constants.sockopt-xpub-verbose">
       <term><constant>ZMQ::SOCKOPT_XPUB_VERBOSE</constant></term>
       <listitem>
-       <para>Set the XPUB to receive an application message on each instance of a subscription. Available if compiled against ZeroMQ 3.x (Value: &string;)</para>
+       <para>Set the XPUB to receive an application message on each instance of a subscription. Available if compiled against ZeroMQ 3.x or higher (Value: &string;)</para>
       </listitem>
      </varlistentry>
 
@@ -653,7 +653,7 @@
      <varlistentry xml:id="zmq.constants.ctxopt-max-sockets">
       <term><constant>ZMQ::CTXOPT_MAX_SOCKETS</constant></term>
       <listitem>
-       <para>The socket limit for this context. Available if compiled against ZeroMQ 3.x (Value: &integer;)</para>
+       <para>The socket limit for this context. Available if compiled against ZeroMQ 3.x or higher (Value: &integer;)</para>
       </listitem>
      </varlistentry>
 
