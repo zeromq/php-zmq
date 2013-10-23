@@ -155,6 +155,18 @@
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
+     <varname linkend="zmq.constants.sockopt-reconnect-ivl">ZMQ::SOCKOPT_RECONNECT_IVL</varname>
+     <initializer>9</initializer>
+    </fieldsynopsis>
+    <fieldsynopsis>
+     <modifier>const</modifier>
+     <type>integer</type>
+     <varname linkend="zmq.constants.sockopt-reconnect-ivl-max">ZMQ::SOCKOPT_RECONNECT_IVL_MAX</varname>
+     <initializer>9</initializer>
+    </fieldsynopsis>
+    <fieldsynopsis>
+     <modifier>const</modifier>
+     <type>integer</type>
      <varname linkend="zmq.constants.sockopt-mcast-loop">ZMQ::SOCKOPT_MCAST_LOOP</varname>
      <initializer>10</initializer>
     </fieldsynopsis>
@@ -269,9 +281,21 @@
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
+     <varname linkend="zmq.constants.router-raw">ZMQ::SOCKOPT_ROUTER_RAW</varname>
+     <initializer>34</initializer>
+    </fieldsynopsis>
+    <fieldsynopsis>
+     <modifier>const</modifier>
+     <type>integer</type>
+     <varname linkend="zmq.constants.sockopt-ipv6">ZMQ::SOCKOPT_IPV6</varname>
+     <initializer>35</initializer>
+    </fieldsynopsis>
+    <fieldsynopsis>
+     <modifier>const</modifier>
+     <type>integer</type>
      <varname linkend="zmq.constants.ctxopt-max-sockets">ZMQ::CTXOPT_MAX_SOCKETS</varname>
      <initializer>1</initializer>
-    </fieldsynopsis>          
+    </fieldsynopsis>
     <fieldsynopsis>
      <modifier>const</modifier>
      <type>integer</type>
@@ -487,6 +511,20 @@
       </listitem>
      </varlistentry>
 
+     <varlistentry xml:id="zmq.constants.sockopt-reconnect-ivl">
+      <term><constant>ZMQ::SOCKOPT_RECONNECT_IVL</constant></term>
+      <listitem>
+       <para> Set the initial reconnection interval (Value: &integer; >= 0)</para>
+      </listitem>
+     </varlistentry>
+
+     <varlistentry xml:id="zmq.constants.sockopt-reconnect-ivl-max">
+      <term><constant>ZMQ::SOCKOPT_RECONNECT_IVL_MAX</constant></term>
+      <listitem>
+       <para> Set the max reconnection interval (Value: &integer; >= 0)</para>
+      </listitem>
+     </varlistentry>
+
      <varlistentry xml:id="zmq.constants.sockopt-mcast-loop">
       <term><constant>ZMQ::SOCKOPT_MCAST_LOOP</constant></term>
       <listitem>
@@ -611,6 +649,21 @@
       <term><constant>ZMQ::SOCKOPT_XPUB_VERBOSE</constant></term>
       <listitem>
        <para>Set the XPUB to receive an application message on each instance of a subscription. Available if compiled against ZeroMQ 3.x (Value: &string;)</para>
+      </listitem>
+     </varlistentry>
+
+     <varlistentry xml:id="zmq.constants.sockopt-router-raw">
+      <term><constant>ZMQ::SOCKOPT_ROUTER_RAW</constant></term>
+      <listitem>
+       <para>Sets the raw mode on the ROUTER, when set to 1. In raw mode when using tcp:// transport the socket will read and write without ZeroMQ framing.
+	           Available if compiled against ZeroMQ 3.3 or higher (Value: &string;)</para>
+      </listitem>
+     </varlistentry>
+
+     <varlistentry xml:id="zmq.constants.sockopt-ipv6">
+      <term><constant>ZMQ::SOCKOPT_IPV6</constant></term>
+      <listitem>
+       <para>Enable IPV6. Available if compiled against ZeroMQ 3.3 or higher (Value: &string;)</para>
       </listitem>
      </varlistentry>
 
