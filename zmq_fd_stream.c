@@ -41,10 +41,12 @@ static size_t php_zmq_fd_write(php_stream *stream, const char *buf, size_t count
 	return 0;
 }
 
+/* not used
 static int php_zmq_fd_seek(php_stream *stream, off_t offset, int whence, off_t *newoffs TSRMLS_DC)
 {
 	return -1;
 }
+*/
 
 static int php_zmq_fd_close(php_stream *stream, int close_handle TSRMLS_DC)
 {
