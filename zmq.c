@@ -1701,7 +1701,6 @@ static void php_zmq_device_object_free_storage(void *object TSRMLS_DC)
 
 static zend_object_value php_zmq_context_object_new_ex(zend_class_entry *class_type, php_zmq_context_object **ptr TSRMLS_DC)
 {
-	zval *tmp;
 	zend_object_value retval;
 	php_zmq_context_object *intern;
 
@@ -1726,7 +1725,6 @@ static zend_object_value php_zmq_context_object_new_ex(zend_class_entry *class_t
 
 static zend_object_value php_zmq_socket_object_new_ex(zend_class_entry *class_type, php_zmq_socket_object **ptr TSRMLS_DC)
 {
-	zval *tmp;
 	zend_object_value retval;
 	php_zmq_socket_object *intern;
 
@@ -1752,7 +1750,6 @@ static zend_object_value php_zmq_socket_object_new_ex(zend_class_entry *class_ty
 
 static zend_object_value php_zmq_poll_object_new_ex(zend_class_entry *class_type, php_zmq_poll_object **ptr TSRMLS_DC)
 {
-	zval *tmp;
 	zend_object_value retval;
 	php_zmq_poll_object *intern;
 
@@ -1776,7 +1773,6 @@ static zend_object_value php_zmq_poll_object_new_ex(zend_class_entry *class_type
 
 static zend_object_value php_zmq_device_object_new_ex(zend_class_entry *class_type, php_zmq_device_object **ptr TSRMLS_DC)
 {
-	zval *tmp;
 	zend_object_value retval;
 	php_zmq_device_object *intern;
 
