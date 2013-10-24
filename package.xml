@@ -48,7 +48,7 @@
    <file name="zmq_sockopt.c" role="src" />
 
    <!-- misc files -->
-   <file name="README" role="doc" />
+   <file name="README.md" role="doc" />
    <file name="LICENSE" role="doc" />
   </dir>
  </contents>
