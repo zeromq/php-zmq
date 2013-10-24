@@ -23,6 +23,7 @@
  <license>BSD License</license>
  <notes>
  - Added config.w32 for Windows builds
+ - Removed unused variables and dead code (Remi)
  </notes>
  <contents>
   <dir name="/">
