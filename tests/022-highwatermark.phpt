@@ -25,19 +25,19 @@ $rep->connect("tcp://127.0.0.1:44331");
 
 $poll->add($req, ZMQ::POLL_OUT);
 
-$poll->poll($readable, $writable, 10);
+$poll->poll($readable, $writable, 1000);
 var_dump($writable);
 
 $req->sendmsg('x');
 
-$poll->poll($readable, $writable, 10);
+$poll->poll($readable, $writable, 1000);
 var_dump($writable);
 
 $rep->recvmsg ();
 $rep->sendmsg('x');
 $req->recvmsg();
 
-$poll->poll($readable, $writable, 10);
+$poll->poll($readable, $writable, 1000);
 var_dump($writable);
 
 echo "OK\n";
