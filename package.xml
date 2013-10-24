@@ -50,6 +50,52 @@
    <!-- misc files -->
    <file name="README.md" role="doc" />
    <file name="LICENSE" role="doc" />
+
+   <dir name="tests">
+      <file name="001-send.phpt" role="test" />
+      <file name="002-test-binary.phpt" role="test" />
+      <file name="003-getpersistentid.phpt" role="test" />
+      <file name="004-getendpoints.phpt" role="test" />
+      <file name="005-forceconnectarg.phpt" role="test" />
+      <file name="006-sockopt.phpt" role="test" />
+      <file name="007-addremovepoll.phpt" role="test" />
+      <file name="008-twowaystoconstruct.phpt" role="test" />
+      <file name="009-ispersistent.phpt" role="test" />
+      <file name="010-pollsetinvalidargs.phpt" role="test" />
+      <file name="011-exceptions.phpt" role="test" />
+      <file name="012-pollsetremoveinvalid.phpt" role="test" />
+      <file name="013-pollclearandreuse.phpt" role="test" />
+      <file name="014-setsockoptparam.phpt" role="test" />
+      <file name="015-callback.phpt" role="test" />
+      <file name="016-callbackinvalidargs.phpt" role="test" />
+      <file name="017-callbackonlyonnewsocket.phpt" role="test" />
+      <file name="018-callbackpersistent.phpt" role="test" />
+      <file name="019-callbackinvalidsignature.phpt" role="test" />
+      <file name="020-exceptionincallback.phpt" role="test" />
+      <file name="021-callbackwarning.phpt" role="test" />
+      <file name="022-highwatermark.phpt" role="test" />
+      <file name="023-failedcallback.phpt" role="test" />
+      <file name="024-versionconstant.phpt" role="test" />
+      <file name="025-sendrecvmulti.phpt" role="test" />
+      <file name="026-sockettype.phpt" role="test" />
+      <file name="027-getset.phpt" role="test" />
+      <file name="028-xpub.phpt" role="test" />
+      <file name="029-xrepxreqdevice.phpt" role="test" />
+      <file name="030-xrepmanualqueue.phpt" role="test" />
+      <file name="031-lastendpoint.phpt" role="test" />
+      <file name="032-contextopt.phpt" role="test" />
+      <file name="033-disconnect.phpt" role="test" />
+      <file name="034-unbind.phpt" role="test" />
+      <file name="035-capture.phpt" role="test" />
+      <file name="bug_gh_43.phpt" role="test" />
+      <file name="bug_gh_49.phpt" role="test" />
+      <file name="bug_gh_50.phpt" role="test" />
+      <file name="bug_gh_59_2.phpt" role="test" />
+      <file name="bug_gh_59.phpt" role="test" />
+      <file name="rose.jpg" role="test" />
+      <file name="skipif.inc" role="test" />
+      <file name="zeromq_test_helper.inc" role="test" />
+   </dir>
   </dir>
  </contents>
  <dependencies>
