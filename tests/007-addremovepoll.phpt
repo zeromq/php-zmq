@@ -11,24 +11,43 @@ include dirname(__FILE__) . '/zeromq_test_helper.inc';
 $z = create_client();
 $s = create_server();
 
-/* create handle */
-$fp = fsockopen("tcp://localhost:5566");
-usleep(1000);
+/* Create PHP stream socket */
+$socket_server = stream_socket_server("tcp://127.0.0.1:5858", $errno, $errstr);
+
+if (!$socket_server) {
+	echo "Failed to create socket server: ${errstr}" . PHP_EOL;
+	exit (1);
+}
+
+$socket_client = stream_socket_client("tcp://127.0.0.1:5858", $errno, $errstr);
+
+if (!$socket_client) {
+	echo "Failed to create socket client: ${errstr}" . PHP_EOL;
+	exit (1);
+}
+
+/* Accept the client connection */
+$stream = stream_socket_accept ($socket_server);
+
+/* Write something from client so that connection will be readable and writable */
+fwrite($socket_client, "1");
 
 $poll   = new ZMQPoll();
 $obj_id = $poll->add($z, ZMQ::POLL_IN);
-$fp_id  = $poll->add($fp, ZMQ::POLL_IN | ZMQ::POLL_OUT);
+$fp_id  = $poll->add($stream, ZMQ::POLL_IN | ZMQ::POLL_OUT);
 
 var_dump($obj_id, $fp_id, $poll->count());
 
-$a = array();
-$b = array();
-$poll->poll($a, $b, 1000);
-var_dump($a, $b);
+$readable = array();
+$writable = array();
+$poll->poll($readable, $writable, 1000);
+var_dump($readable, $writable);
 
-fclose($fp);
+fclose ($stream);
+fclose ($socket_client);
+fclose ($socket_server);
 
-var_dump($poll->poll($a, $b, 1000));
+var_dump($poll->poll($readable, $writable, 1000));
 var_dump($poll->getLastErrors());
 
 $poll->remove($fp_id);
