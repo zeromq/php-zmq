@@ -1,5 +1,0 @@
-&reference.zmq.zmqcontext.construct;
-&reference.zmq.zmqcontext.getopt;
-&reference.zmq.zmqcontext.getsocket;
-&reference.zmq.zmqcontext.ispersistent;
-&reference.zmq.zmqcontext.setopt;
