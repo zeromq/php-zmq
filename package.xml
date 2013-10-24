@@ -13,7 +13,7 @@
  <date>2013-10-24</date>
  <time>17:00:00</time>
  <version>
-  <release>1.0.7</release>
+  <release>1.0.8</release>
   <api>1.0.0</api>
  </version>
  <stability>
@@ -22,24 +22,24 @@
  </stability>
  <license>BSD License</license>
  <notes>
- - Added optional listener socket to ZMQDevice
- - Added support for ZeroMQ 4.x
+ - Added config.w32 for Windows builds
  </notes>
  <contents>
   <dir name="/">
    <!-- Support files -->
    <file name="config.m4" role="src" />
+   <file name="config.w32" role="src" />
    <file name="php-zmq.spec" role="src">
     <tasks:replace from="@PACKAGE_VERSION@" to="version" type="package-info" />
    </file>
-   
+
    <!-- Headers -->
    <file name="php_zmq.h" role="src">
     <tasks:replace from="@PACKAGE_VERSION@" to="version" type="package-info" />
    </file>
    <file name="php_zmq_private.h" role="src" />
    <file name="php_zmq_pollset.h" role="src" />
-   
+
    <!-- Source files -->
    <file name="zmq.c" role="src" />
    <file name="zmq_device.c" role="src" />
