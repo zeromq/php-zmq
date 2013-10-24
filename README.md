@@ -1,4 +1,4 @@
-PHP bindings for 0MQ. The documentation is available at http://php.zero.mq/
+PHP bindings for 0MQ. The documentation is available at http://php.net/zmq
 
 [![Build Status](https://travis-ci.org/mkoppanen/php-zmq.png?branch=master)](https://travis-ci.org/mkoppanen/php-zmq)
 
@@ -18,4 +18,4 @@ The API is roughly as follows:
     ?>
 
 
-For installation instructions see http://pear.zero.mq/
+For installation instructions see http://pecl.php.net/zmq
