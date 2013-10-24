@@ -13,13 +13,17 @@ if test "$PHP_ZMQ" != "no"; then
 
   AC_MSG_CHECKING(libzmq installation)
   if test "x$PHP_ZMQ" = "xyes"; then
-    if test "x${PKG_CONFIG_PATH}" != "x"; then
-      export PKG_CONFIG_PATH="${PKG_CONFIG_PATH}:/usr/local/lib/pkgconfig:/usr/lib/pkgconfig:/opt/lib/pkgconfig:/opt/local/lib/pkgconfig"
-    else
-      export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig:/usr/lib/pkgconfig:/opt/lib/pkgconfig:/opt/local/lib/pkgconfig"
+    if test "x${PKG_CONFIG_PATH}" = "x"; then
+      #
+      # "By default, pkg-config looks in the directory prefix/lib/pkgconfig for these files"
+      #
+      # Add a bit more search paths for common installation locations. Can be overridden by setting
+      # PKG_CONFIG_PATH env variable or passing --with-zmq=PATH
+      #
+      export PKG_CONFIG_PATH="/usr/local/${PHP_LIBDIR}/pkgconfig:/usr/${PHP_LIBDIR}/pkgconfig:/opt/${PHP_LIBDIR}/pkgconfig:/opt/local/${PHP_LIBDIR}/pkgconfig"
     fi
   else
-    export PKG_CONFIG_PATH="${PHP_ZMQ}:${PHP_ZMQ}/lib/pkgconfig"
+    export PKG_CONFIG_PATH="${PHP_ZMQ}/${PHP_LIBDIR}/pkgconfig"
   fi
 
   if $PKG_CONFIG --exists libzmq; then
