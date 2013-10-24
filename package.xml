@@ -23,7 +23,8 @@
  <license>BSD License</license>
  <notes>
  - Added config.w32 for Windows builds
- - Removed unused variables and dead code (Remi)
+ - Removed unused variables and dead code (remicollet)
+ - Package tests with the release (remicollet)
  </notes>
  <contents>
   <dir name="/">
