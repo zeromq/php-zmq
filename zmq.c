@@ -1971,7 +1971,7 @@ PHP_MINFO_FUNCTION(zmq)
 	php_info_print_table_start();
 
 		php_info_print_table_header(2, "ZMQ extension", "enabled");
-		php_info_print_table_row(2, "ZMQ extension version", PHP_ZMQ_EXTVER);
+		php_info_print_table_row(2, "ZMQ extension version", PHP_ZMQ_VERSION);
 		php_info_print_table_row(2, "libzmq version", version);
 
 	php_info_print_table_end();
@@ -1988,7 +1988,7 @@ zend_module_entry zmq_module_entry =
 	NULL,					/* RINIT */
 	NULL,					/* RSHUTDOWN */
 	PHP_MINFO(zmq),			/* MINFO */
-	PHP_ZMQ_EXTVER,			/* version */
+	PHP_ZMQ_VERSION,		/* version */
 	STANDARD_MODULE_PROPERTIES
 };
 

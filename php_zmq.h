@@ -32,7 +32,7 @@
 # define _PHP_ZMQ_H_
 
 #define PHP_ZMQ_EXTNAME "zmq"
-#define PHP_ZMQ_EXTVER "@PACKAGE_VERSION@"
+#define PHP_ZMQ_VERSION "@PACKAGE_VERSION@"
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
