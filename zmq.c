@@ -429,12 +429,12 @@ PHP_METHOD(zmqcontext, getsocket)
 	zend_bool is_new;
 
 	zend_fcall_info fci;
-	fci.size = 0;
 	zend_fcall_info_cache fci_cache;
 
 	PHP_ZMQ_ERROR_HANDLING_INIT()
 	PHP_ZMQ_ERROR_HANDLING_THROW()
 
+	fci.size = 0;
 	rc = zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l|s!f!", &type, &persistent_id, &persistent_id_len, &fci, &fci_cache);
 
 	PHP_ZMQ_ERROR_HANDLING_RESTORE()
@@ -462,7 +462,7 @@ PHP_METHOD(zmqcontext, getsocket)
 		Z_ADDREF_P(interns->context_obj);
 	}
 
-	if (is_new) {	
+	if (is_new) {
 		if(fci.size) {
 			if (!php_zmq_connect_callback(return_value, &fci, &fci_cache, persistent_id TSRMLS_CC)) {
 				zval_dtor(return_value);
@@ -523,12 +523,12 @@ PHP_METHOD(zmqsocket, __construct)
 	zend_bool is_new;
 
 	zend_fcall_info fci;
-	fci.size = 0;
 	zend_fcall_info_cache fci_cache;
 
 	PHP_ZMQ_ERROR_HANDLING_INIT()
 	PHP_ZMQ_ERROR_HANDLING_THROW()
 
+	fci.size = 0;
 	rc = zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "Ol|s!f!", &obj, php_zmq_context_sc_entry, &type, &persistent_id, &persistent_id_len, &fci, &fci_cache);
 
 	PHP_ZMQ_ERROR_HANDLING_RESTORE()
