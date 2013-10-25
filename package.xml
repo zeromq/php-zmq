@@ -10,10 +10,10 @@
   <email>mkoppanen@php.net</email>
   <active>yes</active>
  </lead>
- <date>2013-10-24</date>
+ <date>2013-10-25</date>
  <time>17:00:00</time>
  <version>
-  <release>1.0.8</release>
+  <release>1.0.9</release>
   <api>1.0.0</api>
  </version>
  <stability>
@@ -22,9 +22,7 @@
  </stability>
  <license>BSD License</license>
  <notes>
- - Added config.w32 for Windows builds
- - Removed unused variables and dead code (remicollet)
- - Package tests with the release (remicollet)
+ - Windows build related fixes
  </notes>
  <contents>
   <dir name="/">
