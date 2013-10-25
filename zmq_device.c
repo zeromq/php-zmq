@@ -60,7 +60,7 @@ static zend_bool php_zmq_invoke_idle_callback (php_zmq_device_object *intern TSR
 		convert_to_boolean(retval_ptr);
 		if (Z_BVAL_P(retval_ptr)) {
 			retval = 1;
-        }
+		}
 		zval_ptr_dtor(&retval_ptr);
 	}
 	return retval;
@@ -88,10 +88,10 @@ int s_capture_message (void *socket, zmq_msg_t *msg, int more)
 
 int php_zmq_device(php_zmq_device_object *intern TSRMLS_DC)
 {
-    void *capture_sock;
+	void *capture_sock;
 	php_zmq_socket_object *front, *back;
 
-    zmq_msg_t msg;
+	zmq_msg_t msg;
 #if ZMQ_VERSION_MAJOR >= 3
 	int more;
 #else
@@ -103,26 +103,26 @@ int php_zmq_device(php_zmq_device_object *intern TSRMLS_DC)
 	size_t labelsz = sizeof(label);
 #endif
 
-    size_t moresz;
+	size_t moresz;
 	zmq_pollitem_t items [2];
 
-    int rc = zmq_msg_init (&msg);
+	int rc = zmq_msg_init (&msg);
 
-    if (rc != 0) {
-        return -1;
-    }
+	if (rc != 0) {
+		return -1;
+	}
 
 	front = (php_zmq_socket_object *)zend_object_store_get_object(intern->front TSRMLS_CC);
 	back = (php_zmq_socket_object *)zend_object_store_get_object(intern->back TSRMLS_CC);
 
-    items [0].socket = front->socket->z_socket;
-    items [0].fd = 0;
-    items [0].events = ZMQ_POLLIN;
-    items [0].revents = 0;
-    items [1].socket = back->socket->z_socket;
-    items [1].fd = 0;
-    items [1].events = ZMQ_POLLIN;
-    items [1].revents = 0;
+	items [0].socket = front->socket->z_socket;
+	items [0].fd = 0;
+	items [0].events = ZMQ_POLLIN;
+	items [0].revents = 0;
+	items [1].socket = back->socket->z_socket;
+	items [1].fd = 0;
+	items [1].events = ZMQ_POLLIN;
+	items [1].revents = 0;
 
 	capture_sock = NULL;
 	if (intern->capture) {
@@ -130,13 +130,13 @@ int php_zmq_device(php_zmq_device_object *intern TSRMLS_DC)
 		capture_sock = capture->socket->z_socket;
 	}
 
-    while (1) {
+	while (1) {
 
-        rc = zmq_poll(&items [0], 2, intern->timeout);
-        if (rc < 0) {
-            zmq_msg_close (&msg);
-            return -1;
-        }
+		rc = zmq_poll(&items [0], 2, intern->timeout);
+		if (rc < 0) {
+			zmq_msg_close (&msg);
+			return -1;
+		}
 
 		if (rc == 0 && intern->has_callback)
 		{
@@ -148,101 +148,101 @@ int php_zmq_device(php_zmq_device_object *intern TSRMLS_DC)
 			continue;
 		}
 
-        if (items [0].revents & ZMQ_POLLIN) {
-            while (1) {
+		if (items [0].revents & ZMQ_POLLIN) {
+			while (1) {
 
-                rc = zmq_recvmsg(items [0].socket, &msg, 0);
-                if (rc == -1) {
-                    zmq_msg_close (&msg);
-                    return -1;
-                }
+				rc = zmq_recvmsg(items [0].socket, &msg, 0);
+				if (rc == -1) {
+					zmq_msg_close (&msg);
+					return -1;
+				}
 
-                moresz = sizeof(more);
-                rc = zmq_getsockopt(items [0].socket, ZMQ_RCVMORE, &more, &moresz);
-                if (rc < 0) {
-                    zmq_msg_close (&msg);
-                    return -1;
-                }
+				moresz = sizeof(more);
+				rc = zmq_getsockopt(items [0].socket, ZMQ_RCVMORE, &more, &moresz);
+				if (rc < 0) {
+					zmq_msg_close (&msg);
+					return -1;
+				}
 
 #if ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR == 0
-                labelsz = sizeof(label);
+				labelsz = sizeof(label);
 
 				rc = zmq_getsockopt(items [0].socket, ZMQ_RCVLABEL, &label, &labelsz);
-                if(rc < 0) {
-                    zmq_msg_close (&msg);
-                    return -1;
-                }
+				if(rc < 0) {
+					zmq_msg_close (&msg);
+					return -1;
+				}
 
-                rc = zmq_sendmsg (items [1].socket, &msg, label ? ZMQ_SNDLABEL : (more ? ZMQ_SNDMORE : 0));
-                more = more | label;
+				rc = zmq_sendmsg (items [1].socket, &msg, label ? ZMQ_SNDLABEL : (more ? ZMQ_SNDMORE : 0));
+				more = more | label;
 #else
-                if (capture_sock) {
-                    rc = s_capture_message (capture_sock, &msg, more);
+				if (capture_sock) {
+					rc = s_capture_message (capture_sock, &msg, more);
 
-                    if (rc == -1) {
-                        zmq_msg_close (&msg);
-                        return -1;
-                    }
-                }
-                rc = zmq_sendmsg (items [1].socket, &msg, more ? ZMQ_SNDMORE : 0);
+					if (rc == -1) {
+						zmq_msg_close (&msg);
+						return -1;
+					}
+				}
+				rc = zmq_sendmsg (items [1].socket, &msg, more ? ZMQ_SNDMORE : 0);
 #endif
-                if (rc == -1) {
-                    zmq_msg_close (&msg);
-                    return -1;
-                }
+				if (rc == -1) {
+					zmq_msg_close (&msg);
+					return -1;
+				}
 
-                if (!more)
-                    break;
-            }
-        }
+				if (!more)
+					break;
+			}
+		}
 
-        if (items [1].revents & ZMQ_POLLIN) {
-            while (1) {
-                rc = zmq_recvmsg(items [1].socket, &msg, 0);
-                if (rc == -1) {
-                    zmq_msg_close (&msg);
-                    return -1;
-                }
+		if (items [1].revents & ZMQ_POLLIN) {
+			while (1) {
+				rc = zmq_recvmsg(items [1].socket, &msg, 0);
+				if (rc == -1) {
+					zmq_msg_close (&msg);
+					return -1;
+				}
 
-                moresz = sizeof (more);
-                rc = zmq_getsockopt(items [1].socket, ZMQ_RCVMORE, &more, &moresz);
-                if (rc < 0) {
-                    zmq_msg_close (&msg);
-                    return -1;
-                }
+				moresz = sizeof (more);
+				rc = zmq_getsockopt(items [1].socket, ZMQ_RCVMORE, &more, &moresz);
+				if (rc < 0) {
+					zmq_msg_close (&msg);
+					return -1;
+				}
 
 #if ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR == 0
-                labelsz = sizeof(label);
-                rc = zmq_getsockopt(items [1].socket, ZMQ_RCVLABEL, &label, &labelsz);
-                if(rc < 0) {
-                    zmq_msg_close (&msg);
-                    return -1;
-                }
+				labelsz = sizeof(label);
+				rc = zmq_getsockopt(items [1].socket, ZMQ_RCVLABEL, &label, &labelsz);
+				if (rc < 0) {
+					zmq_msg_close (&msg);
+					return -1;
+				}
 
-                rc = zmq_sendmsg (items [0].socket, &msg, label ? ZMQ_SNDLABEL : (more ? ZMQ_SNDMORE : 0));
-                more = more | label;
+				rc = zmq_sendmsg (items [0].socket, &msg, label ? ZMQ_SNDLABEL : (more ? ZMQ_SNDMORE : 0));
+				more = more | label;
 #else
-                if (capture_sock) {
-                    rc = s_capture_message (capture_sock, &msg, more);
+				if (capture_sock) {
+					rc = s_capture_message (capture_sock, &msg, more);
 
-                    if (rc == -1) {
-                        zmq_msg_close (&msg);
-                        return -1;
-                    }
-                }
-                rc = zmq_sendmsg (items [0].socket, &msg, more ? ZMQ_SNDMORE : 0);
+					if (rc == -1) {
+						zmq_msg_close (&msg);
+						return -1;
+					}
+				}
+				rc = zmq_sendmsg (items [0].socket, &msg, more ? ZMQ_SNDMORE : 0);
 #endif
-                if (rc == -1) {
-                    zmq_msg_close (&msg);
-                    return -1;
-                }
+				if (rc == -1) {
+					zmq_msg_close (&msg);
+					return -1;
+				}
 
-                if (!more)
-                    break;
-            }
-        }
-    }
-    zmq_msg_close (&msg);
-    return 0;
+				if (!more)
+					break;
+			}
+		}
+	}
+	zmq_msg_close (&msg);
+	return 0;
 }
 
