@@ -44,7 +44,6 @@ $device = new ZMQDevice($ctx->getSocket(ZMQ::SOCKET_SUB), $ctx->getSocket(ZMQ::S
 $last_called = proper_microtime ();
 $user_data = new CbStateData ('timer');
 
-
 // Setup callback and user data for callback
 $device->setTimerCallback (function ($user_data) use (&$last_called, $device) {
 								echo "Triggered for {$device->getTimerTimeout ()}ms timeout" . PHP_EOL;

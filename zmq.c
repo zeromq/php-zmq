@@ -1328,7 +1328,7 @@ void s_clear_device_callback (php_zmq_device_cb_t *cb)
 			zval_ptr_dtor(&cb->user_data);
 		}
 		memset (&cb->fci_cache, 0, sizeof (zend_fcall_info_cache));
-		memset (&cb, 0, sizeof (php_zmq_device_cb_t));
+		memset (cb, 0, sizeof (php_zmq_device_cb_t));
 		cb->initialized = 0;
 	}
 }
