@@ -47,6 +47,10 @@
 #  include <mach/mach_time.h>
 #endif
 
+#if defined(_WIN32) || defined(_WIN64)
+#  include "win32/time.h"
+#endif
+
 #if defined(HAVE_MACH_ABSOLUTE_TIME)
 static
 	uint64_t scaling_factor = 0;
@@ -89,12 +93,10 @@ uint64_t php_zmq_clock ()
 
 #elif defined(_WIN32) || defined(_WIN64)
 
-	ULARGE_INTEGER dt;
-	FILETIME ft;
-
-	GetSystemTimeAsFileTime (&ft);
-	memcpy (&dt, ft, sizeof (dateTime));
-	return (uint64_t) (dt.QuadPart / 10000);
+	/* This looks like to be monotonic with PHP:
+		http://lxr.php.net/xref/PHP_5_5/win32/time.c#80
+	*/
+	return s_backup_clock ();
 
 #elif defined(HAVE_MACH_ABSOLUTE_TIME)
 
