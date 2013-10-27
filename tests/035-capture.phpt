@@ -42,8 +42,7 @@ $capture_listener->setSockOpt (ZMQ::SOCKOPT_SUBSCRIBE, "");
 
 
 $device = new ZMQDevice($front, $backend, $capture);
-$device->setIdleTimeout(100);
-$device->setIdleCallback(function () { return false; }, 'ddd');
+$device->setIdleCallback(function () { return false; }, 100, 'ddd');
 
 
 $sender->sendmsg ("Hello backend");

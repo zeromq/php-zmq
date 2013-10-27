@@ -50,7 +50,7 @@ typedef struct _php_zmq_pollitem {
 	zval *entry;
 	char key[35];
 	int key_len;
-	
+
 	/* convenience pointer containing fd or socket */
 	void *socket;
 	int fd;
@@ -66,10 +66,10 @@ typedef struct _php_zmq_pollset {
 	/* items and a count */
 	zmq_pollitem_t *items;
 	int num_items;
-	
+
 	/* How many allocated */
 	int alloc_size;
-	
+
 	/* Errors in the last poll */
 	zval *errors;
 } php_zmq_pollset;
@@ -80,10 +80,10 @@ typedef struct _php_zmq_pollset {
 typedef struct _php_zmq_context {
 	/* zmq context */
 	void *z_ctx;
-	
+
 	/* Amount of io-threads */
 	int io_threads;
-	
+
 	/* Is this a persistent context */
 	zend_bool is_persistent;
 
@@ -121,10 +121,10 @@ typedef struct _php_zmq_context_object  {
 typedef struct _php_zmq_socket_object  {
 	zend_object zo;
 	php_zmq_socket *socket;
-	
+
 	/* options for the context */
 	char *persistent_id;
-	
+
 	/* zval of the context */
 	zval *context_obj;
 } php_zmq_socket_object;
@@ -138,17 +138,23 @@ typedef struct _php_zmq_poll_object  {
 } php_zmq_poll_object;
 /* }}} */
 
-/* {{{ typedef struct _php_zmq_device_object 
-*/
-typedef struct _php_zmq_device_object  {
-	zend_object zo;
-	
-	zend_bool has_callback;
+typedef struct _php_zmq_device_cb_t {
+	zend_bool initialized;
 	long timeout;
 	zend_fcall_info fci;
 	zend_fcall_info_cache fci_cache;
 	zval *user_data;
-	
+	uint64_t last_invoked;
+} php_zmq_device_cb_t;
+
+/* {{{ typedef struct _php_zmq_device_object 
+*/
+typedef struct _php_zmq_device_object  {
+	zend_object zo;
+
+	php_zmq_device_cb_t idle_cb;
+	php_zmq_device_cb_t timer_cb;
+
 	zval *front;
 	zval *back;
     zval *capture;
@@ -239,5 +245,9 @@ zend_class_entry *php_zmq_device_exception_sc_entry_get ();
 php_stream *php_zmq_create_zmq_fd(zval *obj TSRMLS_DC);
 
 void php_zmq_register_sockopt_constants (zend_class_entry *ce TSRMLS_DC);
+
+zend_bool php_zmq_clock_init ();
+
+uint64_t php_zmq_clock ();
 
 #endif /* _PHP_ZMQ_PRIVATE_H_ */

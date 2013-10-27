@@ -1,39 +1,51 @@
 <?php
 
-class IdleUserData
+class UserData
 {
 	protected $_counter = 0;
-	
+	protected $_name;
+
+	public function __construct ($name) {
+	  $this->name = $name;
+	}
+
+	public function getName () {
+	  return $this->name;
+	}
+
 	public function increment ()
 	{
-		return $this->_counter++;
+		return ++$this->_counter;
+	}
+
+	public function getCount () {
+	  return $this->_counter;
 	}
 }
 
-function my_idle_func ($user_data)
+function my_cb_func ($user_data)
 {
-	echo "Idle function called {$user_data->increment ()} times\n";
+	echo time () . " {$user_data->getName ()} function called {$user_data->increment ()} times\n";
+	return $user_data->getcount() < 5 ? true : false;
 }
 
 try {
 	$ctx = new ZMQContext (1);
 
 	$frontend = $ctx->getSocket(ZMQ::SOCKET_SUB);
-	$frontend->connect("tcp://127.0.0.1:5454");
+	$frontend->bind("tcp://127.0.0.1:5554");
 	$frontend->setSockOpt(ZMQ::SOCKOPT_SUBSCRIBE, "");
 	$frontend->setSockOpt(ZMQ::SOCKOPT_LINGER, 0);
 
 	$backend = $ctx->getSocket(ZMQ::SOCKET_PUB);
 	$backend->bind("tcp://127.0.0.1:5555");
 	$backend->setSockOpt(ZMQ::SOCKOPT_LINGER, 0);
-	
+
 	$device = new ZMQDevice($frontend, $backend);
-	
-	// Return from poll every 5 seconds if there is no activity
-	$device->setIdleTimeout (5000);
-	
+
 	// Setup callback and user data for callback
-	$device->setIdleCallback ('my_idle_func', new IdleUserData ());
+	$device->setIdleCallback ('my_cb_func', 2000, new UserData ('idle'));
+	$device->setTimerCallback ('my_cb_func', 4000, new UserData ('timer'));
 	$device->run ();
 	
 } catch (ZMQException $e) {

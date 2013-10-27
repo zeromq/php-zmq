@@ -31,70 +31,80 @@
 #include "php_zmq.h"
 #include "php_zmq_private.h"
 
-static size_t php_zmq_fd_read(php_stream *stream, char *buf, size_t count TSRMLS_DC)
+#ifdef HAVE_CONFIG_H
+#  include "config.h"
+#endif
+
+#ifdef HAVE_TIME_H
+#  include <time.h>
+#endif
+
+#ifdef HAVE_SYS_TIME_H
+#  include <sys/time.h>
+#endif
+
+#ifdef HAVE_MACH_MACH_TIME_H
+#  include <mach/mach_time.h>
+#endif
+
+#if defined(HAVE_MACH_ABSOLUTE_TIME)
+static
+	uint64_t scaling_factor = 0;
+#endif
+
+static
+uint64_t s_backup_clock ()
 {
+#if defined(HAVE_GETTIMEOFDAY)
+	struct timeval tv;
+	gettimeofday(&tv, NULL);
+	return (uint64_t) ((tv.tv_sec * 1000) + (tv.tv_usec / 1000));
+#endif
+	php_error (E_ERROR, "Failed to get current time");
 	return 0;
 }
 
-static size_t php_zmq_fd_write(php_stream *stream, const char *buf, size_t count TSRMLS_DC)
+zend_bool php_zmq_clock_init ()
 {
-	return 0;
-}
+#if defined(HAVE_MACH_ABSOLUTE_TIME)
+	mach_timebase_info_data_t info;
 
-static int php_zmq_fd_close(php_stream *stream, int close_handle TSRMLS_DC)
-{
-	zval *obj = (zval *) stream->abstract;
-	zend_objects_store_del_ref(obj TSRMLS_CC);
-	Z_DELREF_P(obj);
-	return EOF;
-}
-
-static int php_zmq_fd_flush(php_stream *stream TSRMLS_DC)
-{
-	return FAILURE;
-}
-
-static int php_zmq_fd_cast(php_stream *stream, int cast_as, void **ret TSRMLS_DC)
-{
-	zval *obj = (zval *) stream->abstract;
-	php_zmq_socket_object *intern = (php_zmq_socket_object *) zend_object_store_get_object(obj TSRMLS_CC);
-
-	switch (cast_as)	{
-		case PHP_STREAM_AS_FD_FOR_SELECT:
-		case PHP_STREAM_AS_FD:
-		case PHP_STREAM_AS_SOCKETD:
-			if (ret) {
-				size_t optsiz = sizeof (int);
-				if (zmq_getsockopt(intern->socket->z_socket, ZMQ_FD, (int*) ret, &optsiz) != 0) {
-					return FAILURE;
-				}
-			}
-			return SUCCESS;
-		default:
-			return FAILURE;
+	if (mach_timebase_info (&info) != 0) {
+		return 0;
 	}
+	scaling_factor = info.numer / info.denom;
+#endif
+	return 1;
 }
 
-static php_stream_ops php_stream_zmq_fd_ops = {
-	php_zmq_fd_write, php_zmq_fd_read,
-	php_zmq_fd_close, php_zmq_fd_flush,
-	"ZMQ_FD",
-	NULL, /* seek */
-	php_zmq_fd_cast, /* cast */
-	NULL, /* stat */
-	NULL  /* set_option */
-};
-
-php_stream *php_zmq_create_zmq_fd(zval *obj TSRMLS_DC)
+uint64_t php_zmq_clock ()
 {
-	php_stream *stream;
-	stream = php_stream_alloc(&php_stream_zmq_fd_ops, obj, NULL, "r");
+#if defined(HAVE_CLOCK_GETTIME) && defined(CLOCK_MONOTONIC)
 
-	if (stream) {
-		zend_objects_store_add_ref(obj TSRMLS_CC);
-		Z_ADDREF_P(obj);
-		return stream;
+	struct timespec ts;
+	if (clock_gettime (CLOCK_MONOTONIC, &ts) == 0) {
+		return (uint64_t) (((uint64_t) ts.tv_sec * 1000) + ((uint64_t) ts.tv_nsec / 1000000));
 	}
-	return NULL;
+	return s_backup_clock ();
+
+#elif defined(_WIN32) || defined(_WIN64)
+
+	ULARGE_INTEGER dt;
+	FILETIME ft;
+
+	GetSystemTimeAsFileTime (&ft);
+	memcpy (&dt, ft, sizeof (dateTime));
+	return (uint64_t) (dt.QuadPart / 10000);
+
+#elif defined(HAVE_MACH_ABSOLUTE_TIME)
+
+    return (mach_absolute_time () * scaling_factor) / 1000000;
+
+#elif defined(HAVE_GETTIMEOFDAY)
+
+	return s_backup_clock ();
+
+#else
+#  error "Cannot find a monotonic clock that would work on this platform. Please report a bug"
+#endif
 }
-/* }}} */

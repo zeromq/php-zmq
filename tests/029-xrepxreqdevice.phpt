@@ -23,8 +23,7 @@ $downstream = new ZMQSocket($context, ZMQ::SOCKET_XREP);
 $downstream->bind(ZEROMQ_TEST_DSN2);
 
 $device = new ZMQDevice($upstream, $downstream);
-$device->setIdleTimeout(100);
-$device->setIdleCallback('idle_func', 'test');
+$device->setIdleCallback('idle_func', 100, 'test');
 
 $server = new ZMQSocket($context, ZMQ::SOCKET_REP);
 $server->connect(ZEROMQ_TEST_DSN);

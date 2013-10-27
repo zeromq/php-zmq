@@ -45,10 +45,12 @@ if test "$PHP_ZMQ" != "no"; then
     AC_MSG_ERROR(Unable to find stdint.h)
   fi
 
-  PHP_ADD_EXTENSION_DEP(zmq, spl)
+  AC_CHECK_HEADERS(time.h sys/time.h mach/mach_time.h)
+  AC_SEARCH_LIBS(clock_gettime, rt)
+  AC_CHECK_FUNCS(clock_gettime gettimeofday mach_absolute_time)
 
   PHP_SUBST(ZMQ_SHARED_LIBADD)
-  PHP_NEW_EXTENSION(zmq, zmq.c zmq_pollset.c zmq_device.c zmq_sockopt.c zmq_fd_stream.c, $ext_shared)
+  PHP_NEW_EXTENSION(zmq, zmq.c zmq_pollset.c zmq_device.c zmq_sockopt.c zmq_fd_stream.c zmq_clock.c, $ext_shared)
   PKG_CONFIG_PATH="$ORIG_PKG_CONFIG_PATH"
 fi
 

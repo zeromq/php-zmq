@@ -1318,16 +1318,18 @@ PHP_METHOD(zmqdevice, run)
 }
 /* }}} */
 
-static void php_zmq_clear_device_callback (php_zmq_device_object *intern)
+static
+void s_clear_device_callback (php_zmq_device_cb_t *cb)
 {
-	if (intern->has_callback) {
-		zval_ptr_dtor(&intern->fci.function_name);
+	if (cb->initialized) {
+		zval_ptr_dtor(&cb->fci.function_name);
 
-		if (intern->user_data) {
-			zval_ptr_dtor(&intern->user_data);
+		if (cb->user_data) {
+			zval_ptr_dtor(&cb->user_data);
 		}
-		intern->has_callback = 0;
-		intern->timeout = -1;
+		memset (&cb->fci_cache, 0, sizeof (zend_fcall_info_cache));
+		memset (&cb, 0, sizeof (php_zmq_device_cb_t));
+		cb->initialized = 0;
 	}
 }
 
@@ -1337,54 +1339,143 @@ static void php_zmq_clear_device_callback (php_zmq_device_object *intern)
 PHP_METHOD(zmqdevice, setidletimeout)
 {
 	php_zmq_device_object *intern;
-	long timeout = -1;
+	long timeout;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &timeout) == FAILURE) {
 		return;
 	}
 
 	intern = PHP_ZMQ_DEVICE_OBJECT;
-	intern->timeout = timeout;
-
-	if (intern->timeout > 0)
-	{
-		intern->timeout *= PHP_ZMQ_TIMEOUT;
-	}
+	intern->idle_cb.timeout = timeout;
 	ZMQ_RETURN_THIS;
+
 }
 /* }}} */
 
-/* {{{ proto void ZMQDevice::setIdleCallback (callable $function, mixed $userdata)
+PHP_METHOD(zmqdevice, getidletimeout)
+{
+	php_zmq_device_object *intern;
+
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
+
+	intern = PHP_ZMQ_DEVICE_OBJECT;
+	RETURN_LONG(intern->idle_cb.timeout);
+}
+
+
+PHP_METHOD(zmqdevice, settimertimeout)
+{
+	php_zmq_device_object *intern;
+	long timeout;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &timeout) == FAILURE) {
+		return;
+	}
+
+	intern = PHP_ZMQ_DEVICE_OBJECT;
+	intern->timer_cb.timeout = timeout;
+	ZMQ_RETURN_THIS;
+}
+
+PHP_METHOD(zmqdevice, gettimertimeout)
+{
+	php_zmq_device_object *intern;
+
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
+
+	intern = PHP_ZMQ_DEVICE_OBJECT;
+	RETURN_LONG(intern->timer_cb.timeout);
+}
+
+
+static
+void s_init_device_callback (php_zmq_device_cb_t *cb, zend_fcall_info *fci, zend_fcall_info_cache *fci_cache, long timeout, zval *user_data TSRMLS_DC)
+{
+	if (user_data) {
+		cb->user_data = user_data;
+		Z_ADDREF_P(user_data);
+	} else {
+		MAKE_STD_ZVAL (user_data);
+		ZVAL_NULL(user_data);
+		cb->user_data = user_data;
+	}
+
+	cb->fci                = empty_fcall_info;
+	cb->fci.size           = sizeof (zend_fcall_info);
+	cb->fci.function_table = EG (function_table);
+	cb->fci.param_count    = 0;
+
+	MAKE_STD_ZVAL(cb->fci.function_name);
+	ZVAL_ZVAL(cb->fci.function_name, fci->function_name, 1, 0);
+
+	memset (&(cb->fci_cache), 0, sizeof(zend_fcall_info_cache));
+	cb->initialized  = 1;
+	cb->last_invoked = php_zmq_clock ();
+	cb->timeout      = timeout;
+}
+
+/* {{{ proto void ZMQDevice::setIdleCallback (callable $function, integer timeout [, mixed $userdata])
 	Set the idle timeout value
 */
 PHP_METHOD(zmqdevice, setidlecallback)
 {
 	php_zmq_device_object *intern;
-	zval *user_data;
+	zval *user_data = NULL;
 	zend_fcall_info fci;
 	zend_fcall_info_cache fci_cache;
+	long timeout = 0;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "fz", &fci, &fci_cache, &user_data) == FAILURE) {
+	if (ZEND_NUM_ARGS() == 2) {
+		php_error_docref(NULL TSRMLS_CC, E_DEPRECATED, "The signature for setIdleCallback has changed, please update your code");
+		if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "f|z!", &fci, &fci_cache, &user_data) == FAILURE) {
+			return;
+		}
+	}
+	else {
+		if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "fl|z!", &fci, &fci_cache, &timeout, &user_data) == FAILURE) {
+			return;
+		}
+	}
+
+	intern = PHP_ZMQ_DEVICE_OBJECT;
+
+	/* Hack for backwards compatible behaviour */
+	if (!timeout) {
+		if (intern->idle_cb.timeout) {
+			timeout = intern->idle_cb.timeout;
+		}
+	}
+
+	s_clear_device_callback (&intern->idle_cb);
+	s_init_device_callback (&intern->idle_cb, &fci, &fci_cache, timeout, user_data TSRMLS_CC);
+	ZMQ_RETURN_THIS;
+
+}
+/* }}} */
+
+/* {{{ proto void ZMQDevice::setTimerCallback (callable $function, integer timeout [, mixed $userdata])
+	Set the timer function
+*/
+PHP_METHOD(zmqdevice, settimercallback)
+{
+	php_zmq_device_object *intern;
+	zval *user_data = NULL;
+	zend_fcall_info fci;
+	zend_fcall_info_cache fci_cache;
+	long timeout;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "fl|z!", &fci, &fci_cache, &timeout, &user_data) == FAILURE) {
 		return;
 	}
 
 	intern = PHP_ZMQ_DEVICE_OBJECT;
-	php_zmq_clear_device_callback(intern);
 
-	intern->user_data = user_data;
-	Z_ADDREF_P(user_data);
-
-	intern->fci                = empty_fcall_info;
-	intern->fci.size           = sizeof(zend_fcall_info);
-	intern->fci.function_table = EG(function_table);
-	intern->fci.param_count    = 0;
-
-	MAKE_STD_ZVAL(intern->fci.function_name);
-	ZVAL_ZVAL(intern->fci.function_name, fci.function_name, 1, 0);
-
-	memset (&(intern->fci_cache), 0, sizeof(zend_fcall_info_cache));
-	intern->has_callback = 1;
-
+	s_clear_device_callback (&intern->timer_cb);
+	s_init_device_callback (&intern->timer_cb, &fci, &fci_cache, timeout, user_data TSRMLS_CC);
 	ZMQ_RETURN_THIS;
 }
 /* }}} */
@@ -1576,23 +1667,45 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(zmq_device_run_args, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(zmq_device_setidlecallback_args, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(zmq_device_setidlecallback_args, 0, 0, 2)
 	ZEND_ARG_INFO(0, idle_callback)
+	ZEND_ARG_INFO(0, timeout)
+	ZEND_ARG_INFO(0, user_data)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(zmq_device_settimercallback_args, 0, 0, 2)
+	ZEND_ARG_INFO(0, idle_callback)
+	ZEND_ARG_INFO(0, timeout)
+	ZEND_ARG_INFO(0, user_data)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(zmq_device_setidletimeout_args, 0, 0, 1)
 	ZEND_ARG_INFO(0, timeout)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(zmq_device_settimertimeout_args, 0, 0, 1)
+	ZEND_ARG_INFO(0, timeout)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(zmq_device_getidletimeout_args, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(zmq_device_gettimertimeout_args, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_INFO_EX(zmq_device_clone_args, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
 static zend_function_entry php_zmq_device_class_methods[] = {
-	PHP_ME(zmqdevice, __construct,		zmq_device_construct_args,			ZEND_ACC_PUBLIC|ZEND_ACC_CTOR|ZEND_ACC_FINAL)
-	PHP_ME(zmqdevice, run,				zmq_device_run_args,				ZEND_ACC_PUBLIC)
-	PHP_ME(zmqdevice, setidlecallback,	zmq_device_setidlecallback_args,	ZEND_ACC_PUBLIC)
-	PHP_ME(zmqdevice, setidletimeout,	zmq_device_setidletimeout_args,		ZEND_ACC_PUBLIC)
-	PHP_ME(zmqdevice, __clone,          zmq_device_clone_args,				ZEND_ACC_PRIVATE|ZEND_ACC_FINAL)
+	PHP_ME(zmqdevice, __construct,      zmq_device_construct_args,         ZEND_ACC_PUBLIC|ZEND_ACC_CTOR|ZEND_ACC_FINAL)
+	PHP_ME(zmqdevice, run,              zmq_device_run_args,               ZEND_ACC_PUBLIC)
+	PHP_ME(zmqdevice, setidlecallback,  zmq_device_setidlecallback_args,   ZEND_ACC_PUBLIC)
+	PHP_ME(zmqdevice, setidletimeout,   zmq_device_setidletimeout_args,    ZEND_ACC_PUBLIC)
+	PHP_ME(zmqdevice, getidletimeout,   zmq_device_getidletimeout_args,    ZEND_ACC_PUBLIC)
+	PHP_ME(zmqdevice, settimercallback, zmq_device_settimercallback_args,  ZEND_ACC_PUBLIC)
+	PHP_ME(zmqdevice, settimertimeout,  zmq_device_settimertimeout_args,   ZEND_ACC_PUBLIC)
+	PHP_ME(zmqdevice, gettimertimeout,  zmq_device_gettimertimeout_args,   ZEND_ACC_PUBLIC)
+	PHP_ME(zmqdevice, __clone,          zmq_device_clone_args,             ZEND_ACC_PRIVATE|ZEND_ACC_FINAL)
 	{NULL, NULL, NULL}
 };
 
@@ -1666,7 +1779,8 @@ static void php_zmq_device_object_free_storage(void *object TSRMLS_DC)
 		return;
 	}
 
-	php_zmq_clear_device_callback (intern);
+	s_clear_device_callback (&intern->idle_cb);
+	s_clear_device_callback (&intern->timer_cb);
 
 	if (intern->front) {
 		zend_objects_store_del_ref(intern->front TSRMLS_CC);
@@ -1780,9 +1894,8 @@ static zend_object_value php_zmq_device_object_new_ex(zend_class_entry *class_ty
 	intern = (php_zmq_device_object *) emalloc(sizeof(php_zmq_device_object));
 	memset(&intern->zo, 0, sizeof(zend_object));
 
-	intern->timeout      = -1;
-	intern->has_callback = 0;
-	intern->user_data    = NULL;
+	memset (&intern->idle_cb, 0, sizeof (php_zmq_device_cb_t));
+	memset (&intern->timer_cb, 0, sizeof (php_zmq_device_cb_t));
 
 	if (ptr) {
 		*ptr = intern;
@@ -1893,6 +2006,11 @@ PHP_MINIT_FUNCTION(zmq)
 	INIT_CLASS_ENTRY(ce_device_exception, "ZMQDeviceException", NULL);
 	php_zmq_device_exception_sc_entry = zend_register_internal_class_ex(&ce_device_exception, php_zmq_exception_sc_entry, "ZMQException" TSRMLS_CC);
 	php_zmq_device_exception_sc_entry->ce_flags |= ZEND_ACC_FINAL_CLASS;
+
+	if (!php_zmq_clock_init ()) {
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Failed to initialise monotonic clock");
+		return FAILURE;
+	}
 
 #define PHP_ZMQ_REGISTER_CONST_LONG(const_name, value) \
 	zend_declare_class_constant_long(php_zmq_sc_entry, const_name, sizeof(const_name)-1, (long)value TSRMLS_CC);
