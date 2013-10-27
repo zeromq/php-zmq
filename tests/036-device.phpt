@@ -8,7 +8,7 @@ Test device callbacks
 <?php
 
 function proper_microtime () {
-    return round ((microtime (true) * 1000) + 0.5);
+    return round ((microtime (true) * 1000));
 }
 
 class CbStateData
@@ -48,7 +48,7 @@ $user_data = new CbStateData ('timer');
 $device->setTimerCallback (function ($user_data) use (&$last_called, $device) {
 								echo "Triggered for {$device->getTimerTimeout ()}ms timeout" . PHP_EOL;
 
-								$time_elapsed = proper_microtime () - $last_called;
+								$time_elapsed = (proper_microtime () - $last_called) + 1;
 
 								if ($time_elapsed < $device->getTimerTimeout ()) {
 									echo "Called too early, only ${time_elapsed}ms elapsed, expected {$device->getTimerTimeout ()}" . PHP_EOL;
