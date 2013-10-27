@@ -107,6 +107,9 @@ int s_calculate_timeout (php_zmq_device_object *intern)
 		timeout = intern->idle_cb.timeout;
 	}
 
+	if (timeout > 0)
+		timeout *= PHP_ZMQ_TIMEOUT;
+
 	return timeout;
 }
 
@@ -163,7 +166,7 @@ int php_zmq_device(php_zmq_device_object *intern TSRMLS_DC)
 		/* Calculate poll_timeout based on idle / timer cb */
 		int timeout = s_calculate_timeout (intern);
 
-		rc = zmq_poll(&items [0], 2, timeout * PHP_ZMQ_TIMEOUT);
+		rc = zmq_poll(&items [0], 2, timeout);
 		if (rc < 0) {
 			zmq_msg_close (&msg);
 			return -1;
