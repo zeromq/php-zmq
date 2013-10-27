@@ -7,9 +7,9 @@ Test device deprecated args
 --FILE--
 <?php
 
-
 $ctx = new ZMQContext ();
-$device = new ZMQDevice($ctx->getSocket(ZMQ::SOCKET_SUB), $ctx->getSocket(ZMQ::SOCKET_PUB));
+$s1 = new ZMQSocket ($ctx, ZMQ::SOCKET_SUB);
+$device = new ZMQDevice($s1, $ctx->getSocket(ZMQ::SOCKET_PUB));
 
 
 // Setup callback and user data for callback

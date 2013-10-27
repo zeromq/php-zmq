@@ -1401,6 +1401,8 @@ void s_init_device_callback (php_zmq_device_cb_t *cb, zend_fcall_info *fci, zend
 	} else {
 		MAKE_STD_ZVAL (user_data);
 		ZVAL_NULL(user_data);
+		Z_ADDREF_P(user_data);
+
 		cb->user_data = user_data;
 	}
 
@@ -1784,17 +1786,17 @@ static void php_zmq_device_object_free_storage(void *object TSRMLS_DC)
 
 	if (intern->front) {
 		zend_objects_store_del_ref(intern->front TSRMLS_CC);
-		Z_DELREF_P (intern->front);
+		zval_ptr_dtor (&intern->front);
 	}
 
 	if (intern->back) {
 		zend_objects_store_del_ref(intern->back TSRMLS_CC);
-		Z_DELREF_P (intern->back);
+		zval_ptr_dtor (&intern->back);
 	}
 
 	if (intern->capture) {
 		zend_objects_store_del_ref(intern->capture TSRMLS_CC);
-		Z_DELREF_P (intern->capture);
+		zval_ptr_dtor (&intern->capture);
 	}
 
 	zend_object_std_dtor(&intern->zo TSRMLS_CC);
