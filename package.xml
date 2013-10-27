@@ -13,7 +13,7 @@
  <date>2013-10-25</date>
  <time>17:00:00</time>
  <version>
-  <release>1.0.9</release>
+  <release>1.1.0</release>
   <api>1.0.0</api>
  </version>
  <stability>
@@ -22,7 +22,9 @@
  </stability>
  <license>BSD License</license>
  <notes>
- - Windows build related fixes
+ - Device related fixes and improvements:
+   * Added setTimerCallback to set a timer function
+   * Added getIdleTimeout/getTimerTimeout
  </notes>
  <contents>
   <dir name="/">
