@@ -53,7 +53,12 @@
 
 #if defined(HAVE_MACH_ABSOLUTE_TIME)
 static
-	uint64_t scaling_factor = 0;
+	uint64_t s_scaling_factor = 0;
+#endif
+
+#if defined(_WIN32) || defined(_WIN64)
+static
+	double s_frequency = 0.0;
 #endif
 
 static
@@ -76,7 +81,13 @@ zend_bool php_zmq_clock_init ()
 	if (mach_timebase_info (&info) != 0) {
 		return 0;
 	}
-	scaling_factor = info.numer / info.denom;
+	s_scaling_factor = info.numer / info.denom;
+#elif defined(_WIN32) || defined(_WIN64)
+	LARGE_INTEGER val;
+	if (!QueryPerformanceFrequency (&val))
+		return 0;
+
+	s_frequency = val.QuadPart / 1000.0;
 #endif
 	return 1;
 }
@@ -97,15 +108,13 @@ uint64_t php_zmq_clock ()
 
 #elif defined(_WIN32) || defined(_WIN64)
 
-	/*
-		TODO: GetTickCount will overflow around 49.7 days
-	*/
-	DWORD ts = GetTickCount ();
-	return (uint64_t) ts;
+	LARGE_INTEGER val;
+	QueryPerformanceCounter(&val);
+	return (uint64_t) ceil ((val.QuadPart / s_frequency));
 
 #elif defined(HAVE_MACH_ABSOLUTE_TIME)
 
-    return (mach_absolute_time () * scaling_factor) / 1000000;
+    return (mach_absolute_time () * s_scaling_factor) / 1000000;
 
 #elif defined(HAVE_GETTIMEOFDAY)
 
