@@ -121,6 +121,6 @@ uint64_t php_zmq_clock ()
 	return s_backup_clock ();
 
 #else
-#  error "Cannot find a monotonic clock that would work on this platform. Please report a bug"
+#  error "Cannot find a clock that would work on this platform. Please report a bug"
 #endif
 }
