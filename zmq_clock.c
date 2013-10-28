@@ -83,20 +83,25 @@ zend_bool php_zmq_clock_init ()
 
 uint64_t php_zmq_clock ()
 {
-#if defined(HAVE_CLOCK_GETTIME) && defined(CLOCK_MONOTONIC)
+#if defined(HAVE_CLOCK_GETTIME) && (defined(CLOCK_MONOTONIC_RAW) || defined(CLOCK_MONOTONIC))
 
 	struct timespec ts;
+#if defined(CLOCK_MONOTONIC_RAW)
+	if (clock_gettime (CLOCK_MONOTONIC_RAW, &ts) == 0) {
+#else
 	if (clock_gettime (CLOCK_MONOTONIC, &ts) == 0) {
+#endif
 		return (uint64_t) (((uint64_t) ts.tv_sec * 1000) + ((uint64_t) ts.tv_nsec / 1000000));
 	}
 	return s_backup_clock ();
 
 #elif defined(_WIN32) || defined(_WIN64)
 
-	/* This looks like to be monotonic with PHP:
-		http://lxr.php.net/xref/PHP_5_5/win32/time.c#80
+	/*
+		TODO: GetTickCount will overflow around 49.7 days
 	*/
-	return s_backup_clock ();
+	DWORD ts = GetTickCount ();
+	return (uint64_t) ts;
 
 #elif defined(HAVE_MACH_ABSOLUTE_TIME)
 
