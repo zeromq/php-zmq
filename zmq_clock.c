@@ -65,10 +65,13 @@ static
 uint64_t s_backup_clock ()
 {
 #if defined(HAVE_GETTIMEOFDAY)
+
 	struct timeval tv;
 	gettimeofday(&tv, NULL);
 	return (uint64_t) (((uint64_t) tv.tv_sec * 1000) + ((uint64_t) tv.tv_usec / 1000));
+
 #endif
+
 	php_error (E_ERROR, "Failed to get current time");
 	return 0;
 }
@@ -76,18 +79,22 @@ uint64_t s_backup_clock ()
 zend_bool php_zmq_clock_init ()
 {
 #if defined(HAVE_MACH_ABSOLUTE_TIME)
+
 	mach_timebase_info_data_t info;
 
 	if (mach_timebase_info (&info) != 0) {
 		return 0;
 	}
 	s_scaling_factor = info.numer / info.denom;
+
 #elif defined(_WIN32) || defined(_WIN64)
+
 	LARGE_INTEGER val;
 	if (!QueryPerformanceFrequency (&val))
 		return 0;
 
 	s_frequency = val.QuadPart / 1000.0;
+
 #endif
 	return 1;
 }

@@ -95,7 +95,7 @@ int s_calculate_timeout (php_zmq_device_object *intern)
 	/* Do we have timer? */
 	if (intern->timer_cb.initialized && intern->timer_cb.timeout) {
 		/* This is when we need to launch timer */
-		timeout = (intern->timer_cb.last_invoked + intern->timer_cb.timeout) - php_zmq_clock ();
+		timeout = (int) ((intern->timer_cb.last_invoked + intern->timer_cb.timeout) - php_zmq_clock ());
 
 		/* If we are tiny bit late, make sure it's asap */
 		if (timeout <= 0) {
