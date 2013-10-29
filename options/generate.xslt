@@ -135,9 +135,8 @@ PHP_METHOD(zmqsocket, getsockopt)
 	switch (key) {
 
 	</xsl:template>
-	
 	<xsl:template name="getsockopt-footer">
-		
+
 		case ZMQ_FD:
 		{
 			php_stream *stm = php_zmq_create_zmq_fd(getThis() TSRMLS_CC);

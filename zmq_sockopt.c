@@ -292,7 +292,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 		}
 		break;
 	
-		
+
 		case ZMQ_FD:
 		{
 			php_stream *stm = php_zmq_create_zmq_fd(getThis() TSRMLS_CC);
@@ -964,7 +964,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 		}
 		break;
 	
-		
+
 		case ZMQ_FD:
 		{
 			php_stream *stm = php_zmq_create_zmq_fd(getThis() TSRMLS_CC);
@@ -1674,7 +1674,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 		}
 		break;
 	
-		
+
 		case ZMQ_FD:
 		{
 			php_stream *stm = php_zmq_create_zmq_fd(getThis() TSRMLS_CC);
@@ -2387,7 +2387,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 		}
 		break;
 	
-		
+
 		case ZMQ_FD:
 		{
 			php_stream *stm = php_zmq_create_zmq_fd(getThis() TSRMLS_CC);
@@ -3208,7 +3208,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 		}
 		break;
 	
-		
+
 		case ZMQ_FD:
 		{
 			php_stream *stm = php_zmq_create_zmq_fd(getThis() TSRMLS_CC);
@@ -4369,7 +4369,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 		}
 		break;
 	
-		
+
 		case ZMQ_FD:
 		{
 			php_stream *stm = php_zmq_create_zmq_fd(getThis() TSRMLS_CC);
