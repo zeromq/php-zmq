@@ -90,7 +90,7 @@ int s_capture_message (void *socket, zmq_msg_t *msg, int more)
 }
 
 static
-int s_calculate_timeout (php_zmq_device_object *intern)
+int s_calculate_timeout (php_zmq_device_object *intern TSRMLS_DC)
 {
 	int timeout = -1;
 
@@ -166,7 +166,7 @@ int php_zmq_device(php_zmq_device_object *intern TSRMLS_DC)
 		uint64_t current_ts = 0;
 
 		/* Calculate poll_timeout based on idle / timer cb */
-		int timeout = s_calculate_timeout (intern);
+		int timeout = s_calculate_timeout (intern TSRMLS_CC);
 
 		rc = zmq_poll(&items [0], 2, timeout);
 		if (rc < 0) {
