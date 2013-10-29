@@ -194,6 +194,18 @@ static php_zmq_context *php_zmq_context_get(long io_threads, zend_bool is_persis
 PHP_METHOD(zmq, __construct) {}
 /* }}} */
 
+/* {{{ proto integer ZMQ::clock()
+	A monotonic clock
+*/
+PHP_METHOD(zmq, clock)
+{
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
+	RETURN_LONG((long) php_zmq_clock ());
+}
+/* }}} */
+
 /* {{{ proto ZMQContext ZMQContext::__construct(integer $io_threads[, boolean $is_persistent = true])
 	Build a new ZMQContext object
 */
@@ -1493,8 +1505,12 @@ PHP_METHOD(zmqdevice, __clone) { }
 ZEND_BEGIN_ARG_INFO_EX(zmq_construct_args, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(zmq_clock_args, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
 static zend_function_entry php_zmq_class_methods[] = {
-	PHP_ME(zmq, __construct,	zmq_construct_args,	ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
+	PHP_ME(zmq, __construct,    zmq_construct_args,  ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
+	PHP_ME(zmq, clock,          zmq_clock_args,      ZEND_ACC_PUBLIC|ZEND_ACC_STATIC)
 	{NULL, NULL, NULL}
 };
 

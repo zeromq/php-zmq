@@ -67,7 +67,7 @@ uint64_t s_backup_clock ()
 #if defined(HAVE_GETTIMEOFDAY)
 	struct timeval tv;
 	gettimeofday(&tv, NULL);
-	return (uint64_t) ((tv.tv_sec * 1000) + (tv.tv_usec / 1000));
+	return (uint64_t) (((uint64_t) tv.tv_sec * 1000) + ((uint64_t) tv.tv_usec / 1000));
 #endif
 	php_error (E_ERROR, "Failed to get current time");
 	return 0;
