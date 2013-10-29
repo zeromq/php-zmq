@@ -277,14 +277,14 @@ PHP_METHOD(zmqcontext, getOpt)
 	intern = PHP_ZMQ_CONTEXT_OBJECT;
 
 	switch (option) {
-		
+
 		case ZMQ_MAX_SOCKETS:
 		{
 			int value = zmq_ctx_get(intern->context->z_ctx, option);
 			RETURN_LONG(value);
 		}
 		break;
-		
+
 		default:
 		{
 			zend_throw_exception(php_zmq_context_exception_sc_entry_get (), "Unknown option key", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);

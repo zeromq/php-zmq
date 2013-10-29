@@ -311,7 +311,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 				return;
 			}
 		}
-		break;		
+		break;
 
 	</xsl:template>
 	

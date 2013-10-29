@@ -400,7 +400,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 				return;
 			}
 		}
-		break;		
+		break;
 
 	
 
@@ -584,7 +584,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 				return;
 			}
 		}
-		break;		
+		break;
 
 	
 
@@ -598,7 +598,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 				return;
 			}
 		}
-		break;		
+		break;
 
 	
 		case ZMQ_TYPE:
@@ -1072,7 +1072,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 				return;
 			}
 		}
-		break;		
+		break;
 
 	
 
@@ -1256,7 +1256,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 				return;
 			}
 		}
-		break;		
+		break;
 
 	
 
@@ -1270,7 +1270,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 				return;
 			}
 		}
-		break;		
+		break;
 
 	
 		case ZMQ_TYPE:
@@ -1782,7 +1782,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 				return;
 			}
 		}
-		break;		
+		break;
 
 	
 
@@ -1949,7 +1949,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 				return;
 			}
 		}
-		break;		
+		break;
 
 	
 
@@ -1963,7 +1963,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 				return;
 			}
 		}
-		break;		
+		break;
 
 	
 		case ZMQ_TYPE:
@@ -2495,7 +2495,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 				return;
 			}
 		}
-		break;		
+		break;
 
 	
 
@@ -2662,7 +2662,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 				return;
 			}
 		}
-		break;		
+		break;
 
 	
 
@@ -2676,7 +2676,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 				return;
 			}
 		}
-		break;		
+		break;
 
 	
 		case ZMQ_TYPE:
@@ -3316,7 +3316,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 				return;
 			}
 		}
-		break;		
+		break;
 
 	
 
@@ -3483,7 +3483,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 				return;
 			}
 		}
-		break;		
+		break;
 
 	
 
@@ -3497,7 +3497,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 				return;
 			}
 		}
-		break;		
+		break;
 
 	
 		case ZMQ_TYPE:
@@ -3651,7 +3651,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 				return;
 			}
 		}
-		break;		
+		break;
 
 	
 
@@ -4477,7 +4477,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 				return;
 			}
 		}
-		break;		
+		break;
 
 	
 
@@ -4644,7 +4644,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 				return;
 			}
 		}
-		break;		
+		break;
 
 	
 
@@ -4658,7 +4658,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 				return;
 			}
 		}
-		break;		
+		break;
 
 	
 		case ZMQ_TYPE:
@@ -4812,7 +4812,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 				return;
 			}
 		}
-		break;		
+		break;
 
 	
 
@@ -4911,7 +4911,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 				return;
 			}
 		}
-		break;		
+		break;
 
 	
 
@@ -4925,7 +4925,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 				return;
 			}
 		}
-		break;		
+		break;
 
 	
 
@@ -4956,7 +4956,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 				return;
 			}
 		}
-		break;		
+		break;
 
 	
 
@@ -4970,7 +4970,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 				return;
 			}
 		}
-		break;		
+		break;
 
 	
 
@@ -4984,7 +4984,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 				return;
 			}
 		}
-		break;		
+		break;
 
 	
 
@@ -5066,7 +5066,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 				return;
 			}
 		}
-		break;		
+		break;
 
 	
 		
