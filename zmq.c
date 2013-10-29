@@ -399,7 +399,7 @@ static zend_bool php_zmq_connect_callback(zval *socket, zend_fcall_info *fci, ze
 		ZVAL_NULL(pid_z);
 	}
 
-	/* Call the cb */	
+	/* Call the cb */
 	params[0] = &socket;
 	params[1] = &pid_z;
 
@@ -1100,8 +1100,7 @@ PHP_METHOD(zmqpoll, add)
 	pos = php_zmq_pollset_add(&(intern->set), object, events TSRMLS_CC);
 
 	if (pos < 0) {
-
-		char *message = NULL;
+		const char *message = NULL;
 
 		switch (pos) {
 			case PHP_ZMQ_POLLSET_ERR_NO_STREAM:
