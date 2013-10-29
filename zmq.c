@@ -32,6 +32,8 @@
 #include "php_zmq_private.h"
 #include "php_zmq_pollset.h"
 
+ZEND_DECLARE_MODULE_GLOBALS(php_zmq)
+
 zend_class_entry *php_zmq_sc_entry;
 zend_class_entry *php_zmq_context_sc_entry;
 zend_class_entry *php_zmq_socket_sc_entry;
@@ -202,7 +204,7 @@ PHP_METHOD(zmq, clock)
 	if (zend_parse_parameters_none() == FAILURE) {
 		return;
 	}
-	RETURN_LONG((long) php_zmq_clock ());
+	RETURN_LONG((long) php_zmq_clock (ZMQ_G (clock_ctx)));
 }
 /* }}} */
 
@@ -477,9 +479,9 @@ PHP_METHOD(zmqcontext, getsocket)
 	if (is_new) {
 		if(fci.size) {
 			if (!php_zmq_connect_callback(return_value, &fci, &fci_cache, persistent_id TSRMLS_CC)) {
-				zval_dtor(return_value);
 				php_zmq_socket_destroy(socket);
 				interns->socket = NULL;
+				zval_dtor(return_value);
 				return;
 			}
 		}
@@ -1427,7 +1429,7 @@ void s_init_device_callback (php_zmq_device_cb_t *cb, zend_fcall_info *fci, zend
 
 	memset (&(cb->fci_cache), 0, sizeof(zend_fcall_info_cache));
 	cb->initialized  = 1;
-	cb->last_invoked = php_zmq_clock ();
+	cb->last_invoked = php_zmq_clock (ZMQ_G (clock_ctx));
 	cb->timeout      = timeout;
 }
 
@@ -1914,6 +1916,10 @@ static zend_object_value php_zmq_device_object_new_ex(zend_class_entry *class_ty
 	memset (&intern->idle_cb, 0, sizeof (php_zmq_device_cb_t));
 	memset (&intern->timer_cb, 0, sizeof (php_zmq_device_cb_t));
 
+	intern->front   = NULL;
+	intern->back    = NULL;
+	intern->capture = NULL;
+
 	if (ptr) {
 		*ptr = intern;
 	}
@@ -2024,8 +2030,10 @@ PHP_MINIT_FUNCTION(zmq)
 	php_zmq_device_exception_sc_entry = zend_register_internal_class_ex(&ce_device_exception, php_zmq_exception_sc_entry, "ZMQException" TSRMLS_CC);
 	php_zmq_device_exception_sc_entry->ce_flags |= ZEND_ACC_FINAL_CLASS;
 
-	if (!php_zmq_clock_init ()) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Failed to initialise monotonic clock");
+	ZMQ_G(clock_ctx) = php_zmq_clock_init ();
+
+	if (!ZMQ_G(clock_ctx)) {
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Failed to initialise clock");
 		return FAILURE;
 	}
 
@@ -2094,6 +2102,12 @@ PHP_MINIT_FUNCTION(zmq)
 	return SUCCESS;
 }
 
+PHP_MSHUTDOWN_FUNCTION(zmq)
+{
+	php_zmq_clock_destroy (&ZMQ_G (clock_ctx));
+	return SUCCESS;
+}
+
 PHP_MINFO_FUNCTION(zmq)
 {
 	char version[PHP_ZMQ_VERSION_LEN];
@@ -2115,7 +2129,7 @@ zend_module_entry zmq_module_entry =
 	PHP_ZMQ_EXTNAME,
 	zmq_functions,			/* Functions */
 	PHP_MINIT(zmq),			/* MINIT */
-	NULL,					/* MSHUTDOWN */
+	PHP_MSHUTDOWN(zmq),		/* MSHUTDOWN */
 	NULL,					/* RINIT */
 	NULL,					/* RSHUTDOWN */
 	PHP_MINFO(zmq),			/* MINFO */

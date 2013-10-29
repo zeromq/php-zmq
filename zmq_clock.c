@@ -47,18 +47,8 @@
 #  include <mach/mach_time.h>
 #endif
 
-#if defined(_WIN32) || defined(_WIN64)
+#if defined(PHP_WIN32)
 #  include "win32/time.h"
-#endif
-
-#if defined(HAVE_MACH_ABSOLUTE_TIME)
-static
-	uint64_t s_scaling_factor = 0;
-#endif
-
-#if defined(_WIN32) || defined(_WIN64)
-static
-	double s_frequency = 0.0;
 #endif
 
 static
@@ -76,33 +66,21 @@ uint64_t s_backup_clock ()
 	return 0;
 }
 
-zend_bool php_zmq_clock_init ()
-{
-#if defined(HAVE_MACH_ABSOLUTE_TIME)
-
-	mach_timebase_info_data_t info;
-
-	if (mach_timebase_info (&info) != 0) {
-		return 0;
-	}
-	s_scaling_factor = info.numer / info.denom;
-
-#elif defined(_WIN32) || defined(_WIN64)
-
-	LARGE_INTEGER val;
-	if (!QueryPerformanceFrequency (&val))
-		return 0;
-
-	s_frequency = val.QuadPart / 1000.0;
-
-#endif
-	return 1;
-}
-
-uint64_t php_zmq_clock ()
-{
+/*
+	Systems supporting clock_gettime(CLOCK_MONOTONIC)
+*/
 #if defined(HAVE_CLOCK_GETTIME) && (defined(CLOCK_MONOTONIC_RAW) || defined(CLOCK_MONOTONIC))
 
+struct _php_zmq_clock_ctx_t {};
+
+php_zmq_clock_ctx_t *php_zmq_clock_init ()
+{
+	return
+		malloc (sizeof (php_zmq_clock_ctx_t));
+}
+
+uint64_t php_zmq_clock (php_zmq_clock_ctx_t *clock_ctx)
+{
 	struct timespec ts;
 #if defined(CLOCK_MONOTONIC_RAW)
 	if (clock_gettime (CLOCK_MONOTONIC_RAW, &ts) == 0) {
@@ -111,23 +89,108 @@ uint64_t php_zmq_clock ()
 #endif
 		return (uint64_t) (((uint64_t) ts.tv_sec * 1000) + ((uint64_t) ts.tv_nsec / 1000000));
 	}
-	return s_backup_clock ();
+	return
+		s_backup_clock ();
+}
 
-#elif defined(_WIN32) || defined(_WIN64)
-
-	LARGE_INTEGER val;
-	QueryPerformanceCounter(&val);
-	return (uint64_t) ceil ((val.QuadPart / s_frequency));
-
+/*
+	Mac OS X
+*/
 #elif defined(HAVE_MACH_ABSOLUTE_TIME)
 
-    return (mach_absolute_time () * s_scaling_factor) / 1000000;
+struct _php_zmq_clock_ctx_t {
+	uint64_t scaling_factor;
+};
+
+php_zmq_clock_ctx_t *php_zmq_clock_init ()
+{
+	php_zmq_clock_ctx_t *ctx;
+	mach_timebase_info_data_t info;
+
+	if (mach_timebase_info (&info) != 0) {
+		return NULL;
+	}
+	ctx = malloc (sizeof (php_zmq_clock_ctx_t));
+	ctx->scaling_factor = (info.numer / info.denom);
+	return ctx;
+}
+
+uint64_t php_zmq_clock (php_zmq_clock_ctx_t *ctx)
+{
+	return
+		(mach_absolute_time () * ctx->scaling_factor) / 1000000;
+}
+
+/*
+	Windows systems. Not using QueryPerformanceCounter because of:
+	https://www.virtualbox.org/ticket/11951
+*/
+#elif defined(PHP_WIN32)
+
+struct _php_zmq_clock_ctx_t {
+	int wrap_count;
+	uint64_t last_ticks;
+};
+
+php_zmq_clock_ctx_t *php_zmq_clock_init ()
+{
+	return ecalloc (1, sizeof (php_zmq_clock_ctx_t));
+}
+
+static
+uint64_t s_get_tick_count (php_zmq_clock_ctx_t *clock_ctx)
+{
+	uint64_t ticks = (uint64_t) GetTickCount ();
+
+	/* Has the clock wrapped? */
+	if (ticks < clock_ctx->last_ticks)
+		++clock_ctx->wrap_count;
+
+	clock_ctx->last_ticks = ticks;
+
+	ticks += (uint64_t) clock_ctx->wrap_count * (uint64_t) MAXDWORD;
+	return ticks;
+}
+
+uint64_t php_zmq_clock (php_zmq_clock_ctx_t *clock_ctx)
+{
+	return s_get_tick_count (clock_ctx);
+}
 
 #elif defined(HAVE_GETTIMEOFDAY)
 
+struct _php_zmq_clock_ctx_t {};
+
+php_zmq_clock_ctx_t *php_zmq_clock_init ()
+{
+	return malloc (sizeof (php_zmq_clock_ctx_t));
+}
+
+static
+uint64_t s_get_tick_count (php_zmq_clock_ctx_t *clock_ctx)
+{
+	uint64_t ticks = (uint64_t) GetTickCount ();
+
+	/* Has the clock wrapped? */
+	if (ticks < clock_ctx->last_ticks)
+		++clock_ctx->wrap_count;
+
+	clock_ctx->last_ticks = ticks;
+
+	ticks += (uint64_t) clock_ctx->wrap_count * MAX_DWORD;
+	return ticks;
+}
+
+uint64_t php_zmq_clock (php_zmq_clock_ctx_t *clock_ctx)
+{
 	return s_backup_clock ();
+}
 
 #else
 #  error "Cannot find a clock that would work on this platform. Please report a bug"
 #endif
+
+void php_zmq_clock_destroy (php_zmq_clock_ctx_t **clock_ctx)
+{
+	free (*clock_ctx);
 }

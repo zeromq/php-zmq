@@ -37,6 +37,8 @@
 #include "php_zmq.h"
 #include "php_zmq_private.h"
 
+ZEND_EXTERN_MODULE_GLOBALS(php_zmq)
+
 static
 zend_bool s_invoke_device_cb (php_zmq_device_cb_t *cb, uint64_t current_ts TSRMLS_DC)
 {
@@ -95,7 +97,7 @@ int s_calculate_timeout (php_zmq_device_object *intern)
 	/* Do we have timer? */
 	if (intern->timer_cb.initialized && intern->timer_cb.timeout) {
 		/* This is when we need to launch timer */
-		timeout = (int) ((intern->timer_cb.last_invoked + intern->timer_cb.timeout) - php_zmq_clock ());
+		timeout = (int) ((intern->timer_cb.last_invoked + intern->timer_cb.timeout) - php_zmq_clock (ZMQ_G (clock_ctx)));
 
 		/* If we are tiny bit late, make sure it's asap */
 		if (timeout <= 0) {
@@ -158,7 +160,7 @@ int php_zmq_device(php_zmq_device_object *intern TSRMLS_DC)
 		capture_sock = capture->socket->z_socket;
 	}
 
-	last_message_received = php_zmq_clock ();
+	last_message_received = php_zmq_clock (ZMQ_G (clock_ctx));
 
 	while (1) {
 		uint64_t current_ts = 0;
@@ -172,7 +174,7 @@ int php_zmq_device(php_zmq_device_object *intern TSRMLS_DC)
 			return -1;
 		}
 
-		current_ts = php_zmq_clock ();
+		current_ts = php_zmq_clock (ZMQ_G (clock_ctx));
 
 		if (rc > 0)
 			last_message_received = current_ts;

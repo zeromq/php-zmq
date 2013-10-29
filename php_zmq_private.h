@@ -246,8 +246,17 @@ php_stream *php_zmq_create_zmq_fd(zval *obj TSRMLS_DC);
 
 void php_zmq_register_sockopt_constants (zend_class_entry *ce TSRMLS_DC);
 
-zend_bool php_zmq_clock_init ();
+typedef struct _php_zmq_clock_ctx_t php_zmq_clock_ctx_t;
 
-uint64_t php_zmq_clock ();
+php_zmq_clock_ctx_t *php_zmq_clock_init ();
+
+uint64_t php_zmq_clock (php_zmq_clock_ctx_t *clock_ctx);
+
+void php_zmq_clock_destroy (php_zmq_clock_ctx_t **clock_ctx);
+
+ZEND_BEGIN_MODULE_GLOBALS(php_zmq)
+	php_zmq_clock_ctx_t *clock_ctx;
+ZEND_END_MODULE_GLOBALS(php_zmq)
+
 
 #endif /* _PHP_ZMQ_PRIVATE_H_ */
