@@ -431,7 +431,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 */
 
 #include "php_zmq.h"
-#include "php_zmq_private.h"		
+#include "php_zmq_private.h"
 	</xsl:template>
 	
 </xsl:stylesheet>

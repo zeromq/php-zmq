@@ -30,7 +30,7 @@
 */
 
 #include "php_zmq.h"
-#include "php_zmq_private.h"		
+#include "php_zmq_private.h"
 	
 #if ZMQ_VERSION_MAJOR == 2 && ZMQ_VERSION_MINOR < 2
 
