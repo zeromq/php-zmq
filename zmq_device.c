@@ -93,11 +93,12 @@ static
 int s_calculate_timeout (php_zmq_device_object *intern TSRMLS_DC)
 {
 	int timeout = -1;
+	uint64_t current = php_zmq_clock (ZMQ_G (clock_ctx));
 
 	/* Do we have timer? */
 	if (intern->timer_cb.initialized && intern->timer_cb.timeout) {
 		/* This is when we need to launch timer */
-		timeout = (int) ((intern->timer_cb.last_invoked + intern->timer_cb.timeout) - php_zmq_clock (ZMQ_G (clock_ctx)));
+		timeout = (int) ((intern->timer_cb.last_invoked + intern->timer_cb.timeout) - current);
 
 		/* If we are tiny bit late, make sure it's asap */
 		if (timeout <= 0) {
@@ -105,8 +106,13 @@ int s_calculate_timeout (php_zmq_device_object *intern TSRMLS_DC)
 		}
 	}
 
-	if (intern->idle_cb.initialized && intern->idle_cb.timeout > 0 && (timeout == -1 || timeout > intern->idle_cb.timeout)) {
-		timeout = intern->idle_cb.timeout;
+	/* Do we have idle callback? */
+	if (intern->idle_cb.initialized && intern->idle_cb.timeout) {
+		/* Do we need to reduce next timing? */
+		int idle_timeout = (int) ((intern->idle_cb.last_invoked + intern->idle_cb.timeout) - current);
+
+		if (timeout == -1 || idle_timeout < timeout)
+			timeout = idle_timeout;
 	}
 
 	if (timeout > 0)
@@ -114,6 +120,7 @@ int s_calculate_timeout (php_zmq_device_object *intern TSRMLS_DC)
 
 	return timeout;
 }
+
 
 int php_zmq_device(php_zmq_device_object *intern TSRMLS_DC)
 {

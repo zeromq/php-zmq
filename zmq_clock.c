@@ -128,13 +128,13 @@ uint64_t php_zmq_clock (php_zmq_clock_ctx_t *ctx)
 #elif defined(PHP_WIN32)
 
 struct _php_zmq_clock_ctx_t {
-	int wrap_count;
+	int      wrap_count;
 	uint64_t last_ticks;
 };
 
 php_zmq_clock_ctx_t *php_zmq_clock_init ()
 {
-	return ecalloc (1, sizeof (php_zmq_clock_ctx_t));
+	return calloc (1, sizeof (php_zmq_clock_ctx_t));
 }
 
 static

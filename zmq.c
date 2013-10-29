@@ -1970,6 +1970,12 @@ ZEND_RSRC_DTOR_FUNC(php_zmq_socket_dtor)
 	}
 }
 
+static
+void php_zmq_init_globals (zend_php_zmq_globals *zmq_globals)
+{
+	zmq_globals->clock_ctx = NULL;
+}
+
 PHP_MINIT_FUNCTION(zmq)
 {
 	char version[PHP_ZMQ_VERSION_LEN];
@@ -2029,6 +2035,8 @@ PHP_MINIT_FUNCTION(zmq)
 	INIT_CLASS_ENTRY(ce_device_exception, "ZMQDeviceException", NULL);
 	php_zmq_device_exception_sc_entry = zend_register_internal_class_ex(&ce_device_exception, php_zmq_exception_sc_entry, "ZMQException" TSRMLS_CC);
 	php_zmq_device_exception_sc_entry->ce_flags |= ZEND_ACC_FINAL_CLASS;
+
+	ZEND_INIT_MODULE_GLOBALS(php_zmq, php_zmq_init_globals, NULL);
 
 	ZMQ_G(clock_ctx) = php_zmq_clock_init ();
 
