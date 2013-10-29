@@ -78,7 +78,7 @@ static void php_zmq_get_lib_version(char buffer[PHP_ZMQ_VERSION_LEN])
 {
 	int major = 0, minor = 0, patch = 0;
 	zmq_version(&major, &minor, &patch);
-	(void) snprintf(buffer, PHP_ZMQ_VERSION_LEN, "%d.%d.%d", major, minor, patch);
+	(void) snprintf(buffer, PHP_ZMQ_VERSION_LEN - 1, "%d.%d.%d", major, minor, patch);
 }
 /* }}} */
 
