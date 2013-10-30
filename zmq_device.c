@@ -111,6 +111,11 @@ int s_calculate_timeout (php_zmq_device_object *intern TSRMLS_DC)
 		/* Do we need to reduce next timing? */
 		int idle_timeout = (int) ((intern->idle_cb.last_invoked + intern->idle_cb.timeout) - current);
 
+		/* Might happen if we get scheduled tiny bit late */
+		if (idle_timeout <= 0) {
+			return 1;
+		}
+
 		if (timeout == -1 || idle_timeout < timeout)
 			timeout = idle_timeout;
 	}
