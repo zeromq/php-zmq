@@ -66,7 +66,7 @@ zend_bool s_invoke_device_cb (php_zmq_device_cb_t *cb, uint64_t current_ts TSRML
 		}
 		zval_ptr_dtor(&retval_ptr);
 	}
-	cb->last_invoked = current_ts;
+	cb->scheduled_at = current_ts + cb->timeout;
 	return retval;
 }
 
@@ -98,7 +98,7 @@ int s_calculate_timeout (php_zmq_device_object *intern TSRMLS_DC)
 	/* Do we have timer? */
 	if (intern->timer_cb.initialized && intern->timer_cb.timeout) {
 		/* This is when we need to launch timer */
-		timeout = (int) ((intern->timer_cb.last_invoked + intern->timer_cb.timeout) - current);
+		timeout = (int) (intern->timer_cb.scheduled_at - current);
 
 		/* If we are tiny bit late, make sure it's asap */
 		if (timeout <= 0) {
@@ -109,7 +109,7 @@ int s_calculate_timeout (php_zmq_device_object *intern TSRMLS_DC)
 	/* Do we have idle callback? */
 	if (intern->idle_cb.initialized && intern->idle_cb.timeout) {
 		/* Do we need to reduce next timing? */
-		int idle_timeout = (int) ((intern->idle_cb.last_invoked + intern->idle_cb.timeout) - current);
+		int idle_timeout = (int) (intern->idle_cb.scheduled_at - current);
 
 		/* Might happen if we get scheduled tiny bit late */
 		if (idle_timeout <= 0) {
@@ -194,7 +194,7 @@ int php_zmq_device(php_zmq_device_object *intern TSRMLS_DC)
 		/* Do we have a timer callback? */
 		if (intern->timer_cb.initialized && intern->timer_cb.timeout > 0) {
 			/* Is it timer to call the timer ? */
-			if ((current_ts - intern->timer_cb.last_invoked) >= intern->timer_cb.timeout) {
+			if (intern->timer_cb.scheduled_at <= current_ts) {
 				if (!s_invoke_device_cb (&intern->timer_cb, current_ts TSRMLS_CC)) {
 					zmq_msg_close (&msg);
 					return 0;
@@ -206,7 +206,7 @@ int php_zmq_device(php_zmq_device_object *intern TSRMLS_DC)
 		if (rc == 0 && intern->idle_cb.initialized && intern->idle_cb.timeout > 0) {
 			/* Is it timer to call the idle callback ? */
 			if ((current_ts - last_message_received) >= intern->idle_cb.timeout &&
-				(current_ts - intern->idle_cb.last_invoked) >= intern->idle_cb.timeout) {
+				intern->idle_cb.scheduled_at <= current_ts) {
 				if (!s_invoke_device_cb (&intern->idle_cb, current_ts TSRMLS_CC)) {
 					zmq_msg_close (&msg);
 					return 0;

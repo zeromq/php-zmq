@@ -1429,7 +1429,7 @@ void s_init_device_callback (php_zmq_device_cb_t *cb, zend_fcall_info *fci, zend
 
 	memset (&(cb->fci_cache), 0, sizeof(zend_fcall_info_cache));
 	cb->initialized  = 1;
-	cb->last_invoked = php_zmq_clock (ZMQ_G (clock_ctx));
+	cb->scheduled_at = php_zmq_clock (ZMQ_G (clock_ctx)) + timeout;
 	cb->timeout      = timeout;
 }
 

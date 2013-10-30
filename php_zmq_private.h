@@ -144,7 +144,7 @@ typedef struct _php_zmq_device_cb_t {
 	zend_fcall_info fci;
 	zend_fcall_info_cache fci_cache;
 	zval *user_data;
-	uint64_t last_invoked;
+	uint64_t scheduled_at;
 } php_zmq_device_cb_t;
 
 /* {{{ typedef struct _php_zmq_device_object 
