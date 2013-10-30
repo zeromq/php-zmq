@@ -102,7 +102,7 @@ int s_calculate_timeout (php_zmq_device_object *intern TSRMLS_DC)
 
 		/* If we are tiny bit late, make sure it's asap */
 		if (timeout <= 0) {
-			return 1;
+			return 1 * PHP_ZMQ_TIMEOUT;
 		}
 	}
 
@@ -113,7 +113,7 @@ int s_calculate_timeout (php_zmq_device_object *intern TSRMLS_DC)
 
 		/* Might happen if we get scheduled tiny bit late */
 		if (idle_timeout <= 0) {
-			return 1;
+			return 1 * PHP_ZMQ_TIMEOUT;
 		}
 
 		if (timeout == -1 || idle_timeout < timeout)
