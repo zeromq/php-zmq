@@ -237,7 +237,7 @@ typedef struct _php_zmq_device_object  {
 
 PHP_METHOD(zmqsocket, getsockopt);
 PHP_METHOD(zmqsocket, setsockopt);
-int php_zmq_device(php_zmq_device_object *intern TSRMLS_DC);
+zend_bool php_zmq_device(php_zmq_device_object *intern TSRMLS_DC);
 
 zend_class_entry *php_zmq_socket_exception_sc_entry_get ();
 zend_class_entry *php_zmq_device_exception_sc_entry_get ();
