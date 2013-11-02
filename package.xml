@@ -10,11 +10,11 @@
   <email>mkoppanen@php.net</email>
   <active>yes</active>
  </lead>
- <date>2013-10-25</date>
+ <date>2013-11-02</date>
  <time>17:00:00</time>
  <version>
   <release>1.1.0</release>
-  <api>1.0.0</api>
+  <api>1.1.0</api>
  </version>
  <stability>
   <release>beta</release>
