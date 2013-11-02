@@ -13,7 +13,7 @@
  <date>2013-11-02</date>
  <time>17:00:00</time>
  <version>
-  <release>1.1.0</release>
+  <release>1.1.1</release>
   <api>1.1.0</api>
  </version>
  <stability>
@@ -22,9 +22,7 @@
  </stability>
  <license>BSD License</license>
  <notes>
- - Device related fixes and improvements:
-   * Added setTimerCallback to set a timer function
-   * Added getIdleTimeout/getTimerTimeout
+ - Missing zmq_clock.c from the archive
  </notes>
  <contents>
   <dir name="/">
@@ -48,6 +46,7 @@
    <file name="zmq_fd_stream.c" role="src" />
    <file name="zmq_pollset.c" role="src" />
    <file name="zmq_sockopt.c" role="src" />
+   <file name="zmq_clock.c" role="src" />
 
    <!-- misc files -->
    <file name="README.md" role="doc" />
