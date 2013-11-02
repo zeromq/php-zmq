@@ -89,6 +89,8 @@
       <file name="033-disconnect.phpt" role="test" />
       <file name="034-unbind.phpt" role="test" />
       <file name="035-capture.phpt" role="test" />
+      <file name="036-device.phpt" role="test" />
+      <file name="037-device-deprecated.phpt" role="test" />
       <file name="bug_gh_43.phpt" role="test" />
       <file name="bug_gh_49.phpt" role="test" />
       <file name="bug_gh_50.phpt" role="test" />
