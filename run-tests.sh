@@ -38,30 +38,28 @@ install_zeromq() {
 # Installs the ØMQ PHP extension.
 #
 # Parameters: ~
-build_zeromq_php_extension() {
-	local zeromq_version=$1
+build_and_run_tests() {
+    local zeromq_version=$1
+    local php_zmq_version=$2
+    pear package
+    tar xfz zmq-${php_zmq_version}.tgz
+    cd zmq-${php_zmq_version}
     phpize
     ./configure --with-zmq="${HOME}/zeromq-${zeromq_version}"
     make
-}
-
-# run_zeromq_extension_tests
-#
-# Runs the ØMQ PHP extension tests and /returns the exit code/.
-#
-# Parameters: ~
-run_zeromq_extension_tests() {
-    export NO_INTERACTION=1
-    export REPORT_EXIT_STATUS=1
-    export TEST_PHP_EXECUTABLE=`which php`
     php run-tests.php -d extension=zmq.so -d extension_dir=modules -n ./tests/*.phpt
-	exit_code=$?
+    exit_code=$?
 
-    for i in `ls tests/*.out 2>/dev/null`; do echo "-- START ${i}"; cat $i; echo "-- END"; done
-	return $exit_code
+    for i in `ls tests/*.out 2>/dev/null`; do echo "-- START ${i}"; cat $i; echo ""; echo "-- END"; done
+    return $exit_code
 }
 
+export NO_INTERACTION=1
+export REPORT_EXIT_STATUS=1
+export TEST_PHP_EXECUTABLE=`which php`
+
+PHP_ZMQ_VERSION=$(php -r '$sxe = simplexml_load_file ("package.xml"); echo (string) $sxe->version->release;')
 ZEROMQ_VERSION=$1
+
 install_zeromq $ZEROMQ_VERSION
-build_zeromq_php_extension $ZEROMQ_VERSION
-run_zeromq_extension_tests
+build_and_run_tests $ZEROMQ_VERSION $PHP_ZMQ_VERSION
