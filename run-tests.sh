@@ -1,5 +1,25 @@
 #!/bin/bash
 
+#
+# Arguments given to the script
+#
+if test "x$1" = "x"; then
+    echo "The script requires zeromq version as an argument"
+    exit 1
+fi
+
+ZEROMQ_VERSION=$1
+
+#
+# Some globals
+#
+export NO_INTERACTION=1
+export REPORT_EXIT_STATUS=1
+export TEST_PHP_EXECUTABLE=`which php`
+export PHP_ZMQ_VERSION=$(php -r '$sxe = simplexml_load_file ("package.xml"); echo (string) $sxe->version->release;')
+export BUILD_ROOT=/tmp/zmq-tmp-build
+
+
 # install_zeromq
 #
 # Installs the specified version of ØMQ.
@@ -33,6 +53,21 @@ install_zeromq() {
     cd ..
 }
 
+#
+# Validate the pear package to ensure all tests have been package
+#
+check_pear_package_xml ()
+{
+    for file in tests/*.phpt; do
+        grep $(basename $file) package.xml >/dev/null
+        if [ $? != 0 ]; then
+            echo "Missing file $file from package.xml"
+            exit 1
+        fi
+    done
+}
+
+
 # install_zeromq_php_extension
 #
 # Installs the ØMQ PHP extension.
@@ -40,26 +75,30 @@ install_zeromq() {
 # Parameters: ~
 build_and_run_tests() {
     local zeromq_version=$1
-    local php_zmq_version=$2
-    pear package
-    tar xfz zmq-${php_zmq_version}.tgz
-    cd zmq-${php_zmq_version}
-    phpize
-    ./configure --with-zmq="${HOME}/zeromq-${zeromq_version}"
-    make
-    php run-tests.php -d extension=zmq.so -d extension_dir=modules -n ./tests/*.phpt
-    exit_code=$?
 
-    for i in `ls tests/*.out 2>/dev/null`; do echo "-- START ${i}"; cat $i; echo ""; echo "-- END"; done
+    pear package
+
+    mkdir $BUILD_ROOT
+    tar xfz zmq-${PHP_ZMQ_VERSION}.tgz -C $BUILD_ROOT
+
+    # Do the build in pear packaged dir
+    pushd $BUILD_ROOT/zmq-${PHP_ZMQ_VERSION}
+        phpize
+        ./configure --with-zmq="${HOME}/zeromq-${zeromq_version}"
+        make
+        php run-tests.php -d extension=zmq.so -d extension_dir=modules -n ./tests/*.phpt
+        exit_code=$?
+
+        for failed_test in `ls tests/*.out 2>/dev/null`; do
+            echo "-- START ${failed_test}"
+            cat $failed_test
+            echo ""
+            echo "-- END"
+        done
+    popd
     return $exit_code
 }
 
-export NO_INTERACTION=1
-export REPORT_EXIT_STATUS=1
-export TEST_PHP_EXECUTABLE=`which php`
-
-PHP_ZMQ_VERSION=$(php -r '$sxe = simplexml_load_file ("package.xml"); echo (string) $sxe->version->release;')
-ZEROMQ_VERSION=$1
-
+check_pear_package_xml
 install_zeromq $ZEROMQ_VERSION
-build_and_run_tests $ZEROMQ_VERSION $PHP_ZMQ_VERSION
+build_and_run_tests "$ZEROMQ_VERSION"
