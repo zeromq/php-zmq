@@ -38,33 +38,46 @@ class CbStateData
 	}
 }
 
+class test {
+	function foo ($user_data) {
+		return false;
+	}
+}
+
+$test = new test ();
+
 $ctx = new ZMQContext ();
 $device = new ZMQDevice($ctx->getSocket(ZMQ::SOCKET_SUB), $ctx->getSocket(ZMQ::SOCKET_PUB));
 
 $last_called = proper_microtime ();
 $user_data = new CbStateData ('timer');
 
+$orig_cb = function ($user_data) use (&$last_called, $device) {
+				echo "Triggered for {$device->getTimerTimeout ()}ms timeout" . PHP_EOL;
+
+				$time_elapsed = (proper_microtime () - $last_called) + 1;
+
+				if ($time_elapsed < $device->getTimerTimeout ()) {
+					echo "Called too early, only ${time_elapsed}ms elapsed, expected {$device->getTimerTimeout ()}" . PHP_EOL;
+				}
+
+				$device->setTimerTimeout ($device->getTimerTimeout () + 50);
+				$last_called = proper_microtime ();
+
+				echo "{$user_data->getName ()} function called {$user_data->increment ()} times\n";
+				return $user_data->getCount() < 3 ? true : false;
+			};
+
 // Setup callback and user data for callback
-$device->setTimerCallback (function ($user_data) use (&$last_called, $device) {
-								echo "Triggered for {$device->getTimerTimeout ()}ms timeout" . PHP_EOL;
-
-								$time_elapsed = (proper_microtime () - $last_called) + 1;
-
-								if ($time_elapsed < $device->getTimerTimeout ()) {
-									echo "Called too early, only ${time_elapsed}ms elapsed, expected {$device->getTimerTimeout ()}" . PHP_EOL;
-								}
-								
-								$device->setTimerTimeout ($device->getTimerTimeout () + 50);
-								$last_called = proper_microtime ();
-
-								echo "{$user_data->getName ()} function called {$user_data->increment ()} times\n";
-								return $user_data->getCount() < 3 ? true : false;
-							},
-							100,
-							$user_data);
+$device->setTimerCallback ($orig_cb, 100, $user_data);
 
 // Run first time
 $device->run ();
+
+$device->setTimerCallback (array ($test, 'foo'), 100, $user_data);
+$device->setTimerCallback (array ($test, 'foo'), 100, $user_data);
+$device->setTimerCallback ($orig_cb, 100, $user_data);
+sleep (1);
 
 // Run second time
 $user_data->reset ();

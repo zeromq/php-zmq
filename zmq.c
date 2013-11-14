@@ -1340,7 +1340,10 @@ void s_clear_device_callback (php_zmq_device_cb_t *cb)
 		if (cb->user_data) {
 			zval_ptr_dtor(&cb->user_data);
 		}
-		memset (&cb->fci_cache, 0, sizeof (zend_fcall_info_cache));
+		if (cb->fci.object_ptr != NULL) {
+			zval_ptr_dtor(&cb->fci.object_ptr);
+		}
+
 		memset (cb, 0, sizeof (php_zmq_device_cb_t));
 		cb->initialized = 0;
 	}
@@ -1418,16 +1421,13 @@ void s_init_device_callback (php_zmq_device_cb_t *cb, zend_fcall_info *fci, zend
 
 		cb->user_data = user_data;
 	}
+	memcpy (&cb->fci, fci, sizeof (*fci));
+	memcpy (&cb->fci_cache, fci_cache, sizeof (*fci_cache));
 
-	cb->fci                = empty_fcall_info;
-	cb->fci.size           = sizeof (zend_fcall_info);
-	cb->fci.function_table = EG (function_table);
-	cb->fci.param_count    = 0;
-
-	MAKE_STD_ZVAL(cb->fci.function_name);
-	ZVAL_ZVAL(cb->fci.function_name, fci->function_name, 1, 0);
-
-	memset (&(cb->fci_cache), 0, sizeof(zend_fcall_info_cache));
+	Z_ADDREF_P (fci->function_name);
+	if (fci->object_ptr) {
+		Z_ADDREF_P (fci->object_ptr);
+	}
 	cb->initialized  = 1;
 	cb->scheduled_at = php_zmq_clock (ZMQ_G (clock_ctx)) + timeout;
 	cb->timeout      = timeout;
@@ -1466,7 +1466,10 @@ PHP_METHOD(zmqdevice, setidlecallback)
 	}
 
 	s_clear_device_callback (&intern->idle_cb);
-	s_init_device_callback (&intern->idle_cb, &fci, &fci_cache, timeout, user_data TSRMLS_CC);
+
+	if (fci.size > 0) {
+		s_init_device_callback (&intern->idle_cb, &fci, &fci_cache, timeout, user_data TSRMLS_CC);
+	}
 	ZMQ_RETURN_THIS;
 
 }
@@ -1490,7 +1493,9 @@ PHP_METHOD(zmqdevice, settimercallback)
 	intern = PHP_ZMQ_DEVICE_OBJECT;
 
 	s_clear_device_callback (&intern->timer_cb);
-	s_init_device_callback (&intern->timer_cb, &fci, &fci_cache, timeout, user_data TSRMLS_CC);
+	if (fci.size > 0) {
+		s_init_device_callback (&intern->timer_cb, &fci, &fci_cache, timeout, user_data TSRMLS_CC);
+	}
 	ZMQ_RETURN_THIS;
 }
 /* }}} */

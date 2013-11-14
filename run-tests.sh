@@ -78,11 +78,11 @@ build_and_run_tests() {
 
     pear package
 
-    mkdir $BUILD_ROOT
-    tar xfz zmq-${PHP_ZMQ_VERSION}.tgz -C $BUILD_ROOT
+    mkdir "$BUILD_ROOT"
+    tar xfz zmq-${PHP_ZMQ_VERSION}.tgz -C "$BUILD_ROOT"
 
     # Do the build in pear packaged dir
-    pushd $BUILD_ROOT/zmq-${PHP_ZMQ_VERSION}
+    pushd "${BUILD_ROOT}/zmq-${PHP_ZMQ_VERSION}"
         phpize
         ./configure --with-zmq="${HOME}/zeromq-${zeromq_version}"
         make
