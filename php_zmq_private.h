@@ -254,6 +254,8 @@ uint64_t php_zmq_clock (php_zmq_clock_ctx_t *clock_ctx);
 
 void php_zmq_clock_destroy (php_zmq_clock_ctx_t **clock_ctx);
 
+char *php_zmq_printable_func (zend_fcall_info *fci, zend_fcall_info_cache *fci_cache TSRMLS_DC);
+
 ZEND_BEGIN_MODULE_GLOBALS(php_zmq)
 	php_zmq_clock_ctx_t *clock_ctx;
 ZEND_END_MODULE_GLOBALS(php_zmq)
