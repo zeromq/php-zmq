@@ -234,8 +234,6 @@ PHP_METHOD(zmq, clock)
 */
 PHP_METHOD(zmqcontext, __construct)
 {
-	php_log_err ("php-zmq: zmqcontext.__construct  called" TSRMLS_CC);
-
 	php_zmq_context_object *intern;
 	long io_threads = 1;
 	zend_bool is_persistent = 1;
@@ -259,7 +257,6 @@ PHP_METHOD(zmqcontext, __construct)
 */
 PHP_METHOD(zmqmgcontext, __construct)
 {
-	php_log_err ("php-zmq: zmqmgcontext.__construct  called" TSRMLS_CC);
 	php_zmq_context_object *intern;
 	long io_threads = 1;
 	zend_bool is_persistent = 1;
@@ -2066,7 +2063,6 @@ void php_zmq_init_globals (zend_php_zmq_globals *zmq_globals)
 
 PHP_MINIT_FUNCTION(zmq)
 {
-	php_log_err ("php-zmq: Module inited" TSRMLS_CC);
 	char version[PHP_ZMQ_VERSION_LEN];
 	zend_class_entry ce, ce_context,ce_mgcontext, ce_socket, ce_poll, ce_device;
 	zend_class_entry ce_exception, ce_context_exception, ce_socket_exception, ce_poll_exception, ce_device_exception;
