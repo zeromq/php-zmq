@@ -116,6 +116,7 @@ typedef struct _php_zmq_context_object  {
 } php_zmq_context_object;
 /* }}} */
 
+
 /* {{{ typedef struct _php_zmq_socket_object 
 */
 typedef struct _php_zmq_socket_object  {

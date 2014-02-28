@@ -49,6 +49,7 @@ zend_class_entry *php_zmq_device_exception_sc_entry;
 static zend_object_handlers zmq_object_handlers;
 static zend_object_handlers zmq_socket_object_handlers;
 static zend_object_handlers zmq_context_object_handlers;
+static zend_object_handlers zmq_mgcontext_object_handlers;
 static zend_object_handlers zmq_poll_object_handlers;
 static zend_object_handlers zmq_device_object_handlers;
 
@@ -151,6 +152,26 @@ static php_zmq_context *php_zmq_context_new(long io_threads, zend_bool is_persis
 }
 /* }}} */
 
+
+static php_zmq_context *php_zmq_mgcontext=NULL;
+/* {{{ static php_zmq_context *php_zmq_context_get(long io_threads, zend_bool is_persistent TSRMLS_DC)
+*/
+static php_zmq_context *php_zmq_mgcontext_get(long io_threads, zend_bool is_persistent TSRMLS_DC)
+{
+	if (php_zmq_mgcontext) return php_zmq_mgcontext;
+	php_zmq_context *context;
+
+	context = php_zmq_context_new(io_threads, is_persistent TSRMLS_CC);
+
+	if (!context) {
+		return NULL;
+	}
+
+	php_zmq_mgcontext=context;
+	return context;
+}
+/* }}} */
+
 /* {{{ static php_zmq_context *php_zmq_context_get(long io_threads, zend_bool is_persistent TSRMLS_DC)
 */
 static php_zmq_context *php_zmq_context_get(long io_threads, zend_bool is_persistent TSRMLS_DC)
@@ -213,6 +234,8 @@ PHP_METHOD(zmq, clock)
 */
 PHP_METHOD(zmqcontext, __construct)
 {
+	php_log_err ("php-zmq: zmqcontext.__construct  called" TSRMLS_CC);
+
 	php_zmq_context_object *intern;
 	long io_threads = 1;
 	zend_bool is_persistent = 1;
@@ -230,6 +253,31 @@ PHP_METHOD(zmqcontext, __construct)
 	return;
 }
 /* }}} */
+
+/* {{{ proto ZMQContext ZMQContext::__construct(integer $io_threads[, boolean $is_persistent = true])
+	Build a new ZMQContext object
+*/
+PHP_METHOD(zmqmgcontext, __construct)
+{
+	php_log_err ("php-zmq: zmqmgcontext.__construct  called" TSRMLS_CC);
+	php_zmq_context_object *intern;
+	long io_threads = 1;
+	zend_bool is_persistent = 1;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|lb", &io_threads, &is_persistent) == FAILURE) {
+		return;
+	}
+	intern          = PHP_ZMQ_CONTEXT_OBJECT;
+	intern->context = php_zmq_mgcontext_get(io_threads, is_persistent TSRMLS_CC);
+
+	if (!intern->context) {
+		zend_throw_exception_ex(php_zmq_context_exception_sc_entry, errno TSRMLS_CC, "Error creating context: %s", zmq_strerror(errno));
+		return;
+	}
+	return;
+}
+/* }}} */
+
 
 #if (ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR >= 2) || ZMQ_VERSION_MAJOR > 3
 /* {{{ proto ZMQContext ZMQContext::setOpt(int option, int value)
@@ -1580,6 +1628,18 @@ static zend_function_entry php_zmq_context_class_methods[] = {
 	{NULL, NULL, NULL}
 };
 
+static zend_function_entry php_zmq_mgcontext_class_methods[] = {
+	PHP_ME(zmqmgcontext, __construct,		zmq_context_construct_args,		ZEND_ACC_PUBLIC|ZEND_ACC_CTOR|ZEND_ACC_FINAL)
+	PHP_ME(zmqcontext, getsocket,		zmq_context_getsocket_args,		ZEND_ACC_PUBLIC)
+	PHP_ME(zmqcontext, ispersistent,	zmq_context_ispersistent_args,	ZEND_ACC_PUBLIC)
+	PHP_ME(zmqcontext, __clone,			zmq_context_clone_args,			ZEND_ACC_PRIVATE|ZEND_ACC_FINAL)
+#if (ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR >= 2) || ZMQ_VERSION_MAJOR > 3
+	PHP_ME(zmqcontext, setOpt,			zmq_context_setopt_args,		ZEND_ACC_PUBLIC)
+	PHP_ME(zmqcontext, getOpt,			zmq_context_getopt_args,		ZEND_ACC_PUBLIC)
+#endif
+	{NULL, NULL, NULL}
+};
+
 ZEND_BEGIN_ARG_INFO_EX(zmq_socket_construct_args, 0, 0, 2)
 	ZEND_ARG_OBJ_INFO(0, ZMQContext, ZMQContext, 0)
 	ZEND_ARG_INFO(0, type)
@@ -1663,6 +1723,8 @@ static zend_function_entry php_zmq_socket_class_methods[] = {
 	PHP_MALIAS(zmqsocket,	recvmsg, recv, 	zmq_socket_recv_args, 				ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
+
+
 
 ZEND_BEGIN_ARG_INFO_EX(zmq_poll_add_args, 0, 0, 2)
 	ZEND_ARG_INFO(0, entry)
@@ -1881,6 +1943,7 @@ static zend_object_value php_zmq_context_object_new_ex(zend_class_entry *class_t
 	return retval;
 }
 
+
 static zend_object_value php_zmq_socket_object_new_ex(zend_class_entry *class_type, php_zmq_socket_object **ptr TSRMLS_DC)
 {
 	zend_object_value retval;
@@ -2003,8 +2066,9 @@ void php_zmq_init_globals (zend_php_zmq_globals *zmq_globals)
 
 PHP_MINIT_FUNCTION(zmq)
 {
+	php_log_err ("php-zmq: Module inited" TSRMLS_CC);
 	char version[PHP_ZMQ_VERSION_LEN];
-	zend_class_entry ce, ce_context, ce_socket, ce_poll, ce_device;
+	zend_class_entry ce, ce_context,ce_mgcontext, ce_socket, ce_poll, ce_device;
 	zend_class_entry ce_exception, ce_context_exception, ce_socket_exception, ce_poll_exception, ce_device_exception;
 
 	le_zmq_context = zend_register_list_destructors_ex(NULL, php_zmq_context_dtor, "ZMQ persistent context", module_number);
@@ -2012,6 +2076,7 @@ PHP_MINIT_FUNCTION(zmq)
 
 	memcpy(&zmq_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
 	memcpy(&zmq_context_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+	memcpy(&zmq_mgcontext_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
 	memcpy(&zmq_socket_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
 	memcpy(&zmq_poll_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
 	memcpy(&zmq_device_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
@@ -2025,6 +2090,11 @@ PHP_MINIT_FUNCTION(zmq)
 	ce_context.create_object = php_zmq_context_object_new;
 	zmq_context_object_handlers.clone_obj = NULL;
 	php_zmq_context_sc_entry = zend_register_internal_class(&ce_context TSRMLS_CC);
+	
+	INIT_CLASS_ENTRY(ce_mgcontext, "ZMQMGContext", php_zmq_mgcontext_class_methods);
+	ce_mgcontext.create_object = php_zmq_context_object_new;
+	zmq_mgcontext_object_handlers.clone_obj = NULL;
+	php_zmq_context_sc_entry = zend_register_internal_class(&ce_mgcontext TSRMLS_CC);
 
 	INIT_CLASS_ENTRY(ce_socket, "ZMQSocket", php_zmq_socket_class_methods);
 	ce_socket.create_object = php_zmq_socket_object_new;
