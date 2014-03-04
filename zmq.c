@@ -36,6 +36,7 @@ ZEND_DECLARE_MODULE_GLOBALS(php_zmq)
 
 zend_class_entry *php_zmq_sc_entry;
 zend_class_entry *php_zmq_context_sc_entry;
+zend_class_entry *php_zmq_mgcontext_sc_entry;
 zend_class_entry *php_zmq_socket_sc_entry;
 zend_class_entry *php_zmq_poll_sc_entry;
 zend_class_entry *php_zmq_device_sc_entry;
@@ -2090,7 +2091,7 @@ PHP_MINIT_FUNCTION(zmq)
 	INIT_CLASS_ENTRY(ce_mgcontext, "ZMQMGContext", php_zmq_mgcontext_class_methods);
 	ce_mgcontext.create_object = php_zmq_context_object_new;
 	zmq_mgcontext_object_handlers.clone_obj = NULL;
-	php_zmq_context_sc_entry = zend_register_internal_class(&ce_mgcontext TSRMLS_CC);
+	php_zmq_mgcontext_sc_entry = zend_register_internal_class(&ce_mgcontext TSRMLS_CC);
 
 	INIT_CLASS_ENTRY(ce_socket, "ZMQSocket", php_zmq_socket_class_methods);
 	ce_socket.create_object = php_zmq_socket_object_new;
