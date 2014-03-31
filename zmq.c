@@ -1835,6 +1835,18 @@ static void php_zmq_context_object_free_storage(void *object TSRMLS_DC)
 	efree(intern);
 }
 
+static void php_zmq_mgcontext_object_free_storage(void *object TSRMLS_DC)
+{
+	php_zmq_context_object *intern = (php_zmq_context_object *)object;
+
+	if (!intern) {
+		return;
+	}
+
+	zend_object_std_dtor(&intern->zo TSRMLS_CC);
+	efree(intern);
+}
+
 static void php_zmq_socket_object_free_storage(void *object TSRMLS_DC)
 {
 	php_zmq_socket_object *intern = (php_zmq_socket_object *)object;
@@ -1941,6 +1953,29 @@ static zend_object_value php_zmq_context_object_new_ex(zend_class_entry *class_t
 	return retval;
 }
 
+static zend_object_value php_zmq_mgcontext_object_new_ex(zend_class_entry *class_type, php_zmq_context_object **ptr TSRMLS_DC)
+{
+	zend_object_value retval;
+	php_zmq_context_object *intern;
+
+	/* Allocate memory for it */
+	intern = (php_zmq_context_object *) emalloc(sizeof(php_zmq_context_object));
+	memset(&intern->zo, 0, sizeof(zend_object));
+
+	/* Context is initialized in the constructor */
+	intern->context = NULL;
+
+	if (ptr) {
+		*ptr = intern;
+	}
+
+	zend_object_std_init(&intern->zo, class_type TSRMLS_CC);
+	object_properties_init(&intern->zo, class_type);
+
+	retval.handle   = zend_objects_store_put(intern, NULL, (zend_objects_free_object_storage_t) php_zmq_mgcontext_object_free_storage, NULL TSRMLS_CC);
+	retval.handlers = (zend_object_handlers *) &zmq_mgcontext_object_handlers;
+	return retval;
+}
 
 static zend_object_value php_zmq_socket_object_new_ex(zend_class_entry *class_type, php_zmq_socket_object **ptr TSRMLS_DC)
 {
@@ -2023,6 +2058,12 @@ static zend_object_value php_zmq_context_object_new(zend_class_entry *class_type
 	return php_zmq_context_object_new_ex(class_type, NULL TSRMLS_CC);
 }
 
+static zend_object_value php_zmq_mgcontext_object_new(zend_class_entry *class_type TSRMLS_DC)
+{
+	return php_zmq_mgcontext_object_new_ex(class_type, NULL TSRMLS_CC);
+}
+
+
 static zend_object_value php_zmq_socket_object_new(zend_class_entry *class_type TSRMLS_DC)
 {
 	return php_zmq_socket_object_new_ex(class_type, NULL TSRMLS_CC);
@@ -2089,7 +2130,7 @@ PHP_MINIT_FUNCTION(zmq)
 	php_zmq_context_sc_entry = zend_register_internal_class(&ce_context TSRMLS_CC);
 	
 	INIT_CLASS_ENTRY(ce_mgcontext, "ZMQMGContext", php_zmq_mgcontext_class_methods);
-	ce_mgcontext.create_object = php_zmq_context_object_new;
+	ce_mgcontext.create_object = php_zmq_mgcontext_object_new;
 	zmq_mgcontext_object_handlers.clone_obj = NULL;
 	php_zmq_mgcontext_sc_entry = zend_register_internal_class(&ce_mgcontext TSRMLS_CC);
 
@@ -2205,6 +2246,12 @@ PHP_MINIT_FUNCTION(zmq)
 PHP_MSHUTDOWN_FUNCTION(zmq)
 {
 	php_zmq_clock_destroy (&ZMQ_G (clock_ctx));
+	if (php_zmq_mgcontext) {
+		php_zmq_context *tmp=php_zmq_mgcontext;
+		php_zmq_mgcontext=NULL;
+		php_zmq_context_destroy(tmp);
+		
+	}
 	return SUCCESS;
 }
 
