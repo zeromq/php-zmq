@@ -254,7 +254,7 @@ PHP_METHOD(zmqcontext, __construct)
 /* }}} */
 
 /* {{{ proto ZMQMGContext ZMQMGContext::__construct(integer $io_threads[, boolean $is_persistent = true])
-	Build a new ZMQContext object
+	Build a new ZMQMGContext object
 */
 PHP_METHOD(zmqmgcontext, __construct)
 {
