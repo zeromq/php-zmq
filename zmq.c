@@ -155,7 +155,7 @@ static php_zmq_context *php_zmq_context_new(long io_threads, zend_bool is_persis
 
 
 static php_zmq_context *php_zmq_mgcontext=NULL;
-/* {{{ static php_zmq_context *php_zmq_context_get(long io_threads, zend_bool is_persistent TSRMLS_DC)
+/* {{{ static php_zmq_context *php_zmq_mgcontext_get(long io_threads, zend_bool is_persistent TSRMLS_DC)
 */
 static php_zmq_context *php_zmq_mgcontext_get(long io_threads, zend_bool is_persistent TSRMLS_DC)
 {
@@ -253,7 +253,7 @@ PHP_METHOD(zmqcontext, __construct)
 }
 /* }}} */
 
-/* {{{ proto ZMQContext ZMQContext::__construct(integer $io_threads[, boolean $is_persistent = true])
+/* {{{ proto ZMQMGContext ZMQMGContext::__construct(integer $io_threads[, boolean $is_persistent = true])
 	Build a new ZMQContext object
 */
 PHP_METHOD(zmqmgcontext, __construct)
@@ -1722,8 +1722,6 @@ static zend_function_entry php_zmq_socket_class_methods[] = {
 	{NULL, NULL, NULL}
 };
 
-
-
 ZEND_BEGIN_ARG_INFO_EX(zmq_poll_add_args, 0, 0, 2)
 	ZEND_ARG_INFO(0, entry)
 	ZEND_ARG_INFO(0, type)
@@ -2246,12 +2244,15 @@ PHP_MINIT_FUNCTION(zmq)
 PHP_MSHUTDOWN_FUNCTION(zmq)
 {
 	php_zmq_clock_destroy (&ZMQ_G (clock_ctx));
+	
+	//Remove module global context created for ZMQMGContext (if any)
 	if (php_zmq_mgcontext) {
 		php_zmq_context *tmp=php_zmq_mgcontext;
 		php_zmq_mgcontext=NULL;
 		php_zmq_context_destroy(tmp);
 		
 	}
+	
 	return SUCCESS;
 }
 
