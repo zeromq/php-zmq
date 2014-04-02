@@ -32,6 +32,8 @@
 #include "php_zmq_private.h"
 #include "php_zmq_pollset.h"
 
+#include <pthread.h>
+
 ZEND_DECLARE_MODULE_GLOBALS(php_zmq)
 
 zend_class_entry *php_zmq_sc_entry;
@@ -51,6 +53,9 @@ static zend_object_handlers zmq_socket_object_handlers;
 static zend_object_handlers zmq_context_object_handlers;
 static zend_object_handlers zmq_poll_object_handlers;
 static zend_object_handlers zmq_device_object_handlers;
+
+static void *php_zmq_global_context = NULL;
+static pthread_mutex_t php_zmq_global_context_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 #if (PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION < 3)
 static const zend_fcall_info empty_fcall_info = { 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, 0 };
@@ -129,15 +134,29 @@ static void php_zmq_socket_destroy(php_zmq_socket *zmq_sock)
 
 /* --- START ZMQContext --- */
 
-/* {{{ static php_zmq_context *php_zmq_context_new(long io_threads, zend_bool is_persistent TSRMLS_DC)
+/* {{{ static php_zmq_context *php_zmq_context_new(long io_threads, zend_bool is_persistent, zend_bool is_global TSRMLS_DC)
 	Create a new zmq context
 */
-static php_zmq_context *php_zmq_context_new(long io_threads, zend_bool is_persistent TSRMLS_DC)
+static php_zmq_context *php_zmq_context_new(long io_threads, zend_bool is_persistent, zend_bool is_global TSRMLS_DC)
 {
 	php_zmq_context *context;
 
-	context        = pecalloc(1, sizeof(php_zmq_context), is_persistent);
-	context->z_ctx = zmq_init(io_threads);
+	context = pecalloc(1, sizeof(php_zmq_context), is_persistent);
+
+	if (is_global) {
+		/* Guard the context creation */
+		pthread_mutex_lock (&php_zmq_global_context_mutex);
+		{
+			if (!php_zmq_global_context) {
+				php_zmq_global_context = zmq_init(io_threads);
+			}
+			context->z_ctx = php_zmq_global_context;
+		}
+		pthread_mutex_unlock (&php_zmq_global_context_mutex);
+	}
+	else {
+		context->z_ctx = zmq_init(io_threads);
+	}
 
 	if (!context->z_ctx) {
 		pefree(context, is_persistent);
@@ -146,6 +165,7 @@ static php_zmq_context *php_zmq_context_new(long io_threads, zend_bool is_persis
 
 	context->io_threads    = io_threads;
 	context->is_persistent = is_persistent;
+	context->is_global     = is_global;
 	context->pid           = getpid();
 	return context;
 }
@@ -172,7 +192,7 @@ static php_zmq_context *php_zmq_context_get(long io_threads, zend_bool is_persis
 		}
 	}
 
-	context = php_zmq_context_new(io_threads, is_persistent TSRMLS_CC);
+	context = php_zmq_context_new(io_threads, is_persistent, 0 TSRMLS_CC);
 
 	if (!context) {
 		return NULL;
@@ -227,6 +247,28 @@ PHP_METHOD(zmqcontext, __construct)
 		zend_throw_exception_ex(php_zmq_context_exception_sc_entry, errno TSRMLS_CC, "Error creating context: %s", zmq_strerror(errno));
 		return;
 	}
+	return;
+}
+/* }}} */
+
+/* {{{ proto ZMQContext ZMQContext::acquire()
+	Acquires a handle to the request global context
+*/
+PHP_METHOD(zmqcontext, acquire)
+{
+	php_zmq_context *context;
+	php_zmq_context_object *intern;
+
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
+
+	// Create a request global context
+	context = php_zmq_context_new(1, 1, 1 TSRMLS_CC);
+
+	object_init_ex(return_value, php_zmq_context_sc_entry);
+	intern          = (php_zmq_context_object *)zend_object_store_get_object(return_value TSRMLS_CC);
+	intern->context = context;
 	return;
 }
 /* }}} */
@@ -1545,6 +1587,9 @@ ZEND_BEGIN_ARG_INFO_EX(zmq_context_construct_args, 0, 0, 0)
 	ZEND_ARG_INFO(0, persistent)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(zmq_context_acquire_args, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_INFO_EX(zmq_context_getsocket_args, 0, 0, 2)
 	ZEND_ARG_INFO(0, type)
 	ZEND_ARG_INFO(0, dsn)
@@ -1570,6 +1615,7 @@ ZEND_END_ARG_INFO()
 
 static zend_function_entry php_zmq_context_class_methods[] = {
 	PHP_ME(zmqcontext, __construct,		zmq_context_construct_args,		ZEND_ACC_PUBLIC|ZEND_ACC_CTOR|ZEND_ACC_FINAL)
+	PHP_ME(zmqcontext, acquire,			zmq_context_acquire_args,		ZEND_ACC_PUBLIC|ZEND_ACC_STATIC)
 	PHP_ME(zmqcontext, getsocket,		zmq_context_getsocket_args,		ZEND_ACC_PUBLIC)
 	PHP_ME(zmqcontext, ispersistent,	zmq_context_ispersistent_args,	ZEND_ACC_PUBLIC)
 	PHP_ME(zmqcontext, __clone,			zmq_context_clone_args,			ZEND_ACC_PRIVATE|ZEND_ACC_FINAL)
@@ -1766,7 +1812,7 @@ static void php_zmq_context_object_free_storage(void *object TSRMLS_DC)
 	}
 
 	if (intern->context) {
-		if (!intern->context->is_persistent) {
+		if (!intern->context->is_persistent && !intern->context->is_global) {
 			php_zmq_context_destroy(intern->context);
 		}
 	}
@@ -2141,6 +2187,19 @@ PHP_MSHUTDOWN_FUNCTION(zmq)
 	return SUCCESS;
 }
 
+PHP_RSHUTDOWN_FUNCTION(zmq)
+{
+	pthread_mutex_lock (&php_zmq_global_context_mutex);
+	{
+		if (php_zmq_global_context) {
+			zmq_term (php_zmq_global_context);
+			php_zmq_global_context = NULL;
+		}
+	}
+	pthread_mutex_unlock (&php_zmq_global_context_mutex);
+	return SUCCESS;
+}
+
 PHP_MINFO_FUNCTION(zmq)
 {
 	char version[PHP_ZMQ_VERSION_LEN];
@@ -2164,7 +2223,7 @@ zend_module_entry zmq_module_entry =
 	PHP_MINIT(zmq),			/* MINIT */
 	PHP_MSHUTDOWN(zmq),		/* MSHUTDOWN */
 	NULL,					/* RINIT */
-	NULL,					/* RSHUTDOWN */
+	PHP_RSHUTDOWN(zmq),		/* RSHUTDOWN */
 	PHP_MINFO(zmq),			/* MINFO */
 	PHP_ZMQ_VERSION,		/* version */
 	STANDARD_MODULE_PROPERTIES
