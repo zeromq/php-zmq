@@ -154,12 +154,12 @@ static php_zmq_context *php_zmq_context_new(long io_threads, zend_bool is_persis
 /* }}} */
 
 
-static php_zmq_context *php_zmq_mgcontext=NULL;
+static volatile php_zmq_context *php_zmq_mgcontext=NULL;
 /* {{{ static php_zmq_context *php_zmq_mgcontext_get(long io_threads, zend_bool is_persistent TSRMLS_DC)
 */
 static php_zmq_context *php_zmq_mgcontext_get(long io_threads, zend_bool is_persistent TSRMLS_DC)
 {
-	if (php_zmq_mgcontext) return php_zmq_mgcontext;
+	if (php_zmq_mgcontext) return (php_zmq_context *)php_zmq_mgcontext;
 	php_zmq_context *context;
 
 	context = php_zmq_context_new(io_threads, is_persistent TSRMLS_CC);
@@ -169,6 +169,14 @@ static php_zmq_context *php_zmq_mgcontext_get(long io_threads, zend_bool is_pers
 	}
 
 	php_zmq_mgcontext=context;
+	
+	//poor man's race condition prevention:
+	sleep(0);
+	if (php_zmq_mgcontext!=context){
+		php_zmq_context_destroy(context);
+		return (php_zmq_context *)php_zmq_mgcontext;
+	}
+	
 	return context;
 }
 /* }}} */
@@ -2247,7 +2255,7 @@ PHP_MSHUTDOWN_FUNCTION(zmq)
 	
 	//Remove module global context created for ZMQMGContext (if any)
 	if (php_zmq_mgcontext) {
-		php_zmq_context *tmp=php_zmq_mgcontext;
+		php_zmq_context *tmp=(php_zmq_context *)php_zmq_mgcontext;
 		php_zmq_mgcontext=NULL;
 		php_zmq_context_destroy(tmp);
 		
