@@ -32,8 +32,6 @@
 #include "php_zmq_private.h"
 #include "php_zmq_pollset.h"
 
-#include <pthread.h>
-
 ZEND_DECLARE_MODULE_GLOBALS(php_zmq)
 
 zend_class_entry *php_zmq_sc_entry;
@@ -54,8 +52,12 @@ static zend_object_handlers zmq_context_object_handlers;
 static zend_object_handlers zmq_poll_object_handlers;
 static zend_object_handlers zmq_device_object_handlers;
 
+#ifdef PHP_ZMQ_PTHREADS
+#include <pthread.h>
+
 static void *php_zmq_global_context = NULL;
 static pthread_mutex_t php_zmq_global_context_mutex = PTHREAD_MUTEX_INITIALIZER;
+#endif
 
 #if (PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION < 3)
 static const zend_fcall_info empty_fcall_info = { 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, 0 };
@@ -110,9 +112,10 @@ static int php_zmq_context_list_entry(void)
 */
 static void php_zmq_context_destroy(php_zmq_context *context)
 {
-	if(context->pid == getpid())
-		(void) zmq_term(context->z_ctx);
-
+	if (!context->is_global) {
+		if(context->pid == getpid())
+			(void) zmq_term(context->z_ctx);
+	}
 	pefree(context, context->is_persistent);
 }
 /* }}} */
@@ -142,7 +145,7 @@ static php_zmq_context *php_zmq_context_new(long io_threads, zend_bool is_persis
 	php_zmq_context *context;
 
 	context = pecalloc(1, sizeof(php_zmq_context), is_persistent);
-
+#ifdef PHP_ZMQ_PTHREADS
 	if (is_global) {
 		/* Guard the context creation */
 		pthread_mutex_lock (&php_zmq_global_context_mutex);
@@ -154,6 +157,9 @@ static php_zmq_context *php_zmq_context_new(long io_threads, zend_bool is_persis
 		}
 		pthread_mutex_unlock (&php_zmq_global_context_mutex);
 	}
+#else
+	if (0) {}
+#endif
 	else {
 		context->z_ctx = zmq_init(io_threads);
 	}
@@ -251,6 +257,7 @@ PHP_METHOD(zmqcontext, __construct)
 }
 /* }}} */
 
+#ifdef PHP_ZMQ_PTHREADS
 /* {{{ proto ZMQContext ZMQContext::acquire()
 	Acquires a handle to the request global context
 */
@@ -272,6 +279,7 @@ PHP_METHOD(zmqcontext, acquire)
 	return;
 }
 /* }}} */
+#endif
 
 #if (ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR >= 2) || ZMQ_VERSION_MAJOR > 3
 /* {{{ proto ZMQContext ZMQContext::setOpt(int option, int value)
@@ -1587,8 +1595,10 @@ ZEND_BEGIN_ARG_INFO_EX(zmq_context_construct_args, 0, 0, 0)
 	ZEND_ARG_INFO(0, persistent)
 ZEND_END_ARG_INFO()
 
+#ifdef PHP_ZMQ_PTHREADS
 ZEND_BEGIN_ARG_INFO_EX(zmq_context_acquire_args, 0, 0, 0)
 ZEND_END_ARG_INFO()
+#endif
 
 ZEND_BEGIN_ARG_INFO_EX(zmq_context_getsocket_args, 0, 0, 2)
 	ZEND_ARG_INFO(0, type)
@@ -1615,7 +1625,9 @@ ZEND_END_ARG_INFO()
 
 static zend_function_entry php_zmq_context_class_methods[] = {
 	PHP_ME(zmqcontext, __construct,		zmq_context_construct_args,		ZEND_ACC_PUBLIC|ZEND_ACC_CTOR|ZEND_ACC_FINAL)
+#ifdef PHP_ZMQ_PTHREADS
 	PHP_ME(zmqcontext, acquire,			zmq_context_acquire_args,		ZEND_ACC_PUBLIC|ZEND_ACC_STATIC)
+#endif
 	PHP_ME(zmqcontext, getsocket,		zmq_context_getsocket_args,		ZEND_ACC_PUBLIC)
 	PHP_ME(zmqcontext, ispersistent,	zmq_context_ispersistent_args,	ZEND_ACC_PUBLIC)
 	PHP_ME(zmqcontext, __clone,			zmq_context_clone_args,			ZEND_ACC_PRIVATE|ZEND_ACC_FINAL)
@@ -1812,7 +1824,7 @@ static void php_zmq_context_object_free_storage(void *object TSRMLS_DC)
 	}
 
 	if (intern->context) {
-		if (!intern->context->is_persistent && !intern->context->is_global) {
+		if (!intern->context->is_persistent) {
 			php_zmq_context_destroy(intern->context);
 		}
 	}
@@ -2183,20 +2195,13 @@ PHP_MINIT_FUNCTION(zmq)
 
 PHP_MSHUTDOWN_FUNCTION(zmq)
 {
-	php_zmq_clock_destroy (&ZMQ_G (clock_ctx));
-	return SUCCESS;
-}
-
-PHP_RSHUTDOWN_FUNCTION(zmq)
-{
-	pthread_mutex_lock (&php_zmq_global_context_mutex);
-	{
-		if (php_zmq_global_context) {
-			zmq_term (php_zmq_global_context);
-			php_zmq_global_context = NULL;
-		}
+#ifdef PHP_ZMQ_PTHREADS
+	if (php_zmq_global_context) {
+		zmq_term (php_zmq_global_context);
+		php_zmq_global_context = NULL;
 	}
-	pthread_mutex_unlock (&php_zmq_global_context_mutex);
+#endif
+	php_zmq_clock_destroy (&ZMQ_G (clock_ctx));
 	return SUCCESS;
 }
 
@@ -2223,7 +2228,7 @@ zend_module_entry zmq_module_entry =
 	PHP_MINIT(zmq),			/* MINIT */
 	PHP_MSHUTDOWN(zmq),		/* MSHUTDOWN */
 	NULL,					/* RINIT */
-	PHP_RSHUTDOWN(zmq),		/* RSHUTDOWN */
+	NULL,					/* RSHUTDOWN */
 	PHP_MINFO(zmq),			/* MINFO */
 	PHP_ZMQ_VERSION,		/* version */
 	STANDARD_MODULE_PROPERTIES

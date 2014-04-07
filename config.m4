@@ -1,6 +1,9 @@
 PHP_ARG_WITH(zmq,     whether to enable 0MQ support,
 [  --with-zmq[=DIR]   Enable 0MQ support. DIR is the prefix to libzmq installation directory.], yes)
 
+PHP_ARG_ENABLE(zmq_pthreads,    whether to enable support for php threads extension,
+[  --enable-zmq-pthreads        whether to enable support for php threads extension], no, no)
+
 if test "$PHP_ZMQ" != "no"; then
 
   AC_PATH_PROG(PKG_CONFIG, pkg-config, no)
@@ -43,6 +46,10 @@ if test "$PHP_ZMQ" != "no"; then
   AC_CHECK_HEADERS([stdint.h],[php_zmq_have_stdint=yes; break;])
   if test $php_zmq_have_stdint != "yes"; then
     AC_MSG_ERROR(Unable to find stdint.h)
+  fi
+
+  if test "x$PHP_ZMQ_PTHREADS" = "xyes"; then
+    AC_DEFINE(PHP_ZMQ_PTHREADS, 1, [Enable support for phtreads])
   fi
 
   AC_CHECK_HEADERS(time.h sys/time.h mach/mach_time.h)
