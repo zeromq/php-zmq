@@ -4,6 +4,9 @@ PHP_ARG_WITH(zmq,     whether to enable 0MQ support,
 PHP_ARG_ENABLE(zmq_pthreads,    whether to enable support for php threads extension,
 [  --enable-zmq-pthreads        whether to enable support for php threads extension], no, no)
 
+PHP_ARG_WITH(czmq,    whether to enable CZMQ support,
+[  --with-czmq[=DIR]  Enable CZMQ support. DIR is the prefix to CZMQ installation directory.], no, no)
+
 if test "$PHP_ZMQ" != "no"; then
 
   AC_PATH_PROG(PKG_CONFIG, pkg-config, no)
@@ -43,6 +46,29 @@ if test "$PHP_ZMQ" != "no"; then
     AC_MSG_ERROR(Unable to find libzmq installation)
   fi
 
+  if test "$PHP_CZMQ" != "no"; then
+    if test "x$PHP_CZMQ" != "xyes"; then
+      export PKG_CONFIG_PATH="${PHP_CZMQ}/${PHP_LIBDIR}/pkgconfig"
+    fi
+
+    AC_MSG_CHECKING(for CZMQ)
+    if $PKG_CONFIG --exists libczmq; then
+      PHP_CZMQ_VERSION=`$PKG_CONFIG libczmq --modversion`
+      PHP_CZMQ_PREFIX=`$PKG_CONFIG libczmq --variable=prefix`
+      AC_MSG_RESULT([found version $PHP_CZMQ_VERSION in $PHP_CZMQ_PREFIX])
+
+      PHP_CZMQ_LIBS=`$PKG_CONFIG libczmq --libs`
+      PHP_CZMQ_INCS=`$PKG_CONFIG libczmq --cflags`
+
+      PHP_EVAL_LIBLINE($PHP_CZMQ_LIBS, ZMQ_SHARED_LIBADD)
+      PHP_EVAL_INCLINE($PHP_CZMQ_INCS)
+
+      AC_DEFINE([HAVE_CZMQ], [], [CZMQ was found])
+    else
+      AC_MSG_RESULT([no])
+    fi
+  fi
+
   AC_CHECK_HEADERS([stdint.h],[php_zmq_have_stdint=yes; break;])
   if test $php_zmq_have_stdint != "yes"; then
     AC_MSG_ERROR(Unable to find stdint.h)
@@ -60,4 +86,3 @@ if test "$PHP_ZMQ" != "no"; then
   PHP_NEW_EXTENSION(zmq, zmq.c zmq_pollset.c zmq_device.c zmq_sockopt.c zmq_fd_stream.c zmq_clock.c, $ext_shared)
   PKG_CONFIG_PATH="$ORIG_PKG_CONFIG_PATH"
 fi
-

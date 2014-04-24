@@ -37,6 +37,13 @@
 
 #include <zmq.h>
 
+#ifdef HAVE_CZMQ
+# include <czmq.h>
+# if CZMQ_VERSION_MAJOR >= 2
+#  define HAVE_CZMQ_2
+# endif
+#endif
+
 #ifdef PHP_WIN32
 # include "win32/php_stdint.h"
 #else
@@ -263,5 +270,11 @@ ZEND_BEGIN_MODULE_GLOBALS(php_zmq)
 	php_zmq_clock_ctx_t *clock_ctx;
 ZEND_END_MODULE_GLOBALS(php_zmq)
 
+#ifdef HAVE_CZMQ_2
+typedef struct _php_zmq_cert {
+	zend_object zend_object;
+	zcert_t *zcert;
+} php_zmq_cert;
+#endif
 
 #endif /* _PHP_ZMQ_PRIVATE_H_ */
