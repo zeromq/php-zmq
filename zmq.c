@@ -1023,7 +1023,7 @@ PHP_METHOD(zmqsocket, disconnect)
 }
 /* }}} */
 /* {{{ proto ZMQSocket ZMQSocket::startmonitor(string $monendpoint, [integer $events = ZMQ::EVENT_ALL])
-	Disconnect the socket from an endpoint
+	Start monitor for the socket receive events on $monendpoint
 */
 PHP_METHOD(zmqsocket, startmonitor)
 {
@@ -1042,6 +1042,7 @@ PHP_METHOD(zmqsocket, startmonitor)
 		zend_throw_exception_ex(php_zmq_socket_exception_sc_entry, errno TSRMLS_CC, "Failed to start monitor to ZMQ socket: %s", zmq_strerror(errno));
 		return;
 	}
+	ZMQ_RETURN_THIS;
 
 }
 /* }}} */
