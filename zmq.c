@@ -1022,6 +1022,32 @@ PHP_METHOD(zmqsocket, disconnect)
 	ZMQ_RETURN_THIS;
 }
 /* }}} */
+/* {{{ proto ZMQSocket ZMQSocket::startmonitor(string $monendpoint, [integer $events = ZMQ::EVENT_ALL])
+	Start monitor for the socket receive events on $monendpoint
+*/
+PHP_METHOD(zmqsocket, startmonitor)
+{
+	php_zmq_socket_object *intern;
+	char *monendpoint;
+	int monendpoint_len;
+	long events=ZMQ_EVENT_ALL;
+	
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|l", &monendpoint, &monendpoint_len,&events) == FAILURE) {
+		return;
+	}
+
+	intern = PHP_ZMQ_SOCKET_OBJECT;
+
+	if (zmq_socket_monitor(intern->socket->z_socket, monendpoint,events) < 0) {
+		zend_throw_exception_ex(php_zmq_socket_exception_sc_entry, errno TSRMLS_CC, "Failed to start monitor to ZMQ socket: %s", zmq_strerror(errno));
+		return;
+	}
+	ZMQ_RETURN_THIS;
+
+}
+/* }}} */
+
+
 #endif
 
 #if (PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION < 3)
@@ -1663,6 +1689,11 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(zmq_socket_disconnect_args, 0, 0, 1)
 	ZEND_ARG_INFO(0, dsn)
 ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(zmq_socket_monitor_args, 0, 0, 1)
+	ZEND_ARG_INFO(0, endpoint)
+	ZEND_ARG_INFO(0, events)
+ZEND_END_ARG_INFO()
 #endif
 
 ZEND_BEGIN_ARG_INFO_EX(zmq_socket_setsockopt_args, 0, 0, 2)
@@ -1709,6 +1740,7 @@ static zend_function_entry php_zmq_socket_class_methods[] = {
 #if (ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR >= 2) || ZMQ_VERSION_MAJOR > 3
 	PHP_ME(zmqsocket, unbind,				zmq_socket_unbind_args,				ZEND_ACC_PUBLIC)
 	PHP_ME(zmqsocket, disconnect,			zmq_socket_disconnect_args,			ZEND_ACC_PUBLIC)
+	PHP_ME(zmqsocket, startmonitor,			zmq_socket_monitor_args,			ZEND_ACC_PUBLIC)
 #endif
 	PHP_ME(zmqsocket, setsockopt,			zmq_socket_setsockopt_args,			ZEND_ACC_PUBLIC)
 	PHP_ME(zmqsocket, getendpoints,			zmq_socket_getendpoints_args,		ZEND_ACC_PUBLIC)
@@ -2185,6 +2217,21 @@ PHP_MINIT_FUNCTION(zmq)
 
 #if (ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR >= 2) || ZMQ_VERSION_MAJOR > 3
 	PHP_ZMQ_REGISTER_CONST_LONG("CTXOPT_MAX_SOCKETS", ZMQ_MAX_SOCKETS);
+	
+	
+	PHP_ZMQ_REGISTER_CONST_LONG("EVENT_CONNECTED", ZMQ_EVENT_CONNECTED);
+	PHP_ZMQ_REGISTER_CONST_LONG("EVENT_CONNECT_DELAYED", ZMQ_EVENT_CONNECT_DELAYED);
+	PHP_ZMQ_REGISTER_CONST_LONG("EVENT_CONNECT_RETRIED", ZMQ_EVENT_CONNECT_RETRIED);
+	PHP_ZMQ_REGISTER_CONST_LONG("EVENT_LISTENING", ZMQ_EVENT_LISTENING);
+	PHP_ZMQ_REGISTER_CONST_LONG("EVENT_BIND_FAILED", ZMQ_EVENT_BIND_FAILED);
+	PHP_ZMQ_REGISTER_CONST_LONG("EVENT_ACCEPTED", ZMQ_EVENT_ACCEPTED);
+	PHP_ZMQ_REGISTER_CONST_LONG("EVENT_ACCEPT_FAILED", ZMQ_EVENT_ACCEPT_FAILED);
+	PHP_ZMQ_REGISTER_CONST_LONG("EVENT_CLOSED", ZMQ_EVENT_CLOSED);
+	PHP_ZMQ_REGISTER_CONST_LONG("EVENT_CLOSE_FAILED", ZMQ_EVENT_CLOSE_FAILED);
+	PHP_ZMQ_REGISTER_CONST_LONG("EVENT_DISCONNECTED", ZMQ_EVENT_DISCONNECTED);
+	PHP_ZMQ_REGISTER_CONST_LONG("EVENT_MONITOR_STOPPED", ZMQ_EVENT_MONITOR_STOPPED);
+	PHP_ZMQ_REGISTER_CONST_LONG("EVENT_ALL", ZMQ_EVENT_ALL);
+
 #endif
 
 #undef PHP_ZMQ_REGISTER_CONST_LONG
