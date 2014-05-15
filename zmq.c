@@ -32,8 +32,6 @@
 #include "php_zmq_private.h"
 #include "php_zmq_pollset.h"
 
-#include <stdio.h>
-
 ZEND_DECLARE_MODULE_GLOBALS(php_zmq)
 
 zend_class_entry *php_zmq_sc_entry;
