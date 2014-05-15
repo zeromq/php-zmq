@@ -4,8 +4,8 @@ Test id2fd
 <?php 
     require_once(dirname(__FILE__) . '/skipif.inc');
 
-	if (!in_array ('id2fd', get_class_methods ('zmqsocket')))
-		die ('skip id2fd not supported in libzmq version');
+	if (!in_array ('identityToFD', get_class_methods ('zmqsocket')))
+		die ('skip identityToFD not supported in libzmq version');
 ?>
 --FILE--
 <?php
@@ -16,7 +16,7 @@ $ssock->bind('tcp://127.0.0.1:5566');
 $csock->connect('tcp://127.0.0.1:5566');
 $csock->send("test");
 $msg=$ssock->recvMulti();
-echo ($ssock->id2fd($msg[0])>0?'OK':'FAIL')."\n";
+echo ($ssock->identityToFD($msg[0])>0?'OK':'FAIL')."\n";
 $msg[2]='ok';
 $ssock->sendMulti($msg);
 $csock->recv();

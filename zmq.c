@@ -1157,10 +1157,10 @@ PHP_METHOD(zmqsocket, __clone) { }
 /* }}} */
 
 #if ZMQ_VERSION_MAJOR >= 4 && ZMQ_IDENTITY_FD
-/* {{{ proto mixed ZMQSocket::id2fd($identity)
+/* {{{ proto mixed ZMQSocket::identityToFD($identity)
 	Find fd for identity
 */
-PHP_METHOD(zmqsocket, id2fd)
+PHP_METHOD(zmqsocket, identityToFD)
 {
 	php_zmq_socket_object *intern;
 	char *id;
@@ -1764,7 +1764,7 @@ ZEND_BEGIN_ARG_INFO_EX(zmq_socket_clone_args, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
 #if ZMQ_VERSION_MAJOR >= 4 && ZMQ_IDENTITY_FD
-ZEND_BEGIN_ARG_INFO_EX(zmq_socket_id2fd_args, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(zmq_socket_identityToFD_args, 0, 0, 1)
 	ZEND_ARG_INFO(0, id)
 ZEND_END_ARG_INFO()
 #endif
@@ -1790,7 +1790,7 @@ static zend_function_entry php_zmq_socket_class_methods[] = {
 	PHP_ME(zmqsocket, getsockopt,			zmq_socket_getsockopt_args,			ZEND_ACC_PUBLIC)
 	PHP_ME(zmqsocket, __clone,				zmq_socket_clone_args,				ZEND_ACC_PRIVATE|ZEND_ACC_FINAL)
 #if ZMQ_VERSION_MAJOR >= 4 && ZMQ_IDENTITY_FD
-	PHP_ME(zmqsocket, id2fd,				zmq_socket_id2fd_args,				ZEND_ACC_PUBLIC)
+	PHP_ME(zmqsocket, identityToFD,				zmq_socket_identityToFD_args,				ZEND_ACC_PUBLIC)
 #endif
 	PHP_MALIAS(zmqsocket,	sendmsg, send,	zmq_socket_send_args, 				ZEND_ACC_PUBLIC)
 	PHP_MALIAS(zmqsocket,	recvmsg, recv, 	zmq_socket_recv_args, 				ZEND_ACC_PUBLIC)
