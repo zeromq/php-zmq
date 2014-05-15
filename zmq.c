@@ -32,6 +32,8 @@
 #include "php_zmq_private.h"
 #include "php_zmq_pollset.h"
 
+#include <stdio.h>
+
 ZEND_DECLARE_MODULE_GLOBALS(php_zmq)
 
 zend_class_entry *php_zmq_sc_entry;
@@ -1156,6 +1158,40 @@ PHP_METHOD(zmqsocket, ispersistent)
 PHP_METHOD(zmqsocket, __clone) { }
 /* }}} */
 
+#if ZMQ_VERSION_MAJOR >= 4 && ZMQ_IDENTITY_FD
+/* {{{ proto mixed ZMQSocket::id2fd($identity)
+	Find fd for identity
+*/
+PHP_METHOD(zmqsocket, id2fd)
+{
+	php_zmq_socket_object *intern;
+	char *id;
+	int id_len;
+	char idbuf[256];
+	
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &id, &id_len) == FAILURE) {
+		return;
+	}
+	if (id_len>256){
+		zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "identity string is bigger than 256", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
+		return;
+	}
+
+	intern = PHP_ZMQ_SOCKET_OBJECT;
+
+	if (!intern->socket) {
+		zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "The socket has not been initialized yet", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
+		return;
+	}
+	memcpy(idbuf,id,id_len);
+	if (zmq_getsockopt(intern->socket->z_socket, (int) ZMQ_IDENTITY_FD, idbuf, &id_len) != 0) {
+		zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to get the option ZMQ_IDENTITY_FD err: %s", zmq_strerror(errno));
+		return;
+	}
+	RETURN_LONG(*((int *)idbuf));
+}
+#endif
+
 /* -- END ZMQSocket--- */
 
 /* -- START ZMQPoll --- */
@@ -1729,6 +1765,12 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(zmq_socket_clone_args, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
+#if ZMQ_VERSION_MAJOR >= 4 && ZMQ_IDENTITY_FD
+ZEND_BEGIN_ARG_INFO_EX(zmq_socket_id2fd_args, 0, 0, 1)
+	ZEND_ARG_INFO(0, id)
+ZEND_END_ARG_INFO()
+#endif
+
 static zend_function_entry php_zmq_socket_class_methods[] = {
 	PHP_ME(zmqsocket, __construct,			zmq_socket_construct_args,			ZEND_ACC_PUBLIC|ZEND_ACC_CTOR|ZEND_ACC_FINAL)
 	PHP_ME(zmqsocket, send,					zmq_socket_send_args,				ZEND_ACC_PUBLIC)
@@ -1749,6 +1791,9 @@ static zend_function_entry php_zmq_socket_class_methods[] = {
 	PHP_ME(zmqsocket, getpersistentid,		zmq_socket_getpersistentid_args,	ZEND_ACC_PUBLIC)
 	PHP_ME(zmqsocket, getsockopt,			zmq_socket_getsockopt_args,			ZEND_ACC_PUBLIC)
 	PHP_ME(zmqsocket, __clone,				zmq_socket_clone_args,				ZEND_ACC_PRIVATE|ZEND_ACC_FINAL)
+#if ZMQ_VERSION_MAJOR >= 4 && ZMQ_IDENTITY_FD
+	PHP_ME(zmqsocket, id2fd,				zmq_socket_id2fd_args,				ZEND_ACC_PUBLIC)
+#endif
 	PHP_MALIAS(zmqsocket,	sendmsg, send,	zmq_socket_send_args, 				ZEND_ACC_PUBLIC)
 	PHP_MALIAS(zmqsocket,	recvmsg, recv, 	zmq_socket_recv_args, 				ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
