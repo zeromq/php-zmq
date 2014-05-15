@@ -245,6 +245,11 @@ typedef struct _php_zmq_device_object  {
 
 #define PHP_ZMQ_VERSION_LEN 24
 
+#ifdef HAVE_CZMQ_2
+# define PHP_ZMQ_AUTH_TYPE_PLAIN 0
+# define PHP_ZMQ_AUTH_TYPE_CURVE 1
+#endif
+
 PHP_METHOD(zmqsocket, getsockopt);
 PHP_METHOD(zmqsocket, setsockopt);
 zend_bool php_zmq_device(php_zmq_device_object *intern TSRMLS_DC);
@@ -275,6 +280,12 @@ typedef struct _php_zmq_cert {
 	zend_object zend_object;
 	zcert_t *zcert;
 } php_zmq_cert;
+
+typedef struct _php_zmq_auth {
+	zend_object zend_object;
+	zctx_t *shadow_context;
+	zauth_t *zauth;
+} php_zmq_auth;
 #endif
 
 #endif /* _PHP_ZMQ_PRIVATE_H_ */

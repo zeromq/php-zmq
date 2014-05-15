@@ -96,7 +96,10 @@
       <file name="041-cert-meta.phpt" role="test" />
       <file name="042-cert-save.phpt" role="test" />
       <file name="043-cert-load.phpt" role="test" />
+      <file name="044-auth-construct.phpt" role="test" />
+      <file name="045-auth-allow-deny.phpt" role="test" />
       <file name="046-cert-apply.phpt" role="test" />
+      <file name="047-auth-configure.phpt" role="test" />
       <file name="bug_gh_43.phpt" role="test" />
       <file name="bug_gh_49.phpt" role="test" />
       <file name="bug_gh_50.phpt" role="test" />

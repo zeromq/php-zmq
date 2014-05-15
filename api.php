@@ -625,6 +625,7 @@ class ZMQAuth {
      * whitelisted addresses are treated as if they were blacklisted.
      *
      * @param string $address
+     * @return ZMQAuth Provides a fluent interface
      */
     public function allow($address) {}
 
@@ -638,6 +639,7 @@ class ZMQAuth {
      * whitelist will be used to authenticate incoming connections.
      *
      * @param string $address
+     * @return ZMQAuth Provides a fluent interface
      */
     public function deny($address) {}
 
@@ -659,6 +661,7 @@ class ZMQAuth {
      * @param string $domain The ZAP domain. Use "*" to configure the PLAIN or
      *     CURVE authentication mechanism for all domains
      * @param string $filename
+     * @return ZMQAuth Provides a fluent interface
      */
     public function configure($type, $domain, $filename) {}
 }

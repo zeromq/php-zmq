@@ -54,6 +54,7 @@ zend_class_entry *php_zmq_device_sc_entry;
 
 #ifdef HAVE_CZMQ_2
 zend_class_entry *php_zmq_cert_sc_entry;
+zend_class_entry *php_zmq_auth_sc_entry;
 #endif
 
 zend_class_entry *php_zmq_exception_sc_entry;
@@ -64,6 +65,7 @@ zend_class_entry *php_zmq_device_exception_sc_entry;
 
 #ifdef HAVE_CZMQ_2
 zend_class_entry *php_zmq_cert_exception_sc_entry;
+zend_class_entry *php_zmq_auth_exception_sc_entry;
 #endif
 
 static zend_object_handlers zmq_object_handlers;
@@ -81,6 +83,7 @@ static pthread_mutex_t php_zmq_global_context_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 #ifdef HAVE_CZMQ_2
 static zend_object_handlers zmq_cert_object_handlers;
+static zend_object_handlers zmq_auth_object_handlers;
 #endif
 
 #if (PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION < 3)
@@ -1994,6 +1997,193 @@ static zend_function_entry php_zmq_cert_class_methods[] = {
 
 /* --- END ZMQCert --- */
 
+/* --- START ZMQAuth --- */
+
+static void php_zmq_auth_free_storage(void *object TSRMLS_DC)
+{
+	php_zmq_auth *zmq_auth = (php_zmq_auth *) object;
+
+	zauth_destroy(&zmq_auth->zauth);
+	zctx_destroy(&zmq_auth->shadow_context);
+
+	zend_object_std_dtor(&zmq_auth->zend_object TSRMLS_CC);
+
+	efree(zmq_auth);
+}
+
+static zend_object_value php_zmq_auth_new(zend_class_entry *class_type TSRMLS_DC)
+{
+	zend_object_value result;
+	php_zmq_auth *zmq_auth;
+
+	zmq_auth = (php_zmq_auth *) emalloc(sizeof(php_zmq_auth));
+	memset(&zmq_auth->zend_object, 0, sizeof(zend_object));
+
+	/* zauth is initialised in ZMQAuth#__construct. */
+	zmq_auth->zauth = NULL;
+
+	zend_object_std_init(&zmq_auth->zend_object, class_type TSRMLS_CC);
+	object_properties_init(&zmq_auth->zend_object, class_type);
+
+	result.handle = zend_objects_store_put(
+		zmq_auth,
+		NULL,
+		(zend_objects_free_object_storage_t) php_zmq_auth_free_storage,
+		NULL TSRMLS_CC
+	);
+	result.handlers = &zmq_auth_object_handlers;
+
+	return result;
+}
+
+PHP_METHOD(zmqauth, __construct)
+{
+	php_zmq_auth *this;
+	zval *object;
+	zend_error_handling error_handling;
+	int parse_parameters_result;
+	php_zmq_context_object *context_object;
+
+	zend_replace_error_handling(EH_THROW, php_zmq_cert_exception_sc_entry, &error_handling TSRMLS_CC);
+	parse_parameters_result = zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "O", &object, php_zmq_context_sc_entry);
+	zend_restore_error_handling(&error_handling TSRMLS_CC);
+
+	if (parse_parameters_result != SUCCESS) {
+		return;
+	}
+
+	this = (php_zmq_auth *) zend_object_store_get_object(getThis() TSRMLS_CC);
+
+	context_object = (php_zmq_context_object *) zend_object_store_get_object(object TSRMLS_CC);
+
+	// NOTE (phuedx, 2014-05-14): A zauth object needs a context so that it
+	// can take over authentication for all incoming connections in that
+	// context. Creating a shadow context from the specified context allows
+	// us to continue working with CZMQ.
+	this->shadow_context = zctx_shadow_zmq_ctx(context_object->context->z_ctx);
+
+	if (this->shadow_context == NULL) {
+		zend_throw_exception_ex(php_zmq_auth_exception_sc_entry, PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC, "Failed to create the underlying shadow context object.");
+
+		return;
+	}
+
+	this->zauth = zauth_new(this->shadow_context);
+
+	if (this->zauth == NULL) {
+		zend_throw_exception_ex(php_zmq_auth_exception_sc_entry, PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC, "Failed to create the underlying zauth object.");
+	}
+
+	return;
+}
+
+ZEND_BEGIN_ARG_INFO_EX(zmqauth___construct_args, 0, 0, 1)
+	ZEND_ARG_OBJ_INFO(0, ZMQContext, ZMQContext, 0)
+ZEND_END_ARG_INFO();
+
+PHP_METHOD(zmqauth, allow)
+{
+	char *address;
+	int address_length;
+	php_zmq_auth *this;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &address, &address_length) != SUCCESS) {
+		return;
+	}
+
+	this = (php_zmq_auth *) zend_object_store_get_object(getThis() TSRMLS_CC);
+
+	zauth_allow(this->zauth, address);
+
+	RETURN_ZVAL(getThis(), 1, 0);
+}
+
+ZEND_BEGIN_ARG_INFO_EX(zmqauth_allow_args, 0, 0, 1)
+	ZEND_ARG_INFO(0, address)
+ZEND_END_ARG_INFO();
+
+PHP_METHOD(zmqauth, deny)
+{
+	char *address;
+	int address_length;
+	php_zmq_auth *this;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &address, &address_length) != SUCCESS) {
+		return;
+	}
+
+	this = (php_zmq_auth *) zend_object_store_get_object(getThis() TSRMLS_CC);
+
+	zauth_deny(this->zauth, address);
+
+	RETURN_ZVAL(getThis(), 1, 0);
+}
+
+ZEND_BEGIN_ARG_INFO_EX(zmqauth_deny_args, 0, 0, 1)
+	ZEND_ARG_INFO(0, address)
+ZEND_END_ARG_INFO();
+
+PHP_METHOD(zmqauth, configure)
+{
+	php_zmq_auth *this;
+	int parse_parameters_result;
+	long type;
+	char *domain;
+	int domain_length;
+	char *filename;
+	int filename_length;
+
+	this = (php_zmq_auth *) zend_object_store_get_object(getThis() TSRMLS_CC);
+
+	parse_parameters_result = zend_parse_parameters(
+		ZEND_NUM_ARGS() TSRMLS_CC,
+		"lss",
+		&type,
+		&domain, &domain_length,
+		&filename,
+		&filename_length
+	);
+
+	if (parse_parameters_result != SUCCESS) {
+		return;
+	}
+
+	switch (type) {
+		case PHP_ZMQ_AUTH_TYPE_PLAIN:
+			zauth_configure_plain(this->zauth, domain, filename);
+		break;
+
+		case PHP_ZMQ_AUTH_TYPE_CURVE:
+			zauth_configure_curve(this->zauth, domain, filename);
+		break;
+
+		// TODO (phuedx, 2014-05-16): CZMQ now supports GSSAPI (see
+		// zauth_configure_gssapi).
+
+		default:
+			zend_throw_exception_ex(php_zmq_auth_exception_sc_entry, PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC, "Unknown auth type. Are you using one of the ZMQAuth constants?");
+		break;
+	}
+
+	RETURN_ZVAL(getThis(), 1, 0);
+}
+
+ZEND_BEGIN_ARG_INFO_EX(zmqauth_configure_args, 0, 0, 3)
+	ZEND_ARG_INFO(0, type)
+	ZEND_ARG_INFO(0, domain)
+	ZEND_ARG_INFO(0, filename)
+ZEND_END_ARG_INFO();
+
+static zend_function_entry php_zmq_auth_class_methods[] = {
+	PHP_ME(zmqauth, __construct, zmqauth___construct_args, ZEND_ACC_PUBLIC | ZEND_ACC_CTOR | ZEND_ACC_FINAL)
+	PHP_ME(zmqauth, allow, zmqauth_allow_args, ZEND_ACC_PUBLIC)
+	PHP_ME(zmqauth, deny, zmqauth_deny_args, ZEND_ACC_PUBLIC)
+	PHP_ME(zmqauth, configure, zmqauth_configure_args, ZEND_ACC_PUBLIC)
+	{NULL, NULL, NULL}
+};
+
+/* --- END ZMQAuth --- */
+
 #endif // HAVE_CZMQ_2
 
 ZEND_BEGIN_ARG_INFO_EX(zmq_construct_args, 0, 0, 0)
@@ -2472,7 +2662,7 @@ PHP_MINIT_FUNCTION(zmq)
 	zend_class_entry ce_exception, ce_context_exception, ce_socket_exception, ce_poll_exception, ce_device_exception;
 
 #ifdef HAVE_CZMQ_2
-	zend_class_entry ce_cert, ce_cert_exception;
+	zend_class_entry ce_cert, ce_cert_exception, ce_auth, ce_auth_exception;
 #endif
 
 	le_zmq_context = zend_register_list_destructors_ex(NULL, php_zmq_context_dtor, "ZMQ persistent context", module_number);
@@ -2486,6 +2676,7 @@ PHP_MINIT_FUNCTION(zmq)
 
 #ifdef HAVE_CZMQ_2
 	memcpy(&zmq_cert_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+	memcpy(&zmq_auth_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
 #endif
 
 	INIT_CLASS_ENTRY(ce, "ZMQ", php_zmq_class_methods);
@@ -2518,6 +2709,11 @@ PHP_MINIT_FUNCTION(zmq)
 	ce_cert.create_object = php_zmq_cert_new;
 	zmq_cert_object_handlers.clone_obj = php_zmq_cert_clone;
 	php_zmq_cert_sc_entry = zend_register_internal_class(&ce_cert TSRMLS_CC);
+
+	INIT_CLASS_ENTRY(ce_auth, "ZMQAuth", php_zmq_auth_class_methods);
+	ce_auth.create_object = php_zmq_auth_new;
+	zmq_auth_object_handlers.clone_obj = NULL;
+	php_zmq_auth_sc_entry = zend_register_internal_class(&ce_auth TSRMLS_CC);
 #endif
 
 	INIT_CLASS_ENTRY(ce_exception, "ZMQException", NULL);
@@ -2544,6 +2740,10 @@ PHP_MINIT_FUNCTION(zmq)
 	INIT_CLASS_ENTRY(ce_cert_exception, "ZMQCertException", NULL);
 	php_zmq_cert_exception_sc_entry = zend_register_internal_class_ex(&ce_cert_exception, php_zmq_exception_sc_entry, "ZMQException" TSRMLS_CC);
 	php_zmq_cert_exception_sc_entry->ce_flags |= ZEND_ACC_FINAL_CLASS;
+
+	INIT_CLASS_ENTRY(ce_auth_exception, "ZMQAuthException", NULL);
+	php_zmq_auth_exception_sc_entry = zend_register_internal_class_ex(&ce_auth_exception, php_zmq_exception_sc_entry, "ZMQException" TSRMLS_CC);
+	php_zmq_auth_exception_sc_entry->ce_flags |= ZEND_ACC_FINAL_CLASS;
 #endif
 
 	ZEND_INIT_MODULE_GLOBALS(php_zmq, php_zmq_init_globals, NULL);
@@ -2613,6 +2813,13 @@ PHP_MINIT_FUNCTION(zmq)
 #if (ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR >= 2) || ZMQ_VERSION_MAJOR > 3
 	PHP_ZMQ_REGISTER_CONST_LONG("CTXOPT_MAX_SOCKETS", ZMQ_MAX_SOCKETS);
 	PHP_ZMQ_REGISTER_CONST_LONG("CTXOPT_MAX_SOCKETS_DEFAULT", ZMQ_MAX_SOCKETS_DFLT);
+#endif
+
+#ifdef HAVE_CZMQ_2
+	PHP_ZMQ_REGISTER_CONST_STRING("CURVE_ALLOW_ANY", CURVE_ALLOW_ANY);
+
+	zend_declare_class_constant_long(php_zmq_auth_sc_entry, "AUTH_TYPE_PLAIN", 15, (long)PHP_ZMQ_AUTH_TYPE_PLAIN TSRMLS_CC);
+	zend_declare_class_constant_long(php_zmq_auth_sc_entry, "AUTH_TYPE_CURVE", 15, (long)PHP_ZMQ_AUTH_TYPE_CURVE TSRMLS_CC);
 #endif
 
 #undef PHP_ZMQ_REGISTER_CONST_LONG
