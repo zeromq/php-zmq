@@ -2,7 +2,7 @@ PHP_ARG_WITH(zmq,     whether to enable 0MQ support,
 [  --with-zmq[=DIR]   Enable 0MQ support. DIR is the prefix to libzmq installation directory.], yes)
 
 PHP_ARG_ENABLE(zmq_pthreads,    whether to enable support for php threads extension,
-[  --enable-zmq-pthreads        whether to enable support for php threads extension], no, no)
+[  --enable-zmq-pthreads        whether to enable support for php threads extension], no)
 
 if test "$PHP_ZMQ" != "no"; then
 
