@@ -1886,7 +1886,7 @@ PHP_METHOD(zmqzyre, recv)
 ZEND_BEGIN_ARG_INFO_EX(zmqzyre_recv_args, 0, 0, 1)
 ZEND_END_ARG_INFO();
 
-/* {{{ proto void ZMQZyre::send(string group, string data)
+/* {{{ proto void ZMQZyre::sendGroup(string group, string data)
 	Send a message on the network for a group
 */
 PHP_METHOD(zmqzyre, sendGroup)
@@ -1910,7 +1910,7 @@ ZEND_BEGIN_ARG_INFO_EX(zmqzyre_sendGroup_args, 0, 0, 2)
 	ZEND_ARG_INFO(0, data)
 ZEND_END_ARG_INFO();
 
-/* {{{ proto void ZMQZyre::send(string peer, string data)
+/* {{{ proto void ZMQZyre::sendPeer(string peer, string data)
 	Send a message on the network to a specific peer
 */
 PHP_METHOD(zmqzyre, sendPeer)
@@ -1933,8 +1933,8 @@ ZEND_BEGIN_ARG_INFO_EX(zmqzyre_sendPeer_args, 0, 0, 2)
 	ZEND_ARG_INFO(0, data)
 ZEND_END_ARG_INFO();
 
-/* {{{ proto ZMQSocket ZMQBeacon::getSocket()
-	Get beacon ZeroMQ socket, for polling or receiving messages
+/* {{{ proto ZMQSocket ZMQZyre::getSocket()
+	Get zyre ZeroMQ socket, for polling or receiving messages
 */
 PHP_METHOD(zmqzyre, getSocket)
 {
