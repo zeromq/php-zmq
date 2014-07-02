@@ -43,6 +43,40 @@ if test "$PHP_ZMQ" != "no"; then
     AC_MSG_ERROR(Unable to find libzmq installation)
   fi
 
+  AC_MSG_CHECKING(for CZMQ)
+  if $PKG_CONFIG --exists libczmq; then
+    PHP_CZMQ_VERSION=`$PKG_CONFIG libczmq --modversion`
+    PHP_CZMQ_PREFIX=`$PKG_CONFIG libczmq --variable=prefix`
+    AC_MSG_RESULT([found version $PHP_CZMQ_VERSION in $PHP_CZMQ_PREFIX])
+
+    PHP_CZMQ_LIBS=`$PKG_CONFIG libczmq --libs`
+    PHP_CZMQ_INCS=`$PKG_CONFIG libczmq --cflags`
+
+    PHP_EVAL_LIBLINE($PHP_CZMQ_LIBS, ZMQ_SHARED_LIBADD)
+    PHP_EVAL_INCLINE($PHP_CZMQ_INCS)
+
+    AC_DEFINE([HAVE_CZMQ], [], [CZMQ was found])
+  else
+    AC_MSG_RESULT([no])
+  fi
+
+  AC_MSG_CHECKING(for Zyre)
+  if $PKG_CONFIG --exists libzyre; then
+    PHP_ZYRE_VERSION=`$PKG_CONFIG libzyre --modversion`
+    PHP_ZYRE_PREFIX=`$PKG_CONFIG libzyre --variable=prefix`
+    AC_MSG_RESULT([found version $PHP_ZYRE_VERSION in $PHP_ZYRE_PREFIX])
+
+    PHP_ZYRE_LIBS=`$PKG_CONFIG libzyre --libs`
+    PHP_ZYRE_INCS=`$PKG_CONFIG libzyre --cflags`
+
+    PHP_EVAL_LIBLINE($PHP_ZYRE_LIBS, ZMQ_SHARED_LIBADD)
+    PHP_EVAL_INCLINE($PHP_ZYRE_INCS)
+
+    AC_DEFINE([HAVE_ZYRE], [], [ZYRE was found])
+  else
+    AC_MSG_RESULT([no])
+  fi
+
   AC_CHECK_HEADERS([stdint.h],[php_zmq_have_stdint=yes; break;])
   if test $php_zmq_have_stdint != "yes"; then
     AC_MSG_ERROR(Unable to find stdint.h)

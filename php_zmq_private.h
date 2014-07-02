@@ -37,6 +37,14 @@
 
 #include <zmq.h>
 
+#ifdef HAVE_CZMQ && HAVE_ZYRE
+# include <czmq.h>
+# include <zyre.h>
+# if ZYRE_VERSION_MAJOR == 1
+#  define HAVE_ZYRE_1
+# endif
+#endif
+ 
 #ifdef PHP_WIN32
 # include "win32/php_stdint.h"
 #else
@@ -263,5 +271,14 @@ ZEND_BEGIN_MODULE_GLOBALS(php_zmq)
 	php_zmq_clock_ctx_t *clock_ctx;
 ZEND_END_MODULE_GLOBALS(php_zmq)
 
+#ifdef HAVE_ZYRE_1
+#define PHP_ZMQ_ZYRE_OBJECT php_zmq_zyre *this = (php_zmq_zyre *)zend_object_store_get_object(getThis() TSRMLS_CC)
+
+typedef struct _php_zmq_zyre {
+	zend_object zend_object;
+	zctx_t *shadow_context;
+	zyre_t *zyre;
+} php_zmq_zyre;
+#endif
 
 #endif /* _PHP_ZMQ_PRIVATE_H_ */
