@@ -27,8 +27,11 @@ var_dump($obj->headers->{'X-TEST'});
 
 $z1->stop();
 
+usleep(100000);
+
 $obj = $z2->recv();
 var_dump($obj->command);
+
 $z2->stop();
 
 --EXPECTF--

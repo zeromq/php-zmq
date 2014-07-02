@@ -1951,7 +1951,7 @@ PHP_METHOD(zmqzyre, getSocket)
     // Create internal socket
     php_zmq_socket *socket = (php_zmq_socket *) emalloc(sizeof(php_zmq_socket));
     socket->z_socket = zyre_sock;
-    socket->ctx = NULL;
+    socket->ctx = this->shadow_context;
     socket->pid = getpid();
 	socket->is_persistent = is_persistent;
 	zend_hash_init(&(socket->connect), 0, NULL, NULL, is_persistent);
