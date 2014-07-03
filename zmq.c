@@ -1614,9 +1614,9 @@ static void php_zmq_zyre_free_storage(void *object TSRMLS_DC)
 {
 	php_zmq_zyre *zmq_zyre = (php_zmq_zyre *) object;
 
-    if (zmq_zyre->internalSocket != NULL) {
-	    zend_objects_store_del_ref(zmq_zyre->internalSocket TSRMLS_CC);
-	    zval_ptr_dtor (&zmq_zyre->internalSocket);
+    if (zmq_zyre->internal_socket != NULL) {
+	    zend_objects_store_del_ref(zmq_zyre->internal_socket TSRMLS_CC);
+	    zval_ptr_dtor (&zmq_zyre->internal_socket);
 	}
 		
     zyre_destroy(&zmq_zyre->zyre);
@@ -1636,7 +1636,7 @@ static zend_object_value php_zmq_zyre_object_new(zend_class_entry *class_type TS
 
 	/* zbeacon is initialised in ZMQZyre#__construct. */
 	zmq_zyre->zyre = NULL;
-    zmq_zyre->internalSocket = NULL;
+    zmq_zyre->internal_socket = NULL;
 	zend_object_std_init(&zmq_zyre->zend_object, class_type TSRMLS_CC);
 	object_properties_init(&zmq_zyre->zend_object, class_type);
 
@@ -1964,7 +1964,7 @@ PHP_METHOD(zmqzyre, getSocket)
 	void *zyre_sock = NULL;
 	bool is_persistent = true;
 
-    if (this->internalSocket == NULL) {
+    if (this->internal_socket == NULL) {
         zyre_sock = zyre_socket(this->zyre);
         if (zyre_socket == NULL) {
             RETURN_NULL();
@@ -1980,13 +1980,13 @@ PHP_METHOD(zmqzyre, getSocket)
 	    zend_hash_init(&(socket->bind),    0, NULL, NULL, is_persistent);
 
         // Create a ZMQSocket
-        MAKE_STD_ZVAL(this->internalSocket);
-	    object_init_ex(this->internalSocket, php_zmq_socket_sc_entry);
-	    zmq_sock = (php_zmq_socket_object *) zend_object_store_get_object(this->internalSocket TSRMLS_CC);
+        MAKE_STD_ZVAL(this->internal_socket);
+	    object_init_ex(this->internal_socket, php_zmq_socket_sc_entry);
+	    zmq_sock = (php_zmq_socket_object *) zend_object_store_get_object(this->internal_socket TSRMLS_CC);
 	    zmq_sock->socket = socket;
     }
     
-    *return_value = *(this->internalSocket);
+    *return_value = *(this->internal_socket);
     zval_copy_ctor(return_value);
 }
 /* }}} */

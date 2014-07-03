@@ -278,7 +278,7 @@ typedef struct _php_zmq_zyre {
 	zend_object zend_object;
 	zctx_t *shadow_context;
 	zyre_t *zyre;
-	zval *internalSocket;
+	zval *internal_socket;
 } php_zmq_zyre;
 #endif
 
