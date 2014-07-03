@@ -1813,7 +1813,7 @@ PHP_METHOD(zmqzyre, recv)
 {
 	PHP_ZMQ_ZYRE_OBJECT;
 	zmsg_t *msg;
-	char *command, *peerid;
+	char *command = NULL, *peerid = NULL;
 
 	if (zend_parse_parameters_none() == FAILURE) {
 		return;
@@ -1826,9 +1826,18 @@ PHP_METHOD(zmqzyre, recv)
 
 	object_init(return_value);
 
+    // All frame start by a command 
 	command = zmsg_popstr(msg);
+	if (command == NULL) {
+		RETURN_NULL();
+	}
+	
+	// 2nd parameter is always the peerid of the emiter
 	peerid = zmsg_popstr(msg);
-
+	if (peerid == NULL) {
+		RETURN_NULL();
+	}
+	
 	// Parse commands with additional content
 	if (strcmp(command, "ENTER") == 0) {
 
