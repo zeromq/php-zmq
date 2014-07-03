@@ -1930,7 +1930,7 @@ PHP_METHOD(zmqzyre, sendGroup)
 	int rc;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss", &group, &group_len, &data, &data_len) == FAILURE) {
-		RETURN_FALSE;
+		return;
 	}
 
 	zyre_shouts (this->zyre, group, data);
@@ -1953,7 +1953,7 @@ PHP_METHOD(zmqzyre, sendPeer)
 	int data_len, peer_len;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss", &peer, &peer_len, &data, &data_len) == FAILURE) {
-		RETURN_FALSE;
+		return;
 	}
 
 	zyre_whispers(this->zyre, peer, data);
