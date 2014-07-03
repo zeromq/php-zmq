@@ -103,6 +103,22 @@ static void php_zmq_get_lib_version(char buffer[PHP_ZMQ_VERSION_LEN])
 }
 /* }}} */
 
+/** {{{ static void php_czmq_get_lib_version(char buffer[PHP_ZMQ_VERSION_LEN])
+*/
+static void php_czmq_get_lib_version(char buffer[PHP_ZMQ_VERSION_LEN]) 
+{
+	(void) snprintf(buffer, PHP_ZMQ_VERSION_LEN - 1, "%d.%d.%d", CZMQ_VERSION_MAJOR, CZMQ_VERSION_MINOR, CZMQ_VERSION_PATCH);
+}
+/* }}} */
+
+/** {{{ static void php_zyre_get_lib_version(char buffer[PHP_ZMQ_VERSION_LEN])
+*/
+static void php_zyre_get_lib_version(char buffer[PHP_ZMQ_VERSION_LEN]) 
+{
+	(void) snprintf(buffer, PHP_ZMQ_VERSION_LEN - 1, "%d.%d.%d", ZYRE_VERSION_MAJOR, ZYRE_VERSION_MINOR, ZYRE_VERSION_PATCH);
+}
+/* }}} */
+
 /** {{{ static int php_zmq_socket_list_entry(void)
 */
 static int php_zmq_socket_list_entry(void)
@@ -2619,6 +2635,14 @@ PHP_MINIT_FUNCTION(zmq)
 #undef PHP_ZMQ_REGISTER_CONST_LONG
 #undef PHP_ZMQ_REGISTER_CONST_STRING
 
+#define PHP_ZYRE_REGISTER_CONST_STRING(const_name, value) \
+	zend_declare_class_constant_string (php_zmq_zyre_sc_entry, const_name, sizeof(const_name)-1, value TSRMLS_CC);
+
+	php_zyre_get_lib_version(version);
+	PHP_ZYRE_REGISTER_CONST_STRING("LIBZYRE_VERSION", version);
+	
+#undef PHP_ZYRE_REGISTER_CONST_STRING
+
 	return SUCCESS;
 }
 
@@ -2636,14 +2660,21 @@ PHP_MSHUTDOWN_FUNCTION(zmq)
 
 PHP_MINFO_FUNCTION(zmq)
 {
-	char version[PHP_ZMQ_VERSION_LEN];
-	php_zmq_get_lib_version(version);
-
+	char zmq[PHP_ZMQ_VERSION_LEN];
+	char czmq[PHP_ZMQ_VERSION_LEN];
+	char zyre[PHP_ZMQ_VERSION_LEN];
+	
+	php_zmq_get_lib_version(zmq);
+	php_czmq_get_lib_version(czmq);
+	php_zyre_get_lib_version(zyre);
+	
 	php_info_print_table_start();
 
 		php_info_print_table_header(2, "ZMQ extension", "enabled");
 		php_info_print_table_row(2, "ZMQ extension version", PHP_ZMQ_VERSION);
-		php_info_print_table_row(2, "libzmq version", version);
+		php_info_print_table_row(2, "libzmq version", zmq);
+		php_info_print_table_row(2, "czmq version", czmq);
+		php_info_print_table_row(2, "libzyre version", zyre);
 
 	php_info_print_table_end();
 	DISPLAY_INI_ENTRIES();
