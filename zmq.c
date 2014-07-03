@@ -1614,13 +1614,13 @@ static void php_zmq_zyre_free_storage(void *object TSRMLS_DC)
 {
 	php_zmq_zyre *zmq_zyre = (php_zmq_zyre *) object;
 
-    if (zmq_zyre->internal_socket != NULL) {
-	    zend_objects_store_del_ref(zmq_zyre->internal_socket TSRMLS_CC);
-	    zval_ptr_dtor (&zmq_zyre->internal_socket);
+	if (zmq_zyre->internal_socket != NULL) {
+		zend_objects_store_del_ref(zmq_zyre->internal_socket TSRMLS_CC);
+		zval_ptr_dtor (&zmq_zyre->internal_socket);
 	}
 		
-    zyre_destroy(&zmq_zyre->zyre);
-    zctx_destroy(&zmq_zyre->shadow_context);
+	zyre_destroy(&zmq_zyre->zyre);
+	zctx_destroy(&zmq_zyre->shadow_context);
 
 	zend_object_std_dtor(&zmq_zyre->zend_object TSRMLS_CC);
 	efree(zmq_zyre);
@@ -1636,7 +1636,7 @@ static zend_object_value php_zmq_zyre_object_new(zend_class_entry *class_type TS
 
 	/* zbeacon is initialised in ZMQZyre#__construct. */
 	zmq_zyre->zyre = NULL;
-    zmq_zyre->internal_socket = NULL;
+	zmq_zyre->internal_socket = NULL;
 	zend_object_std_init(&zmq_zyre->zend_object, class_type TSRMLS_CC);
 	object_properties_init(&zmq_zyre->zend_object, class_type);
 
@@ -1698,7 +1698,7 @@ PHP_METHOD(zmqzyre, setHeader)
 		return;
 	}
 
-    zyre_set_header(this->zyre, name, value);
+	zyre_set_header(this->zyre, name, value);
 
 	ZMQ_RETURN_THIS;
 }
@@ -1717,7 +1717,7 @@ PHP_METHOD(zmqzyre, start)
 {
 	PHP_ZMQ_ZYRE_OBJECT;
 
-    zyre_start(this->zyre);
+	zyre_start(this->zyre);
 
 	ZMQ_RETURN_THIS;
 }
@@ -1734,7 +1734,7 @@ PHP_METHOD(zmqzyre, stop)
 {
 	PHP_ZMQ_ZYRE_OBJECT;
 
-    zyre_stop(this->zyre);
+	zyre_stop(this->zyre);
 
 	ZMQ_RETURN_THIS;
 }
@@ -1757,7 +1757,7 @@ PHP_METHOD(zmqzyre, join)
 		return;
 	}
 
-    zyre_join(this->zyre, group);
+	zyre_join(this->zyre, group);
 
 	ZMQ_RETURN_THIS;
 }
@@ -1780,7 +1780,7 @@ PHP_METHOD(zmqzyre, leave)
 		return;
 	}
 
-    zyre_leave(this->zyre, group);
+	zyre_leave(this->zyre, group);
 
 	ZMQ_RETURN_THIS;
 }
@@ -1794,8 +1794,8 @@ ZEND_END_ARG_INFO();
 // Helper function to convert zhash_t to php object
 void zhash_to_object(const char *key, void *item, void *argument)
 {
-    zval *obj = (zval *)argument;
-    zend_update_property_string(NULL, obj, key, strlen(key), (char *)item TSRMLS_CC);
+	zval *obj = (zval *)argument;
+	zend_update_property_string(NULL, obj, key, strlen(key), (char *)item TSRMLS_CC);
 }
 
 /* {{{ proto void ZMQZyre::recv()
@@ -1811,7 +1811,7 @@ PHP_METHOD(zmqzyre, recv)
 	
 	msg = zyre_recv(this->zyre);
 	if (msg == NULL) {
-	    RETURN_NULL();
+		RETURN_NULL();
 	}
 	
 	object_init(return_value);
@@ -1819,80 +1819,80 @@ PHP_METHOD(zmqzyre, recv)
 	command = zmsg_popstr(msg);
 	peerid = zmsg_popstr(msg);
 
-    // Parse commands with additional content
+	// Parse commands with additional content
 	if (strcmp(command, "ENTER") == 0) {
 
-	    zframe_t *headers_packed = zmsg_pop (msg);
-	    char *ipaddress = zmsg_popstr(msg);
-	    
-	    if (headers_packed != NULL) {
-	    
-	        zhash_t *headers = zhash_unpack (headers_packed);
-	        zframe_destroy (&headers_packed);
-	        
-	        if (headers != NULL) {
-	            zval *h;
-	            MAKE_STD_ZVAL(h);
-	            object_init(h);
-	            
-	            zhash_foreach(headers, zhash_to_object, h);
-	            zhash_destroy(&headers);
-	            
-	            zend_update_property(NULL, return_value, "headers", strlen("headers"), h TSRMLS_CC);
-	        }
-	    }
-	    
-	    if (ipaddress != NULL) {
-	        zend_update_property_string(NULL, return_value, "ipaddress", strlen("ipaddress"), ipaddress TSRMLS_CC);
-            free(ipaddress);
-	    } else {
-	        zend_update_property_null(NULL, return_value, "ipaddress", strlen("ipaddress") TSRMLS_CC);
-	    }
+		zframe_t *headers_packed = zmsg_pop (msg);
+		char *ipaddress = zmsg_popstr(msg);
+		
+		if (headers_packed != NULL) {
+		
+			zhash_t *headers = zhash_unpack (headers_packed);
+			zframe_destroy (&headers_packed);
+			
+			if (headers != NULL) {
+				zval *h;
+				MAKE_STD_ZVAL(h);
+				object_init(h);
+				
+				zhash_foreach(headers, zhash_to_object, h);
+				zhash_destroy(&headers);
+				
+				zend_update_property(NULL, return_value, "headers", strlen("headers"), h TSRMLS_CC);
+			}
+		}
+		
+		if (ipaddress != NULL) {
+			zend_update_property_string(NULL, return_value, "ipaddress", strlen("ipaddress"), ipaddress TSRMLS_CC);
+			free(ipaddress);
+		} else {
+			zend_update_property_null(NULL, return_value, "ipaddress", strlen("ipaddress") TSRMLS_CC);
+		}
 	} else
 	if (strcmp(command, "JOIN") == 0) {
-        char *group = zmsg_popstr(msg);
-        if (group == NULL) {
-            zend_update_property_null(NULL, return_value, "group", strlen("group") TSRMLS_CC);
-        } else {
-            zend_update_property_string(NULL, return_value, "group", strlen("group"), group TSRMLS_CC);
-            free(group);
-        }
-    } else
-    if (strcmp(command, "LEAVE") == 0) {
-        char *group = zmsg_popstr(msg);
-        if (group == NULL) {
-            zend_update_property_null(NULL, return_value, "group", strlen("group") TSRMLS_CC);
-        } else {
-            zend_update_property_string(NULL, return_value, "group", strlen("group"), group TSRMLS_CC);
-            free(group);
-        }
-    } else
-    if (strcmp(command, "SHOUT") == 0) {
-        char *group = zmsg_popstr(msg);
-        if (group == NULL) {
-            zend_update_property_null(NULL, return_value, "group", strlen("group") TSRMLS_CC);
-        } else {
-            zend_update_property_string(NULL, return_value, "group", strlen("group"), group TSRMLS_CC);
-            free(group);
-        }
-        
-        char *data = zmsg_popstr(msg);
-        if (data == NULL) {
-            zend_update_property_null(NULL, return_value, "data", strlen("data") TSRMLS_CC);
-        } else {
-            zend_update_property_string(NULL, return_value, "data", strlen("data"), data TSRMLS_CC);
-            free(data);
-        }
-    } else
-    if (strcmp(command, "WHISPER") == 0) {
-        char *data = zmsg_popstr(msg);
-        if (data == NULL) {
-            zend_update_property_null(NULL, return_value, "data", strlen("data") TSRMLS_CC);
-        } else {
-            zend_update_property_string(NULL, return_value, "data", strlen("data"), data TSRMLS_CC);
-            free(data);
-        }
-    }
+		char *group = zmsg_popstr(msg);
+		if (group == NULL) {
+			zend_update_property_null(NULL, return_value, "group", strlen("group") TSRMLS_CC);
+		} else {
+			zend_update_property_string(NULL, return_value, "group", strlen("group"), group TSRMLS_CC);
+			free(group);
+		}
+	} else
+	if (strcmp(command, "LEAVE") == 0) {
+		char *group = zmsg_popstr(msg);
+		if (group == NULL) {
+			zend_update_property_null(NULL, return_value, "group", strlen("group") TSRMLS_CC);
+		} else {
+			zend_update_property_string(NULL, return_value, "group", strlen("group"), group TSRMLS_CC);
+			free(group);
+		}
+	} else
+	if (strcmp(command, "SHOUT") == 0) {
+		char *group = zmsg_popstr(msg);
+		if (group == NULL) {
+			zend_update_property_null(NULL, return_value, "group", strlen("group") TSRMLS_CC);
+		} else {
+			zend_update_property_string(NULL, return_value, "group", strlen("group"), group TSRMLS_CC);
+			free(group);
+		}
+		
+		char *data = zmsg_popstr(msg);
+		if (data == NULL) {
+			zend_update_property_null(NULL, return_value, "data", strlen("data") TSRMLS_CC);
+		} else {
+			zend_update_property_string(NULL, return_value, "data", strlen("data"), data TSRMLS_CC);
+			free(data);
+		}
+	} else
+	if (strcmp(command, "WHISPER") == 0) {
+		char *data = zmsg_popstr(msg);
+		if (data == NULL) {
+			zend_update_property_null(NULL, return_value, "data", strlen("data") TSRMLS_CC);
+		} else {
+			zend_update_property_string(NULL, return_value, "data", strlen("data"), data TSRMLS_CC);
+			free(data);
+		}
+	}
 	
 	zend_update_property_string(NULL, return_value, "command", strlen("command"), command TSRMLS_CC);
 	free(command);
@@ -1915,15 +1915,15 @@ PHP_METHOD(zmqzyre, sendGroup)
 	PHP_ZMQ_ZYRE_OBJECT;
 	char *data = NULL, *group = NULL;
 	int data_len, group_len;
-    int rc;
+	int rc;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss", &group, &group_len, &data, &data_len) == FAILURE) {
 		RETURN_FALSE;
 	}
-    
-    zyre_shouts (this->zyre, group, data);
+	
+	zyre_shouts (this->zyre, group, data);
 
-    RETURN_TRUE;
+	RETURN_TRUE;
 }
 
 ZEND_BEGIN_ARG_INFO_EX(zmqzyre_sendGroup_args, 0, 0, 2)
@@ -1943,10 +1943,10 @@ PHP_METHOD(zmqzyre, sendPeer)
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss", &peer, &peer_len, &data, &data_len) == FAILURE) {
 		RETURN_FALSE;
 	}
-    
-    zyre_whispers(this->zyre, peer, data);
+	
+	zyre_whispers(this->zyre, peer, data);
 
-    RETURN_TRUE;
+	RETURN_TRUE;
 }
 
 ZEND_BEGIN_ARG_INFO_EX(zmqzyre_sendPeer_args, 0, 0, 2)
@@ -1959,35 +1959,35 @@ ZEND_END_ARG_INFO();
 */
 PHP_METHOD(zmqzyre, getSocket)
 {
-    PHP_ZMQ_ZYRE_OBJECT;
+	PHP_ZMQ_ZYRE_OBJECT;
 	php_zmq_socket_object *zmq_sock;
 	void *zyre_sock = NULL;
 	bool is_persistent = true;
 
-    if (this->internal_socket == NULL) {
-        zyre_sock = zyre_socket(this->zyre);
-        if (zyre_socket == NULL) {
-            RETURN_NULL();
-        }
+	if (this->internal_socket == NULL) {
+		zyre_sock = zyre_socket(this->zyre);
+		if (zyre_socket == NULL) {
+			RETURN_NULL();
+		}
 
-        // Create internal socket
-        php_zmq_socket *socket = (php_zmq_socket *) emalloc(sizeof(php_zmq_socket));
-        socket->z_socket = zyre_sock;
-        socket->ctx = this->shadow_context;
-        socket->pid = getpid();
-	    socket->is_persistent = is_persistent;
-	    zend_hash_init(&(socket->connect), 0, NULL, NULL, is_persistent);
-	    zend_hash_init(&(socket->bind),    0, NULL, NULL, is_persistent);
+		// Create internal socket
+		php_zmq_socket *socket = (php_zmq_socket *) emalloc(sizeof(php_zmq_socket));
+		socket->z_socket = zyre_sock;
+		socket->ctx = this->shadow_context;
+		socket->pid = getpid();
+		socket->is_persistent = is_persistent;
+		zend_hash_init(&(socket->connect), 0, NULL, NULL, is_persistent);
+		zend_hash_init(&(socket->bind),	0, NULL, NULL, is_persistent);
 
-        // Create a ZMQSocket
-        MAKE_STD_ZVAL(this->internal_socket);
-	    object_init_ex(this->internal_socket, php_zmq_socket_sc_entry);
-	    zmq_sock = (php_zmq_socket_object *) zend_object_store_get_object(this->internal_socket TSRMLS_CC);
-	    zmq_sock->socket = socket;
-    }
-    
-    *return_value = *(this->internal_socket);
-    zval_copy_ctor(return_value);
+		// Create a ZMQSocket
+		MAKE_STD_ZVAL(this->internal_socket);
+		object_init_ex(this->internal_socket, php_zmq_socket_sc_entry);
+		zmq_sock = (php_zmq_socket_object *) zend_object_store_get_object(this->internal_socket TSRMLS_CC);
+		zmq_sock->socket = socket;
+	}
+	
+	*return_value = *(this->internal_socket);
+	zval_copy_ctor(return_value);
 }
 /* }}} */
 
@@ -1996,17 +1996,17 @@ ZEND_END_ARG_INFO()
 
 
 static zend_function_entry php_zmq_zyre_class_methods[] = {
-    PHP_ME(zmqzyre,     __construct,    zmqzyre___construct_args,       ZEND_ACC_PUBLIC | ZEND_ACC_CTOR | ZEND_ACC_FINAL)
-    PHP_ME(zmqzyre,     setHeader,      zmqzyre_setHeader_args,         ZEND_ACC_PUBLIC)
-    PHP_ME(zmqzyre,     start,          zmqzyre_start_args,             ZEND_ACC_PUBLIC)
-    PHP_ME(zmqzyre,     stop,           zmqzyre_stop_args,              ZEND_ACC_PUBLIC)
-    PHP_ME(zmqzyre,     join,           zmqzyre_join_args,              ZEND_ACC_PUBLIC)
-    PHP_ME(zmqzyre,     leave,          zmqzyre_leave_args,             ZEND_ACC_PUBLIC)
-    PHP_ME(zmqzyre,     recv,           zmqzyre_recv_args,              ZEND_ACC_PUBLIC)
-    PHP_ME(zmqzyre,     sendPeer,       zmqzyre_sendPeer_args,          ZEND_ACC_PUBLIC)
-    PHP_ME(zmqzyre,     sendGroup,      zmqzyre_sendGroup_args,         ZEND_ACC_PUBLIC)
-    PHP_ME(zmqzyre,     getSocket,      zmqzyre_getSocket_args,         ZEND_ACC_PUBLIC)
-    {NULL, NULL, NULL}
+	PHP_ME(zmqzyre,	 __construct,	zmqzyre___construct_args,	   	ZEND_ACC_PUBLIC | ZEND_ACC_CTOR | ZEND_ACC_FINAL)
+	PHP_ME(zmqzyre,	 setHeader,	  	zmqzyre_setHeader_args,		 	ZEND_ACC_PUBLIC)
+	PHP_ME(zmqzyre,	 start,		  	zmqzyre_start_args,			 	ZEND_ACC_PUBLIC)
+	PHP_ME(zmqzyre,	 stop,		   	zmqzyre_stop_args,			  	ZEND_ACC_PUBLIC)
+	PHP_ME(zmqzyre,	 join,		   	zmqzyre_join_args,			  	ZEND_ACC_PUBLIC)
+	PHP_ME(zmqzyre,	 leave,		  	zmqzyre_leave_args,			 	ZEND_ACC_PUBLIC)
+	PHP_ME(zmqzyre,	 recv,		   	zmqzyre_recv_args,			  	ZEND_ACC_PUBLIC)
+	PHP_ME(zmqzyre,	 sendPeer,	   	zmqzyre_sendPeer_args,		  	ZEND_ACC_PUBLIC)
+	PHP_ME(zmqzyre,	 sendGroup,	  	zmqzyre_sendGroup_args,		 	ZEND_ACC_PUBLIC)
+	PHP_ME(zmqzyre,	 getSocket,	  	zmqzyre_getSocket_args,		 	ZEND_ACC_PUBLIC)
+	{NULL, NULL, NULL}
 };
 
 /* --- END ZMQZyre --- */
@@ -2489,7 +2489,7 @@ PHP_MINIT_FUNCTION(zmq)
 	zend_class_entry ce_exception, ce_context_exception, ce_socket_exception, ce_poll_exception, ce_device_exception;
 
 #ifdef HAVE_ZYRE_1
-    zend_class_entry ce_zyre, ce_zyre_exception;
+	zend_class_entry ce_zyre, ce_zyre_exception;
 #endif
 
 	le_zmq_context = zend_register_list_destructors_ex(NULL, php_zmq_context_dtor, "ZMQ persistent context", module_number);
@@ -2502,7 +2502,7 @@ PHP_MINIT_FUNCTION(zmq)
 	memcpy(&zmq_device_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
 
 #ifdef HAVE_ZYRE_1
-    memcpy(&zmq_zyre_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+	memcpy(&zmq_zyre_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
 #endif
 
 	INIT_CLASS_ENTRY(ce, "ZMQ", php_zmq_class_methods);
