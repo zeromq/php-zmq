@@ -1655,11 +1655,9 @@ static zend_object_value php_zmq_zyre_object_new(zend_class_entry *class_type TS
 */
 PHP_METHOD(zmqzyre, __construct)
 {
-	php_zmq_zyre *this;
+	PHP_ZMQ_ZYRE_OBJECT;
 	zval *object;
 	php_zmq_context_object *context_object;
-
-	this = (php_zmq_zyre *) zend_object_store_get_object(getThis() TSRMLS_CC);
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "O", &object, php_zmq_context_sc_entry) != SUCCESS) {
 		return;
