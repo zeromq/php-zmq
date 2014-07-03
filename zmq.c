@@ -1598,6 +1598,11 @@ static void php_zmq_zyre_free_storage(void *object TSRMLS_DC)
 {
 	php_zmq_zyre *zmq_zyre = (php_zmq_zyre *) object;
 
+    if (zmq_zyre->internalSocket != NULL) {
+	    zend_objects_store_del_ref(zmq_zyre->internalSocket TSRMLS_CC);
+	    zval_ptr_dtor (&zmq_zyre->internalSocket);
+	}
+		
     zyre_destroy(&zmq_zyre->zyre);
     zctx_destroy(&zmq_zyre->shadow_context);
 
@@ -1615,7 +1620,7 @@ static zend_object_value php_zmq_zyre_object_new(zend_class_entry *class_type TS
 
 	/* zbeacon is initialised in ZMQZyre#__construct. */
 	zmq_zyre->zyre = NULL;
-
+    zmq_zyre->internalSocket = NULL;
 	zend_object_std_init(&zmq_zyre->zend_object, class_type TSRMLS_CC);
 	object_properties_init(&zmq_zyre->zend_object, class_type);
 
@@ -1941,26 +1946,32 @@ PHP_METHOD(zmqzyre, getSocket)
     PHP_ZMQ_ZYRE_OBJECT;
 	php_zmq_socket_object *zmq_sock;
 	void *zyre_sock = NULL;
-	bool is_persistent = false;
+	bool is_persistent = true;
 
-    zyre_sock = zyre_socket(this->zyre);
-    if (zyre_socket == NULL) {
-        RETURN_NULL();
+    if (this->internalSocket == NULL) {
+        zyre_sock = zyre_socket(this->zyre);
+        if (zyre_socket == NULL) {
+            RETURN_NULL();
+        }
+
+        // Create internal socket
+        php_zmq_socket *socket = (php_zmq_socket *) emalloc(sizeof(php_zmq_socket));
+        socket->z_socket = zyre_sock;
+        socket->ctx = this->shadow_context;
+        socket->pid = getpid();
+	    socket->is_persistent = is_persistent;
+	    zend_hash_init(&(socket->connect), 0, NULL, NULL, is_persistent);
+	    zend_hash_init(&(socket->bind),    0, NULL, NULL, is_persistent);
+
+        // Create a ZMQSocket
+        MAKE_STD_ZVAL(this->internalSocket);
+	    object_init_ex(this->internalSocket, php_zmq_socket_sc_entry);
+	    zmq_sock = (php_zmq_socket_object *) zend_object_store_get_object(this->internalSocket TSRMLS_CC);
+	    zmq_sock->socket = socket;
     }
-
-    // Create internal socket
-    php_zmq_socket *socket = (php_zmq_socket *) emalloc(sizeof(php_zmq_socket));
-    socket->z_socket = zyre_sock;
-    socket->ctx = this->shadow_context;
-    socket->pid = getpid();
-	socket->is_persistent = is_persistent;
-	zend_hash_init(&(socket->connect), 0, NULL, NULL, is_persistent);
-	zend_hash_init(&(socket->bind),    0, NULL, NULL, is_persistent);
-
-    // Return a ZMQSocket
-	object_init_ex(return_value, php_zmq_socket_sc_entry);
-	zmq_sock = (php_zmq_socket_object *) zend_object_store_get_object(return_value TSRMLS_CC);
-	zmq_sock->socket = socket;
+    
+    *return_value = *(this->internalSocket);
+    zval_copy_ctor(return_value);
 }
 /* }}} */
 
