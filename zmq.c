@@ -43,7 +43,7 @@ zend_class_entry *php_zmq_device_sc_entry;
 #ifdef HAVE_ZYRE_1
 zend_class_entry *php_zmq_zyre_sc_entry;
 #endif
- 
+
 zend_class_entry *php_zmq_exception_sc_entry;
 zend_class_entry *php_zmq_context_exception_sc_entry;
 zend_class_entry *php_zmq_socket_exception_sc_entry;
@@ -95,7 +95,7 @@ static int le_zmq_socket, le_zmq_context;
 
 /** {{{ static void php_zmq_get_lib_version(char buffer[PHP_ZMQ_VERSION_LEN])
 */
-static void php_zmq_get_lib_version(char buffer[PHP_ZMQ_VERSION_LEN]) 
+static void php_zmq_get_lib_version(char buffer[PHP_ZMQ_VERSION_LEN])
 {
 	int major = 0, minor = 0, patch = 0;
 	zmq_version(&major, &minor, &patch);
@@ -105,7 +105,7 @@ static void php_zmq_get_lib_version(char buffer[PHP_ZMQ_VERSION_LEN])
 
 /** {{{ static void php_czmq_get_lib_version(char buffer[PHP_ZMQ_VERSION_LEN])
 */
-static void php_czmq_get_lib_version(char buffer[PHP_ZMQ_VERSION_LEN]) 
+static void php_czmq_get_lib_version(char buffer[PHP_ZMQ_VERSION_LEN])
 {
 	(void) snprintf(buffer, PHP_ZMQ_VERSION_LEN - 1, "%d.%d.%d", CZMQ_VERSION_MAJOR, CZMQ_VERSION_MINOR, CZMQ_VERSION_PATCH);
 }
@@ -113,7 +113,7 @@ static void php_czmq_get_lib_version(char buffer[PHP_ZMQ_VERSION_LEN])
 
 /** {{{ static void php_zyre_get_lib_version(char buffer[PHP_ZMQ_VERSION_LEN])
 */
-static void php_zyre_get_lib_version(char buffer[PHP_ZMQ_VERSION_LEN]) 
+static void php_zyre_get_lib_version(char buffer[PHP_ZMQ_VERSION_LEN])
 {
 	(void) snprintf(buffer, PHP_ZMQ_VERSION_LEN - 1, "%d.%d.%d", ZYRE_VERSION_MAJOR, ZYRE_VERSION_MINOR, ZYRE_VERSION_PATCH);
 }
@@ -886,7 +886,7 @@ PHP_METHOD(zmqsocket, recvmulti)
 	long flags = 0;
 	zend_bool retval;
 	zval *msg;
-#if ZMQ_VERSION_MAJOR < 3	
+#if ZMQ_VERSION_MAJOR < 3
 	int64_t value;
 #else
 	int value;
@@ -916,7 +916,7 @@ PHP_METHOD(zmqsocket, recvmulti)
 }
 /* }}} */
 
-/** {{{ string ZMQ::getPersistentId() 
+/** {{{ string ZMQ::getPersistentId()
 	Returns the persistent id of the object
 */
 PHP_METHOD(zmqsocket, getpersistentid)
@@ -1618,7 +1618,7 @@ static void php_zmq_zyre_free_storage(void *object TSRMLS_DC)
 		zend_objects_store_del_ref(zmq_zyre->internal_socket TSRMLS_CC);
 		zval_ptr_dtor (&zmq_zyre->internal_socket);
 	}
-		
+
 	zyre_destroy(&zmq_zyre->zyre);
 	zctx_destroy(&zmq_zyre->shadow_context);
 
@@ -1717,6 +1717,10 @@ PHP_METHOD(zmqzyre, start)
 {
 	PHP_ZMQ_ZYRE_OBJECT;
 
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
+
 	zyre_start(this->zyre);
 
 	ZMQ_RETURN_THIS;
@@ -1734,6 +1738,10 @@ PHP_METHOD(zmqzyre, stop)
 {
 	PHP_ZMQ_ZYRE_OBJECT;
 
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
+
 	zyre_stop(this->zyre);
 
 	ZMQ_RETURN_THIS;
@@ -1744,7 +1752,7 @@ ZEND_BEGIN_ARG_INFO_EX(zmqzyre_stop_args, 0, 0, 1)
 ZEND_END_ARG_INFO();
 
 /* {{{ proto void ZMQZyre::join(string group)
-	Join a named group; after joining a group you can send messages 
+	Join a named group; after joining a group you can send messages
 	to the group and all Zyre nodes in that group will receive them.
 */
 PHP_METHOD(zmqzyre, join)
@@ -1799,7 +1807,7 @@ void zhash_to_object(const char *key, void *item, void *argument)
 }
 
 /* {{{ proto void ZMQZyre::recv()
-	Receive next message from network; the message may be a control 
+	Receive next message from network; the message may be a control
 	message (ENTER, EXIT, JOIN, LEAVE) or data (WHISPER, SHOUT).
 	Returns associative array, or NULL if interrupted
 */
@@ -1808,14 +1816,18 @@ PHP_METHOD(zmqzyre, recv)
 	PHP_ZMQ_ZYRE_OBJECT;
 	zmsg_t *msg;
 	char *command, *peerid;
-	
+
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
+
 	msg = zyre_recv(this->zyre);
 	if (msg == NULL) {
 		RETURN_NULL();
 	}
-	
+
 	object_init(return_value);
-	
+
 	command = zmsg_popstr(msg);
 	peerid = zmsg_popstr(msg);
 
@@ -1824,24 +1836,24 @@ PHP_METHOD(zmqzyre, recv)
 
 		zframe_t *headers_packed = zmsg_pop (msg);
 		char *ipaddress = zmsg_popstr(msg);
-		
+
 		if (headers_packed != NULL) {
-		
+
 			zhash_t *headers = zhash_unpack (headers_packed);
 			zframe_destroy (&headers_packed);
-			
+
 			if (headers != NULL) {
 				zval *h;
 				MAKE_STD_ZVAL(h);
 				object_init(h);
-				
+
 				zhash_foreach(headers, zhash_to_object, h);
 				zhash_destroy(&headers);
-				
+
 				zend_update_property(NULL, return_value, "headers", strlen("headers"), h TSRMLS_CC);
 			}
 		}
-		
+
 		if (ipaddress != NULL) {
 			zend_update_property_string(NULL, return_value, "ipaddress", strlen("ipaddress"), ipaddress TSRMLS_CC);
 			free(ipaddress);
@@ -1875,7 +1887,7 @@ PHP_METHOD(zmqzyre, recv)
 			zend_update_property_string(NULL, return_value, "group", strlen("group"), group TSRMLS_CC);
 			free(group);
 		}
-		
+
 		char *data = zmsg_popstr(msg);
 		if (data == NULL) {
 			zend_update_property_null(NULL, return_value, "data", strlen("data") TSRMLS_CC);
@@ -1893,13 +1905,13 @@ PHP_METHOD(zmqzyre, recv)
 			free(data);
 		}
 	}
-	
+
 	zend_update_property_string(NULL, return_value, "command", strlen("command"), command TSRMLS_CC);
 	free(command);
-	
+
 	zend_update_property_string(NULL, return_value, "peer", strlen("peer"), peerid TSRMLS_CC);
 	free(peerid);
-	
+
 	zmsg_destroy(&msg);
 }
 /* }}} */
@@ -1920,7 +1932,7 @@ PHP_METHOD(zmqzyre, sendGroup)
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss", &group, &group_len, &data, &data_len) == FAILURE) {
 		RETURN_FALSE;
 	}
-	
+
 	zyre_shouts (this->zyre, group, data);
 
 	RETURN_TRUE;
@@ -1943,7 +1955,7 @@ PHP_METHOD(zmqzyre, sendPeer)
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss", &peer, &peer_len, &data, &data_len) == FAILURE) {
 		RETURN_FALSE;
 	}
-	
+
 	zyre_whispers(this->zyre, peer, data);
 
 	RETURN_TRUE;
@@ -1963,6 +1975,10 @@ PHP_METHOD(zmqzyre, getSocket)
 	php_zmq_socket_object *zmq_sock;
 	void *zyre_sock = NULL;
 	bool is_persistent = true;
+
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
 
 	if (this->internal_socket == NULL) {
 		zyre_sock = zyre_socket(this->zyre);
@@ -1985,7 +2001,7 @@ PHP_METHOD(zmqzyre, getSocket)
 		zmq_sock = (php_zmq_socket_object *) zend_object_store_get_object(this->internal_socket TSRMLS_CC);
 		zmq_sock->socket = socket;
 	}
-	
+
 	*return_value = *(this->internal_socket);
 	zval_copy_ctor(return_value);
 }
@@ -2640,7 +2656,7 @@ PHP_MINIT_FUNCTION(zmq)
 
 	php_zyre_get_lib_version(version);
 	PHP_ZYRE_REGISTER_CONST_STRING("LIBZYRE_VERSION", version);
-	
+
 #undef PHP_ZYRE_REGISTER_CONST_STRING
 
 	return SUCCESS;
@@ -2663,11 +2679,11 @@ PHP_MINFO_FUNCTION(zmq)
 	char zmq[PHP_ZMQ_VERSION_LEN];
 	char czmq[PHP_ZMQ_VERSION_LEN];
 	char zyre[PHP_ZMQ_VERSION_LEN];
-	
+
 	php_zmq_get_lib_version(zmq);
 	php_czmq_get_lib_version(czmq);
 	php_zyre_get_lib_version(zyre);
-	
+
 	php_info_print_table_start();
 
 		php_info_print_table_header(2, "ZMQ extension", "enabled");
