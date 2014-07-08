@@ -1696,6 +1696,14 @@ PHP_METHOD(zmqzyre, setHeader)
 		return;
 	}
 
+	if (name_len == 0) {
+	    zend_throw_exception_ex(php_zmq_zyre_exception_sc_entry, errno TSRMLS_CC, "Header name can not be empty");
+	}
+	
+	if (value_len == 0) {
+	    zend_throw_exception_ex(php_zmq_zyre_exception_sc_entry, errno TSRMLS_CC, "Header value can not be empty");
+	}
+	
 	zyre_set_header(this->zyre, name, value);
 
 	ZMQ_RETURN_THIS;
@@ -1763,6 +1771,10 @@ PHP_METHOD(zmqzyre, join)
 		return;
 	}
 
+	if (group_len == 0) {
+	    zend_throw_exception_ex(php_zmq_zyre_exception_sc_entry, errno TSRMLS_CC, "Group name can not be empty");
+	}
+	
 	zyre_join(this->zyre, group);
 
 	ZMQ_RETURN_THIS;
@@ -1786,6 +1798,10 @@ PHP_METHOD(zmqzyre, leave)
 		return;
 	}
 
+	if (group_len == 0) {
+	    zend_throw_exception_ex(php_zmq_zyre_exception_sc_entry, errno TSRMLS_CC, "Group name can not be empty");
+	}
+	
 	zyre_leave(this->zyre, group);
 
 	ZMQ_RETURN_THIS;
@@ -1941,12 +1957,12 @@ PHP_METHOD(zmqzyre, sendGroup)
 	}
 
 	if (group_len == 0) {
-	    RETURN_FALSE;
+	    zend_throw_exception_ex(php_zmq_zyre_exception_sc_entry, errno TSRMLS_CC, "Group name can not be empty");
 	}
 	
 	zyre_shouts (this->zyre, group, data);
 
-	RETURN_TRUE;
+	ZMQ_RETURN_THIS;
 }
 
 ZEND_BEGIN_ARG_INFO_EX(zmqzyre_sendGroup_args, 0, 0, 2)
@@ -1968,12 +1984,12 @@ PHP_METHOD(zmqzyre, sendPeer)
 	}
 	
 	if (peer_len == 0) {
-	    RETURN_FALSE;
+	    zend_throw_exception_ex(php_zmq_zyre_exception_sc_entry, errno TSRMLS_CC, "Peer ID can not be empty");
 	}
 
 	zyre_whispers(this->zyre, peer, data);
 
-	RETURN_TRUE;
+	ZMQ_RETURN_THIS;
 }
 
 ZEND_BEGIN_ARG_INFO_EX(zmqzyre_sendPeer_args, 0, 0, 2)
