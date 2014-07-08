@@ -2019,9 +2019,6 @@ PHP_METHOD(zmqzyre, getSocket)
 
 		// Create internal socket
 		php_zmq_socket *socket = (php_zmq_socket *) ecalloc(1, sizeof(php_zmq_socket));
-		if (socket == NULL) {
-		    zend_throw_exception_ex(php_zmq_zyre_exception_sc_entry, errno TSRMLS_CC, "Memory allocation fail");
-	    }
 		socket->z_socket = zyre_sock;
 		socket->ctx = this->shadow_context;
 		socket->pid = getpid();
