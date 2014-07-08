@@ -1828,7 +1828,7 @@ void zhash_to_object(const char *key, void *item, void *argument)
 PHP_METHOD(zmqzyre, recv)
 {
 	PHP_ZMQ_ZYRE_OBJECT;
-	zmsg_t *msg;
+	zmsg_t *msg = NULL;
 	char *command = NULL, *peerid = NULL;
 
 	if (zend_parse_parameters_none() == FAILURE) {
@@ -1842,16 +1842,16 @@ PHP_METHOD(zmqzyre, recv)
 
 	object_init(return_value);
 
-    // All frame start by a command 
+	// All frame start by a command
 	command = zmsg_popstr(msg);
 	if (command == NULL) {
-		RETURN_NULL();
+		goto cleanup;
 	}
 	
 	// 2nd parameter is always the peerid of the emiter
 	peerid = zmsg_popstr(msg);
 	if (peerid == NULL) {
-		RETURN_NULL();
+		goto cleanup;
 	}
 	
 	// Parse commands with additional content
@@ -1930,12 +1930,17 @@ PHP_METHOD(zmqzyre, recv)
 	}
 
 	zend_update_property_string(NULL, return_value, "command", strlen("command"), command TSRMLS_CC);
-	free(command);
-
 	zend_update_property_string(NULL, return_value, "peer", strlen("peer"), peerid TSRMLS_CC);
-	free(peerid);
 
-	zmsg_destroy(&msg);
+cleanup:
+	if (command != NULL)
+		free(command);
+
+	if (peerid != NULL)
+		free(peerid);
+
+	if (msg != NULL)
+		zmsg_destroy(&msg);
 }
 /* }}} */
 
