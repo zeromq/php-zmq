@@ -16,4 +16,4 @@ env:
 before_install:
     - sudo apt-get update
     - sudo apt-get install uuid-dev
-script: ./run-tests.sh $ZEROMQ_VERSION
+script: travis/script.sh $ZEROMQ_VERSION
