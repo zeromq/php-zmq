@@ -107,7 +107,9 @@ static void php_zmq_get_lib_version(char buffer[PHP_ZMQ_VERSION_LEN])
 */
 static void php_czmq_get_lib_version(char buffer[PHP_ZMQ_VERSION_LEN])
 {
-	(void) snprintf(buffer, PHP_ZMQ_VERSION_LEN - 1, "%d.%d.%d", CZMQ_VERSION_MAJOR, CZMQ_VERSION_MINOR, CZMQ_VERSION_PATCH);
+    int major = 0, minor = 0, patch = 0;
+    zsys_version(&major, &minor, &patch);
+	(void) snprintf(buffer, PHP_ZMQ_VERSION_LEN - 1, "%d.%d.%d", major, minor, patch);
 }
 /* }}} */
 
@@ -1619,8 +1621,13 @@ static void php_zmq_zyre_free_storage(void *object TSRMLS_DC)
 		zval_ptr_dtor (&zmq_zyre->internal_socket);
 	}
 
-	zyre_destroy(&zmq_zyre->zyre);
-	zctx_destroy(&zmq_zyre->shadow_context);
+    if (zmq_zyre->zyre != NULL) {
+	    zyre_destroy(&zmq_zyre->zyre);
+	}
+	
+	if (zmq_zyre->shadow_context != NULL) {
+	    zctx_destroy(&zmq_zyre->shadow_context);
+	}
 
 	zend_object_std_dtor(&zmq_zyre->zend_object TSRMLS_CC);
 	efree(zmq_zyre);
@@ -1667,12 +1674,14 @@ PHP_METHOD(zmqzyre, __construct)
 
 	this->shadow_context = zctx_shadow_zmq_ctx(context_object->context->z_ctx);
 	if (this->shadow_context == NULL) {
-		zend_throw_exception_ex(php_zmq_zyre_exception_sc_entry, errno TSRMLS_CC, "Failed to create the underlying shadow context object.");
+		zend_throw_exception_ex(php_zmq_zyre_exception_sc_entry, 0 TSRMLS_CC, "Failed to create the underlying shadow context object.");
+		return;
 	}
 
 	this->zyre = zyre_new(this->shadow_context);
 	if (this->zyre == NULL) {
-		zend_throw_exception_ex(php_zmq_zyre_exception_sc_entry, errno TSRMLS_CC, "Failed to create the underlying zbeacon object.");
+		zend_throw_exception_ex(php_zmq_zyre_exception_sc_entry, 0 TSRMLS_CC, "Failed to create the underlying zbeacon object.");
+		return;
 	}
 
 	return;
@@ -1697,11 +1706,13 @@ PHP_METHOD(zmqzyre, setHeader)
 	}
 
 	if (name_len == 0) {
-	    zend_throw_exception_ex(php_zmq_zyre_exception_sc_entry, errno TSRMLS_CC, "Header name can not be empty");
+	    zend_throw_exception_ex(php_zmq_zyre_exception_sc_entry, 0 TSRMLS_CC, "Header name can not be empty");
+        return;
 	}
 	
 	if (value_len == 0) {
-	    zend_throw_exception_ex(php_zmq_zyre_exception_sc_entry, errno TSRMLS_CC, "Header value can not be empty");
+	    zend_throw_exception_ex(php_zmq_zyre_exception_sc_entry, 0 TSRMLS_CC, "Header value can not be empty");
+        return;
 	}
 	
 	zyre_set_header(this->zyre, name, value);
@@ -1772,7 +1783,8 @@ PHP_METHOD(zmqzyre, join)
 	}
 
 	if (group_len == 0) {
-	    zend_throw_exception_ex(php_zmq_zyre_exception_sc_entry, errno TSRMLS_CC, "Group name can not be empty");
+	    zend_throw_exception_ex(php_zmq_zyre_exception_sc_entry, 0 TSRMLS_CC, "Group name can not be empty");
+        return;
 	}
 	
 	zyre_join(this->zyre, group);
@@ -1799,7 +1811,8 @@ PHP_METHOD(zmqzyre, leave)
 	}
 
 	if (group_len == 0) {
-	    zend_throw_exception_ex(php_zmq_zyre_exception_sc_entry, errno TSRMLS_CC, "Group name can not be empty");
+	    zend_throw_exception_ex(php_zmq_zyre_exception_sc_entry, 0 TSRMLS_CC, "Group name can not be empty");
+        return;
 	}
 	
 	zyre_leave(this->zyre, group);
@@ -1885,7 +1898,9 @@ PHP_METHOD(zmqzyre, recv)
 		}
 	} else
 	if (strcmp(command, "JOIN") == 0) {
-		char *group = zmsg_popstr(msg);
+    	char *group;
+    	
+		group = zmsg_popstr(msg);
 		if (group == NULL) {
 			zend_update_property_null(NULL, return_value, "group", strlen("group") TSRMLS_CC);
 		} else {
@@ -1894,7 +1909,9 @@ PHP_METHOD(zmqzyre, recv)
 		}
 	} else
 	if (strcmp(command, "LEAVE") == 0) {
-		char *group = zmsg_popstr(msg);
+		char *group;
+    	
+		group = zmsg_popstr(msg);
 		if (group == NULL) {
 			zend_update_property_null(NULL, return_value, "group", strlen("group") TSRMLS_CC);
 		} else {
@@ -1903,7 +1920,9 @@ PHP_METHOD(zmqzyre, recv)
 		}
 	} else
 	if (strcmp(command, "SHOUT") == 0) {
-		char *group = zmsg_popstr(msg);
+		char *group, *data;
+    	
+		group = zmsg_popstr(msg);
 		if (group == NULL) {
 			zend_update_property_null(NULL, return_value, "group", strlen("group") TSRMLS_CC);
 		} else {
@@ -1911,7 +1930,7 @@ PHP_METHOD(zmqzyre, recv)
 			free(group);
 		}
 
-		char *data = zmsg_popstr(msg);
+		data = zmsg_popstr(msg);
 		if (data == NULL) {
 			zend_update_property_null(NULL, return_value, "data", strlen("data") TSRMLS_CC);
 		} else {
@@ -1920,7 +1939,9 @@ PHP_METHOD(zmqzyre, recv)
 		}
 	} else
 	if (strcmp(command, "WHISPER") == 0) {
-		char *data = zmsg_popstr(msg);
+		char *data;
+		
+		data = zmsg_popstr(msg);
 		if (data == NULL) {
 			zend_update_property_null(NULL, return_value, "data", strlen("data") TSRMLS_CC);
 		} else {
@@ -1962,7 +1983,8 @@ PHP_METHOD(zmqzyre, sendGroup)
 	}
 
 	if (group_len == 0) {
-	    zend_throw_exception_ex(php_zmq_zyre_exception_sc_entry, errno TSRMLS_CC, "Group name can not be empty");
+	    zend_throw_exception_ex(php_zmq_zyre_exception_sc_entry, 0 TSRMLS_CC, "Group name can not be empty");
+        return;
 	}
 	
 	zyre_shouts (this->zyre, group, data);
@@ -1989,7 +2011,8 @@ PHP_METHOD(zmqzyre, sendPeer)
 	}
 	
 	if (peer_len == 0) {
-	    zend_throw_exception_ex(php_zmq_zyre_exception_sc_entry, errno TSRMLS_CC, "Peer ID can not be empty");
+	    zend_throw_exception_ex(php_zmq_zyre_exception_sc_entry, 0 TSRMLS_CC, "Peer ID can not be empty");
+	    return;
 	}
 
 	zyre_whispers(this->zyre, peer, data);
@@ -2713,21 +2736,21 @@ PHP_MSHUTDOWN_FUNCTION(zmq)
 
 PHP_MINFO_FUNCTION(zmq)
 {
-	char zmq[PHP_ZMQ_VERSION_LEN];
-	char czmq[PHP_ZMQ_VERSION_LEN];
-	char zyre[PHP_ZMQ_VERSION_LEN];
+	char zmq_version[PHP_ZMQ_VERSION_LEN];
+	char czmq_version[PHP_ZMQ_VERSION_LEN];
+	char zyre_version[PHP_ZMQ_VERSION_LEN];
 
-	php_zmq_get_lib_version(zmq);
-	php_czmq_get_lib_version(czmq);
-	php_zyre_get_lib_version(zyre);
+	php_zmq_get_lib_version(zmq_version);
+	php_czmq_get_lib_version(czmq_version);
+	php_zyre_get_lib_version(zyre_version);
 
 	php_info_print_table_start();
 
 		php_info_print_table_header(2, "ZMQ extension", "enabled");
 		php_info_print_table_row(2, "ZMQ extension version", PHP_ZMQ_VERSION);
-		php_info_print_table_row(2, "libzmq version", zmq);
-		php_info_print_table_row(2, "czmq version", czmq);
-		php_info_print_table_row(2, "libzyre version", zyre);
+		php_info_print_table_row(2, "libzmq version", zmq_version);
+		php_info_print_table_row(2, "czmq version", czmq_version);
+		php_info_print_table_row(2, "libzyre version", zyre_version);
 
 	php_info_print_table_end();
 	DISPLAY_INI_ENTRIES();
