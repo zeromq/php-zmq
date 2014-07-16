@@ -103,16 +103,19 @@ static void php_zmq_get_lib_version(char buffer[PHP_ZMQ_VERSION_LEN])
 }
 /* }}} */
 
+#ifdef HAVE_CZMQ
 /** {{{ static void php_czmq_get_lib_version(char buffer[PHP_ZMQ_VERSION_LEN])
 */
 static void php_czmq_get_lib_version(char buffer[PHP_ZMQ_VERSION_LEN])
 {
     int major = 0, minor = 0, patch = 0;
     zsys_version(&major, &minor, &patch);
-	(void) snprintf(buffer, PHP_ZMQ_VERSION_LEN - 1, "%d.%d.%d", major, minor, patch);
+    (void) snprintf(buffer, PHP_ZMQ_VERSION_LEN - 1, "%d.%d.%d", major, minor, patch);
 }
 /* }}} */
+#endif
 
+#ifdef HAVE_ZYRE
 /** {{{ static void php_zyre_get_lib_version(char buffer[PHP_ZMQ_VERSION_LEN])
 */
 static void php_zyre_get_lib_version(char buffer[PHP_ZMQ_VERSION_LEN])
@@ -120,6 +123,7 @@ static void php_zyre_get_lib_version(char buffer[PHP_ZMQ_VERSION_LEN])
 	(void) snprintf(buffer, PHP_ZMQ_VERSION_LEN - 1, "%d.%d.%d", ZYRE_VERSION_MAJOR, ZYRE_VERSION_MINOR, ZYRE_VERSION_PATCH);
 }
 /* }}} */
+#endif
 
 /** {{{ static int php_zmq_socket_list_entry(void)
 */
@@ -2737,20 +2741,32 @@ PHP_MSHUTDOWN_FUNCTION(zmq)
 PHP_MINFO_FUNCTION(zmq)
 {
 	char zmq_version[PHP_ZMQ_VERSION_LEN];
+#ifdef HAVE_CZMQ
 	char czmq_version[PHP_ZMQ_VERSION_LEN];
+#endif
+#ifdef HAVE_ZYRE
 	char zyre_version[PHP_ZMQ_VERSION_LEN];
+#endif
 
 	php_zmq_get_lib_version(zmq_version);
+#ifdef HAVE_CZMQ
 	php_czmq_get_lib_version(czmq_version);
+#endif
+#ifdef HAVE_ZYRE
 	php_zyre_get_lib_version(zyre_version);
+#endif
 
 	php_info_print_table_start();
 
 		php_info_print_table_header(2, "ZMQ extension", "enabled");
 		php_info_print_table_row(2, "ZMQ extension version", PHP_ZMQ_VERSION);
 		php_info_print_table_row(2, "libzmq version", zmq_version);
+#ifdef HAVE_CZMQ
 		php_info_print_table_row(2, "czmq version", czmq_version);
+#endif
+#ifdef HAVE_ZYRE
 		php_info_print_table_row(2, "libzyre version", zyre_version);
+#endif
 
 	php_info_print_table_end();
 	DISPLAY_INI_ENTRIES();
