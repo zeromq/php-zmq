@@ -2715,6 +2715,7 @@ PHP_MINIT_FUNCTION(zmq)
 #undef PHP_ZMQ_REGISTER_CONST_LONG
 #undef PHP_ZMQ_REGISTER_CONST_STRING
 
+#ifdef HAVE_ZYRE_1
 #define PHP_ZYRE_REGISTER_CONST_STRING(const_name, value) \
 	zend_declare_class_constant_string (php_zmq_zyre_sc_entry, const_name, sizeof(const_name)-1, value TSRMLS_CC);
 
@@ -2722,7 +2723,7 @@ PHP_MINIT_FUNCTION(zmq)
 	PHP_ZYRE_REGISTER_CONST_STRING("LIBZYRE_VERSION", version);
 
 #undef PHP_ZYRE_REGISTER_CONST_STRING
-
+#endif
 	return SUCCESS;
 }
 
