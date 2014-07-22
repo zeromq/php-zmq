@@ -1831,9 +1831,13 @@ ZEND_END_ARG_INFO();
 
 
 // Helper function to convert zhash_t to php object
-void zhash_to_object(const char *key, void *item, void *argument)
+void zhash_to_object(const char *key, void *item, void **argument)
 {
-	zval *obj = (zval *)argument;
+	zval *obj = (zval *)argument[0];
+#ifdef ZTS
+	TSRMLS_D = argument[1];
+#endif
+
 	zend_update_property_string(NULL, obj, key, strlen(key), (char *)item TSRMLS_CC);
 }
 
@@ -1887,7 +1891,12 @@ PHP_METHOD(zmqzyre, recv)
 				MAKE_STD_ZVAL(h);
 				object_init(h);
 
-				zhash_foreach(headers, zhash_to_object, h);
+				void *args[2];
+				args[0] = h;
+#ifdef ZTS
+				args[1] = TSRMLS_C;
+#endif
+				zhash_foreach(headers, zhash_to_object, args);
 				zhash_destroy(&headers);
 
 				zend_update_property(NULL, return_value, "headers", strlen("headers"), h TSRMLS_CC);
