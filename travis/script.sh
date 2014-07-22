@@ -143,7 +143,7 @@ make_test() {
     pushd $build_dir
 
     phpize
-    ./configure --with-zmq="$zeromq_dir"
+    ./configure #--with-zmq="$zeromq_dir"
     make
 
     NO_INTERACTION=1 \
@@ -201,7 +201,9 @@ fi
 init_build_dir $build_dir
 
 # Some verbose debug about libs
-pkg-config --list-all
-sudo ldconfig -v
+printf "Verbose ZMQ stuff from pkg-config\n"
+pkg-config --list-all | egrep "(zmq|zyre)"
+printf "Verbose ZMQ stuff from ldconfig\n"
+ldconfig -p | egrep "(zmq|zyre)"
 
 make_test $build_dir $zeromq_dir
