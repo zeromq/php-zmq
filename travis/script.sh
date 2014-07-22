@@ -32,7 +32,7 @@ install_zeromq() {
     # Try to install from precompiled
     if test -d "$binary_repository_local_path/zeromq/zeromq-${zeromq_version}"
     then
-        ln -s "$binary_repository_local_path/zeromq/zeromq-${zeromq_version}" $zeromq_dir
+        ln -sv "$binary_repository_local_path/zeromq/zeromq-${zeromq_version}" $zeromq_dir
         sudo ldconfig
         return
     fi
@@ -76,7 +76,7 @@ install_czmq() {
     # Try to install from precompiled
     if test -d "$binary_repository_local_path/czmq/czmq-${czmq_version}"
     then
-        ln -s "$binary_repository_local_path/czmq/czmq-${czmq_version}" $czmq_dir
+        ln -sv "$binary_repository_local_path/czmq/czmq-${czmq_version}" $czmq_dir
         sudo ldconfig
         return
     fi
@@ -99,7 +99,7 @@ install_zyre() {
     # Try to install from precompiled
     if test -d "$binary_repository_local_path/zyre/zyre-${zyre_version}"
     then
-        ln -s "$binary_repository_local_path/zyre/zyre-${zyre_version}" $zyre_dir
+        ln -sv "$binary_repository_local_path/zyre/zyre-${zyre_version}" $zyre_dir
         sudo ldconfig
         return
     fi
@@ -121,7 +121,7 @@ init_build_dir() {
     pear package
     tar xfz "zmq-${php_zmq_version}.tgz" -C /tmp
 
-    ln -s "/tmp/zmq-${php_zmq_version}" $build_dir
+    ln -sv "/tmp/zmq-${php_zmq_version}" $build_dir
 }
 
 
