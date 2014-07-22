@@ -12,6 +12,6 @@ before_install:
     - sudo su -c "echo '/tmp/zeromq/lib' > /etc/ld.so.conf.d/zmq-travis.conf"
     - sudo su -c "echo '/tmp/czmq/lib' >> /etc/ld.so.conf.d/zmq-travis.conf"
     - sudo su -c "echo '/tmp/zyre/lib' >> /etc/ld.so.conf.d/zmq-travis.conf"
-    - sudo su -c "echo 'export PKG_CONFIG_PATH="/tmp/zeromq/lib/pkgconfig:/tmp/czmq/lib/pkgconfig:/tmp/zyre/lib/pkgconfig' >> /etc/profile"
+    - sudo su -c "echo 'export PKG_CONFIG_PATH=/tmp/zeromq/lib/pkgconfig:/tmp/czmq/lib/pkgconfig:/tmp/zyre/lib/pkgconfig' >> /etc/profile"
 
 script: travis/script.sh $ZEROMQ_VERSION $CZMQ_VERSION $ZYRE_VERSION
