@@ -209,6 +209,9 @@ init_build_dir $build_dir
 # Some verbose debug about libs
 printf "Verbose ZMQ stuff from pkg-config\n"
 pkg-config --list-all | egrep "(zmq|zyre)"
+pkg-config --libs --cflags libzmq
+pkg-config --libs --cflags libczmq
+pkg-config --libs --cflags libzyre
 printf "Verbose ZMQ stuff from ldconfig\n"
 ldconfig -p | egrep "(zmq|zyre)"
 
