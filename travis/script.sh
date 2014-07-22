@@ -199,4 +199,9 @@ then
 fi
 
 init_build_dir $build_dir
+
+# Some verbose debug about libs
+pkg-config --list-all
+sudo ldconfig -v
+
 make_test $build_dir $zeromq_dir
