@@ -8,6 +8,7 @@ env:
 
 before_install:
     - sudo apt-get update
+    - sudo apt-get remove libzmq3-dev libzmq3
     - sudo apt-get install uuid-dev
     - sudo su -c "echo '/tmp/zeromq/lib' > /etc/ld.so.conf.d/zmq-travis.conf"
     - sudo su -c "echo '/tmp/czmq/lib' >> /etc/ld.so.conf.d/zmq-travis.conf"
