@@ -143,8 +143,14 @@ make_test() {
     pushd $build_dir
 
     phpize
-    ./configure #--with-zmq="$zeromq_dir"
+    ./configure
     make
+
+    if test ! -e modules/zmq.so
+    then
+        printf "PHP extension build failed\n"
+        exit 1
+    fi
 
     NO_INTERACTION=1 \
     REPORT_EXIT_STATUS=1 \
