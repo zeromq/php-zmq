@@ -143,7 +143,7 @@ make_test() {
     pushd $build_dir
 
     phpize
-    ./configure
+    ./configure --with-zmq="$zeromq_dir"
     make
 
     if test ! -e modules/zmq.so
