@@ -113,9 +113,9 @@ install_zyre() {
     # fi
     
     # Install from source
-    git clone https://github.com/zeromq/czmq
-    cd czmq
-    git checkout "tags/v${czmq_version}"
+    git clone https://github.com/zeromq/zyre
+    cd zyre
+    git checkout "tags/v${zyre_version}"
     
     ./autogen.sh
     ./configure --prefix=$zeromq_dir
