@@ -74,16 +74,24 @@ install_czmq() {
     local czmq_dir=$2
     
     # Try to install from precompiled
-    if test -d "$binary_repository_local_path/czmq/czmq-${czmq_version}"
-    then
-        ln -sv "$binary_repository_local_path/czmq/czmq-${czmq_version}" $czmq_dir
-        sudo ldconfig
-        return
-    fi
+    # if test -d "$binary_repository_local_path/czmq/czmq-${czmq_version}"
+    # then
+    #     ln -sv "$binary_repository_local_path/czmq/czmq-${czmq_version}" $czmq_dir
+    #     sudo ldconfig
+    #     return
+    # fi
     
     # Install from source
-    printf "CZMQ install from source not supported, yet\n"
-    exit 1
+    git clone https://github.com/zeromq/czmq
+    cd czmq
+    git checkout "tags/v${czmq_version}"
+    
+    ./autogen.sh
+    ./configure --prefix=$zeromq_dir
+    make -j 8
+    sudo make install
+    sudo ldconfig
+    cd ..
 }
 
 # Installs zyre
@@ -97,16 +105,24 @@ install_zyre() {
     local zyre_dir=$2
     
     # Try to install from precompiled
-    if test -d "$binary_repository_local_path/zyre/zyre-${zyre_version}"
-    then
-        ln -sv "$binary_repository_local_path/zyre/zyre-${zyre_version}" $zyre_dir
-        sudo ldconfig
-        return
-    fi
+    # if test -d "$binary_repository_local_path/zyre/zyre-${zyre_version}"
+    # then
+    #     ln -sv "$binary_repository_local_path/zyre/zyre-${zyre_version}" $zyre_dir
+    #     sudo ldconfig
+    #     return
+    # fi
     
     # Install from source
-    printf "Zyre install from source not supported, yet\n"
-    exit 1
+    git clone https://github.com/zeromq/czmq
+    cd czmq
+    git checkout "tags/v${czmq_version}"
+    
+    ./autogen.sh
+    ./configure --prefix=$zeromq_dir
+    make -j 8
+    sudo make install
+    sudo ldconfig
+    cd ..
 }
 # Ensures that the build directory exists and contains the extension and its
 # tests by packaging and then extracting it to the build directory.
