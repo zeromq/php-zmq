@@ -117,7 +117,7 @@ make_test() {
     local with_czmq=$3
     local with_czmq_option=""
 
-    if test $with_czmq = "true"
+    if test "${with_czmq}" = "true"
     then
         with_czmq_option="--with-czmq=/tmp/czmq"
     fi
@@ -184,7 +184,7 @@ build_dir=/tmp/build
 install_libsodium $libsodium_dir
 install_zeromq $zeromq_version $zeromq_dir
 
-if test $with_czmq = "true"
+if test "${with_czmq}" = "true"
 then
     install_czmq $czmq_dir
 fi
