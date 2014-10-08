@@ -191,6 +191,57 @@ class ZMQSocket {
      * Track if the socket is writable
      */
     const POLL_OUT = 2;
+
+    /**
+     * Use the PLAIN authentication mechanism to authenticate clients.
+     */
+    const SOCKOPT_PLAIN_SERVER = 44;
+
+    /**
+     * The username to present when connecting to a server using the PLAIN
+     * authentication mechanism.
+     */
+    const SOCKOPT_PLAIN_USERNAME = 45;
+
+    /**
+     * The password to present when connecting to a server using the PLAIN
+     * authentication mechanism.
+     */
+    const SOCKOPT_PLAIN_PASSWORD = 46;
+
+    /**
+     * Use the CURVE authentication mechanism to authenticate clients.
+     */
+    const SOCKOPT_CURVE_SERVER = 47;
+
+    /**
+     * The public key to present when connecting to a server using the CURVE
+     * authentication mechanism.
+     */
+    const SOCKOPT_CURVE_PUBLICKEY = 48;
+
+    /**
+     * The secret key to present when connecting to a server using the CURVE
+     * authentication mechanism.
+     */
+    const SOCKOPT_CURVE_SECRETKEY = 49;
+
+    /**
+     * The public key of the server using the CURVE authentication mechanism.
+     */
+    const SOCKOPT_CURVE_SERVERKEY = 50;
+
+    /**
+     * The domain for ZAP authentication.
+     */
+    const SOCKOPT_ZAP_DOMAIN = 55;
+
+    /**
+     * When configuring a ZMQAuth to use the CURVE authentication mechanism
+     * (see ZMQAuth#configure), specify ZMQ::CURVE_ALLOW_ANY as the location
+     * parameter to allow all client keys without checking.
+     */
+    const CURVE_ALLOW_ANY = '*';
     
     /**
      * Construct a new ZMQ object. The extending class must call this method. 
@@ -373,6 +424,246 @@ class ZMQPoll {
      * @return ZMQPoll
      */
     public function clear() {}
+}
+
+/**
+ * A security certificate for the ØMQ CURVE authentication mechanism.
+ */
+class ZMQCert {
+
+    /**
+     * Constructs a new instance of the ZMQCert class.
+     *
+     * If the filename parameter is given and is a readable file, then the
+     * security certificate is initialised with the public and secret keys and
+     * metadata in the file.
+     *
+     * Note well that if the file only contains a public key, then the secret
+     * key won't be initialised but the security certificate can be applied to a
+     * socket without error.
+     *
+     * If the filename parameter isn't given, then the security certificate is
+     * initialised with randomly generated public and secret keys.
+     *
+     * @final
+     *
+     * @param string $filename
+     * @throws ZMQCertException If the filename parameter isn't a string or
+     *     can't be converted to a string
+     * @throws ZMQCertException If the underlying zcert object can't be
+     *     created, which is likely if libsodium isn't installed
+     * @throws ZMQCertException If the file isn't readable or isn't in the
+     *     {@link ZMQCert#save} format
+     */
+    public function __construct($filename = '') {}
+
+    /**
+     * Gets the public key as a 32-byte binary string.
+     *
+     * @return string
+     */
+    public function getPublicKey() {}
+
+    /**
+     * Gets the secret key as a 32-byte binary string.
+     *
+     * @return string
+     */
+    public function getSecretKey() {}
+
+    /**
+     * Gets the public key as a Z85 armoured string.
+     *
+     * @return string
+     */
+    public function getPublicTxt() {}
+
+    /**
+     * Gets the secret key as a Z85 armoured string.
+     *
+     * @return string
+     */
+    public function getSecretTxt() {}
+
+    /**
+     * Sets the metadata value.
+     *
+     * @param string $name The name of the metadata value
+     * @param string $format The metadata value
+     */
+    public function setMeta($name, $format) {}
+
+    /**
+     * Gets the metadata value.
+     *
+     * @param string $name The name of the metadata value
+     * @return string|null If the metadata value exists, then it is returned;
+     *     otherwise null
+     */
+    public function getMeta($name) {}
+
+    /**
+     * Gets the names of all of the metadata values.
+     *
+     * Note well that the names of the metadata values are returned in the
+     * opposite order that they are registered.
+     *
+     * <code>
+     * $cert = new ZMQCert();
+     * $cert->setMeta('one', '1');
+     * $cert->setMeta('two', '2');
+     * $cert->getMetaNames(); => ['two', 'one']
+     * </code>
+     *
+     * @return array The names of all of the metadata values
+     */
+    public function getMetaKeys() {}
+
+    /**
+     * Saves the public key and metadata to the specified file.
+     *
+     * @param string $filename
+     * @throws ZMQCertException If the file isn't writeable
+     */
+    public function savePublic($filename) {}
+
+    /**
+     * Saves the secret key and metadata to the specified file.
+     *
+     * @param string $filename
+     * @throws ZMQCertException If the file isn't writeable
+     */
+    public function saveSecret($filename) {}
+
+    /**
+     * Saves the public and secret keys and metadata to the specified file.
+     *
+     * @param string $filename
+     * @throws ZMQCertException If the file isn't writeable
+     */
+    public function save($filename) {}
+
+    /**
+     * Applies the security certificate to the socket by setting the
+     * {@link ZMQ::CURVE_PUBLICKEY_BIN} and {@link ZMQ::CURVE_SECRETKEY_BIN}
+     * socket options to the public and secret keys respectively.
+     *
+     * @param ZMQSocket $socket
+     */
+    public function apply(ZMQSocket $socket) {}
+
+    /**
+     * Clones the security certificate.
+     *
+     * @return ZMQCert
+     */
+    public function __clone() {}
+
+    /**
+     * Tests whether the security certificate is equal to another.
+     *
+     * Two security certificates are equal iff their public and secret keys are
+     * equal.
+     *
+     * @param ZMQCert $certificate
+     * @return boolean
+     */
+    public function equals(ZMQCert $certificate) {}
+}
+
+/**
+ * A ØMQ authentication handler, which takes over authentication for all
+ * incoming connections for a context.
+ *
+ * ØMQ has four authentication mechanisms: NULL, authenticated NULL, PLAIN,
+ * and CURVE.
+ *
+ * The default authentication mechanism is NULL, which an
+ * authentication handler doesn't receive authentication requests for.
+ *
+ * If a socket, that has a context with an authentication handler, has a ZAP
+ * domain (the {@link ZMQ::SOCKOPT_ZAP_DOMAIN} socket option is set), then the
+ * authentication handler receives authentication requests for incoming
+ * connections to that socket, hence "authenticated NULL".
+ *
+ * In both the PLAIN and CURVE authentication mechanisms the authentication
+ * handler tests the authentication credentials of the incoming connection.
+ */
+class ZMQAuth {
+
+    /**
+     * Configure the PLAIN authentication mechanism.
+     *
+     * @see ZMQAuth#configure
+     */
+    const AUTH_TYPE_PLAIN = 0;
+
+    /**
+     * Configure the CURVE authentication mechanism.
+     *
+     * @see ZMQAuth#configure
+     */
+    const AUTH_TYPE_CURVE = 1;
+
+    /**
+     * Constructs a new instance of the ZMQAuth class.
+     *
+     * @param ZMQContext $context
+     * @throws ZMQAuthException If the underlying zauth object can't be
+     *     created
+     */
+    public function __construct(ZMQContext $context) {}
+
+    /**
+     * Allow (whitelist) a single IP address.
+     *
+     * All incoming connections from the IP address will be accepted by the NULL
+     * authentication mechanism and will be allowed to continue authenticating
+     * in the PLAIN and CURVE authentication mechanisms.
+     *
+     * Note well that if you whitelist a single address, then any non-
+     * whitelisted addresses are treated as if they were blacklisted.
+     *
+     * @param string $address
+     * @return ZMQAuth Provides a fluent interface
+     */
+    public function allow($address) {}
+
+    /**
+     * Deny (blacklist) a single IP address.
+     *
+     * All incoming connections from the IP address will be rejected by all
+     * authentication mechanisms.
+     *
+     * Note well that if you define a whitelist and a blacklist then only the
+     * whitelist will be used to authenticate incoming connections.
+     *
+     * @param string $address
+     * @return ZMQAuth Provides a fluent interface
+     */
+    public function deny($address) {}
+
+    /**
+     * Configure the PLAIN or CURVE authentication mechanism for the ZAP domain.
+     *
+     * When configuring the PLAIN authentication mechanism the filename
+     * parameter should be the filename of a plain-text password file.
+     *
+     * @see examples/woodhouse.php
+     *
+     * When configuring the CURVE authentication mechanism the filename
+     * parameter should be the path of the directory that contains valid public
+     * keys.
+     *
+     * @param integer $type {@link ZMQAuth::PLAIN} to configure the PLAIN
+     *     authentication mechanism or {@link ZMQAuth::CURVE} to configure the
+     *     CURVE authentication mechanism
+     * @param string $domain The ZAP domain. Use "*" to configure the PLAIN or
+     *     CURVE authentication mechanism for all domains
+     * @param string $filename
+     * @return ZMQAuth Provides a fluent interface
+     */
+    public function configure($type, $domain, $filename) {}
 }
 ?>
 </code></pre>

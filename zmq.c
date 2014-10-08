@@ -32,6 +32,18 @@
 #include "php_zmq_private.h"
 #include "php_zmq_pollset.h"
 
+/* PHP 5.4 */
+#if PHP_VERSION_ID < 50399
+# define object_properties_init(zo, class_type) { \
+			zval *tmp; \
+			zend_hash_copy((*zo).properties, \
+							&class_type->default_properties, \
+							(copy_ctor_func_t) zval_add_ref, \
+							(void *) &tmp, \
+							sizeof(zval *)); \
+		 }
+#endif
+
 ZEND_DECLARE_MODULE_GLOBALS(php_zmq)
 
 zend_class_entry *php_zmq_sc_entry;
@@ -40,11 +52,21 @@ zend_class_entry *php_zmq_socket_sc_entry;
 zend_class_entry *php_zmq_poll_sc_entry;
 zend_class_entry *php_zmq_device_sc_entry;
 
+#ifdef HAVE_CZMQ_2
+zend_class_entry *php_zmq_cert_sc_entry;
+zend_class_entry *php_zmq_auth_sc_entry;
+#endif
+
 zend_class_entry *php_zmq_exception_sc_entry;
 zend_class_entry *php_zmq_context_exception_sc_entry;
 zend_class_entry *php_zmq_socket_exception_sc_entry;
 zend_class_entry *php_zmq_poll_exception_sc_entry;
 zend_class_entry *php_zmq_device_exception_sc_entry;
+
+#ifdef HAVE_CZMQ_2
+zend_class_entry *php_zmq_cert_exception_sc_entry;
+zend_class_entry *php_zmq_auth_exception_sc_entry;
+#endif
 
 static zend_object_handlers zmq_object_handlers;
 static zend_object_handlers zmq_socket_object_handlers;
@@ -57,6 +79,11 @@ static zend_object_handlers zmq_device_object_handlers;
 
 static void *php_zmq_global_context = NULL;
 static pthread_mutex_t php_zmq_global_context_mutex = PTHREAD_MUTEX_INITIALIZER;
+#endif
+
+#ifdef HAVE_CZMQ_2
+static zend_object_handlers zmq_cert_object_handlers;
+static zend_object_handlers zmq_auth_object_handlers;
 #endif
 
 #if (PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION < 3)
@@ -1578,6 +1605,587 @@ PHP_METHOD(zmqdevice, __clone) { }
 
 /* -- END ZMQPoll */
 
+#ifdef HAVE_CZMQ_2
+
+/* --- START ZMQCert --- */
+
+static void php_zmq_cert_free_storage(void *object TSRMLS_DC)
+{
+	php_zmq_cert *zmq_cert = (php_zmq_cert *) object;
+
+	zcert_destroy(&zmq_cert->zcert);
+
+	zend_object_std_dtor(&zmq_cert->zend_object TSRMLS_CC);
+
+	efree(zmq_cert);
+}
+
+static zend_object_value php_zmq_cert_new(zend_class_entry *class_type TSRMLS_DC)
+{
+	zend_object_value result;
+	php_zmq_cert *zmq_cert;
+
+	zmq_cert = (php_zmq_cert *) emalloc(sizeof(php_zmq_cert));
+	memset(&zmq_cert->zend_object, 0, sizeof(zend_object));
+
+	/* zcert is initialised in ZMQCert#__construct. */
+	zmq_cert->zcert = NULL;
+
+	zend_object_std_init(&zmq_cert->zend_object, class_type TSRMLS_CC);
+	object_properties_init(&zmq_cert->zend_object, class_type);
+
+	result.handle = zend_objects_store_put(
+		zmq_cert,
+		NULL,
+		(zend_objects_free_object_storage_t) php_zmq_cert_free_storage,
+		NULL TSRMLS_CC
+	);
+	result.handlers = &zmq_cert_object_handlers;
+
+	return result;
+}
+
+PHP_METHOD(zmqcert, __construct)
+{
+	char *filename;
+	int filename_length;
+	zend_error_handling error_handling;
+	int parse_parameters_result;
+	php_zmq_cert *this;
+
+	filename = NULL;
+
+	zend_replace_error_handling(EH_THROW, php_zmq_cert_exception_sc_entry, &error_handling TSRMLS_CC);
+	parse_parameters_result = zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|s", &filename, &filename_length);
+	zend_restore_error_handling(&error_handling TSRMLS_CC);
+
+	if (parse_parameters_result != SUCCESS) {
+		return;
+	}
+
+	this = (php_zmq_cert *) zend_object_store_get_object(getThis() TSRMLS_CC);
+
+	if (filename == NULL) {
+		this->zcert = zcert_new();
+
+		if (this->zcert == NULL) {
+			zend_throw_exception_ex(php_zmq_cert_exception_sc_entry, PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC, "Failed to create the underlying zcert object. Is libsodium installed?", filename);
+		}
+
+		return;
+	}
+
+	this->zcert = zcert_load(filename);
+
+	if (this->zcert == NULL) {
+		zend_throw_exception_ex(php_zmq_cert_exception_sc_entry, PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC, "Failed to load the certificate from %s", filename);
+	}
+
+	return;
+}
+
+ZEND_BEGIN_ARG_INFO_EX(zmqcert___construct_args, 0, 0, 0)
+	ZEND_ARG_INFO(0, filename)
+ZEND_END_ARG_INFO();
+
+PHP_METHOD(zmqcert, getPublicKey)
+{
+	php_zmq_cert *this;
+	byte *public_key;
+
+	if (zend_parse_parameters_none() != SUCCESS) {
+		return;
+	}
+
+	this = (php_zmq_cert *) zend_object_store_get_object(getThis() TSRMLS_CC);
+	public_key = zcert_public_key(this->zcert);
+
+	RETURN_STRINGL((char *) public_key, 32, 1);
+}
+
+ZEND_BEGIN_ARG_INFO_EX(zmqcert_getPublicKey_args, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
+PHP_METHOD(zmqcert, getSecretKey)
+{
+	php_zmq_cert *this;
+	byte *secret_key;
+
+	if (zend_parse_parameters_none() != SUCCESS) {
+		return;
+	}
+
+	this = (php_zmq_cert *) zend_object_store_get_object(getThis() TSRMLS_CC);
+	secret_key = zcert_secret_key(this->zcert);
+
+	RETURN_STRINGL((char *) secret_key, 32, 1);
+}
+
+ZEND_BEGIN_ARG_INFO_EX(zmqcert_getSecretKey_args, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
+PHP_METHOD(zmqcert, getPublicTxt)
+{
+	php_zmq_cert *this;
+	char *public_txt;
+
+	if (zend_parse_parameters_none() != SUCCESS) {
+		return;
+	}
+
+	this = (php_zmq_cert *) zend_object_store_get_object(getThis() TSRMLS_CC);
+	public_txt = zcert_public_txt(this->zcert);
+
+	RETURN_STRING(public_txt, 1);
+}
+
+ZEND_BEGIN_ARG_INFO_EX(zmqcert_getPublicTxt_args, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
+PHP_METHOD(zmqcert, getSecretTxt)
+{
+	php_zmq_cert *this;
+	char *secret_txt;
+
+	if (zend_parse_parameters_none() != SUCCESS) {
+		return;
+	}
+
+	this = (php_zmq_cert *) zend_object_store_get_object(getThis() TSRMLS_CC);
+	secret_txt = zcert_secret_txt(this->zcert);
+
+	RETURN_STRING(secret_txt, 1);
+}
+
+ZEND_BEGIN_ARG_INFO_EX(zmqcert_getSecretTxt_args, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
+PHP_METHOD(zmqcert, setMeta)
+{
+	php_zmq_cert *this;
+	char *name;
+	int name_length;
+	char *format;
+	int format_length;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss", &name, &name_length, &format, &format_length) != SUCCESS) {
+		return;
+	}
+
+	this = (php_zmq_cert *) zend_object_store_get_object(getThis() TSRMLS_CC);
+
+	zcert_set_meta(this->zcert, name, format);
+
+	return;
+}
+
+ZEND_BEGIN_ARG_INFO_EX(zmqcert_setMeta_args, 0, 0, 2)
+	ZEND_ARG_INFO(0, name)
+	ZEND_ARG_INFO(0, format)
+ZEND_END_ARG_INFO()
+
+PHP_METHOD(zmqcert, getMeta)
+{
+	char *name;
+	int name_length;
+	php_zmq_cert *this;
+	char *result;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &name, &name_length) != SUCCESS) {
+		return;
+	}
+
+	this = (php_zmq_cert *) zend_object_store_get_object(getThis() TSRMLS_CC);
+
+	result = zcert_meta(this->zcert, name);
+
+	if (result == NULL) {
+		RETURN_NULL();
+	}
+
+	RETURN_STRING(result, 1);
+}
+
+ZEND_BEGIN_ARG_INFO_EX(zmqcert_getMeta_args, 0, 0, 1)
+	ZEND_ARG_INFO(0, name)
+ZEND_END_ARG_INFO()
+
+PHP_METHOD(zmqcert, getMetaKeys)
+{
+	php_zmq_cert *this;
+	zlist_t *meta_keys;
+	char *meta_key;
+	int i;
+
+	this = (php_zmq_cert *) zend_object_store_get_object(getThis() TSRMLS_CC);
+
+	meta_keys = zcert_meta_keys(this->zcert);
+	meta_key = (char *) zlist_first(meta_keys);
+
+	array_init(return_value);
+	i = 0;
+
+	while (meta_key) {
+		add_index_string(return_value, i, meta_key, 1);
+		++i;
+
+		meta_key = zlist_next(meta_keys);
+	}
+
+	return;
+}
+
+ZEND_BEGIN_ARG_INFO_EX(zmqcert_getMetaKeys_args, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
+PHP_METHOD(zmqcert, save)
+{
+	php_zmq_cert *this;
+	char *filename;
+	int filename_length;
+	int zcert_save_result;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &filename, &filename_length) != SUCCESS) {
+		return;
+	}
+
+	this = (php_zmq_cert *) zend_object_store_get_object(getThis() TSRMLS_CC);
+
+	zcert_save_result = zcert_save(this->zcert, filename);
+
+	if (zcert_save_result == -1) {
+		zend_throw_exception_ex(php_zmq_cert_exception_sc_entry, PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC, "Failed to save the certificate to %s", filename);
+	}
+
+	return;
+}
+
+ZEND_BEGIN_ARG_INFO_EX(zmqcert_save_args, 0, 0, 1)
+	ZEND_ARG_INFO(0, filename)
+ZEND_END_ARG_INFO()
+
+PHP_METHOD(zmqcert, savePublic)
+{
+	char *filename;
+	int filename_length;
+	php_zmq_cert *this;
+	int zcert_save_public_result;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &filename, &filename_length) != SUCCESS) {
+		return;
+	}
+
+	this = (php_zmq_cert *) zend_object_store_get_object(getThis() TSRMLS_CC);
+
+	zcert_save_public_result = zcert_save_public(this->zcert, filename);
+
+	if (zcert_save_public_result == -1) {
+		zend_throw_exception_ex(php_zmq_cert_exception_sc_entry, PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC, "Failed to save the public certificate to %s", filename);
+	}
+
+	return;
+}
+
+ZEND_BEGIN_ARG_INFO_EX(zmqcert_savePublic_args, 0, 0, 1)
+	ZEND_ARG_INFO(0, filename)
+ZEND_END_ARG_INFO()
+
+PHP_METHOD(zmqcert, saveSecret)
+{
+	char *filename;
+	int filename_length;
+	php_zmq_cert *this;
+	int zcert_save_secret_result;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &filename, &filename_length) != SUCCESS) {
+		return;
+	}
+
+	this = (php_zmq_cert *) zend_object_store_get_object(getThis() TSRMLS_CC);
+
+	zcert_save_secret_result = zcert_save_secret(this->zcert, filename);
+
+	if (zcert_save_secret_result == -1) {
+		zend_throw_exception_ex(php_zmq_cert_exception_sc_entry, PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC, "Failed to save the secret certificate to %s", filename);
+	}
+
+	return;
+}
+
+ZEND_BEGIN_ARG_INFO_EX(zmqcert_saveSecret_args, 0, 0, 1)
+	ZEND_ARG_INFO(0, filename)
+ZEND_END_ARG_INFO()
+
+PHP_METHOD(zmqcert, apply)
+{
+	php_zmq_cert *this;
+	zval *object;
+	php_zmq_socket_object *socket_object;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "O", &object, php_zmq_socket_sc_entry) != SUCCESS) {
+		return;
+	}
+
+	this = (php_zmq_cert *) zend_object_store_get_object(getThis() TSRMLS_CC);
+	socket_object = (php_zmq_socket_object *) zend_object_store_get_object(object TSRMLS_CC);
+
+	zcert_apply(this->zcert, socket_object->socket->z_socket);
+
+	return;
+}
+
+ZEND_BEGIN_ARG_INFO_EX(zmqcert_apply_args, 0, 0, 1)
+	ZEND_ARG_OBJ_INFO(0, ZMQSocket, ZMQSocket, 0)
+ZEND_END_ARG_INFO()
+
+static zend_object_value php_zmq_cert_clone(zval *object TSRMLS_DC)
+{
+	php_zmq_cert *this;
+	zend_object_value result;
+	php_zmq_cert *that;
+
+	this = (php_zmq_cert *) zend_object_store_get_object(object TSRMLS_CC);
+
+	result = php_zmq_cert_new(php_zmq_cert_sc_entry TSRMLS_CC);
+
+	that = (php_zmq_cert *) zend_object_store_get_object_by_handle(result.handle TSRMLS_CC);
+	that->zcert = zcert_dup(this->zcert);
+
+	return result;
+}
+
+PHP_METHOD(zmqcert, equals)
+{
+	php_zmq_cert *this;
+	zval *object;
+	php_zmq_cert *that;
+	bool result;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "O", &object, php_zmq_cert_sc_entry) != SUCCESS) {
+		return;
+	}
+
+	this = (php_zmq_cert *) zend_object_store_get_object(getThis() TSRMLS_CC);
+	that = (php_zmq_cert *) zend_object_store_get_object(object TSRMLS_CC);
+
+	result = zcert_eq(this->zcert, that->zcert);
+
+	RETURN_BOOL(result);
+}
+
+ZEND_BEGIN_ARG_INFO_EX(zmqcert_equals_args, 0, 0, 1)
+	ZEND_ARG_OBJ_INFO(0, ZMQCert, ZMQCert, 0)
+ZEND_END_ARG_INFO()
+
+static zend_function_entry php_zmq_cert_class_methods[] = {
+	PHP_ME(zmqcert, __construct, zmqcert___construct_args, ZEND_ACC_PUBLIC | ZEND_ACC_CTOR | ZEND_ACC_FINAL)
+	PHP_ME(zmqcert, getPublicKey, zmqcert_getPublicKey_args, ZEND_ACC_PUBLIC)
+	PHP_ME(zmqcert, getSecretKey, zmqcert_getSecretKey_args, ZEND_ACC_PUBLIC)
+	PHP_ME(zmqcert, getPublicTxt, zmqcert_getPublicTxt_args, ZEND_ACC_PUBLIC)
+	PHP_ME(zmqcert, getSecretTxt, zmqcert_getSecretTxt_args, ZEND_ACC_PUBLIC)
+	PHP_ME(zmqcert, setMeta, zmqcert_setMeta_args, ZEND_ACC_PUBLIC)
+	PHP_ME(zmqcert, getMeta, zmqcert_getMeta_args, ZEND_ACC_PUBLIC)
+	PHP_ME(zmqcert, getMetaKeys, zmqcert_getMetaKeys_args, ZEND_ACC_PUBLIC)
+	PHP_ME(zmqcert, save, zmqcert_save_args, ZEND_ACC_PUBLIC)
+	PHP_ME(zmqcert, savePublic, zmqcert_savePublic_args, ZEND_ACC_PUBLIC)
+	PHP_ME(zmqcert, saveSecret, zmqcert_saveSecret_args, ZEND_ACC_PUBLIC)
+	PHP_ME(zmqcert, apply, zmqcert_apply_args, ZEND_ACC_PUBLIC)
+	/* PHP_ME(zmqcert, __clone, zmqcert___clone_args, ZEND_ACC_PUBLIC) */
+	PHP_ME(zmqcert, equals, zmqcert_equals_args, ZEND_ACC_PUBLIC)
+	{NULL, NULL, NULL}
+};
+
+/* --- END ZMQCert --- */
+
+/* --- START ZMQAuth --- */
+
+static void php_zmq_auth_free_storage(void *object TSRMLS_DC)
+{
+	php_zmq_auth *zmq_auth = (php_zmq_auth *) object;
+
+	zauth_destroy(&zmq_auth->zauth);
+	zctx_destroy(&zmq_auth->shadow_context);
+
+	zend_object_std_dtor(&zmq_auth->zend_object TSRMLS_CC);
+
+	efree(zmq_auth);
+}
+
+static zend_object_value php_zmq_auth_new(zend_class_entry *class_type TSRMLS_DC)
+{
+	zend_object_value result;
+	php_zmq_auth *zmq_auth;
+
+	zmq_auth = (php_zmq_auth *) emalloc(sizeof(php_zmq_auth));
+	memset(&zmq_auth->zend_object, 0, sizeof(zend_object));
+
+	/* zauth is initialised in ZMQAuth#__construct. */
+	zmq_auth->zauth = NULL;
+
+	zend_object_std_init(&zmq_auth->zend_object, class_type TSRMLS_CC);
+	object_properties_init(&zmq_auth->zend_object, class_type);
+
+	result.handle = zend_objects_store_put(
+		zmq_auth,
+		NULL,
+		(zend_objects_free_object_storage_t) php_zmq_auth_free_storage,
+		NULL TSRMLS_CC
+	);
+	result.handlers = &zmq_auth_object_handlers;
+
+	return result;
+}
+
+PHP_METHOD(zmqauth, __construct)
+{
+	php_zmq_auth *this;
+	zval *object;
+	zend_error_handling error_handling;
+	int parse_parameters_result;
+	php_zmq_context_object *context_object;
+
+	zend_replace_error_handling(EH_THROW, php_zmq_cert_exception_sc_entry, &error_handling TSRMLS_CC);
+	parse_parameters_result = zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "O", &object, php_zmq_context_sc_entry);
+	zend_restore_error_handling(&error_handling TSRMLS_CC);
+
+	if (parse_parameters_result != SUCCESS) {
+		return;
+	}
+
+	this = (php_zmq_auth *) zend_object_store_get_object(getThis() TSRMLS_CC);
+
+	context_object = (php_zmq_context_object *) zend_object_store_get_object(object TSRMLS_CC);
+
+	// NOTE (phuedx, 2014-05-14): A zauth object needs a context so that it
+	// can take over authentication for all incoming connections in that
+	// context. Creating a shadow context from the specified context allows
+	// us to continue working with CZMQ.
+	this->shadow_context = zctx_shadow_zmq_ctx(context_object->context->z_ctx);
+
+	if (this->shadow_context == NULL) {
+		zend_throw_exception_ex(php_zmq_auth_exception_sc_entry, PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC, "Failed to create the underlying shadow context object.");
+
+		return;
+	}
+
+	this->zauth = zauth_new(this->shadow_context);
+
+	if (this->zauth == NULL) {
+		zend_throw_exception_ex(php_zmq_auth_exception_sc_entry, PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC, "Failed to create the underlying zauth object.");
+	}
+
+	return;
+}
+
+ZEND_BEGIN_ARG_INFO_EX(zmqauth___construct_args, 0, 0, 1)
+	ZEND_ARG_OBJ_INFO(0, ZMQContext, ZMQContext, 0)
+ZEND_END_ARG_INFO();
+
+PHP_METHOD(zmqauth, allow)
+{
+	char *address;
+	int address_length;
+	php_zmq_auth *this;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &address, &address_length) != SUCCESS) {
+		return;
+	}
+
+	this = (php_zmq_auth *) zend_object_store_get_object(getThis() TSRMLS_CC);
+
+	zauth_allow(this->zauth, address);
+
+	RETURN_ZVAL(getThis(), 1, 0);
+}
+
+ZEND_BEGIN_ARG_INFO_EX(zmqauth_allow_args, 0, 0, 1)
+	ZEND_ARG_INFO(0, address)
+ZEND_END_ARG_INFO();
+
+PHP_METHOD(zmqauth, deny)
+{
+	char *address;
+	int address_length;
+	php_zmq_auth *this;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &address, &address_length) != SUCCESS) {
+		return;
+	}
+
+	this = (php_zmq_auth *) zend_object_store_get_object(getThis() TSRMLS_CC);
+
+	zauth_deny(this->zauth, address);
+
+	RETURN_ZVAL(getThis(), 1, 0);
+}
+
+ZEND_BEGIN_ARG_INFO_EX(zmqauth_deny_args, 0, 0, 1)
+	ZEND_ARG_INFO(0, address)
+ZEND_END_ARG_INFO();
+
+PHP_METHOD(zmqauth, configure)
+{
+	php_zmq_auth *this;
+	int parse_parameters_result;
+	long type;
+	char *domain;
+	int domain_length;
+	char *filename;
+	int filename_length;
+
+	this = (php_zmq_auth *) zend_object_store_get_object(getThis() TSRMLS_CC);
+
+	parse_parameters_result = zend_parse_parameters(
+		ZEND_NUM_ARGS() TSRMLS_CC,
+		"lss",
+		&type,
+		&domain, &domain_length,
+		&filename,
+		&filename_length
+	);
+
+	if (parse_parameters_result != SUCCESS) {
+		return;
+	}
+
+	switch (type) {
+		case PHP_ZMQ_AUTH_TYPE_PLAIN:
+			zauth_configure_plain(this->zauth, domain, filename);
+		break;
+
+		case PHP_ZMQ_AUTH_TYPE_CURVE:
+			zauth_configure_curve(this->zauth, domain, filename);
+		break;
+
+		// TODO (phuedx, 2014-05-16): CZMQ now supports GSSAPI (see
+		// zauth_configure_gssapi).
+
+		default:
+			zend_throw_exception_ex(php_zmq_auth_exception_sc_entry, PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC, "Unknown auth type. Are you using one of the ZMQAuth constants?");
+		break;
+	}
+
+	RETURN_ZVAL(getThis(), 1, 0);
+}
+
+ZEND_BEGIN_ARG_INFO_EX(zmqauth_configure_args, 0, 0, 3)
+	ZEND_ARG_INFO(0, type)
+	ZEND_ARG_INFO(0, domain)
+	ZEND_ARG_INFO(0, filename)
+ZEND_END_ARG_INFO();
+
+static zend_function_entry php_zmq_auth_class_methods[] = {
+	PHP_ME(zmqauth, __construct, zmqauth___construct_args, ZEND_ACC_PUBLIC | ZEND_ACC_CTOR | ZEND_ACC_FINAL)
+	PHP_ME(zmqauth, allow, zmqauth_allow_args, ZEND_ACC_PUBLIC)
+	PHP_ME(zmqauth, deny, zmqauth_deny_args, ZEND_ACC_PUBLIC)
+	PHP_ME(zmqauth, configure, zmqauth_configure_args, ZEND_ACC_PUBLIC)
+	{NULL, NULL, NULL}
+};
+
+/* --- END ZMQAuth --- */
+
+#endif // HAVE_CZMQ_2
+
 ZEND_BEGIN_ARG_INFO_EX(zmq_construct_args, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
@@ -1903,18 +2511,6 @@ static void php_zmq_device_object_free_storage(void *object TSRMLS_DC)
 	efree(intern);
 }
 
-/* PHP 5.4 */
-#if PHP_VERSION_ID < 50399
-# define object_properties_init(zo, class_type) { \
-			zval *tmp; \
-			zend_hash_copy((*zo).properties, \
-							&class_type->default_properties, \
-							(copy_ctor_func_t) zval_add_ref, \
-							(void *) &tmp, \
-							sizeof(zval *)); \
-		 }
-#endif
-
 static zend_object_value php_zmq_context_object_new_ex(zend_class_entry *class_type, php_zmq_context_object **ptr TSRMLS_DC)
 {
 	zend_object_value retval;
@@ -2065,6 +2661,10 @@ PHP_MINIT_FUNCTION(zmq)
 	zend_class_entry ce, ce_context, ce_socket, ce_poll, ce_device;
 	zend_class_entry ce_exception, ce_context_exception, ce_socket_exception, ce_poll_exception, ce_device_exception;
 
+#ifdef HAVE_CZMQ_2
+	zend_class_entry ce_cert, ce_cert_exception, ce_auth, ce_auth_exception;
+#endif
+
 	le_zmq_context = zend_register_list_destructors_ex(NULL, php_zmq_context_dtor, "ZMQ persistent context", module_number);
 	le_zmq_socket  = zend_register_list_destructors_ex(NULL, php_zmq_socket_dtor, "ZMQ persistent socket", module_number);
 
@@ -2073,6 +2673,11 @@ PHP_MINIT_FUNCTION(zmq)
 	memcpy(&zmq_socket_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
 	memcpy(&zmq_poll_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
 	memcpy(&zmq_device_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+
+#ifdef HAVE_CZMQ_2
+	memcpy(&zmq_cert_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+	memcpy(&zmq_auth_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+#endif
 
 	INIT_CLASS_ENTRY(ce, "ZMQ", php_zmq_class_methods);
 	ce.create_object = NULL;
@@ -2099,6 +2704,18 @@ PHP_MINIT_FUNCTION(zmq)
 	zmq_device_object_handlers.clone_obj = NULL;
 	php_zmq_device_sc_entry = zend_register_internal_class(&ce_device TSRMLS_CC);
 
+#ifdef HAVE_CZMQ_2
+	INIT_CLASS_ENTRY(ce_cert, "ZMQCert", php_zmq_cert_class_methods);
+	ce_cert.create_object = php_zmq_cert_new;
+	zmq_cert_object_handlers.clone_obj = php_zmq_cert_clone;
+	php_zmq_cert_sc_entry = zend_register_internal_class(&ce_cert TSRMLS_CC);
+
+	INIT_CLASS_ENTRY(ce_auth, "ZMQAuth", php_zmq_auth_class_methods);
+	ce_auth.create_object = php_zmq_auth_new;
+	zmq_auth_object_handlers.clone_obj = NULL;
+	php_zmq_auth_sc_entry = zend_register_internal_class(&ce_auth TSRMLS_CC);
+#endif
+
 	INIT_CLASS_ENTRY(ce_exception, "ZMQException", NULL);
 	php_zmq_exception_sc_entry = zend_register_internal_class_ex(&ce_exception, zend_exception_get_default(TSRMLS_C), NULL TSRMLS_CC);
 	php_zmq_exception_sc_entry->ce_flags &= ~ZEND_ACC_FINAL_CLASS;
@@ -2118,6 +2735,16 @@ PHP_MINIT_FUNCTION(zmq)
 	INIT_CLASS_ENTRY(ce_device_exception, "ZMQDeviceException", NULL);
 	php_zmq_device_exception_sc_entry = zend_register_internal_class_ex(&ce_device_exception, php_zmq_exception_sc_entry, "ZMQException" TSRMLS_CC);
 	php_zmq_device_exception_sc_entry->ce_flags |= ZEND_ACC_FINAL_CLASS;
+
+#ifdef HAVE_CZMQ_2
+	INIT_CLASS_ENTRY(ce_cert_exception, "ZMQCertException", NULL);
+	php_zmq_cert_exception_sc_entry = zend_register_internal_class_ex(&ce_cert_exception, php_zmq_exception_sc_entry, "ZMQException" TSRMLS_CC);
+	php_zmq_cert_exception_sc_entry->ce_flags |= ZEND_ACC_FINAL_CLASS;
+
+	INIT_CLASS_ENTRY(ce_auth_exception, "ZMQAuthException", NULL);
+	php_zmq_auth_exception_sc_entry = zend_register_internal_class_ex(&ce_auth_exception, php_zmq_exception_sc_entry, "ZMQException" TSRMLS_CC);
+	php_zmq_auth_exception_sc_entry->ce_flags |= ZEND_ACC_FINAL_CLASS;
+#endif
 
 	ZEND_INIT_MODULE_GLOBALS(php_zmq, php_zmq_init_globals, NULL);
 
@@ -2186,6 +2813,13 @@ PHP_MINIT_FUNCTION(zmq)
 #if (ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR >= 2) || ZMQ_VERSION_MAJOR > 3
 	PHP_ZMQ_REGISTER_CONST_LONG("CTXOPT_MAX_SOCKETS", ZMQ_MAX_SOCKETS);
 	PHP_ZMQ_REGISTER_CONST_LONG("CTXOPT_MAX_SOCKETS_DEFAULT", ZMQ_MAX_SOCKETS_DFLT);
+#endif
+
+#ifdef HAVE_CZMQ_2
+	PHP_ZMQ_REGISTER_CONST_STRING("CURVE_ALLOW_ANY", CURVE_ALLOW_ANY);
+
+	zend_declare_class_constant_long(php_zmq_auth_sc_entry, "AUTH_TYPE_PLAIN", 15, (long)PHP_ZMQ_AUTH_TYPE_PLAIN TSRMLS_CC);
+	zend_declare_class_constant_long(php_zmq_auth_sc_entry, "AUTH_TYPE_CURVE", 15, (long)PHP_ZMQ_AUTH_TYPE_CURVE TSRMLS_CC);
 #endif
 
 #undef PHP_ZMQ_REGISTER_CONST_LONG

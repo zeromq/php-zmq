@@ -14,7 +14,9 @@ env:
     - ZEROMQ_VERSION=v3.2.4
     - ZEROMQ_VERSION=v4.0.0
     - ZEROMQ_VERSION=v4.0.1
+
+    - ZEROMQ_VERSION=v4.0.1 WITH_CZMQ=true
 before_install:
     - sudo apt-get update
     - sudo apt-get install uuid-dev
-script: travis/script.sh $ZEROMQ_VERSION
+script: travis/script.sh $ZEROMQ_VERSION $WITH_CZMQ
