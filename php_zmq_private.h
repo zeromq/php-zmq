@@ -37,7 +37,7 @@
 
 #include <zmq.h>
 
-#ifdef HAVE_CZMQ && HAVE_ZYRE
+#if defined(HAVE_CZMQ) && defined(HAVE_ZYRE)
 # include <czmq.h>
 # include <zyre.h>
 # if ZYRE_VERSION_MAJOR == 1

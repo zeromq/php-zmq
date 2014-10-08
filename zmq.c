@@ -120,6 +120,8 @@ static void php_czmq_get_lib_version(char buffer[PHP_ZMQ_VERSION_LEN])
 */
 static void php_zyre_get_lib_version(char buffer[PHP_ZMQ_VERSION_LEN])
 {
+    // FFS: This is the zyre version read from include during build time
+    //      libzyre will add a method to get the real version of the lib
 	(void) snprintf(buffer, PHP_ZMQ_VERSION_LEN - 1, "%d.%d.%d", ZYRE_VERSION_MAJOR, ZYRE_VERSION_MINOR, ZYRE_VERSION_PATCH);
 }
 /* }}} */
@@ -1787,8 +1789,8 @@ PHP_METHOD(zmqzyre, join)
 	}
 
 	if (group_len == 0) {
-	    zend_throw_exception_ex(php_zmq_zyre_exception_sc_entry, 0 TSRMLS_CC, "Group name can not be empty");
-        return;
+		zend_throw_exception_ex(php_zmq_zyre_exception_sc_entry, 0 TSRMLS_CC, "Group name can not be empty");
+		return;
 	}
 	
 	zyre_join(this->zyre, group);
@@ -1815,8 +1817,8 @@ PHP_METHOD(zmqzyre, leave)
 	}
 
 	if (group_len == 0) {
-	    zend_throw_exception_ex(php_zmq_zyre_exception_sc_entry, 0 TSRMLS_CC, "Group name can not be empty");
-        return;
+		zend_throw_exception_ex(php_zmq_zyre_exception_sc_entry, 0 TSRMLS_CC, "Group name can not be empty");
+		return;
 	}
 	
 	zyre_leave(this->zyre, group);
@@ -1996,8 +1998,8 @@ PHP_METHOD(zmqzyre, sendGroup)
 	}
 
 	if (group_len == 0) {
-	    zend_throw_exception_ex(php_zmq_zyre_exception_sc_entry, 0 TSRMLS_CC, "Group name can not be empty");
-        return;
+		zend_throw_exception_ex(php_zmq_zyre_exception_sc_entry, 0 TSRMLS_CC, "Group name can not be empty");
+		return;
 	}
 	
 	zyre_shouts (this->zyre, group, data);
@@ -2024,8 +2026,8 @@ PHP_METHOD(zmqzyre, sendPeer)
 	}
 	
 	if (peer_len == 0) {
-	    zend_throw_exception_ex(php_zmq_zyre_exception_sc_entry, 0 TSRMLS_CC, "Peer ID can not be empty");
-	    return;
+		zend_throw_exception_ex(php_zmq_zyre_exception_sc_entry, 0 TSRMLS_CC, "Peer ID can not be empty");
+		return;
 	}
 
 	zyre_whispers(this->zyre, peer, data);
@@ -2085,16 +2087,16 @@ ZEND_END_ARG_INFO()
 
 
 static zend_function_entry php_zmq_zyre_class_methods[] = {
-	PHP_ME(zmqzyre,	 __construct,	zmqzyre___construct_args,	   	ZEND_ACC_PUBLIC | ZEND_ACC_CTOR | ZEND_ACC_FINAL)
-	PHP_ME(zmqzyre,	 setHeader,	  	zmqzyre_setHeader_args,		 	ZEND_ACC_PUBLIC)
-	PHP_ME(zmqzyre,	 start,		  	zmqzyre_start_args,			 	ZEND_ACC_PUBLIC)
-	PHP_ME(zmqzyre,	 stop,		   	zmqzyre_stop_args,			  	ZEND_ACC_PUBLIC)
-	PHP_ME(zmqzyre,	 join,		   	zmqzyre_join_args,			  	ZEND_ACC_PUBLIC)
-	PHP_ME(zmqzyre,	 leave,		  	zmqzyre_leave_args,			 	ZEND_ACC_PUBLIC)
-	PHP_ME(zmqzyre,	 recv,		   	zmqzyre_recv_args,			  	ZEND_ACC_PUBLIC)
-	PHP_ME(zmqzyre,	 sendPeer,	   	zmqzyre_sendPeer_args,		  	ZEND_ACC_PUBLIC)
-	PHP_ME(zmqzyre,	 sendGroup,	  	zmqzyre_sendGroup_args,		 	ZEND_ACC_PUBLIC)
-	PHP_ME(zmqzyre,	 getSocket,	  	zmqzyre_getSocket_args,		 	ZEND_ACC_PUBLIC)
+	PHP_ME(zmqzyre,	 __construct,	zmqzyre___construct_args,		ZEND_ACC_PUBLIC | ZEND_ACC_CTOR | ZEND_ACC_FINAL)
+	PHP_ME(zmqzyre,	 setHeader,		zmqzyre_setHeader_args,			ZEND_ACC_PUBLIC)
+	PHP_ME(zmqzyre,	 start,			zmqzyre_start_args,				ZEND_ACC_PUBLIC)
+	PHP_ME(zmqzyre,	 stop,			zmqzyre_stop_args,				ZEND_ACC_PUBLIC)
+	PHP_ME(zmqzyre,	 join,			zmqzyre_join_args,				ZEND_ACC_PUBLIC)
+	PHP_ME(zmqzyre,	 leave,			zmqzyre_leave_args,				ZEND_ACC_PUBLIC)
+	PHP_ME(zmqzyre,	 recv,			zmqzyre_recv_args,				ZEND_ACC_PUBLIC)
+	PHP_ME(zmqzyre,	 sendPeer,		zmqzyre_sendPeer_args,			ZEND_ACC_PUBLIC)
+	PHP_ME(zmqzyre,	 sendGroup,		zmqzyre_sendGroup_args,			ZEND_ACC_PUBLIC)
+	PHP_ME(zmqzyre,	 getSocket,		zmqzyre_getSocket_args,			ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 
@@ -2242,7 +2244,7 @@ static zend_function_entry php_zmq_socket_class_methods[] = {
 	PHP_ME(zmqsocket, getsockopt,			zmq_socket_getsockopt_args,			ZEND_ACC_PUBLIC)
 	PHP_ME(zmqsocket, __clone,				zmq_socket_clone_args,				ZEND_ACC_PRIVATE|ZEND_ACC_FINAL)
 	PHP_MALIAS(zmqsocket,	sendmsg, send,	zmq_socket_send_args, 				ZEND_ACC_PUBLIC)
-	PHP_MALIAS(zmqsocket,	recvmsg, recv, 	zmq_socket_recv_args, 				ZEND_ACC_PUBLIC)
+	PHP_MALIAS(zmqsocket,	recvmsg, recv,	zmq_socket_recv_args, 				ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 
