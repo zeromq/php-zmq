@@ -1,0 +1,6 @@
+grasslands.php, strawhouse.php, woodhouse.php, stonehouse.php, and
+ironhouse.php are faithful translations of Pieter Hintjens' examples of
+the same names, which he originally published as part of his blog post
+Using ZeroMQ Security (part 2)[0].
+
+[0] http://hintjens.com/blog:49

@@ -1,18 +1,28 @@
 language: php
 
 php:
+    - 5.6
     - 5.5
+    - 5.4
+    - 5.3
 
 env:
-    - ZEROMQ_VERSION=v4.0.1 CZMQ_VERSION=2.2.0 ZYRE_VERSION=1.0.0
+    - ZEROMQ_VERSION=v2.2.0
+    - ZEROMQ_VERSION=v3.1.0
+    - ZEROMQ_VERSION=v3.2.0
+    - ZEROMQ_VERSION=v3.2.1
+    - ZEROMQ_VERSION=v3.2.2
+    - ZEROMQ_VERSION=v3.2.3
+    - ZEROMQ_VERSION=v3.2.4
+    - ZEROMQ_VERSION=v4.0.0
+    - ZEROMQ_VERSION=v4.0.1
+    - ZEROMQ_VERSION=v4.0.1 WITH_CZMQ=true
+    - ZEROMQ_VERSION=v4.0.1 WITH_CZMQ=true WITH_ZYRE=true
 
 before_install:
     - sudo apt-get update
     - sudo apt-get remove libzmq3-dev libzmq3
     - sudo apt-get install uuid-dev
-    - sudo su -c "echo '/tmp/zeromq/lib' > /etc/ld.so.conf.d/zmq-travis.conf"
-    - sudo su -c "echo '/tmp/czmq/lib' >> /etc/ld.so.conf.d/zmq-travis.conf"
-    - sudo su -c "echo '/tmp/zyre/lib' >> /etc/ld.so.conf.d/zmq-travis.conf"
-    - export PKG_CONFIG_PATH="/tmp/zeromq/lib/pkgconfig:/tmp/czmq/lib/pkgconfig:/tmp/zyre/lib/pkgconfig"
 
-script: travis/script.sh $ZEROMQ_VERSION $CZMQ_VERSION $ZYRE_VERSION
+script: travis/script.sh $ZEROMQ_VERSION $WITH_CZMQ $WITH_ZYRE
+

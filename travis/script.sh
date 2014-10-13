@@ -1,23 +1,5 @@
 #!/bin/bash
 
-# NOTE (phuedx, 2014/07/07): This must be kept in sync with the prefix used in
-# configure command used to build ØMQ in phuedx/php-zmq-travis-support.
-zeromq_dir=/tmp/zeromq
-czmq_dir=/tmp/czmq
-zyre_dir=/tmp/zyre
-#
-
-build_dir=/tmp/build
-binary_repository_local_path=/tmp/php-zmq-travis-support
-binary_repository_git_url=https://github.com/phuedx/php-zmq-travis-support
-
-# Clone a repository with prebuild version of zmq, czmq, and zyre.
-init_binary_repo() {
-    if test ! -d "$binary_repository_local_path"
-    then
-        git clone $binary_repository_git_url $binary_repository_local_path
-    fi
-}
 
 # Installs the specified version of ØMQ.
 #
@@ -29,15 +11,18 @@ install_zeromq() {
     local zeromq_version=$1
     local zeromq_dir=$2
 
-    # Try to install from precompiled
-    if test -d "$binary_repository_local_path/zeromq/zeromq-${zeromq_version}"
+    if test ! -d "/tmp/php-zmq-travis-support"
     then
-        ln -sv "$binary_repository_local_path/zeromq/zeromq-${zeromq_version}" $zeromq_dir
-        sudo ldconfig
+        git clone https://github.com/phuedx/php-zmq-travis-support /tmp/php-zmq-travis-support
+    fi
+
+    if test -d "/tmp/php-zmq-travis-support/zeromq/zeromq-${zeromq_version}"
+    then
+        ln -s "/tmp/php-zmq-travis-support/zeromq/zeromq-${zeromq_version}" $zeromq_dir
+
         return
     fi
 
-    # Install from source
     case $zeromq_version in
     v2.2.0)
         wget http://download.zeromq.org/zeromq-2.2.0.tar.gz
@@ -59,71 +44,60 @@ install_zeromq() {
     ./configure --prefix=$zeromq_dir
     make -j 8
     sudo make install
-    sudo ldconfig
     cd ..
 }
 
-# Installs czmq
+
+# Installs libsodium v0.7.0.
 #
 # Parameters:
 #
-#     1 - The version of CZMQ to install, in the form "x.y.z"
-#     2 - The directory to install CZMQ to
-install_czmq() {
-    local czmq_version=$1
-    local czmq_dir=$2
-    
-    # Try to install from precompiled
-    # if test -d "$binary_repository_local_path/czmq/czmq-${czmq_version}"
-    # then
-    #     ln -sv "$binary_repository_local_path/czmq/czmq-${czmq_version}" $czmq_dir
-    #     sudo ldconfig
-    #     return
-    # fi
-    
-    # Install from source
-    git clone https://github.com/zeromq/czmq
-    cd czmq
-    git checkout "tags/v${czmq_version}"
-    
-    ./autogen.sh
-    ./configure --prefix=$zeromq_dir
-    make -j 8
-    sudo make install
-    sudo ldconfig
-    cd ..
+#     1 - The directory to install libsodium to
+install_libsodium() {
+    local libsodium_dir=$1
+
+    if test ! -d "/tmp/php-zmq-travis-support"
+    then
+        git clone https://github.com/phuedx/php-zmq-travis-support /tmp/php-zmq-travis-support
+    fi
+
+    ln -s "/tmp/php-zmq-travis-support/libsodium/libsodium-0.7.0" $libsodium_dir
 }
 
-# Installs zyre
+
+# Installs Zyre
 #
 # Parameters:
 #
-#     1 - The version of CZMQ to install, in the form "x.y.z"
-#     2 - The directory to install CZMQ to
+#     1 - The directory to install Zyre to
 install_zyre() {
-    local zyre_version=$1
-    local zyre_dir=$2
-    
-    # Try to install from precompiled
-    # if test -d "$binary_repository_local_path/zyre/zyre-${zyre_version}"
-    # then
-    #     ln -sv "$binary_repository_local_path/zyre/zyre-${zyre_version}" $zyre_dir
-    #     sudo ldconfig
-    #     return
-    # fi
-    
-    # Install from source
-    git clone https://github.com/zeromq/zyre
-    cd zyre
-    git checkout "tags/v${zyre_version}"
-    
-    ./autogen.sh
-    ./configure --prefix=$zeromq_dir
-    make -j 8
-    sudo make install
-    sudo ldconfig
-    cd ..
+    local zyre_dir=$1
+
+    if test ! -d "/tmp/php-zmq-travis-support"
+    then
+        git clone https://github.com/phuedx/php-zmq-travis-support /tmp/php-zmq-travis-support
+    fi
+
+    ln -s "/tmp/php-zmq-travis-support/zyre/zyre-1.0.0" $zyre_dir
 }
+
+# Installs CZMQ v2.2.0.
+#
+# Parameters:
+#
+#     1 - The directory to install CZMQ to
+install_czmq() {
+    local czmq_dir=$1
+
+    if test ! -d "/tmp/php-zmq-travis-support"
+    then
+        git clone https://github.com/phuedx/php-zmq-travis-support /tmp/php-zmq-travis-support
+    fi
+
+    ln -s "/tmp/php-zmq-travis-support/czmq/czmq-2.2.0" $czmq_dir
+}
+
+
 # Ensures that the build directory exists and contains the extension and its
 # tests by packaging and then extracting it to the build directory.
 #
@@ -137,7 +111,7 @@ init_build_dir() {
     pear package
     tar xfz "zmq-${php_zmq_version}.tgz" -C /tmp
 
-    ln -sv "/tmp/zmq-${php_zmq_version}" $build_dir
+    ln -s "/tmp/zmq-${php_zmq_version}" $build_dir
 }
 
 
@@ -150,16 +124,31 @@ init_build_dir() {
 #
 #     1 - The directory of the extension and its tests
 #     2 - The directory of the ØMQ library
+#     3 - Whether or not to build the extension with CZMQ support
 #
 # Returns: the exit code of the test runner
 make_test() {
     local build_dir=$1
     local zeromq_dir=$2
+    local with_czmq=$3
+    local with_czmq_option=""
+    local with_zyre=$4
+    local with_zyre_option=""
+
+    if test $with_czmq = "true"
+    then
+        with_czmq_option="--with-czmq=/tmp/czmq"
+    fi
+
+    if test $with_zyre = "true"
+    then
+        with_zyre_option="--with-zyre=/tmp/zyre"
+    fi
 
     pushd $build_dir
 
     phpize
-    ./configure --with-zmq="$zeromq_dir"
+    ./configure --with-zmq="$zeromq_dir" $with_czmq_option $with_zyre_option
     make
 
     if test ! -e modules/zmq.so
@@ -202,33 +191,33 @@ for test_file in tests/*.phpt; do
     fi
 done
 
-# Get precompiled libs to speedup install
-init_binary_repo
-
 zeromq_version=$1
+with_czmq=$2
+with_zyre=$3
+
+# NOTE (phuedx, 2014/07/07): These must be kept in sync with the configure
+# command used to build libsodium, ØMQ and CZMQ in
+# phuedx/php-zmq-travis-support.
+libsodium_dir=/tmp/libsodium
+zeromq_dir=/tmp/zeromq
+czmq_dir=/tmp/czmq
+zyre_dir=/tmp/zyre
+build_dir=/tmp/build
+
+install_libsodium $libsodium_dir
 install_zeromq $zeromq_version $zeromq_dir
 
-if test "$#" -ge 2
+if test $with_czmq = "true"
 then
-    czmq_version=$2
-    install_czmq $czmq_version $czmq_dir
+    install_czmq $czmq_dir
 fi
 
-if test "$#" -ge 3
+if test $with_zyre = "true"
 then
-    zyre_version=$3
-    install_zyre $zyre_version $zyre_dir
+    install_zyre $zyre_dir
 fi
 
 init_build_dir $build_dir
 
-# Some verbose debug about libs
-printf "Verbose ZMQ stuff from pkg-config\n"
-pkg-config --list-all | egrep "(zmq|zyre)"
-pkg-config --libs --cflags libzmq
-pkg-config --libs --cflags libczmq
-pkg-config --libs --cflags libzyre
-printf "Verbose ZMQ stuff from ldconfig\n"
-ldconfig -p | egrep "(zmq|zyre)"
+make_test $build_dir $zeromq_dir $with_czmq $with_zyre
 
-make_test $build_dir $zeromq_dir

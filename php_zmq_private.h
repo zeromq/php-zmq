@@ -37,14 +37,21 @@
 
 #include <zmq.h>
 
+#ifdef HAVE_CZMQ
+# include <czmq.h>
+# if CZMQ_VERSION_MAJOR >= 2
+#  define HAVE_CZMQ_2
+# endif
+#endif
+
 #if defined(HAVE_CZMQ) && defined(HAVE_ZYRE)
 # include <czmq.h>
 # include <zyre.h>
-# if ZYRE_VERSION_MAJOR == 1
+# if ZYRE_VERSION_MAJOR == 1 && CZMQ_VERSION_MAJOR >= 2
 #  define HAVE_ZYRE_1
 # endif
 #endif
- 
+
 #ifdef PHP_WIN32
 # include "win32/php_stdint.h"
 #else
@@ -246,6 +253,11 @@ typedef struct _php_zmq_device_object  {
 
 #define PHP_ZMQ_VERSION_LEN 24
 
+#ifdef HAVE_CZMQ_2
+# define PHP_ZMQ_AUTH_TYPE_PLAIN 0
+# define PHP_ZMQ_AUTH_TYPE_CURVE 1
+#endif
+
 PHP_METHOD(zmqsocket, getsockopt);
 PHP_METHOD(zmqsocket, setsockopt);
 zend_bool php_zmq_device(php_zmq_device_object *intern TSRMLS_DC);
@@ -271,15 +283,28 @@ ZEND_BEGIN_MODULE_GLOBALS(php_zmq)
 	php_zmq_clock_ctx_t *clock_ctx;
 ZEND_END_MODULE_GLOBALS(php_zmq)
 
+
 #ifdef HAVE_ZYRE_1
 #define PHP_ZMQ_ZYRE_OBJECT php_zmq_zyre *this = (php_zmq_zyre *)zend_object_store_get_object(getThis() TSRMLS_CC)
-
 typedef struct _php_zmq_zyre {
 	zend_object zend_object;
 	zctx_t *shadow_context;
 	zyre_t *zyre;
 	zval *internal_socket;
 } php_zmq_zyre;
+#endif
+
+#ifdef HAVE_CZMQ_2
+typedef struct _php_zmq_cert {
+	zend_object zend_object;
+	zcert_t *zcert;
+} php_zmq_cert;
+
+typedef struct _php_zmq_auth {
+	zend_object zend_object;
+	zctx_t *shadow_context;
+	zauth_t *zauth;
+} php_zmq_auth;
 #endif
 
 #endif /* _PHP_ZMQ_PRIVATE_H_ */
