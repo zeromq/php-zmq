@@ -7,6 +7,9 @@ PHP_ARG_ENABLE(zmq_pthreads,    whether to enable support for php threads extens
 PHP_ARG_WITH(czmq,    whether to enable CZMQ support,
 [  --with-czmq[=DIR]  Enable CZMQ support. DIR is the prefix to CZMQ installation directory.], no, no)
 
+PHP_ARG_WITH(zyre,    whether to enable Zyre support,
+[  --with-zyre[=DIR]  Enable Zyre support. DIR is the prefix to Zyre installation directory.], no, no)
+
 if test "$PHP_ZMQ" != "no"; then
 
   AC_PATH_PROG(PKG_CONFIG, pkg-config, no)
@@ -64,6 +67,29 @@ if test "$PHP_ZMQ" != "no"; then
       PHP_EVAL_INCLINE($PHP_CZMQ_INCS)
 
       AC_DEFINE([HAVE_CZMQ], [], [CZMQ was found])
+    else
+      AC_MSG_RESULT([no])
+    fi
+  fi
+
+  if test "$PHP_ZYRE" != "no" -a "$PHP_CZMQ" != "no"; then
+    if test "x$PHP_ZYRE" != "xyes"; then
+      export PKG_CONFIG_PATH="${PHP_ZYRE}/${PHP_LIBDIR}/pkgconfig"
+    fi
+
+    AC_MSG_CHECKING(for Zyre)
+    if $PKG_CONFIG --exists libzyre; then
+      PHP_ZYRE_VERSION=`$PKG_CONFIG libzyre --modversion`
+      PHP_ZYRE_PREFIX=`$PKG_CONFIG libzyre --variable=prefix`
+      AC_MSG_RESULT([found version $PHP_ZYRE_VERSION in $PHP_ZYRE_PREFIX])
+
+      PHP_ZYRE_LIBS=`$PKG_CONFIG libzyre --libs`
+      PHP_ZYRE_INCS=`$PKG_CONFIG libzyre --cflags`
+
+      PHP_EVAL_LIBLINE($PHP_ZYRE_LIBS, ZMQ_SHARED_LIBADD)
+      PHP_EVAL_INCLINE($PHP_ZYRE_INCS)
+
+      AC_DEFINE([HAVE_ZYRE], [], [ZYRE was found])
     else
       AC_MSG_RESULT([no])
     fi

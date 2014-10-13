@@ -426,6 +426,91 @@ class ZMQPoll {
     public function clear() {}
 }
 
+class ZMQZyre {
+    const LIBZYRE_VERSION = '1.1.0';
+	/**
+	 * Construct a ZMQZyre
+	 * 
+	 * @param ZMQContext $context
+	 * @return void
+	 */
+	public function __construct(ZMQContext $ZMQContext) {}
+	/**
+	 * Set node header; these are provided to other nodes during discovery and come in each ENTER message.
+	 * 
+	 * @param string $name
+	 * @param string $value
+	 * @return void
+	 */
+	public function setHeader($name, $value="") {}
+	/**
+	 * Start node, after setting header values. When you start a node it begins discovery and connection.
+	There is no stop method; to stop a node, destroy it.
+	 * 
+	 * @return void
+	 */
+	public function start() {}
+	/**
+	 * Stop node, this signals to other peers that this node will go away.
+	This is polite; however you can also just destroy the node without stopping it.
+	 * 
+	 * @return void
+	 */
+	public function stop() {}
+	/**
+	 * Join a named group; after joining a group you can send messages 
+	to the group and all Zyre nodes in that group will receive them.
+	 * 
+	 * @param string $group
+	 * @return void
+	 */
+	public function join($group) {}
+	/**
+	 * Leave a group.
+	 * 
+	 * @param string $group
+	 * @return void
+	 */
+	public function leave($group) {}
+	/**
+	 * Receive next message from network; the message may be a control 
+	message (ENTER, EXIT, JOIN, LEAVE) or data (WHISPER, SHOUT).
+	Returns associative array, or NULL if interrupted
+	 * 
+	 * @return void
+	 */
+	public function recv() {}
+	/**
+	 * Send a message on the network to a specific peer
+	 * 
+	 * @param string $peer
+	 * @param string $data
+	 * @return void
+	 */
+	public function sendPeer($peer, $data) {}
+	/**
+	 * Send a message on the network for a group
+	 * 
+	 * @param string $group
+	 * @param string $data
+	 * @return void
+	 */
+	public function sendGroup($group, $data) {}
+	/**
+	 * Get zyre ZeroMQ socket, for polling or receiving messages
+	 * 
+	 * @return ZMQSocket
+	 */
+	public function getSocket() {}
+}
+
+class ZMQException              extends Exception {}
+class ZMQContextException       extends ZMQException {}
+class ZMQSocketException        extends ZMQException {}
+class ZMQPollException          extends ZMQException {}
+class ZMQDeviceException        extends ZMQException {}
+class ZMQZyreException          extends ZMQException {}
+
 /**
  * A security certificate for the ØMQ CURVE authentication mechanism.
  */
@@ -665,5 +750,6 @@ class ZMQAuth {
      */
     public function configure($type, $domain, $filename) {}
 }
+
 ?>
 </code></pre>

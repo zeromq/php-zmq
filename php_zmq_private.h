@@ -44,6 +44,14 @@
 # endif
 #endif
 
+#if defined(HAVE_CZMQ) && defined(HAVE_ZYRE)
+# include <czmq.h>
+# include <zyre.h>
+# if ZYRE_VERSION_MAJOR == 1 && CZMQ_VERSION_MAJOR >= 2
+#  define HAVE_ZYRE_1
+# endif
+#endif
+
 #ifdef PHP_WIN32
 # include "win32/php_stdint.h"
 #else
@@ -274,6 +282,17 @@ char *php_zmq_printable_func (zend_fcall_info *fci, zend_fcall_info_cache *fci_c
 ZEND_BEGIN_MODULE_GLOBALS(php_zmq)
 	php_zmq_clock_ctx_t *clock_ctx;
 ZEND_END_MODULE_GLOBALS(php_zmq)
+
+
+#ifdef HAVE_ZYRE_1
+#define PHP_ZMQ_ZYRE_OBJECT php_zmq_zyre *this = (php_zmq_zyre *)zend_object_store_get_object(getThis() TSRMLS_CC)
+typedef struct _php_zmq_zyre {
+	zend_object zend_object;
+	zctx_t *shadow_context;
+	zyre_t *zyre;
+	zval *internal_socket;
+} php_zmq_zyre;
+#endif
 
 #ifdef HAVE_CZMQ_2
 typedef struct _php_zmq_cert {

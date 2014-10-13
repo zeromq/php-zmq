@@ -108,6 +108,15 @@
       <file name="rose.jpg" role="test" />
       <file name="skipif.inc" role="test" />
       <file name="zeromq_test_helper.inc" role="test" />
+      
+      <!-- Zyre tests files -->
+      <file name="skipzyre.inc" role="test" />
+      <file name="zyre-001.phpt" role="test" />
+      <file name="zyre-002.phpt" role="test" />
+      <file name="zyre-003.phpt" role="test" />
+      <file name="zyre-004.phpt" role="test" />
+      <file name="zyre-005.phpt" role="test" />
+      <file name="zyre-006.phpt" role="test" />
    </dir>
   </dir>
  </contents>

@@ -65,6 +65,22 @@ install_libsodium() {
 }
 
 
+# Installs Zyre
+#
+# Parameters:
+#
+#     1 - The directory to install Zyre to
+install_zyre() {
+    local zyre_dir=$1
+
+    if test ! -d "/tmp/php-zmq-travis-support"
+    then
+        git clone https://github.com/phuedx/php-zmq-travis-support /tmp/php-zmq-travis-support
+    fi
+
+    ln -s "/tmp/php-zmq-travis-support/zyre/zyre-1.0.0" $zyre_dir
+}
+
 # Installs CZMQ v2.2.0.
 #
 # Parameters:
@@ -116,18 +132,24 @@ make_test() {
     local zeromq_dir=$2
     local with_czmq=$3
     local with_czmq_option=""
+    local with_zyre=$4
+    local with_zyre_option=""
 
     if test $with_czmq = "true"
     then
         with_czmq_option="--with-czmq=/tmp/czmq"
     fi
 
+    if test $with_zyre = "true"
+    then
+        with_zyre_option="--with-zyre=/tmp/zyre"
+    fi
+
     pushd $build_dir
 
     phpize
-    ./configure --with-zmq="$zeromq_dir" $with_czmq_option
+    ./configure --with-zmq="$zeromq_dir" $with_czmq_option $with_zyre_option
     make
-
 
     if test ! -e modules/zmq.so
     then
@@ -171,6 +193,7 @@ done
 
 zeromq_version=$1
 with_czmq=$2
+with_zyre=$3
 
 # NOTE (phuedx, 2014/07/07): These must be kept in sync with the configure
 # command used to build libsodium, ØMQ and CZMQ in
@@ -178,7 +201,7 @@ with_czmq=$2
 libsodium_dir=/tmp/libsodium
 zeromq_dir=/tmp/zeromq
 czmq_dir=/tmp/czmq
-
+zyre_dir=/tmp/zyre
 build_dir=/tmp/build
 
 install_libsodium $libsodium_dir
@@ -189,6 +212,12 @@ then
     install_czmq $czmq_dir
 fi
 
+if test $with_zyre = "true"
+then
+    install_zyre $zyre_dir
+fi
+
 init_build_dir $build_dir
 
-make_test $build_dir $zeromq_dir $with_czmq
+make_test $build_dir $zeromq_dir $with_czmq $with_zyre
+
