@@ -14,6 +14,7 @@ env:
     - ZEROMQ_VERSION=v3.2.4
     - ZEROMQ_VERSION=v4.0.0
     - ZEROMQ_VERSION=v4.0.1
+    - ZEROMQ_VERSION=v4.0.5
 
     - ZEROMQ_VERSION=v4.0.1 WITH_CZMQ=true
 before_install:
