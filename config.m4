@@ -17,6 +17,8 @@ if test "$PHP_ZMQ" != "no"; then
 
   ORIG_PKG_CONFIG_PATH=$PKG_CONFIG_PATH
 
+  PHP_ZMQ_EXPLICIT_PKG_CONFIG_PATH=""
+
   AC_MSG_CHECKING(libzmq installation)
   if test "x$PHP_ZMQ" = "xyes"; then
     if test "x${PKG_CONFIG_PATH}" = "x"; then
@@ -30,6 +32,7 @@ if test "$PHP_ZMQ" != "no"; then
     fi
   else
     export PKG_CONFIG_PATH="${PHP_ZMQ}/${PHP_LIBDIR}/pkgconfig"
+    export PHP_ZMQ_EXPLICIT_PKG_CONFIG_PATH="${PKG_CONFIG_PATH}"
   fi
 
   if $PKG_CONFIG --exists libzmq; then
@@ -48,7 +51,7 @@ if test "$PHP_ZMQ" != "no"; then
 
   if test "$PHP_CZMQ" != "no"; then
     if test "x$PHP_CZMQ" != "xyes"; then
-      export PKG_CONFIG_PATH="${PHP_CZMQ}/${PHP_LIBDIR}/pkgconfig"
+      export PKG_CONFIG_PATH="${PHP_CZMQ}/${PHP_LIBDIR}/pkgconfig:${PHP_ZMQ_EXPLICIT_PKG_CONFIG_PATH}"
     fi
 
     AC_MSG_CHECKING(for CZMQ)
