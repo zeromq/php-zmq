@@ -22,10 +22,9 @@ var_dump($cert->getMetaKeys());
 $cert->setMeta('baz', 'qux');
 var_dump($cert->getMetaKeys());
 
-// If the parameters are incorrect, then it should still return the metadata
-// keys.
+// This should generate an error
 var_dump($cert->getMetaKeys(123));
---EXPECT--
+--EXPECTF--
 NULL
 array(0) {
 }
@@ -46,3 +45,5 @@ array(2) {
   [1]=>
   string(3) "foo"
 }
+Warning: ZMQCert::getMetaKeys() expects exactly 0 parameters, 1 given in %s on line %d
+NULL
