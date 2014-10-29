@@ -279,13 +279,13 @@ ZEND_END_MODULE_GLOBALS(php_zmq)
 typedef struct _php_zmq_cert {
 	zend_object zend_object;
 	zcert_t *zcert;
-} php_zmq_cert;
+} php_zmq_cert_object;
 
 typedef struct _php_zmq_auth {
 	zend_object zend_object;
 	zctx_t *shadow_context;
 	zauth_t *zauth;
-} php_zmq_auth;
+} php_zmq_auth_object;
 #endif
 
 #endif /* _PHP_ZMQ_PRIVATE_H_ */
