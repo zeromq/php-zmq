@@ -57,6 +57,11 @@ install_zeromq() {
         cd zeromq3-x
         git checkout "tags/${version}"
         ;;
+    v4.1*)
+        git clone https://github.com/zeromq/zeromq4-1
+        cd zeromq4-1
+        git checkout "tags/${version}"
+        ;;
     v4*)
         git clone https://github.com/zeromq/zeromq4-x
         cd zeromq4-x
@@ -66,7 +71,7 @@ install_zeromq() {
         ;;
     esac
     ./autogen.sh
-    ./configure --prefix=$cache_dir $with_libsodium
+    PKG_CONFIG_PATH="${LIBSODIUM_DIR}/lib/pkgconfig" ./configure --prefix=$cache_dir $with_libsodium
     make -j 8
     make install
     cd ..
