@@ -154,6 +154,7 @@
         <option name="tcp_accept_filter" type="blob" mode="rw"/>
         <option name="delay_attach_on_connect" type="int" mode="rw"/>
         <option name="xpub_verbose" type="int" mode="rw"/>
+        <option name="router_mandatory" type="int" mode="w"/>
         <!--<option name="router_raw" type="int" mode="rw"/> -->
     </version>
     <version major="4" comparison="ZMQ_VERSION_MAJOR >= 4">
@@ -187,6 +188,7 @@
         <option name="tcp_accept_filter" type="blob" mode="rw"/>
         <option name="delay_attach_on_connect" type="int" mode="rw"/>
         <option name="xpub_verbose" type="int" mode="rw"/>
+        <option name="router_mandatory" type="int" mode="w"/>
         <option name="router_raw" type="int" mode="rw"/>
         <option name="ipv6" type="int" mode="rw"/>
         <option name="plain_server" type="int" mode="rw"/>
