@@ -39,11 +39,6 @@ array(2) {
   [1]=>
   string(3) "foo"
 }
-array(2) {
-  [0]=>
-  string(3) "baz"
-  [1]=>
-  string(3) "foo"
-}
+
 Warning: ZMQCert::getMetaKeys() expects exactly 0 parameters, 1 given in %s on line %d
 NULL
