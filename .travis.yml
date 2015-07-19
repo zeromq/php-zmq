@@ -22,3 +22,6 @@ before_install:
     - sudo apt-get update
     - sudo apt-get install uuid-dev
 script: travis/script.sh $ZEROMQ_VERSION $WITH_CZMQ
+cache:
+    directories:
+        - travis/cache
