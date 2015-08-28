@@ -323,7 +323,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 		{
 			<xsl:value-of select="$type"/> value;
 			convert_to_long(pz_value);
-			<xsl:if test="type = 'uint64_t'">
+			<xsl:if test="$type = 'uint64_t'">
 			if (Z_LVAL_P(pz_value) &lt; 0) {
 				zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "The option ZMQ::SOCKOPT_<xsl:value-of select="$raw-name"/> value must be zero or larger", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
 				return;
