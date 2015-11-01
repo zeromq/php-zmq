@@ -201,7 +201,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to get the option ZMQ::SOCKOPT_<xsl:value-of select="$raw-name"/> value: %s", zmq_strerror(errno));
 				return;
 			}
-			RETURN_STRINGL(value, value_len, 1);
+			RETURN_STRINGL(value, value_len);
 		}
 		break;
 	</xsl:template>
@@ -219,7 +219,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 				zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno TSRMLS_CC, "Failed to get the option ZMQ::SOCKOPT_<xsl:value-of select="$raw-name"/> value: %s", zmq_strerror(errno));
 				return;
 			}
-			RETURN_STRINGL(value, value_len - 1, 1);
+			RETURN_STRINGL(value, value_len - 1);
 		}
 		break;
 	</xsl:template>
@@ -431,6 +431,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 
 #include "php_zmq.h"
 #include "php_zmq_private.h"
+#include "zmq_object_access.c"
 	</xsl:template>
 	
 </xsl:stylesheet>

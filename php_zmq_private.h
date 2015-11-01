@@ -78,7 +78,7 @@ typedef struct _php_zmq_pollset {
 	int alloc_size;
 
 	/* Errors in the last poll */
-	zval *errors;
+	zval errors;
 } php_zmq_pollset;
 /* }}} */
 
@@ -121,30 +121,31 @@ typedef struct _php_zmq_socket  {
 /* {{{ typedef struct _php_zmq_context_object 
 */
 typedef struct _php_zmq_context_object  {
-	zend_object zo;
 	php_zmq_context *context;
+	zend_object zo;
 } php_zmq_context_object;
+
 /* }}} */
 
 /* {{{ typedef struct _php_zmq_socket_object 
 */
 typedef struct _php_zmq_socket_object  {
-	zend_object zo;
 	php_zmq_socket *socket;
 
 	/* options for the context */
 	char *persistent_id;
 
 	/* zval of the context */
-	zval *context_obj;
+	zval context_obj;
+	zend_object zo;
 } php_zmq_socket_object;
 /* }}} */
 
 /* {{{ typedef struct _php_zmq_poll_object 
 */
 typedef struct _php_zmq_poll_object  {
-	zend_object zo;
 	php_zmq_pollset set;
+	zend_object zo;
 } php_zmq_poll_object;
 /* }}} */
 
@@ -160,14 +161,13 @@ typedef struct _php_zmq_device_cb_t {
 /* {{{ typedef struct _php_zmq_device_object 
 */
 typedef struct _php_zmq_device_object  {
-	zend_object zo;
-
 	php_zmq_device_cb_t idle_cb;
 	php_zmq_device_cb_t timer_cb;
 
 	zval *front;
 	zval *back;
-    zval *capture;
+	zval *capture;
+	zend_object zo;
 } php_zmq_device_object;
 /* }}} */
 
@@ -176,14 +176,6 @@ typedef struct _php_zmq_device_object  {
 #else
 # define ZMQ_G(v) (php_zmq_globals.v)
 #endif
-
-#define PHP_ZMQ_CONTEXT_OBJECT (php_zmq_context_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
-
-#define PHP_ZMQ_SOCKET_OBJECT (php_zmq_socket_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
-
-#define PHP_ZMQ_POLL_OBJECT (php_zmq_poll_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
-
-#define PHP_ZMQ_DEVICE_OBJECT (php_zmq_device_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
 
 #define ZMQ_RETURN_THIS RETURN_ZVAL(getThis(), 1, 0);
 

@@ -36,6 +36,7 @@
 
 #include "php_zmq.h"
 #include "php_zmq_private.h"
+#include "zmq_object_access.c"
 
 ZEND_EXTERN_MODULE_GLOBALS(php_zmq)
 
@@ -43,16 +44,16 @@ static
 zend_bool s_invoke_device_cb (php_zmq_device_cb_t *cb, uint64_t current_ts TSRMLS_DC)
 {
 	zend_bool retval = 0;
-	zval **params[1];
-	zval *retval_ptr = NULL;
+	zval *params[1];
+	zval fc_retval;
 
-	params [0]          = &cb->user_data;
-	cb->fci.params      = params;
+	params [0]          = cb->user_data;
+	cb->fci.params      = *params;
 	cb->fci.param_count = 1;
 
 	/* Call the cb */
 	cb->fci.no_separation  = 1;
-	cb->fci.retval_ptr_ptr = &retval_ptr;
+	cb->fci.retval         = &fc_retval;
 
 	if (zend_call_function(&(cb->fci), &(cb->fci_cache) TSRMLS_CC) == FAILURE) {
 		if (!EG(exception)) {
@@ -62,13 +63,12 @@ zend_bool s_invoke_device_cb (php_zmq_device_cb_t *cb, uint64_t current_ts TSRML
 			efree (buf);
 		}
 	}
-	if (retval_ptr) {
-		convert_to_boolean(retval_ptr);
-		if (Z_BVAL_P(retval_ptr)) {
-			retval = 1;
-		}
-		zval_ptr_dtor(&retval_ptr);
+	if (!Z_ISUNDEF(fc_retval)) {
+		convert_to_boolean(&fc_retval);
+		retval = zval_get_long(&fc_retval);
 	}
+	zval_dtor(&fc_retval);
+
 	cb->scheduled_at = current_ts + cb->timeout;
 	return retval;
 }
@@ -158,8 +158,8 @@ zend_bool php_zmq_device (php_zmq_device_object *intern TSRMLS_DC)
 		return 0;
 	}
 
-	front = (php_zmq_socket_object *)zend_object_store_get_object(intern->front TSRMLS_CC);
-	back = (php_zmq_socket_object *)zend_object_store_get_object(intern->back TSRMLS_CC);
+	front = php_zmq_socket_fetch_object(Z_OBJ_P(intern->front));
+	back = php_zmq_socket_fetch_object(Z_OBJ_P(intern->back));
 
 	items [0].socket = front->socket->z_socket;
 	items [0].fd = 0;
@@ -172,7 +172,7 @@ zend_bool php_zmq_device (php_zmq_device_object *intern TSRMLS_DC)
 
 	capture_sock = NULL;
 	if (intern->capture) {
-		php_zmq_socket_object *capture = (php_zmq_socket_object *)zend_object_store_get_object(intern->capture TSRMLS_CC);
+		php_zmq_socket_object *capture = php_zmq_socket_fetch_object(Z_OBJ_P(intern->capture));
 		capture_sock = capture->socket->z_socket;
 	}
 

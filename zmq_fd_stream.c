@@ -30,6 +30,7 @@
 
 #include "php_zmq.h"
 #include "php_zmq_private.h"
+#include "zmq_object_access.c"
 
 static size_t php_zmq_fd_read(php_stream *stream, char *buf, size_t count TSRMLS_DC)
 {
@@ -44,7 +45,6 @@ static size_t php_zmq_fd_write(php_stream *stream, const char *buf, size_t count
 static int php_zmq_fd_close(php_stream *stream, int close_handle TSRMLS_DC)
 {
 	zval *obj = (zval *) stream->abstract;
-	zend_objects_store_del_ref(obj TSRMLS_CC);
 	Z_DELREF_P(obj);
 	return EOF;
 }
@@ -57,7 +57,7 @@ static int php_zmq_fd_flush(php_stream *stream TSRMLS_DC)
 static int php_zmq_fd_cast(php_stream *stream, int cast_as, void **ret TSRMLS_DC)
 {
 	zval *obj = (zval *) stream->abstract;
-	php_zmq_socket_object *intern = (php_zmq_socket_object *) zend_object_store_get_object(obj TSRMLS_CC);
+	php_zmq_socket_object *intern = php_zmq_socket_fetch_object(Z_OBJ_P(obj));
 
 	switch (cast_as)	{
 		case PHP_STREAM_AS_FD_FOR_SELECT:
@@ -91,7 +91,6 @@ php_stream *php_zmq_create_zmq_fd(zval *obj TSRMLS_DC)
 	stream = php_stream_alloc(&php_stream_zmq_fd_ops, obj, NULL, "r");
 
 	if (stream) {
-		zend_objects_store_add_ref(obj TSRMLS_CC);
 		Z_ADDREF_P(obj);
 		return stream;
 	}
