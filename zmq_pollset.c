@@ -64,58 +64,58 @@ void php_zmq_pollset_clear(php_zmq_pollset *set, zend_bool reinit TSRMLS_DC)
 	}
 }
 
+static
+void php_zmq_pollitem_deinit(php_zmq_pollitem *item) {
+	Z_DELREF(item->entry);
+	zend_string_release(item->key);
+}
+
 void php_zmq_pollset_deinit(php_zmq_pollset *set TSRMLS_DC)
 {
 	int i;
 
 	for (i = 0; i < set->num_php_items; i++) {
-		zval_ptr_dtor((set->php_items[i].entry));
+		php_zmq_pollitem_deinit(&set->php_items[i]);
 	}
 	php_zmq_pollset_clear(set, 0 TSRMLS_CC);
-
 	zval_dtor(&set->errors);
 }
 
 void php_zmq_pollset_delete_all(php_zmq_pollset *set TSRMLS_DC)
 {
 	int i;
-
 	for (i = 0; i < set->num_php_items; i++) {
-		zval_ptr_dtor((set->php_items[i].entry));
+		php_zmq_pollitem_deinit(&set->php_items[i]);
 	}
 	php_zmq_pollset_clear(set, 1 TSRMLS_CC);
 }
 
-static void php_zmq_create_key(zval *entry, char key[35], int *key_len TSRMLS_DC)
+static
+zend_string *php_zmq_create_key(zval *entry TSRMLS_DC)
 {
 	if (Z_TYPE_P(entry) == IS_RESOURCE) {
-		*key_len = snprintf(key, 35, "r:%d", Z_LVAL_P(entry));
-	} else {
-		char hash[33];
-		php_spl_object_hash(entry);
-		*key_len = snprintf(key, 35, "o:%s", hash);
+		return strpprintf(0, "r:%ld", Z_RES_P(entry)->handle);
+	}
+	else {
+		zend_string *hash = php_spl_object_hash(entry);
+		zend_string *key = strpprintf(0, "o:%s", hash->val);
+		zend_string_release(hash);
+		return key;
 	}
 }
 
-zend_bool php_zmq_pollset_get_key(php_zmq_pollset *set, int pos, char key[35], int *key_len TSRMLS_DC)
+zend_string *php_zmq_pollset_get_key(php_zmq_pollset *set, int pos TSRMLS_DC)
 {
 	if (pos >= set->num_php_items || pos < 0) {
 		return 0;
 	}
-
-	if (*key_len < set->php_items[pos].key_len + 1) {
-		return 0;
-	}
-	memcpy(key, set->php_items[pos].key, set->php_items[pos].key_len + 1);
-	*key_len = set->php_items[pos].key_len;
-	return 1;
+	return zend_string_dup(set->php_items[pos].key, 1);
 }
 
 int php_zmq_pollset_add(php_zmq_pollset *pollset, zval *entry, int events TSRMLS_DC) 
 {
 	int i;
-	char key[35];
-	int key_len;
+	zend_string *key;
 	zend_bool resize;
 
 	assert(pollset->num_php_items == pollset->num_items);
@@ -124,18 +124,18 @@ int php_zmq_pollset_add(php_zmq_pollset *pollset, zval *entry, int events TSRMLS
 		return PHP_ZMQ_POLLSET_ERR_INVALID_TYPE;
 	}
 
-	php_zmq_create_key(entry, key, &key_len TSRMLS_CC);
+	key = php_zmq_create_key(entry TSRMLS_CC);
 
-	if (!key_len || key_len > 34) {
+	if (!key) {
 		return PHP_ZMQ_POLLSET_ERR_KEY_FAIL;
 	}
 
 	for (i = 0; i < pollset->num_php_items; i++) {
-		if (key_len == pollset->php_items[i].key_len &&
-			!memcmp(pollset->php_items[i].key, key, key_len)) {
+		if (zend_string_equals(pollset->php_items[i].key, key)) {
 
 			pollset->items[i].events     = events;
 			pollset->php_items[i].events = events;
+			zend_string_release(key);
 			return i;
 		}
 	}
@@ -168,6 +168,9 @@ int php_zmq_pollset_add(php_zmq_pollset *pollset, zval *entry, int events TSRMLS
 
 		pollset->items[pollset->num_items].fd     = fd;
 		pollset->items[pollset->num_items].events = events;
+
+		ZVAL_COPY(&pollset->php_items[pollset->num_php_items].entry, entry);
+
 	} else {
 		php_zmq_socket_object *item = php_zmq_socket_fetch_object(Z_OBJ_P(entry));
 
@@ -179,26 +182,23 @@ int php_zmq_pollset_add(php_zmq_pollset *pollset, zval *entry, int events TSRMLS
 
 		pollset->items[pollset->num_items].socket = item->socket->z_socket;
 		pollset->items[pollset->num_items].events = events;
+
+		ZVAL_OBJ(&pollset->php_items[pollset->num_php_items].entry, &item->zo);
+		Z_ADDREF(pollset->php_items[pollset->num_php_items].entry);
 	}
-
-	Z_TRY_ADDREF_P(entry);
-
 	if (resize) {
 		pollset->php_items   = erealloc(pollset->php_items, (pollset->alloc_size + PHP_ZMQ_ALLOC_SIZE) * sizeof(php_zmq_pollitem));
 		pollset->alloc_size += PHP_ZMQ_ALLOC_SIZE;
 	}
 
-	pollset->php_items[pollset->num_php_items].events  = events;
-	pollset->php_items[pollset->num_php_items].entry   = entry;
-	pollset->php_items[pollset->num_php_items].key_len = key_len;
+	pollset->php_items[pollset->num_php_items].events = events;
+	pollset->php_items[pollset->num_php_items].key    = key;
 
 	if (Z_TYPE_P(entry) == IS_RESOURCE) {
 		pollset->php_items[pollset->num_php_items].fd = pollset->items[pollset->num_items].fd;
 	} else {
 		pollset->php_items[pollset->num_php_items].socket = pollset->items[pollset->num_items].socket;
 	}
-
-	memcpy(pollset->php_items[pollset->num_php_items].key, key, key_len + 1);
 
 	pollset->num_php_items++;
 	pollset->num_items++;
@@ -222,7 +222,7 @@ void php_zmq_pollset_rebuild(php_zmq_pollset *set)
 	set->items = ecalloc(set->alloc_size, sizeof(zmq_pollitem_t));
 
 	for (i = 0; i < set->num_php_items; i++) {
-		if (Z_TYPE_P(set->php_items[i].entry) == IS_RESOURCE) {
+		if (Z_TYPE(set->php_items[i].entry) == IS_RESOURCE) {
 			set->items[i].fd = set->php_items[i].fd;
 		} else {
 			set->items[i].socket = set->php_items[i].socket;
@@ -232,17 +232,7 @@ void php_zmq_pollset_rebuild(php_zmq_pollset *set)
 	set->num_items = set->num_php_items;
 }
 
-static void php_zmq_pollitem_copy(php_zmq_pollitem *target, php_zmq_pollitem *source)
-{
-	target->events  = source->events;
-	target->entry   = source->entry;
-	target->key_len = source->key_len;
-	target->socket  = source->socket;
-	target->fd      = source->fd;
-	memcpy(target->key, source->key, source->key_len + 1);
-}
-
-zend_bool php_zmq_pollset_delete_by_key(php_zmq_pollset *set, char key[35], int key_len TSRMLS_DC)
+zend_bool php_zmq_pollset_delete_by_key(php_zmq_pollset *set, zend_string *key TSRMLS_DC)
 {
 	php_zmq_pollitem *php_items = NULL;
 	int i, num_php_items = 0, alloc_size;
@@ -252,13 +242,12 @@ zend_bool php_zmq_pollset_delete_by_key(php_zmq_pollset *set, char key[35], int 
 	php_items  = ecalloc(alloc_size, sizeof(php_zmq_pollitem));
 
 	for (i = 0; i < set->num_php_items; i++) {
-		if (!match && key_len == set->php_items[i].key_len &&
-			!memcmp(set->php_items[i].key, key, key_len)) {
-			zval_ptr_dtor((set->php_items[i].entry));
+		if (!match && zend_string_equals(set->php_items[i].key, key)) {
+			php_zmq_pollitem_deinit(&set->php_items[i]);
 			match = 1;
 			continue;
 		}
-		php_zmq_pollitem_copy(&(php_items[num_php_items]), &(set->php_items[i]));
+		memcpy(&php_items[num_php_items], &set->php_items[i], sizeof(php_zmq_pollitem));
 		num_php_items++;
 	}
 
@@ -273,11 +262,13 @@ zend_bool php_zmq_pollset_delete_by_key(php_zmq_pollset *set, char key[35], int 
 
 zend_bool php_zmq_pollset_delete(php_zmq_pollset *set, zval *entry TSRMLS_DC)
 {
-	char key[35];
-	int key_len;
+	zend_bool retval;
+	zend_string *key = php_zmq_create_key(entry TSRMLS_CC);
 
-	php_zmq_create_key(entry, key, &key_len TSRMLS_CC);
-	return php_zmq_pollset_delete_by_key(set, key, key_len TSRMLS_CC);
+	retval = php_zmq_pollset_delete_by_key(set, key TSRMLS_CC);
+	zend_string_release(key);
+
+	return retval;
 }
 
 int php_zmq_pollset_poll(php_zmq_pollset *set, int timeout, zval *r_array, zval *w_array, zval *e_array)
@@ -312,17 +303,17 @@ int php_zmq_pollset_poll(php_zmq_pollset *set, int timeout, zval *r_array, zval 
 	if (rc > 0) {
 		for (i = 0; i < set->num_items; i++) {
 			if (readable && set->items[i].revents & ZMQ_POLLIN) {
-				Z_ADDREF_P(set->php_items[i].entry);
-				add_next_index_zval(r_array, set->php_items[i].entry);
+				Z_ADDREF(set->php_items[i].entry);
+				add_next_index_zval(r_array, &set->php_items[i].entry);
 			}
 
 			if (writable && set->items[i].revents & ZMQ_POLLOUT) {
-				Z_ADDREF_P(set->php_items[i].entry);
-				add_next_index_zval(w_array, set->php_items[i].entry);
+				Z_ADDREF(set->php_items[i].entry);
+				add_next_index_zval(w_array, &set->php_items[i].entry);
 			}
 
 			if (set->items[i].revents & ZMQ_POLLERR) {
-				add_next_index_stringl(e_array, set->php_items[i].key, set->php_items[i].key_len);
+				add_next_index_str(e_array, set->php_items[i].key);
 			}
 		}
 	}

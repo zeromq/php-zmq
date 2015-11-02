@@ -74,14 +74,14 @@ zend_bool php_zmq_pollset_delete(php_zmq_pollset *set, zval *entry TSRMLS_DC);
 int php_zmq_pollset_poll(php_zmq_pollset *set, int timeout, zval *r_array, zval *w_array, zval *e_array);
 /* }}} */
 
-/** {{{ zend_bool php_zmq_pollset_get_key(php_zmq_pollset *set, int pos, char key[35], int *key_len TSRMLS_DC);
+/** {{{ zend_string *php_zmq_pollset_get_key(php_zmq_pollset *set, int pos TSRMLS_DC);
 */
-zend_bool php_zmq_pollset_get_key(php_zmq_pollset *set, int pos, char key[35], int *key_len TSRMLS_DC);
+zend_string *php_zmq_pollset_get_key(php_zmq_pollset *set, int pos TSRMLS_DC);
 /* }}} */
 
-/** {{{ zend_bool php_zmq_pollset_delete_by_key(php_zmq_pollset *set, char key[35], int key_len TSRMLS_DC);
+/** {{{ zend_bool php_zmq_pollset_delete_by_key(php_zmq_pollset *set, zend_string *key TSRMLS_DC);
 */
-zend_bool php_zmq_pollset_delete_by_key(php_zmq_pollset *set, char key[35], int key_len TSRMLS_DC);
+zend_bool php_zmq_pollset_delete_by_key(php_zmq_pollset *set, zend_string *key TSRMLS_DC);
 /* }}} */
 
 /** {{{ void php_zmq_pollset_delete_all(php_zmq_pollset *set TSRMLS_DC);

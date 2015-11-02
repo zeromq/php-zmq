@@ -54,9 +54,10 @@
 */
 typedef struct _php_zmq_pollitem {
 	int events;
-	zval *entry;
-	char key[35];
-	int key_len;
+	zend_string *key;
+
+	/* Have the zval of the res or obj */
+	zval entry;
 
 	/* convenience pointer containing fd or socket */
 	void *socket;
@@ -154,7 +155,7 @@ typedef struct _php_zmq_device_cb_t {
 	long timeout;
 	zend_fcall_info fci;
 	zend_fcall_info_cache fci_cache;
-	zval *user_data;
+	zval user_data;
 	uint64_t scheduled_at;
 } php_zmq_device_cb_t;
 
@@ -164,9 +165,9 @@ typedef struct _php_zmq_device_object  {
 	php_zmq_device_cb_t idle_cb;
 	php_zmq_device_cb_t timer_cb;
 
-	zval *front;
-	zval *back;
-	zval *capture;
+	zval front;
+	zval back;
+	zval capture;
 	zend_object zo;
 } php_zmq_device_object;
 /* }}} */

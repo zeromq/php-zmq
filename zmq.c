@@ -503,9 +503,10 @@ zend_bool php_zmq_connect_callback(zval *socket, zend_fcall_info *fci, zend_fcal
 	zend_bool rv = 1;
 
 	/* Call the cb */
-	ZVAL_COPY_VALUE(&params[0], socket);
+	params[0] = *socket;
+
 	if (persistent_id && persistent_id->len) {
-		ZVAL_STRING(&params[1], persistent_id->val);
+		ZVAL_STR(&params[1], persistent_id);
 	} else {
 		ZVAL_NULL(&params[1]);
 	}
@@ -521,12 +522,16 @@ zend_bool php_zmq_connect_callback(zval *socket, zend_fcall_info *fci, zend_fcal
 		}
 		rv = 0;
 	}
-	zval_ptr_dtor(&retval);
+
+	zval_ptr_dtor(&params[1]);
+
+	if (Z_TYPE(retval) != IS_UNDEF) {
+		zval_ptr_dtor(&retval);
+	}
 
 	if (EG(exception)) {
 		rv = 0;
 	}
-
 	return rv;
 }
 
@@ -944,7 +949,7 @@ PHP_METHOD(zmqsocket, bind)
 		return;
 	}
 
-	zend_hash_add_empty_element(&(intern->socket->bind), dsn);
+	zend_hash_str_add_empty_element(&(intern->socket->bind), dsn->val, dsn->len);
 	ZMQ_RETURN_THIS;
 }
 /* }}} */
@@ -975,7 +980,7 @@ PHP_METHOD(zmqsocket, connect)
 		return;
 	}
 
-	zend_hash_add_empty_element(&(intern->socket->connect), dsn);
+	zend_hash_str_add_empty_element(&(intern->socket->connect), dsn->val, dsn->len);
 	ZMQ_RETURN_THIS;
 }
 /* }}} */
@@ -1123,8 +1128,8 @@ PHP_METHOD(zmqpoll, add)
 	php_zmq_poll_object *intern;
 	zval *object;
 	long events;
-	int pos, key_len = 35;
-	char key[35];
+	int pos;
+	zend_string *key;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "zl", &object, &events) == FAILURE) {
 		return;
@@ -1185,12 +1190,14 @@ PHP_METHOD(zmqpoll, add)
 		return;
 	}
 
-	if (!php_zmq_pollset_get_key(&(intern->set), pos, key, &key_len TSRMLS_CC)) {
+	key = php_zmq_pollset_get_key(&(intern->set), pos TSRMLS_CC);
+
+	if (!key) {
 		zend_throw_exception(php_zmq_poll_exception_sc_entry, "Failed to get the item key", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
 		return;
 	}
 
-	RETURN_STRINGL(key, key_len);
+	RETURN_STR(key);
 }
 /* }}} */
 
@@ -1225,10 +1232,15 @@ PHP_METHOD(zmqpoll, remove)
 			RETVAL_BOOL(php_zmq_pollset_delete(&(intern->set), item TSRMLS_CC));
 		break;
 
-		default:
-			convert_to_string(item);
-			RETVAL_BOOL(php_zmq_pollset_delete_by_key(&(intern->set), Z_STRVAL_P(item), Z_STRLEN_P(item) TSRMLS_CC));
-		break;
+		default: {
+			zend_string *str = zval_get_string(item);
+			zend_bool retval;
+
+			retval = php_zmq_pollset_delete_by_key(&(intern->set), str TSRMLS_CC);
+			zend_string_release(str);
+
+			RETVAL_BOOL(retval);
+		} break;
 	}
 
 	return;
@@ -1340,16 +1352,18 @@ PHP_METHOD(zmqdevice, __construct)
 
 	intern = PHP_ZMQ_DEVICE_OBJECT;
 
-	intern->front = f;
-	intern->back  = b;
-	if (c) {
-		intern->capture = c;
-		Z_ADDREF_P(c);
-	} else
-		intern->capture = NULL;
+	ZVAL_OBJ(&intern->front, Z_OBJ_P(f));
+	Z_ADDREF(intern->front);
 
-	Z_ADDREF_P(f);
-	Z_ADDREF_P(b);
+	ZVAL_OBJ(&intern->back, Z_OBJ_P(b));
+	Z_ADDREF(intern->back);
+
+	if (c) {
+		ZVAL_OBJ(&intern->capture, Z_OBJ_P(c));
+		Z_ADDREF(intern->capture);
+	} else {
+		ZVAL_UNDEF(&intern->capture);
+	}
 }
 /* }}} */
 
@@ -1361,7 +1375,7 @@ PHP_METHOD(zmqdevice, run)
 	php_zmq_device_object *intern;
 	zend_bool rc;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "") == FAILURE) {
+	if (zend_parse_parameters_none() == FAILURE) {
 		return;
 	}
 
@@ -1382,8 +1396,8 @@ void s_clear_device_callback (php_zmq_device_cb_t *cb)
 	if (cb->initialized) {
 		zval_ptr_dtor(&cb->fci.function_name);
 
-		if (cb->user_data) {
-			zval_ptr_dtor(cb->user_data);
+		if (!Z_ISUNDEF(cb->user_data)) {
+			zval_ptr_dtor(&cb->user_data);
 		}
 		memset (cb, 0, sizeof (php_zmq_device_cb_t));
 		cb->initialized = 0;
@@ -1453,13 +1467,9 @@ static
 void s_init_device_callback (php_zmq_device_cb_t *cb, zend_fcall_info *fci, zend_fcall_info_cache *fci_cache, long timeout, zval *user_data TSRMLS_DC)
 {
 	if (user_data) {
-		cb->user_data = user_data;
-		Z_TRY_ADDREF_P(user_data);
+		ZVAL_COPY(&cb->user_data, user_data);
 	} else {
-		ZVAL_NULL(user_data);
-		Z_TRY_ADDREF_P(user_data);
-
-		cb->user_data = user_data;
+		ZVAL_NULL(&cb->user_data);
 	}
 	memcpy (&cb->fci, fci, sizeof (*fci));
 	memcpy (&cb->fci_cache, fci_cache, sizeof (*fci_cache));
@@ -2391,7 +2401,7 @@ static void php_zmq_socket_object_free_storage(zend_object *object TSRMLS_DC)
 	}
 
 	if (!Z_ISUNDEF(intern->context_obj)) {
-		Z_DELREF(intern->context_obj);
+		zval_ptr_dtor(&intern->context_obj);
 	}
 	zend_object_std_dtor(&intern->zo);
 }
@@ -2418,18 +2428,17 @@ static void php_zmq_device_object_free_storage(zend_object *object TSRMLS_DC)
 	s_clear_device_callback (&intern->idle_cb);
 	s_clear_device_callback (&intern->timer_cb);
 
-	if (intern->front) {
-		zval_ptr_dtor (intern->front);
+	if (!Z_ISUNDEF(intern->front)) {
+		zval_ptr_dtor(&intern->front);
 	}
 
-	if (intern->back) {
-		zval_ptr_dtor (intern->back);
+	if (!Z_ISUNDEF(intern->back)) {
+		zval_ptr_dtor(&intern->back);
 	}
 
-	if (intern->capture) {
-		zval_ptr_dtor (intern->capture);
+	if (!Z_ISUNDEF(intern->capture)) {
+		zval_ptr_dtor(&intern->capture);
 	}
-
 	zend_object_std_dtor(&intern->zo TSRMLS_CC);
 }
 
@@ -2501,9 +2510,9 @@ zend_object *php_zmq_device_object_new_ex(zend_class_entry *class_type, php_zmq_
 	memset (&intern->idle_cb, 0, sizeof (php_zmq_device_cb_t));
 	memset (&intern->timer_cb, 0, sizeof (php_zmq_device_cb_t));
 
-	intern->front   = NULL;
-	intern->back    = NULL;
-	intern->capture = NULL;
+	ZVAL_UNDEF(&intern->front);
+	ZVAL_UNDEF(&intern->back);
+	ZVAL_UNDEF(&intern->capture);
 
 	if (ptr) {
 		*ptr = intern;
