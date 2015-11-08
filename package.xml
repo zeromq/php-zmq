@@ -47,6 +47,7 @@
    <file name="zmq_pollset.c" role="src" />
    <file name="zmq_sockopt.c" role="src" />
    <file name="zmq_clock.c" role="src" />
+   <file name="zmq_object_access.c" role="src" />
 
    <!-- misc files -->
    <file name="README.md" role="doc" />
