@@ -270,14 +270,14 @@ ZEND_END_MODULE_GLOBALS(php_zmq)
 
 #ifdef HAVE_CZMQ_2
 typedef struct _php_zmq_cert {
-	zend_object zend_object;
 	zcert_t *zcert;
+	zend_object zo;
 } php_zmq_cert_object;
 
 typedef struct _php_zmq_auth {
-	zend_object zend_object;
 	zctx_t *shadow_context;
 	zauth_t *zauth;
+	zend_object zo;
 } php_zmq_auth_object;
 #endif
 

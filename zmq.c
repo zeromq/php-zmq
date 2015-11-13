@@ -1557,47 +1557,41 @@ PHP_METHOD(zmqdevice, __clone) { }
 
 #ifdef HAVE_CZMQ_2
 
-/* --- START ZMQCert --- */
+/* --- START q --- */
 
-static void php_zmq_cert_free_storage(void *object TSRMLS_DC)
+static
+void php_zmq_cert_object_free_storage(zend_object *object)
 {
-	php_zmq_cert_object *zmq_cert = (php_zmq_cert_object *) object;
+	php_zmq_cert_object *intern = php_zmq_cert_fetch_object(object);
 
-	zcert_destroy(&zmq_cert->zcert);
+	if (!intern) {
+		return;
+	}
 
-	zend_object_std_dtor(&zmq_cert->zend_object TSRMLS_CC);
-
-	efree(zmq_cert);
+	if (intern->zcert) {
+		zcert_destroy(&intern->zcert);
+	}
+	zend_object_std_dtor(&intern->zo);
 }
 
-static zend_object_value php_zmq_cert_new(zend_class_entry *class_type TSRMLS_DC)
+static
+zend_object *php_zmq_cert_new(zend_class_entry *class_type)
 {
-	zend_object_value result;
-	php_zmq_cert_object *zmq_cert;
-
-	zmq_cert = (php_zmq_cert_object *) emalloc(sizeof(php_zmq_cert_object));
-	memset(&zmq_cert->zend_object, 0, sizeof(zend_object));
+	php_zmq_cert_object *intern = ecalloc(1, sizeof(php_zmq_cert_object) + zend_object_properties_size(class_type));
 
 	/* zcert is initialised in ZMQCert#__construct. */
-	zmq_cert->zcert = NULL;
+	intern->zcert = NULL;
 
-	zend_object_std_init(&zmq_cert->zend_object, class_type TSRMLS_CC);
-	object_properties_init(&zmq_cert->zend_object, class_type);
+	zend_object_std_init(&intern->zo, class_type TSRMLS_CC);
+	object_properties_init(&intern->zo, class_type);
 
-	result.handle = zend_objects_store_put(
-		zmq_cert,
-		NULL,
-		(zend_objects_free_object_storage_t) php_zmq_cert_free_storage,
-		NULL TSRMLS_CC
-	);
-	result.handlers = &zmq_cert_object_handlers;
-
-	return result;
+	intern->zo.handlers = &zmq_cert_object_handlers;
+	return &intern->zo;
 }
 
 PHP_METHOD(zmqcert, __construct)
 {
-	zend_string *filename;
+	zend_string *filename = NULL;
 	zend_error_handling error_handling;
 	int parse_parameters_result;
 	php_zmq_cert_object *intern;
@@ -1610,22 +1604,21 @@ PHP_METHOD(zmqcert, __construct)
 		return;
 	}
 
-	intern = (php_zmq_cert_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
+	intern = PHP_ZMQ_CERT_OBJECT;
 
-	if (filename == NULL) {
+	if (!filename) {
 		intern->zcert = zcert_new();
 
-		if (intern->zcert == NULL) {
+		if (!intern->zcert) {
 			zend_throw_exception_ex(php_zmq_cert_exception_sc_entry, PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC, "Failed to create the underlying zcert object. Is libsodium installed?", filename);
 		}
-
 		return;
 	}
 
 	intern->zcert = zcert_load(filename->val);
 
-	if (intern->zcert == NULL) {
-		zend_throw_exception_ex(php_zmq_cert_exception_sc_entry, PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC, "Failed to load the certificate from %s", filename);
+	if (!intern->zcert) {
+		zend_throw_exception_ex(php_zmq_cert_exception_sc_entry, PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC, "Failed to load the certificate from %s", filename->val);
 	}
 
 	return;
@@ -1644,10 +1637,13 @@ PHP_METHOD(zmqcert, getPublicKey)
 		return;
 	}
 
-	intern = (php_zmq_cert_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
+	intern = PHP_ZMQ_CERT_OBJECT;
 	public_key = zcert_public_key(intern->zcert);
 
-	RETURN_STRINGL((char *) public_key, 32, 1);
+	if (!public_key) {
+		RETURN_NULL();
+	}
+	RETURN_STRINGL((char *) public_key, 32);
 }
 
 ZEND_BEGIN_ARG_INFO_EX(zmqcert_getPublicKey_args, 0, 0, 0)
@@ -1662,10 +1658,13 @@ PHP_METHOD(zmqcert, getSecretKey)
 		return;
 	}
 
-	intern = (php_zmq_cert_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
+	intern = PHP_ZMQ_CERT_OBJECT;
 	secret_key = zcert_secret_key(intern->zcert);
 
-	RETURN_STRINGL((char *) secret_key, 32, 1);
+	if (!secret_key) {
+		RETURN_NULL();
+	}
+	RETURN_STRINGL((char *) secret_key, 32);
 }
 
 ZEND_BEGIN_ARG_INFO_EX(zmqcert_getSecretKey_args, 0, 0, 0)
@@ -1680,10 +1679,13 @@ PHP_METHOD(zmqcert, getPublicTxt)
 		return;
 	}
 
-	intern = (php_zmq_cert_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
+	intern = PHP_ZMQ_CERT_OBJECT;
 	public_txt = zcert_public_txt(intern->zcert);
 
-	RETURN_STRING(public_txt, 1);
+	if (!public_txt) {
+		RETURN_NULL();
+	}
+	RETURN_STRING(public_txt);
 }
 
 ZEND_BEGIN_ARG_INFO_EX(zmqcert_getPublicTxt_args, 0, 0, 0)
@@ -1698,10 +1700,13 @@ PHP_METHOD(zmqcert, getSecretTxt)
 		return;
 	}
 
-	intern = (php_zmq_cert_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
+	intern = PHP_ZMQ_CERT_OBJECT;
 	secret_txt = zcert_secret_txt(intern->zcert);
 
-	RETURN_STRING(secret_txt, 1);
+	if (!secret_txt) {
+		RETURN_NULL();
+	}
+	RETURN_STRING(secret_txt);
 }
 
 ZEND_BEGIN_ARG_INFO_EX(zmqcert_getSecretTxt_args, 0, 0, 0)
@@ -1713,12 +1718,11 @@ PHP_METHOD(zmqcert, setMeta)
 	zend_string *name;
 	zend_string *format;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss", &name, &format) != SUCCESS) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "SS", &name, &format) != SUCCESS) {
 		return;
 	}
 
-	intern = (php_zmq_cert_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
-
+	intern = PHP_ZMQ_CERT_OBJECT;
 	zcert_set_meta(intern->zcert, name->val, format->val);
 
 	return;
@@ -1735,19 +1739,17 @@ PHP_METHOD(zmqcert, getMeta)
 	php_zmq_cert_object *intern;
 	char *result;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &name) != SUCCESS) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "S", &name) != SUCCESS) {
 		return;
 	}
 
-	intern = (php_zmq_cert_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
-
+	intern = PHP_ZMQ_CERT_OBJECT;
 	result = zcert_meta(intern->zcert, name->val);
 
-	if (result == NULL) {
+	if (!result) {
 		RETURN_NULL();
 	}
-
-	RETURN_STRING(result, 1);
+	RETURN_STRING(result);
 }
 
 ZEND_BEGIN_ARG_INFO_EX(zmqcert_getMeta_args, 0, 0, 1)
@@ -1765,18 +1767,14 @@ PHP_METHOD(zmqcert, getMetaKeys)
 		return;
 	}
 
-	intern = (php_zmq_cert_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
+	intern = PHP_ZMQ_CERT_OBJECT;
 
 	meta_keys = zcert_meta_keys(intern->zcert);
 	meta_key = (char *) zlist_first(meta_keys);
 
 	array_init(return_value);
-	i = 0;
-
 	while (meta_key) {
-		add_index_string(return_value, i, meta_key, 1);
-		++i;
-
+		add_next_index_string(return_value, meta_key);
 		meta_key = zlist_next(meta_keys);
 	}
 
@@ -1791,15 +1789,13 @@ PHP_METHOD(zmqcert, save)
 	php_zmq_cert_object *intern;
 	zend_string *filename;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &filename) != SUCCESS) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "S", &filename) != SUCCESS) {
 		return;
 	}
 
-	intern = (php_zmq_cert_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
+	intern = PHP_ZMQ_CERT_OBJECT;
 
-	zcert_save_result = zcert_save(intern->zcert, filename->val);
-
-	if (zcert_save_result == -1) {
+	if (zcert_save(intern->zcert, filename->val) == -1) {
 		zend_throw_exception_ex(php_zmq_cert_exception_sc_entry, PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC, "Failed to save the certificate to %s", filename->val);
 	}
 
@@ -1814,17 +1810,14 @@ PHP_METHOD(zmqcert, savePublic)
 {
 	zend_string *filename;
 	php_zmq_cert_object *intern;
-	int zcert_save_public_result;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &filename) != SUCCESS) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "S", &filename) != SUCCESS) {
 		return;
 	}
 
-	intern = (php_zmq_cert_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
+	intern = PHP_ZMQ_CERT_OBJECT;
 
-	zcert_save_public_result = zcert_save_public(intern->zcert, filename->val);
-
-	if (zcert_save_public_result == -1) {
+	if (zcert_save_public(intern->zcert, filename->val) == -1) {
 		zend_throw_exception_ex(php_zmq_cert_exception_sc_entry, PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC, "Failed to save the public certificate to %s", filename->val);
 	}
 
@@ -1839,17 +1832,14 @@ PHP_METHOD(zmqcert, saveSecret)
 {
 	zend_string *filename;
 	php_zmq_cert_object *intern;
-	int zcert_save_secret_result;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "S", &filename) != SUCCESS) {
 		return;
 	}
 
-	intern = (php_zmq_cert_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
+	intern = PHP_ZMQ_CERT_OBJECT;
 
-	zcert_save_secret_result = zcert_save_secret(intern->zcert, filename->val);
-
-	if (zcert_save_secret_result == -1) {
+	if (zcert_save_secret(intern->zcert, filename->val) == -1) {
 		zend_throw_exception_ex(php_zmq_cert_exception_sc_entry, PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC, "Failed to save the secret certificate to %s", filename->val);
 	}
 
@@ -1864,37 +1854,31 @@ PHP_METHOD(zmqcert, apply)
 {
 	php_zmq_cert_object *intern;
 	zval *object;
-	php_zmq_socket_object *socket_object;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "O", &object, php_zmq_socket_sc_entry) != SUCCESS) {
 		return;
 	}
 
-	intern = (php_zmq_cert_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
-	socket_object = (php_zmq_socket_object *) zend_object_store_get_object(object TSRMLS_CC);
-
-	zcert_apply(intern->zcert, socket_object->socket->z_socket);
-
-	return;
+	intern = PHP_ZMQ_CERT_OBJECT;
+	zcert_apply(intern->zcert, php_zmq_socket_fetch_object(Z_OBJ_P(object))->socket->z_socket);
 }
 
 ZEND_BEGIN_ARG_INFO_EX(zmqcert_apply_args, 0, 0, 1)
 	ZEND_ARG_OBJ_INFO(0, ZMQSocket, ZMQSocket, 0)
 ZEND_END_ARG_INFO()
 
-static zend_object_value php_zmq_cert_clone(zval *object TSRMLS_DC)
+static
+zend_object *php_zmq_cert_clone(zval *object)
 {
+	zend_object *result;
 	php_zmq_cert_object *intern;
-	zend_object_value result;
 	php_zmq_cert_object *that;
 
-	intern = (php_zmq_cert_object *) zend_object_store_get_object(object TSRMLS_CC);
+	intern = php_zmq_cert_fetch_object(Z_OBJ_P(object));
+	result = php_zmq_cert_new(php_zmq_cert_sc_entry);
 
-	result = php_zmq_cert_new(php_zmq_cert_sc_entry TSRMLS_CC);
-
-	that = (php_zmq_cert_object *) zend_object_store_get_object_by_handle(result.handle TSRMLS_CC);
+	that = php_zmq_cert_fetch_object(result);
 	that->zcert = zcert_dup(intern->zcert);
-
 	return result;
 }
 
@@ -1903,18 +1887,15 @@ PHP_METHOD(zmqcert, equals)
 	php_zmq_cert_object *intern;
 	zval *object;
 	php_zmq_cert_object *that;
-	bool result;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "O", &object, php_zmq_cert_sc_entry) != SUCCESS) {
 		return;
 	}
 
-	intern = (php_zmq_cert_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
-	that = (php_zmq_cert_object *) zend_object_store_get_object(object TSRMLS_CC);
+	intern = PHP_ZMQ_CERT_OBJECT;
+	that = php_zmq_cert_fetch_object(Z_OBJ_P(object));
 
-	result = zcert_eq(intern->zcert, that->zcert);
-
-	RETURN_BOOL(result);
+	RETURN_BOOL(zcert_eq(intern->zcert, that->zcert) == 1);
 }
 
 ZEND_BEGIN_ARG_INFO_EX(zmqcert_equals_args, 0, 0, 1)
@@ -1943,41 +1924,37 @@ static zend_function_entry php_zmq_cert_class_methods[] = {
 
 /* --- START ZMQAuth --- */
 
-static void php_zmq_auth_free_storage(void *object TSRMLS_DC)
+static
+void php_zmq_auth_object_free_storage(zend_object *object TSRMLS_DC)
 {
-	php_zmq_auth_object *zmq_auth = (php_zmq_auth_object *) object;
+	php_zmq_auth_object *intern = php_zmq_auth_fetch_object(object);
 
-	zauth_destroy(&zmq_auth->zauth);
-	zctx_destroy(&zmq_auth->shadow_context);
+	if (!intern) {
+		return;
+	}
 
-	zend_object_std_dtor(&zmq_auth->zend_object TSRMLS_CC);
-
-	efree(zmq_auth);
+	if (intern->zauth) {
+		zauth_destroy(&intern->zauth);
+	}
+	if (intern->shadow_context) {
+		zctx_destroy(&intern->shadow_context);
+	}
+	zend_object_std_dtor(&intern->zo TSRMLS_CC);
 }
 
-static zend_object_value php_zmq_auth_new(zend_class_entry *class_type TSRMLS_DC)
+static
+zend_object *php_zmq_auth_new(zend_class_entry *class_type TSRMLS_DC)
 {
-	zend_object_value result;
-	php_zmq_auth_object *zmq_auth;
+	php_zmq_auth_object *intern = ecalloc(1, sizeof(php_zmq_auth_object) + zend_object_properties_size(class_type));
 
-	zmq_auth = (php_zmq_auth_object *) emalloc(sizeof(php_zmq_auth_object));
-	memset(&zmq_auth->zend_object, 0, sizeof(zend_object));
+	/* zcert is initialised in ZMQCert#__construct. */
+	intern->zauth = NULL;
 
-	/* zauth is initialised in ZMQAuth#__construct. */
-	zmq_auth->zauth = NULL;
+	zend_object_std_init(&intern->zo, class_type TSRMLS_CC);
+	object_properties_init(&intern->zo, class_type);
 
-	zend_object_std_init(&zmq_auth->zend_object, class_type TSRMLS_CC);
-	object_properties_init(&zmq_auth->zend_object, class_type);
-
-	result.handle = zend_objects_store_put(
-		zmq_auth,
-		NULL,
-		(zend_objects_free_object_storage_t) php_zmq_auth_free_storage,
-		NULL TSRMLS_CC
-	);
-	result.handlers = &zmq_auth_object_handlers;
-
-	return result;
+	intern->zo.handlers = &zmq_auth_object_handlers;
+	return &intern->zo;
 }
 
 PHP_METHOD(zmqauth, __construct)
@@ -1996,9 +1973,9 @@ PHP_METHOD(zmqauth, __construct)
 		return;
 	}
 
-	intern = (php_zmq_auth_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
+	intern = PHP_ZMQ_AUTH_OBJECT;
 
-	context_object = (php_zmq_context_object *) zend_object_store_get_object(object TSRMLS_CC);
+	context_object = php_zmq_context_fetch_object(Z_OBJ_P(object));
 
 	// NOTE (phuedx, 2014-05-14): A zauth object needs a context so that it
 	// can take over authentication for all incoming connections in that
@@ -2006,18 +1983,17 @@ PHP_METHOD(zmqauth, __construct)
 	// us to continue working with CZMQ.
 	intern->shadow_context = zctx_shadow_zmq_ctx(context_object->context->z_ctx);
 
-	if (intern->shadow_context == NULL) {
+	if (!intern->shadow_context) {
 		zend_throw_exception_ex(php_zmq_auth_exception_sc_entry, PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC, "Failed to create the underlying shadow context object.");
-
 		return;
 	}
 
 	intern->zauth = zauth_new(intern->shadow_context);
 
-	if (intern->zauth == NULL) {
+	if (!intern->zauth) {
+		zctx_destroy(&intern->shadow_context);
 		zend_throw_exception_ex(php_zmq_auth_exception_sc_entry, PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC, "Failed to create the underlying zauth object.");
 	}
-
 	return;
 }
 
@@ -2027,18 +2003,15 @@ ZEND_END_ARG_INFO();
 
 PHP_METHOD(zmqauth, allow)
 {
-	char *address;
-	int address_length;
+	zend_string *address;
 	php_zmq_auth_object *intern;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &address, &address_length) != SUCCESS) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "S", &address) != SUCCESS) {
 		return;
 	}
 
-	intern = (php_zmq_auth_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
-
-	zauth_allow(intern->zauth, address);
-
+	intern = PHP_ZMQ_AUTH_OBJECT;
+	zauth_allow(intern->zauth, address->val);
 	RETURN_ZVAL(getThis(), 1, 0);
 }
 
@@ -2048,18 +2021,15 @@ ZEND_END_ARG_INFO();
 
 PHP_METHOD(zmqauth, deny)
 {
-	char *address;
-	int address_length;
+	zend_string *address;
 	php_zmq_auth_object *intern;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &address, &address_length) != SUCCESS) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "S", &address) != SUCCESS) {
 		return;
 	}
 
-	intern = (php_zmq_auth_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
-
-	zauth_deny(intern->zauth, address);
-
+	intern = PHP_ZMQ_AUTH_OBJECT;
+	zauth_deny(intern->zauth, address->val);
 	RETURN_ZVAL(getThis(), 1, 0);
 }
 
@@ -2070,35 +2040,25 @@ ZEND_END_ARG_INFO();
 PHP_METHOD(zmqauth, configure)
 {
 	php_zmq_auth_object *intern;
-	int parse_parameters_result;
 	long type;
-	char *domain;
-	int domain_length;
-	char *filename;
-	int filename_length;
+	zend_string *domain;
+	zend_string *filename;
 
-	intern = (php_zmq_auth_object *) zend_object_store_get_object(getThis() TSRMLS_CC);
+	intern = PHP_ZMQ_AUTH_OBJECT
 
-	parse_parameters_result = zend_parse_parameters(
-		ZEND_NUM_ARGS() TSRMLS_CC,
-		"lss",
-		&type,
-		&domain, &domain_length,
-		&filename,
-		&filename_length
-	);
-
-	if (parse_parameters_result != SUCCESS) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "lSS", &type, &domain, &filename) != SUCCESS) {
 		return;
 	}
 
+	intern = PHP_ZMQ_AUTH_OBJECT;
+
 	switch (type) {
 		case PHP_ZMQ_AUTH_TYPE_PLAIN:
-			zauth_configure_plain(intern->zauth, domain, filename);
+			zauth_configure_plain(intern->zauth, domain->val, filename->val);
 		break;
 
 		case PHP_ZMQ_AUTH_TYPE_CURVE:
-			zauth_configure_curve(intern->zauth, domain, filename);
+			zauth_configure_curve(intern->zauth, domain->val, filename->val);
 		break;
 
 		// TODO (phuedx, 2014-05-16): CZMQ now supports GSSAPI (see
@@ -2367,7 +2327,8 @@ zend_function_entry zmq_functions[] = {
 	{NULL, NULL, NULL}
 };
 
-static void php_zmq_context_object_free_storage(zend_object *object TSRMLS_DC)
+static
+void php_zmq_context_object_free_storage(zend_object *object TSRMLS_DC)
 {
 	php_zmq_context_object *intern = php_zmq_context_fetch_object(object);
 
@@ -2383,7 +2344,8 @@ static void php_zmq_context_object_free_storage(zend_object *object TSRMLS_DC)
 	zend_object_std_dtor(&intern->zo);
 }
 
-static void php_zmq_socket_object_free_storage(zend_object *object TSRMLS_DC)
+static
+void php_zmq_socket_object_free_storage(zend_object *object TSRMLS_DC)
 {
 	php_zmq_socket_object *intern = php_zmq_socket_fetch_object(object);
 
@@ -2406,7 +2368,8 @@ static void php_zmq_socket_object_free_storage(zend_object *object TSRMLS_DC)
 	zend_object_std_dtor(&intern->zo);
 }
 
-static void php_zmq_poll_object_free_storage(zend_object *object TSRMLS_DC)
+static
+void php_zmq_poll_object_free_storage(zend_object *object TSRMLS_DC)
 {
 	php_zmq_poll_object *intern = php_zmq_poll_fetch_object(object);
 
@@ -2641,12 +2604,20 @@ PHP_MINIT_FUNCTION(zmq)
 #ifdef HAVE_CZMQ_2
 	INIT_CLASS_ENTRY(ce_cert, "ZMQCert", php_zmq_cert_class_methods);
 	ce_cert.create_object = php_zmq_cert_new;
+
+	zmq_cert_object_handlers.offset    = XtOffsetOf(php_zmq_cert_object, zo);
 	zmq_cert_object_handlers.clone_obj = php_zmq_cert_clone;
+	zmq_cert_object_handlers.free_obj  = php_zmq_cert_object_free_storage;
+
 	php_zmq_cert_sc_entry = zend_register_internal_class(&ce_cert TSRMLS_CC);
 
 	INIT_CLASS_ENTRY(ce_auth, "ZMQAuth", php_zmq_auth_class_methods);
 	ce_auth.create_object = php_zmq_auth_new;
+
+	zmq_auth_object_handlers.offset    = XtOffsetOf(php_zmq_auth_object, zo);
 	zmq_auth_object_handlers.clone_obj = NULL;
+	zmq_auth_object_handlers.free_obj  = php_zmq_auth_object_free_storage;
+
 	php_zmq_auth_sc_entry = zend_register_internal_class(&ce_auth TSRMLS_CC);
 #endif
 
