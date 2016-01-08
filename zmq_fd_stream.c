@@ -32,6 +32,11 @@
 #include "php_zmq_private.h"
 #include "zmq_object_access.c"
 
+typedef struct _php_zmq_stream_container {
+	zval object;
+} php_zmq_stream_container;
+
+
 static size_t php_zmq_fd_read(php_stream *stream, char *buf, size_t count TSRMLS_DC)
 {
 	return 0;
@@ -44,8 +49,9 @@ static size_t php_zmq_fd_write(php_stream *stream, const char *buf, size_t count
 
 static int php_zmq_fd_close(php_stream *stream, int close_handle TSRMLS_DC)
 {
-	zval *obj = (zval *) stream->abstract;
-	Z_DELREF_P(obj);
+	php_zmq_stream_container *container = (php_zmq_stream_container *) stream->abstract;
+	zval_ptr_dtor(&(container->object));
+	efree (container);
 	return EOF;
 }
 
@@ -56,8 +62,8 @@ static int php_zmq_fd_flush(php_stream *stream TSRMLS_DC)
 
 static int php_zmq_fd_cast(php_stream *stream, int cast_as, void **ret TSRMLS_DC)
 {
-	zval *obj = (zval *) stream->abstract;
-	php_zmq_socket_object *intern = php_zmq_socket_fetch_object(Z_OBJ_P(obj));
+	php_zmq_stream_container *container = (php_zmq_stream_container *) stream->abstract;
+	php_zmq_socket_object *intern = php_zmq_socket_fetch_object(Z_OBJ(container->object));
 
 	switch (cast_as)	{
 		case PHP_STREAM_AS_FD_FOR_SELECT:
@@ -65,6 +71,11 @@ static int php_zmq_fd_cast(php_stream *stream, int cast_as, void **ret TSRMLS_DC
 		case PHP_STREAM_AS_SOCKETD:
 			if (ret) {
 				size_t optsiz = sizeof (int);
+
+				if (!intern->socket) {
+					return FAILURE;
+				}
+
 				if (zmq_getsockopt(intern->socket->z_socket, ZMQ_FD, (int*) ret, &optsiz) != 0) {
 					return FAILURE;
 				}
@@ -88,10 +99,13 @@ static php_stream_ops php_stream_zmq_fd_ops = {
 php_stream *php_zmq_create_zmq_fd(zval *obj TSRMLS_DC)
 {
 	php_stream *stream;
-	stream = php_stream_alloc(&php_stream_zmq_fd_ops, obj, NULL, "r");
+	php_zmq_stream_container *container;
+
+	container = ecalloc(1, sizeof(php_zmq_stream_container));
+	stream = php_stream_alloc(&php_stream_zmq_fd_ops, container, NULL, "r");
 
 	if (stream) {
-		Z_ADDREF_P(obj);
+		ZVAL_COPY(&(container->object), obj);
 		return stream;
 	}
 	return NULL;
