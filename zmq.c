@@ -142,8 +142,9 @@ static int php_zmq_context_list_entry(void)
 static void php_zmq_context_destroy(php_zmq_context *context)
 {
 	if (!context->is_global) {
-		if(context->pid == getpid())
+		if (context->pid == getpid()) {
 			(void) zmq_term(context->z_ctx);
+		}
 	}
 	pefree(context, context->is_persistent);
 }
@@ -157,9 +158,9 @@ static void php_zmq_socket_destroy(php_zmq_socket *zmq_sock)
 	zend_hash_destroy(&(zmq_sock->connect));
 	zend_hash_destroy(&(zmq_sock->bind));
 
-	if (zmq_sock->pid == getpid ())
+	if (zmq_sock->pid == getpid ()) {
 		(void) zmq_close(zmq_sock->z_socket);
-
+	}
 	pefree(zmq_sock, zmq_sock->is_persistent);
 }
 /* }}} */
@@ -1128,7 +1129,7 @@ PHP_METHOD(zmqpoll, add)
 	php_zmq_poll_object *intern;
 	zval *object;
 	long events;
-	int pos;
+	int error;
 	zend_string *key;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "zl", &object, &events) == FAILURE) {
@@ -1155,12 +1156,12 @@ PHP_METHOD(zmqpoll, add)
 		break;
 	}
 
-	pos = php_zmq_pollset_add(&(intern->set), object, events TSRMLS_CC);
+	key = php_zmq_pollset_add(&(intern->set), object, events, &error);
 
-	if (pos < 0) {
+	if (!key) {
 		const char *message = NULL;
 
-		switch (pos) {
+		switch (error) {
 			case PHP_ZMQ_POLLSET_ERR_NO_STREAM:
 				message = "The supplied resource is not a valid stream resource";
 			break;
@@ -1189,14 +1190,6 @@ PHP_METHOD(zmqpoll, add)
 		zend_throw_exception(php_zmq_poll_exception_sc_entry, message, PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
 		return;
 	}
-
-	key = php_zmq_pollset_get_key(&(intern->set), pos TSRMLS_CC);
-
-	if (!key) {
-		zend_throw_exception(php_zmq_poll_exception_sc_entry, "Failed to get the item key", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
-		return;
-	}
-
 	RETURN_STR(key);
 }
 /* }}} */
@@ -1215,7 +1208,7 @@ PHP_METHOD(zmqpoll, remove)
 
 	intern = PHP_ZMQ_POLL_OBJECT;
 
-	if (intern->set.num_items == 0) {
+	if (php_zmq_pollset_num_items(&intern->set) == 0) {
 		zend_throw_exception(php_zmq_poll_exception_sc_entry, "No sockets assigned to the ZMQPoll", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
 		return;
 	}
@@ -1264,12 +1257,12 @@ PHP_METHOD(zmqpoll, poll)
 
 	intern = PHP_ZMQ_POLL_OBJECT;
 
-	if (intern->set.num_items == 0) {
+	if (php_zmq_pollset_num_items(&intern->set) == 0) {
 		zend_throw_exception(php_zmq_poll_exception_sc_entry, "No sockets assigned to the ZMQPoll", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
 		return;
 	}
 
-	rc = php_zmq_pollset_poll(&(intern->set), timeout * PHP_ZMQ_TIMEOUT, r_array, w_array, &intern->set.errors);
+	rc = php_zmq_pollset_poll(&(intern->set), timeout * PHP_ZMQ_TIMEOUT, r_array, w_array);
 
 	if (rc == -1) {
 		zend_throw_exception_ex(php_zmq_poll_exception_sc_entry, errno TSRMLS_CC, "Poll failed: %s", zmq_strerror(errno));
@@ -1291,7 +1284,7 @@ PHP_METHOD(zmqpoll, count)
 	}
 
 	intern = PHP_ZMQ_POLL_OBJECT;
-	RETURN_LONG(intern->set.num_items);
+	RETURN_LONG(php_zmq_pollset_num_items(&intern->set));
 }
 /* }}} */
 
@@ -1395,12 +1388,31 @@ void s_clear_device_callback (php_zmq_device_cb_t *cb)
 {
 	if (cb->initialized) {
 		zval_ptr_dtor(&cb->fci.function_name);
+		cb->fci.size = 0;
 
 		if (!Z_ISUNDEF(cb->user_data)) {
 			zval_ptr_dtor(&cb->user_data);
 		}
 		memset (cb, 0, sizeof (php_zmq_device_cb_t));
 		cb->initialized = 0;
+	}
+}
+
+static
+void s_init_device_callback (php_zmq_device_cb_t *cb, zend_fcall_info *fci, zend_fcall_info_cache *fci_cache, long timeout, zval *user_data TSRMLS_DC)
+{
+	memcpy (&cb->fci, fci, sizeof (zend_fcall_info));
+	memcpy (&cb->fci_cache, fci_cache, sizeof (zend_fcall_info_cache));
+
+	Z_TRY_ADDREF (fci->function_name);
+	cb->initialized  = 1;
+	cb->scheduled_at = php_zmq_clock (ZMQ_G (clock_ctx)) + timeout;
+	cb->timeout      = timeout;
+
+	if (user_data) {
+		ZVAL_COPY(&cb->user_data, user_data);
+	} else {
+		ZVAL_NULL(&cb->user_data);
 	}
 }
 
@@ -1460,24 +1472,6 @@ PHP_METHOD(zmqdevice, gettimertimeout)
 
 	intern = PHP_ZMQ_DEVICE_OBJECT;
 	RETURN_LONG(intern->timer_cb.timeout);
-}
-
-
-static
-void s_init_device_callback (php_zmq_device_cb_t *cb, zend_fcall_info *fci, zend_fcall_info_cache *fci_cache, long timeout, zval *user_data TSRMLS_DC)
-{
-	if (user_data) {
-		ZVAL_COPY(&cb->user_data, user_data);
-	} else {
-		ZVAL_NULL(&cb->user_data);
-	}
-	memcpy (&cb->fci, fci, sizeof (*fci));
-	memcpy (&cb->fci_cache, fci_cache, sizeof (*fci_cache));
-
-	Z_TRY_ADDREF (fci->function_name);
-	cb->initialized  = 1;
-	cb->scheduled_at = php_zmq_clock (ZMQ_G (clock_ctx)) + timeout;
-	cb->timeout      = timeout;
 }
 
 /* {{{ proto void ZMQDevice::setIdleCallback (callable $function, integer timeout [, mixed $userdata])
@@ -2736,10 +2730,13 @@ PHP_MINIT_FUNCTION(zmq)
 PHP_MSHUTDOWN_FUNCTION(zmq)
 {
 #ifdef PHP_ZMQ_PTHREADS
-	if (php_zmq_global_context) {
-		zmq_term (php_zmq_global_context);
-		php_zmq_global_context = NULL;
+	pthread_mutex_lock (&php_zmq_global_context_mutex); {
+		if (php_zmq_global_context) {
+			zmq_term (php_zmq_global_context);
+			php_zmq_global_context = NULL;
+		}
 	}
+	pthread_mutex_unlock (&php_zmq_global_context_mutex);
 #endif
 	php_zmq_clock_destroy (&ZMQ_G (clock_ctx));
 	return SUCCESS;

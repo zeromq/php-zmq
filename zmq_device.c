@@ -63,8 +63,7 @@ zend_bool s_invoke_device_cb (php_zmq_device_cb_t *cb, uint64_t current_ts TSRML
 		}
 	}
 	if (!Z_ISUNDEF(fc_retval)) {
-		convert_to_boolean(&fc_retval);
-		retval = zval_get_long(&fc_retval);
+		retval = zval_is_true(&fc_retval);
 	}
 	zval_ptr_dtor(&params[0]);
 	zval_ptr_dtor(&fc_retval);

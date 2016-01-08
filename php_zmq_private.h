@@ -33,6 +33,7 @@
 
 #include "ext/standard/info.h"
 #include "Zend/zend_exceptions.h"
+#include "Zend/zend_llist.h"
 #include "main/php_ini.h"
 
 #include <zmq.h>
@@ -50,35 +51,12 @@
 # include <stdint.h>
 #endif
 
-/* {{{ typedef struct _php_zmq_pollitem 
-*/
-typedef struct _php_zmq_pollitem {
-	int events;
-	zend_string *key;
-
-	/* Have the zval of the res or obj */
-	zval entry;
-
-	/* convenience pointer containing fd or socket */
-	void *socket;
-	int fd;
-} php_zmq_pollitem;
-/* }}} */
-
 /* {{{ typedef struct _php_zmq_pollset 
 */
 typedef struct _php_zmq_pollset {
-	php_zmq_pollitem *php_items;
-	int num_php_items;
-
-	/* items and a count */
+	// 
+	HashTable php_items;
 	zmq_pollitem_t *items;
-	int num_items;
-
-	/* How many allocated */
-	int alloc_size;
-
-	/* Errors in the last poll */
 	zval errors;
 } php_zmq_pollset;
 /* }}} */
