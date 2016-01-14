@@ -10,10 +10,10 @@
   <email>mkoppanen@php.net</email>
   <active>yes</active>
  </lead>
- <date>2013-11-26</date>
+ <date>2016-01-14</date>
  <time>17:00:00</time>
  <version>
-  <release>1.1.2</release>
+  <release>1.1.3</release>
   <api>1.1.0</api>
  </version>
  <stability>
@@ -48,6 +48,21 @@
    <file name="zmq_sockopt.c" role="src" />
    <file name="zmq_clock.c" role="src" />
    <file name="zmq_object_access.c" role="src" />
+   
+   <!-- PHP5 legacy -->
+   <dir name="php5">
+     <file name="zmq.c" role="src" />
+     <file name="zmq_device.c" role="src" />
+     <file name="zmq_fd_stream.c" role="src" />
+     <file name="zmq_pollset.c" role="src" />
+     <file name="zmq_sockopt.c" role="src" />
+     <file name="zmq_clock.c" role="src" />
+     <file name="php_zmq.h" role="src">
+      <tasks:replace from="@PACKAGE_VERSION@" to="version" type="package-info" />
+     </file>
+     <file name="php_zmq_private.h" role="src" />
+     <file name="php_zmq_pollset.h" role="src" />
+   </dir>
 
    <!-- misc files -->
    <file name="README.md" role="doc" />

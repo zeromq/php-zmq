@@ -1,7 +1,12 @@
 --TEST--
 Test pollset items
 --SKIPIF--
-<?php require_once(dirname(__FILE__) . '/skipif.inc'); ?>
+<?php require_once(dirname(__FILE__) . '/skipif.inc'); 
+	if (PHP_VERSION_ID < 70000) {
+		die ("skip PHP7 only");
+	}
+
+?>
 --FILE--
 <?php
 

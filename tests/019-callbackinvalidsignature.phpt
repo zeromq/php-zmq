@@ -14,10 +14,10 @@ try {
 	$socket = new ZMQSocket(new ZMQContext(), ZMQ::SOCKET_REQ, 'persistent_socket', 'try_to_force_ref');
 	echo "Fail\n";
 } catch (ZMQSocketException $e) {
-	echo $e->getMessage() . "\n";
+	echo "got exception\n";
 }
 
 --EXPECTF--
 Warning: Parameter 1 to try_to_force_ref() expected to be a reference, value given in %s on line %d
-Failed to invoke 'on_new_socket' callback
+got exception
 

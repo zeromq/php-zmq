@@ -86,6 +86,16 @@ if test "$PHP_ZMQ" != "no"; then
   AC_CHECK_FUNCS(clock_gettime gettimeofday mach_absolute_time)
 
   PHP_SUBST(ZMQ_SHARED_LIBADD)
-  PHP_NEW_EXTENSION(zmq, zmq.c zmq_pollset.c zmq_device.c zmq_sockopt.c zmq_fd_stream.c zmq_clock.c, $ext_shared)
+  
+  PHP_ZMQ_VERNUM=`${PHP_CONFIG} --vernum`
+
+  if test "$PHP_ZMQ_VERNUM" -lt "70000"; then
+    subdir="php5"
+
+    PHP_ADD_BUILD_DIR($abs_builddir/$subdir, 1)
+    PHP_NEW_EXTENSION(zmq, $subdir/zmq.c $subdir/zmq_pollset.c $subdir/zmq_device.c $subdir/zmq_sockopt.c $subdir/zmq_fd_stream.c $subdir/zmq_clock.c, $ext_shared)
+  else
+    PHP_NEW_EXTENSION(zmq, zmq.c zmq_pollset.c zmq_device.c zmq_sockopt.c zmq_fd_stream.c zmq_clock.c, $ext_shared)
+  fi
   PKG_CONFIG_PATH="$ORIG_PKG_CONFIG_PATH"
 fi
