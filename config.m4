@@ -78,6 +78,13 @@ if test "$PHP_ZMQ" != "no"; then
   fi
 
   if test "x$PHP_ZMQ_PTHREADS" = "xyes"; then
+    AC_MSG_CHECKING([for ZTS])
+
+    if test "$PHP_THREAD_SAFETY" != "no"; then
+      AC_MSG_RESULT([ok])
+    else
+      AC_MSG_ERROR([pthreads requires ZTS, please re-compile PHP with ZTS enabled])
+    fi
     AC_DEFINE(PHP_ZMQ_PTHREADS, 1, [Enable support for phtreads])
   fi
 

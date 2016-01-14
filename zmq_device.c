@@ -56,7 +56,7 @@ zend_bool s_invoke_device_cb (php_zmq_device_cb_t *cb, uint64_t current_ts TSRML
 	cb->fci.no_separation  = 1;
 	cb->fci.retval         = &fc_retval;
 
-	if (zend_call_function(&(cb->fci), &(cb->fci_cache) TSRMLS_CC) == FAILURE) {
+	if (zend_call_function(&(cb->fci), &(cb->fci_cache)) == FAILURE) {
 		if (!EG(exception)) {
 			zend_throw_exception_ex(php_zmq_device_exception_sc_entry_get (), 0 TSRMLS_CC, "Failed to invoke device callback");
 			zval_ptr_dtor(&params[0]);

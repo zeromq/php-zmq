@@ -37,17 +37,17 @@ typedef struct _php_zmq_stream_container {
 } php_zmq_stream_container;
 
 
-static size_t php_zmq_fd_read(php_stream *stream, char *buf, size_t count TSRMLS_DC)
+static size_t php_zmq_fd_read(php_stream *stream, char *buf, size_t count)
 {
 	return 0;
 }
 
-static size_t php_zmq_fd_write(php_stream *stream, const char *buf, size_t count TSRMLS_DC)
+static size_t php_zmq_fd_write(php_stream *stream, const char *buf, size_t count)
 {
 	return 0;
 }
 
-static int php_zmq_fd_close(php_stream *stream, int close_handle TSRMLS_DC)
+static int php_zmq_fd_close(php_stream *stream, int close_handle)
 {
 	php_zmq_stream_container *container = (php_zmq_stream_container *) stream->abstract;
 	zval_ptr_dtor(&(container->object));
@@ -55,12 +55,12 @@ static int php_zmq_fd_close(php_stream *stream, int close_handle TSRMLS_DC)
 	return EOF;
 }
 
-static int php_zmq_fd_flush(php_stream *stream TSRMLS_DC)
+static int php_zmq_fd_flush(php_stream *stream)
 {
 	return FAILURE;
 }
 
-static int php_zmq_fd_cast(php_stream *stream, int cast_as, void **ret TSRMLS_DC)
+static int php_zmq_fd_cast(php_stream *stream, int cast_as, void **ret)
 {
 	php_zmq_stream_container *container = (php_zmq_stream_container *) stream->abstract;
 	php_zmq_socket_object *intern = php_zmq_socket_fetch_object(Z_OBJ(container->object));
@@ -96,7 +96,7 @@ static php_stream_ops php_stream_zmq_fd_ops = {
 	NULL  /* set_option */
 };
 
-php_stream *php_zmq_create_zmq_fd(zval *obj TSRMLS_DC)
+php_stream *php_zmq_create_zmq_fd(zval *obj)
 {
 	php_stream *stream;
 	php_zmq_stream_container *container;
