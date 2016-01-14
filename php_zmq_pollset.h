@@ -40,24 +40,9 @@
 #define PHP_ZMQ_POLLSET_ERR_INVALID_TYPE -7
 
 
-/** {{{ void php_zmq_pollset_init(php_zmq_pollset *set);
+/** {{{ php_zmq_pollset *php_zmq_pollset_init();
 */
-void php_zmq_pollset_init(php_zmq_pollset *set);
-/* }}} */
-
-/** {{{ void php_zmq_pollset_deinit(php_zmq_pollset *set);
-*/
-void php_zmq_pollset_deinit(php_zmq_pollset *set);
-/* }}} */
-
-/** {{{ void php_zmq_pollset_clear(php_zmq_pollset *set, zend_bool reinit);
-*/
-void php_zmq_pollset_clear(php_zmq_pollset *set, zend_bool reinit);
-/* }}} */
-
-/** {{{ size_t php_zmq_pollset_num_items(php_zmq_pollset *set);
-*/
-size_t php_zmq_pollset_num_items(php_zmq_pollset *set);
+php_zmq_pollset *php_zmq_pollset_init();
 /* }}} */
 
 /** {{{ zend_string *php_zmq_pollset_add(php_zmq_pollset *set, zval *entry, int events, int *error);
@@ -75,19 +60,34 @@ void php_zmq_pollset_rebuild(php_zmq_pollset *set);
 zend_bool php_zmq_pollset_delete(php_zmq_pollset *set, zval *entry);
 /* }}} */
 
-/** {{{ int php_zmq_pollset_poll(php_zmq_pollset *set, int timeout, zval *r_array, zval *w_array);
-*/
-int php_zmq_pollset_poll(php_zmq_pollset *set, int timeout, zval *r_array, zval *w_array);
-/* }}} */
-
 /** {{{ zend_bool php_zmq_pollset_delete_by_key(php_zmq_pollset *set, zend_string *key);
 */
 zend_bool php_zmq_pollset_delete_by_key(php_zmq_pollset *set, zend_string *key);
 /* }}} */
 
+/** {{{ void php_zmq_pollset_clear(php_zmq_pollset *set);
+*/
+void php_zmq_pollset_clear(php_zmq_pollset *set);
+/* }}} */
+
+/** {{{ int php_zmq_pollset_poll(php_zmq_pollset *set, int timeout, zval *r_array, zval *w_array);
+*/
+int php_zmq_pollset_poll(php_zmq_pollset *set, int timeout, zval *r_array, zval *w_array);
+/* }}} */
+
+/** {{{ size_t php_zmq_pollset_num_items(php_zmq_pollset *set);
+*/
+size_t php_zmq_pollset_num_items(php_zmq_pollset *set);
+/* }}} */
+
 /** {{{ void php_zmq_pollset_delete_all(php_zmq_pollset *set);
 */
-void php_zmq_pollset_delete_all(php_zmq_pollset *set);
+zval *php_zmq_pollset_errors();
+/* }}} */
+
+/** {{{ void php_zmq_pollset_deinit(php_zmq_pollset **set);
+*/
+void php_zmq_pollset_destroy(php_zmq_pollset **set);
 /* }}} */
 
 #endif /* _PHP_ZMQ_POLLSET_H_ */

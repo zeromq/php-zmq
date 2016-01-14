@@ -51,15 +51,8 @@
 # include <stdint.h>
 #endif
 
-/* {{{ typedef struct _php_zmq_pollset 
-*/
-typedef struct _php_zmq_pollset {
-	// 
-	HashTable php_items;
-	zmq_pollitem_t *items;
-	zval errors;
-} php_zmq_pollset;
-/* }}} */
+typedef struct _php_zmq_pollitems php_zmq_pollitems;
+typedef struct _php_zmq_pollset php_zmq_pollset;
 
 /* {{{ typedef struct _php_zmq_context
 */
@@ -123,7 +116,7 @@ typedef struct _php_zmq_socket_object  {
 /* {{{ typedef struct _php_zmq_poll_object 
 */
 typedef struct _php_zmq_poll_object  {
-	php_zmq_pollset set;
+	php_zmq_pollset *set;
 	zend_object zo;
 } php_zmq_poll_object;
 /* }}} */

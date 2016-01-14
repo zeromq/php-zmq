@@ -875,7 +875,6 @@ PHP_METHOD(zmqsocket, recvmulti)
 	php_zmq_socket_object *intern;
 	size_t value_len;
 	long flags = 0;
-	zend_bool retval;
 #if ZMQ_VERSION_MAJOR < 3	
 	int64_t value;
 #else
@@ -932,7 +931,6 @@ PHP_METHOD(zmqsocket, bind)
 	php_zmq_socket_object *intern;
 	zend_string *dsn;
 	zend_bool force = 0;
-	void *dummy = (void *)1;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "S|b", &dsn, &force) == FAILURE) {
 		return;
@@ -950,7 +948,7 @@ PHP_METHOD(zmqsocket, bind)
 		return;
 	}
 
-	zend_hash_str_add_empty_element(&(intern->socket->bind), dsn->val, dsn->len);
+	zend_hash_add_empty_element(&(intern->socket->bind), dsn);
 	ZMQ_RETURN_THIS;
 }
 /* }}} */
@@ -963,7 +961,6 @@ PHP_METHOD(zmqsocket, connect)
 	php_zmq_socket_object *intern;
 	zend_string *dsn;
 	zend_bool force = 0;
-	void *dummy = (void *)1;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "S|b", &dsn, &force) == FAILURE) {
 		return;
@@ -981,7 +978,7 @@ PHP_METHOD(zmqsocket, connect)
 		return;
 	}
 
-	zend_hash_str_add_empty_element(&(intern->socket->connect), dsn->val, dsn->len);
+	zend_hash_add_empty_element(&(intern->socket->connect), dsn);
 	ZMQ_RETURN_THIS;
 }
 /* }}} */
@@ -1156,7 +1153,7 @@ PHP_METHOD(zmqpoll, add)
 		break;
 	}
 
-	key = php_zmq_pollset_add(&(intern->set), object, events, &error);
+	key = php_zmq_pollset_add(intern->set, object, events, &error);
 
 	if (!key) {
 		const char *message = NULL;
@@ -1208,7 +1205,7 @@ PHP_METHOD(zmqpoll, remove)
 
 	intern = PHP_ZMQ_POLL_OBJECT;
 
-	if (php_zmq_pollset_num_items(&intern->set) == 0) {
+	if (php_zmq_pollset_num_items(intern->set) == 0) {
 		zend_throw_exception(php_zmq_poll_exception_sc_entry, "No sockets assigned to the ZMQPoll", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
 		return;
 	}
@@ -1222,14 +1219,14 @@ PHP_METHOD(zmqpoll, remove)
 			}
 			/* break intentionally missing */
 		case IS_RESOURCE:
-			RETVAL_BOOL(php_zmq_pollset_delete(&(intern->set), item TSRMLS_CC));
+			RETVAL_BOOL(php_zmq_pollset_delete(intern->set, item TSRMLS_CC));
 		break;
 
 		default: {
 			zend_string *str = zval_get_string(item);
 			zend_bool retval;
 
-			retval = php_zmq_pollset_delete_by_key(&(intern->set), str TSRMLS_CC);
+			retval = php_zmq_pollset_delete_by_key(intern->set, str TSRMLS_CC);
 			zend_string_release(str);
 
 			RETVAL_BOOL(retval);
@@ -1257,12 +1254,12 @@ PHP_METHOD(zmqpoll, poll)
 
 	intern = PHP_ZMQ_POLL_OBJECT;
 
-	if (php_zmq_pollset_num_items(&intern->set) == 0) {
+	if (php_zmq_pollset_num_items(intern->set) == 0) {
 		zend_throw_exception(php_zmq_poll_exception_sc_entry, "No sockets assigned to the ZMQPoll", PHP_ZMQ_INTERNAL_ERROR TSRMLS_CC);
 		return;
 	}
 
-	rc = php_zmq_pollset_poll(&(intern->set), timeout * PHP_ZMQ_TIMEOUT, r_array, w_array);
+	rc = php_zmq_pollset_poll(intern->set, timeout * PHP_ZMQ_TIMEOUT, r_array, w_array);
 
 	if (rc == -1) {
 		zend_throw_exception_ex(php_zmq_poll_exception_sc_entry, errno TSRMLS_CC, "Poll failed: %s", zmq_strerror(errno));
@@ -1284,7 +1281,7 @@ PHP_METHOD(zmqpoll, count)
 	}
 
 	intern = PHP_ZMQ_POLL_OBJECT;
-	RETURN_LONG(php_zmq_pollset_num_items(&intern->set));
+	RETURN_LONG(php_zmq_pollset_num_items(intern->set));
 }
 /* }}} */
 
@@ -1301,7 +1298,7 @@ PHP_METHOD(zmqpoll, clear)
 
 	intern = PHP_ZMQ_POLL_OBJECT;
 
-	php_zmq_pollset_delete_all(&(intern->set) TSRMLS_CC);
+	php_zmq_pollset_clear(intern->set);
 	ZMQ_RETURN_THIS;
 }
 /* }}} */
@@ -1318,7 +1315,7 @@ PHP_METHOD(zmqpoll, getlasterrors)
 	}
 
 	intern = PHP_ZMQ_POLL_OBJECT;
-	RETVAL_ZVAL(&intern->set.errors, 1, 0);
+	RETVAL_ZVAL(php_zmq_pollset_errors(intern->set), 1, 0);
 	return;
 }
 /* }}} */
@@ -1755,7 +1752,6 @@ PHP_METHOD(zmqcert, getMetaKeys)
 	php_zmq_cert_object *intern;
 	zlist_t *meta_keys;
 	char *meta_key;
-	int i;
 
 	if (zend_parse_parameters_none() != SUCCESS) {
 		return;
@@ -2370,7 +2366,7 @@ void php_zmq_poll_object_free_storage(zend_object *object TSRMLS_DC)
 	if (!intern) {
 		return;
 	}
-	php_zmq_pollset_deinit(&(intern->set));
+	php_zmq_pollset_destroy(&intern->set);
 	zend_object_std_dtor(&intern->zo);
 }
 
@@ -2445,8 +2441,7 @@ static
 zend_object *php_zmq_poll_object_new_ex(zend_class_entry *class_type, php_zmq_poll_object **ptr TSRMLS_DC)
 {
 	php_zmq_poll_object *intern = ecalloc(1, sizeof(php_zmq_poll_object) + zend_object_properties_size(class_type));
-
-	php_zmq_pollset_init(&(intern->set));
+	intern->set = php_zmq_pollset_init();
 
 	if (ptr) {
 		*ptr = intern;
