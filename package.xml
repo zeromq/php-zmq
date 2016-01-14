@@ -101,6 +101,7 @@
       <file name="045-auth-allow-deny.phpt" role="test" />
       <file name="046-cert-apply.phpt" role="test" />
       <file name="047-auth-configure.phpt" role="test" />
+      <file name="048-pollsetitems.phpt" role="test" />
       <file name="bug_gh_156.phpt" role="test" />
       <file name="bug_gh_43.phpt" role="test" />
       <file name="bug_gh_49.phpt" role="test" />
