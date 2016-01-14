@@ -948,7 +948,7 @@ PHP_METHOD(zmqsocket, bind)
 		return;
 	}
 
-	zend_hash_add_empty_element(&(intern->socket->bind), dsn);
+	zend_hash_str_add_empty_element(&(intern->socket->bind), dsn->val, dsn->len);
 	ZMQ_RETURN_THIS;
 }
 /* }}} */
@@ -978,7 +978,7 @@ PHP_METHOD(zmqsocket, connect)
 		return;
 	}
 
-	zend_hash_add_empty_element(&(intern->socket->connect), dsn);
+	zend_hash_str_add_empty_element(&(intern->socket->connect), dsn->val, dsn->len);
 	ZMQ_RETURN_THIS;
 }
 /* }}} */
@@ -1300,6 +1300,24 @@ PHP_METHOD(zmqpoll, clear)
 
 	php_zmq_pollset_clear(intern->set);
 	ZMQ_RETURN_THIS;
+}
+/* }}} */
+
+/* {{{ proto array ZMQPoll::items()
+	Clear the pollset
+*/
+PHP_METHOD(zmqpoll, items)
+{
+	php_zmq_poll_object *intern;
+
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
+
+	intern = PHP_ZMQ_POLL_OBJECT;
+
+	array_init(return_value);
+	php_zmq_pollset_items(intern->set, return_value);
 }
 /* }}} */
 
@@ -2248,6 +2266,9 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(zmq_poll_clear_args, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(zmq_poll_items_args, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_INFO_EX(zmq_poll_clone_args, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
@@ -2258,6 +2279,7 @@ static zend_function_entry php_zmq_poll_class_methods[] = {
 	PHP_ME(zmqpoll, remove,			zmq_poll_remove_args,			ZEND_ACC_PUBLIC)
 	PHP_ME(zmqpoll, count,			zmq_poll_count_args,			ZEND_ACC_PUBLIC)
 	PHP_ME(zmqpoll, clear,			zmq_poll_clear_args,			ZEND_ACC_PUBLIC)
+	PHP_ME(zmqpoll, items,			zmq_poll_items_args,			ZEND_ACC_PUBLIC)
 	PHP_ME(zmqpoll, __clone,		zmq_poll_clone_args,			ZEND_ACC_PRIVATE|ZEND_ACC_FINAL)
 	{NULL, NULL, NULL}
 };

@@ -45,15 +45,16 @@
 php_zmq_pollset *php_zmq_pollset_init();
 /* }}} */
 
+/** {{{ zend_bool php_zmq_pollset_items(php_zmq_pollset *set, zval *return_value);
+*/
+zend_bool php_zmq_pollset_items(php_zmq_pollset *set, zval *return_value);
+/* }}} */
+
 /** {{{ zend_string *php_zmq_pollset_add(php_zmq_pollset *set, zval *entry, int events, int *error);
 */
 zend_string *php_zmq_pollset_add(php_zmq_pollset *set, zval *entry, int events, int *error);
 /* }}} */
 
-/** {{{ void php_zmq_pollset_rebuild(php_zmq_pollset *set);
-*/
-void php_zmq_pollset_rebuild(php_zmq_pollset *set);
-/* }}} */
 
 /** {{{ zend_bool php_zmq_pollset_delete(php_zmq_pollset *set, zval *entry);
 */

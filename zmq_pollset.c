@@ -36,162 +36,133 @@
 
 #define PHP_ZMQ_ALLOC_SIZE 20
 
-typedef struct _php_zmq_pollitems {
-	zmq_pollitem_t *items;
-
-	size_t num_items;
-	size_t allocated;
-
-	size_t alloc_size;
-} php_zmq_pollitems;
-
 /* {{{ typedef struct _php_zmq_pollset 
 */
 typedef struct _php_zmq_pollset {
-	// 
-	HashTable php_items;
+
+	zmq_pollitem_t *items;
+	zend_string **keys;
+	zval *zv;
+
+	size_t num_items;
+	size_t allocated;
+	size_t alloc_size;
+
 	zval errors;
-	php_zmq_pollitems pollitems;
 } php_zmq_pollset;
 /* }}} */
 
 static
-void s_pollitems_init(php_zmq_pollitems *pollitems, size_t alloc_size) 
+void s_pollset_clear(php_zmq_pollset *set, zend_bool reinit)
 {
-	pollitems->items        = ecalloc(alloc_size, sizeof(zmq_pollitem_t));
-	pollitems->allocated    = alloc_size;
-	pollitems->alloc_size   = alloc_size;
-	pollitems->num_items    = 0;
+	size_t i;
+
+	if (set->items) {
+		efree(set->items);
+	}
+
+	if (set->zv) {
+		for (i = 0; i < set->num_items; i++) {
+			zval_ptr_dtor(&set->zv[i]);
+		}
+		efree(set->zv);
+	}
+
+	if (set->keys) {
+		for (i = 0; i < set->num_items; i++) {
+			zend_string_release(set->keys[i]);
+		}
+		efree(set->keys);
+	}
+
+	if (reinit) {
+		set->items      = ecalloc(set->alloc_size, sizeof(zmq_pollitem_t));
+		set->keys       = ecalloc(set->alloc_size, sizeof(zend_string *));
+		set->zv         = ecalloc(set->alloc_size, sizeof(zval));
+		set->allocated  = set->alloc_size;
+		set->num_items  = 0;
+	}
 }
 
 static
-void s_pollitems_clear(php_zmq_pollitems *pollitems)
+size_t s_pollset_append(php_zmq_pollset *set, zmq_pollitem_t *item, zend_string *key, zval *entry)
 {
-	if (pollitems->items) {
-		efree(pollitems->items);
+	size_t index = set->num_items;
+
+	if (set->allocated <= set->num_items + 1) {
+
+		set->items = erealloc (set->items, (set->allocated + set->alloc_size) * sizeof(zmq_pollitem_t));
+		set->keys  = erealloc (set->keys,  (set->allocated + set->alloc_size) * sizeof(zend_string *));
+		set->zv    = erealloc (set->zv,    (set->allocated + set->alloc_size) * sizeof(zval));
+
+		set->allocated += set->alloc_size;
 	}
 
-	pollitems->items     = ecalloc(pollitems->alloc_size, sizeof(zmq_pollitem_t));
-	pollitems->allocated = pollitems->alloc_size;
-	pollitems->num_items = 0;
-}
+	memcpy (&(set->items[index]), item, sizeof(zmq_pollitem_t));
+	set->keys[index] = key;
 
-static
-size_t s_pollitems_append(php_zmq_pollitems *pollitems, zmq_pollitem_t *item)
-{
-	size_t index = pollitems->num_items;
+	ZVAL_COPY_VALUE(&set->zv[index], entry);
+	Z_ADDREF(set->zv[index]);
 
-	if (pollitems->allocated <= pollitems->num_items + 1) {
-
-		pollitems->items = erealloc (pollitems->items, (pollitems->allocated + pollitems->alloc_size) * sizeof(zmq_pollitem_t));
-		pollitems->allocated += pollitems->alloc_size;
-	}
-	memcpy (&(pollitems->items[index]), item, sizeof(zmq_pollitem_t));
-	pollitems->num_items++;
-
+	set->num_items++;
 	return index;
 }
 
 static
-void s_pollitems_delete(php_zmq_pollitems *pollitems, size_t index)
+void s_pollset_delete(php_zmq_pollset *set, size_t index)
 {
-	if (pollitems->num_items - 1 == 0) {
-		s_pollitems_clear(pollitems);
-		return;
-	}
+	zend_string_release(set->keys[index]);
+	zval_ptr_dtor(&set->zv[index]);
 
-	memmove(pollitems->items + index, pollitems->items + index + 1, (pollitems->num_items - index - 1) * sizeof(zmq_pollitem_t));
-	pollitems->num_items--;
+	memmove(
+		set->items + index,
+		set->items + index + 1,
+		(set->num_items - index - 1) * sizeof(zmq_pollitem_t)
+	);
+	memmove(
+		set->keys + index,
+		set->keys + index + 1,
+		(set->num_items - index - 1) * sizeof(zend_string *)
+	);
+	memmove(
+		set->zv + index,
+		set->zv + index + 1,
+		(set->num_items - index - 1) * sizeof(zval)
+	);
 
-	if ((pollitems->allocated - pollitems->alloc_size > pollitems->num_items) &&
-	    (pollitems->allocated - pollitems->alloc_size > pollitems->alloc_size)) {
+	set->num_items--;
 
-		pollitems->items = erealloc (pollitems->items, (pollitems->allocated - pollitems->alloc_size) * sizeof(zmq_pollitem_t));
-		pollitems->allocated -= pollitems->alloc_size;
+	if ((set->allocated - set->alloc_size > set->num_items) &&
+	    (set->allocated - set->alloc_size > set->alloc_size)) {
+
+		set->items = erealloc (set->items, (set->allocated - set->alloc_size) * sizeof(zmq_pollitem_t));
+		set->keys  = erealloc (set->keys,  (set->allocated - set->alloc_size) * sizeof(zend_string *));
+		set->zv    = erealloc (set->zv,    (set->allocated - set->alloc_size) * sizeof(zval));
+
+		set->allocated -= set->alloc_size;
 	}
 }
 
 static
-void s_pollitems_destroy(php_zmq_pollitems *pollitems)
+zend_bool s_index_for_key(php_zmq_pollset *set, zend_string *key, size_t *index)
 {
-	if (pollitems->items) {
-		efree(pollitems->items);
-	}
-	pollitems->items      = NULL;
-	pollitems->alloc_size = 0;
-	pollitems->num_items  = 0;
-}
+	zend_bool retval = 0;
+	size_t i;
 
-php_zmq_pollset *php_zmq_pollset_init()
-{
-	php_zmq_pollset *set = ecalloc (1, sizeof(php_zmq_pollset));
-
-	array_init(&set->errors);
-	zend_hash_init(&set->php_items, PHP_ZMQ_ALLOC_SIZE, NULL, ZVAL_PTR_DTOR, 0);
-	s_pollitems_init(&set->pollitems, PHP_ZMQ_ALLOC_SIZE);
-
-	return set;
-}
-
-size_t php_zmq_pollset_num_items(php_zmq_pollset *set)
-{
-	return set->pollitems.num_items;
-}
-
-static
-size_t s_index_for_key(php_zmq_pollset *set, zend_string *needle)
-{
-	zend_string *key;
-	size_t i = 0;
-
-	ZEND_HASH_FOREACH_STR_KEY(&set->php_items, key) {
-		if (key && zend_string_equals (key, needle)) {
-			return i;
+	for (i = 0; i < set->num_items; i++) {
+		if (zend_string_equals (set->keys[i], key)) {
+			*index = i;
+			retval = 1;
+			break;
 		}
-		i++;
 	}
-	ZEND_HASH_FOREACH_END();
-	return zend_hash_num_elements(&set->php_items) + 1;
+	return retval;
 }
 
 static
-zend_string *s_key_for_idx(php_zmq_pollset *set, size_t idx)
+zval *s_zval_for_index(php_zmq_pollset *set, size_t index)
 {
-	zend_string *key;
-	size_t i = 0;
-
-	if (idx >= php_zmq_pollset_num_items(set)) {
-		return NULL;
-	}
-
-	ZEND_HASH_FOREACH_STR_KEY(&set->php_items, key) {
-		if (i == idx) {
-			return zend_string_copy(key);
-		}
-		i++;
-	}
-	ZEND_HASH_FOREACH_END();
-	return NULL;
-}
-
-static
-zval *s_zval_for_idx(php_zmq_pollset *set, size_t idx)
-{
-	zval *zv;
-	size_t i = 0;
-
-	if (idx >= php_zmq_pollset_num_items(set)) {
-		return NULL;
-	}
-
-	ZEND_HASH_FOREACH_VAL(&set->php_items, zv) {
-		if (i == idx) {
-			return zv;
-		}
-		i++;
-	}
-	ZEND_HASH_FOREACH_END();
-	return NULL;
+	return &set->zv[index];
 }
 
 static
@@ -208,18 +179,57 @@ zend_string *s_create_key(zval *entry)
 	}
 }
 
+php_zmq_pollset *php_zmq_pollset_init()
+{
+	php_zmq_pollset *set = ecalloc (1, sizeof(php_zmq_pollset));
+
+	array_init(&set->errors);
+
+	set->items      = ecalloc(PHP_ZMQ_ALLOC_SIZE, sizeof(zmq_pollitem_t));
+	set->keys       = ecalloc(PHP_ZMQ_ALLOC_SIZE, sizeof(zend_string *));
+	set->zv         = ecalloc(PHP_ZMQ_ALLOC_SIZE, sizeof(zval));
+	set->allocated  = PHP_ZMQ_ALLOC_SIZE;
+	set->alloc_size = PHP_ZMQ_ALLOC_SIZE;
+	set->num_items  = 0;
+
+	return set;
+}
+
+zend_bool php_zmq_pollset_items(php_zmq_pollset *set, zval *return_value)
+{
+	size_t i;
+
+	if (set->num_items == 0) {
+		return 0;
+	}
+
+	for (i = 0; i < set->num_items; i++) {
+		zval *zv = s_zval_for_index(set, i);
+
+		if (zv) {
+			Z_ADDREF_P(zv);
+			add_assoc_zval(return_value, set->keys[i]->val, zv);
+		}
+	}
+	return 1;
+}
+
+size_t php_zmq_pollset_num_items(php_zmq_pollset *set)
+{
+	return set->num_items;
+}
+
 zend_string *php_zmq_pollset_add(php_zmq_pollset *set, zval *entry, int events, int *error) 
 {
 	zend_string *key;
-	size_t num_items;
+	size_t num_items, index;
 	zmq_pollitem_t item;
-	zval *dest_element;
 
 	*error = 0;
 	key = s_create_key(entry);
 
 	// Does this already exist?
-	if (zend_hash_exists(&set->php_items, key)) {
+	if (s_index_for_key(set, key, &index)) {
 		return key;
 	}
 
@@ -259,27 +269,20 @@ zend_string *php_zmq_pollset_add(php_zmq_pollset *set, zval *entry, int events, 
 	}
 	item.events = events;
 
-	dest_element = zend_hash_add(&set->php_items, key, entry);
-	Z_ADDREF_P(dest_element);
-
-	s_pollitems_append(&(set->pollitems), &item);
+	s_pollset_append(set, &item, zend_string_copy(key), entry);
 	return key;
 }
 
 zend_bool php_zmq_pollset_delete_by_key(php_zmq_pollset *set, zend_string *key)
 {
-	int result;
-	size_t num_items;
 	size_t index;
 
-	index     = s_index_for_key(set, key);
-	num_items = zend_hash_num_elements(&set->php_items);
-	result    = zend_hash_del(&set->php_items, key);
-
-	if (result == SUCCESS) {
-		s_pollitems_delete(&set->pollitems, index);
+	if (!s_index_for_key(set, key, &index)) {
+		return 0;
 	}
-	return (result == SUCCESS);
+
+	s_pollset_delete(set, index);
+	return 1;
 }
 
 zend_bool php_zmq_pollset_delete(php_zmq_pollset *set, zval *entry)
@@ -298,7 +301,7 @@ int php_zmq_pollset_poll(php_zmq_pollset *set, int timeout, zval *r_array, zval 
 	int rc, i;
 	zend_bool readable = 0, writable = 0;
 
-	if (!set->pollitems.items) {
+	if (!set->items) {
 		return -1;
 	}
 
@@ -318,30 +321,33 @@ int php_zmq_pollset_poll(php_zmq_pollset *set, int timeout, zval *r_array, zval 
 		writable = 1;
 	}
 
-	rc = zmq_poll(set->pollitems.items, set->pollitems.num_items, timeout);
-
-	fprintf(stderr, "Num items: %ld\n", set->pollitems.num_items);
+	rc = zmq_poll(set->items, set->num_items, timeout);
 
 	if (rc == -1) {
 		return -1;
 	}
 
 	if (rc > 0) {
-		for (i = 0; i < set->pollitems.num_items; i++) {
-			if (readable && set->pollitems.items[i].revents & ZMQ_POLLIN) {
-				zval *zv = s_zval_for_idx(set, i);
-				Z_ADDREF_P(zv);
-				add_next_index_zval(r_array, zv);
+		for (i = 0; i < set->num_items; i++) {
+			if (readable && set->items[i].revents & ZMQ_POLLIN) {
+				zval *zv = s_zval_for_index(set, i);
+
+				if (zv) {
+					Z_ADDREF_P(zv);
+					add_next_index_zval(r_array, zv);
+				}
 			}
 
-			if (writable && set->pollitems.items[i].revents & ZMQ_POLLOUT) {
-				zval *zv = s_zval_for_idx(set, i);
-				Z_ADDREF_P(zv);
-				add_next_index_zval(w_array, zv);
+			if (writable && set->items[i].revents & ZMQ_POLLOUT) {
+				zval *zv = s_zval_for_index(set, i);
+				if (zv) {
+					Z_ADDREF_P(zv);
+					add_next_index_zval(w_array, zv);
+				}
 			}
 
-			if (set->pollitems.items[i].revents & ZMQ_POLLERR) {
-				add_next_index_str(&set->errors, s_key_for_idx(set, i));
+			if (set->items[i].revents & ZMQ_POLLERR) {
+				add_next_index_str(&set->errors, zend_string_copy(set->keys[i]));
 			}
 		}
 	}
@@ -350,14 +356,11 @@ int php_zmq_pollset_poll(php_zmq_pollset *set, int timeout, zval *r_array, zval 
 
 void php_zmq_pollset_clear(php_zmq_pollset *set)
 {
-	// Clear all items
-	zend_hash_clean(&set->php_items);
-
 	// Clear errors
 	zend_hash_clean(Z_ARRVAL(set->errors));
 
 	// clear the pollset
-	s_pollitems_clear(&set->pollitems);
+	s_pollset_clear(set, 1);
 }
 
 zval *php_zmq_pollset_errors(php_zmq_pollset *set)
@@ -369,14 +372,11 @@ void php_zmq_pollset_destroy(php_zmq_pollset **ptr)
 {
 	php_zmq_pollset *set = *ptr;
 
-	// Destroy the hashtable
-	zend_hash_destroy(&set->php_items);
+	// clear the pollset
+	s_pollset_clear(set, 0);
 
 	// Errors
 	zval_dtor(&(set->errors));
-
-	// Kill the whole structure
-	s_pollitems_destroy(&set->pollitems);
 
 	efree(set);
 	*ptr = NULL;
