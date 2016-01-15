@@ -1,32 +1,57 @@
 #!/bin/bash
+set -e
 
-LIBSODIUM_VERSION="1.0.3"
-CZMQ_VERSION="v2.2.0"
+BUILD_DIR="/tmp"
 
-LIBSODIUM_DIR="${TRAVIS_BUILD_DIR}/travis/cache/libsodium/v${LIBSODIUM_VERSION}"
-CZMQ_DIR="${TRAVIS_BUILD_DIR}/travis/cache/czmq/${CZMQ_VERSION}"
+CACHE_DIR="$1"
+LIBZMQ_VERSION=$2
+
+BUILD_LIBSODIUM="no"
+LIBSODIUM_VERSION="no"
+
+if test "x$3" != "x"; then
+    BUILD_LIBSODIUM="yes"
+    LIBSODIUM_VERSION=$3
+fi
+
+BUILD_CZMQ="no"
+CZMQ_VERSION="no"
+
+if test "x$4" != "x"; then
+    BUILD_CZMQ="yes"
+    CZMQ_VERSION=$4
+fi
+
+LIBSODIUM_PREFIX="${CACHE_DIR}/libsodium-${LIBSODIUM_VERSION}"
+LIBZMQ_PREFIX="${CACHE_DIR}/libzmq-${LIBZMQ_VERSION}-libsodium-${LIBSODIUM_VERSION}"
+CZMQ_PREFIX="${CACHE_DIR}/czmq-${CZMQ_VERSION}-libzmq-${LIBZMQ_VERSION}-libsodium-${LIBSODIUM_VERSION}"
 
 # Installs libsodium.
 install_libsodium() {
-    local cache_dir=$LIBSODIUM_DIR
+    local version=$1
+    local build_dir="${BUILD_DIR}/libsodium-build"
 
-    if test -d $cache_dir
+    if test -d "${LIBSODIUM_PREFIX}"
     then
+        echo "Using cached libsodium in ${LIBSODIUM_PREFIX}"
         return
     fi
 
-    pushd /tmp
+    if test -d "${build_dir}"
+    then
+        rm -rf "${build_dir}"
+    fi
 
-    git clone https://github.com/jedisct1/libsodium
-    cd libsodium
-    git checkout "tags/${LIBSODIUM_VERSION}"
-    ./autogen.sh
-    ./configure --prefix=$cache_dir
-    make -j 8
-    make install
-    cd ..
+    git clone https://github.com/jedisct1/libsodium "${build_dir}"
 
-    popd # pushd /tmp
+    pushd "${build_dir}"
+        git checkout "tags/${version}"
+        ./autogen.sh
+        ./configure --prefix="${LIBSODIUM_PREFIX}"
+        make -j 8
+        make install
+
+    popd # pushd "${build_dir}"
 }
 
 # Installs the specified version of ØMQ.
@@ -36,47 +61,52 @@ install_libsodium() {
 #     1 - The version of ØMQ to install, in the form "vx.y.z"
 install_zeromq() {
     local version=$1
-    local cache_dir="${TRAVIS_BUILD_DIR}/travis/cache/zeromq/${version}"
-    local with_libsodium=""
+    local build_dir="${BUILD_DIR}/libzmq-build"
 
-    if test -d $cache_dir
+    if test -d "${LIBZMQ_PREFIX}"
     then
+        echo "Using cached libzmq in ${LIBZMQ_PREFIX}"
         return
     fi
 
-    pushd /tmp
+    local repo_name=""
 
     case $version in
-    v2.2.0)
-        wget http://download.zeromq.org/zeromq-2.2.0.tar.gz
-        tar -xf zeromq-2.2.0.tar.gz
-        cd zeromq-2.2.0
+    2*)
+        repo_name="zeromq2-x"
         ;;
-    v3*)
-        git clone https://github.com/zeromq/zeromq3-x
-        cd zeromq3-x
-        git checkout "tags/${version}"
+    3*)
+        repo_name="zeromq3-x"
         ;;
-    v4.1*)
-        git clone https://github.com/zeromq/zeromq4-1
-        cd zeromq4-1
-        git checkout "tags/${version}"
+    4.1*)
+        repo_name="zeromq4-1"
         ;;
-    v4*)
-        git clone https://github.com/zeromq/zeromq4-x
-        cd zeromq4-x
-        git checkout "tags/${version}"
-
-        with_libsodium="--with-libsodium=${LIBSODIUM_DIR}"
+    4*)
+        repo_name="zeromq4-x"
+        ;;
+    master)
+        repo_name="libzmq"
         ;;
     esac
-    ./autogen.sh
-    PKG_CONFIG_PATH="${LIBSODIUM_DIR}/lib/pkgconfig" ./configure --prefix=$cache_dir $with_libsodium
-    make -j 8
-    make install
-    cd ..
 
-    popd # pushd /tmp
+    if test -d "${build_dir}"
+    then
+        rm -rf "${build_dir}"
+    fi
+
+    git clone "https://github.com/zeromq/${repo_name}" "${build_dir}"
+
+    pushd "${build_dir}"
+        if test "x${version}" != "xmaster"
+        then
+            git checkout "tags/v${version}"
+        fi
+
+        ./autogen.sh
+        PKG_CONFIG_PATH="${LIBSODIUM_PREFIX}/lib/pkgconfig" ./configure --prefix="${LIBZMQ_PREFIX}" --with-libsodium="${LIBSODIUM_PREFIX}"
+        make -j 8
+        make install
+    popd
 }
 
 # Installs CZMQ.
@@ -85,30 +115,33 @@ install_zeromq() {
 #
 #     1 - The version of ØMQ that was installed
 install_czmq() {
-  local zeromq_version=$1
-  local zeromq_dir="${TRAVIS_BUILD_DIR}/travis/cache/zeromq/${zeromq_version}"
-  local cache_dir=$CZMQ_DIR
+    local version=$1
+    local build_dir="${BUILD_DIR}/czmq-build"
 
-  if test -d $cache_dir
-  then
-      return
-  fi
+    if test -d "${CZMQ_PREFIX}"
+    then
+        echo "Using cached czmq in ${CZMQ_PREFIX}"
+        return
+    fi
 
-  pushd /tmp
+    if test -d "${build_dir}"
+    then
+        rm -rf "${build_dir}"
+    fi
 
-  git clone https://github.com/zeromq/czmq
-  cd czmq
-  git checkout "tags/${CZMQ_VERSION}"
-  ./autogen.sh
-  ./configure \
-    --prefix=$cache_dir \
-    --with-libzmq=$zeromq_dir \
-    --with-libsodium=$LIBSODIUM_DIR
-  make -j 8
-  make install
-  cd ..
+    git clone https://github.com/zeromq/czmq "${build_dir}"
 
-  popd # pushd /tmp
+    pushd "${build_dir}"
+        if test "x${version}" != "xmaster"
+        then
+            git checkout "tags/v${version}"
+        fi
+
+        ./autogen.sh
+        PKG_CONFIG_PATH="${LIBSODIUM_PREFIX}/lib/pkgconfig" ./configure --prefix="${CZMQ_PREFIX}" --with-libzmq="${LIBZMQ_PREFIX}" --with-libsodium="${LIBSODIUM_PREFIX}"
+        make -j 8
+        make install
+    popd
 }
 
 
@@ -119,13 +152,17 @@ install_czmq() {
 #
 #     1 - The build directory
 init_build_dir() {
-    local build_dir=$1
+    local build_dir="${BUILD_DIR}/php-zmq-build"
     local php_zmq_version=$(php -r '$element = simplexml_load_file("package.xml"); echo (string) $element->version->release;')
 
     pear package
-    tar xfz "zmq-${php_zmq_version}.tgz" -C /tmp
+    tar xfz "zmq-${php_zmq_version}.tgz" -C "${BUILD_DIR}"
 
-    ln -s "/tmp/zmq-${php_zmq_version}" $build_dir
+    if test -L "${build_dir}"
+    then
+        rm "${build_dir}"
+    fi
+    ln -s "${BUILD_DIR}/zmq-${php_zmq_version}" "${build_dir}"
 }
 
 
@@ -142,42 +179,33 @@ init_build_dir() {
 #
 # Returns: the exit code of the test runner
 make_test() {
-    local build_dir=$1
-    local zeromq_version=$2
-    local zeromq_dir="${TRAVIS_BUILD_DIR}/travis/cache/zeromq/${zeromq_version}"
-    local with_czmq=$3
-    local with_czmq_option=""
+    local build_dir="${BUILD_DIR}/php-zmq-build"
 
-    if [ "x${with_czmq}" = "xtrue" ]
-    then
-        with_czmq_option="--with-czmq=${CZMQ_DIR}"
-    fi
+    pushd "${build_dir}"
 
-    pushd $build_dir
+        phpize
+        ./configure --with-zmq="${LIBZMQ_PREFIX}" --with-czmq="${CZMQ_PREFIX}"
+        make
 
-    phpize
-    ./configure --with-zmq=$zeromq_dir $with_czmq_option
-    make
+        if test ! -e modules/zmq.so
+        then
+            printf "PHP extension build failed\n"
+            exit 1
+        fi
 
-    if test ! -e modules/zmq.so
-    then
-        printf "PHP extension build failed\n"
-        exit 1
-    fi
+        NO_INTERACTION=1 \
+        REPORT_EXIT_STATUS=1 \
+        TEST_PHP_EXECUTABLE=$(which php) \
+        php run-tests.php -d extension=modules/zmq.so -n tests/*.phpt
 
-    NO_INTERACTION=1 \
-    REPORT_EXIT_STATUS=1 \
-    TEST_PHP_EXECUTABLE=$(which php) \
-    php run-tests.php -d extension=modules/zmq.so -n tests/*.phpt
+        local run_tests_exit_code=$?
 
-    local run_tests_exit_code=$?
-
-    for failed_test in $(ls tests/*.out 2>/dev/null); do
-        echo "-- START ${failed_test}"
-        cat $failed_test
-        echo ""
-        echo "-- END"
-    done
+        for failed_test in $(ls tests/*.out 2>/dev/null); do
+            echo "-- START ${failed_test}"
+            cat $failed_test
+            echo ""
+            echo "-- END"
+        done
 
     popd # pushd $build_dir
 
@@ -193,21 +221,24 @@ for test_file in tests/*.phpt; do
     if test $? != 0
     then
         echo "ERROR: ${test_file} isn't in the PEAR package definition file"
-
         exit 1
     fi
 done
 
-zeromq_version=$1
-with_czmq=$2
-build_dir=/tmp/build
-
-install_libsodium
-install_zeromq $zeromq_version
-
-if [ "x${with_czmq}" = "xtrue" ]
+if test $BUILD_LIBSODIUM = "yes"
 then
-    install_czmq $zeromq_version
+    install_libsodium $LIBSODIUM_VERSION
+else
+    echo "Not using libsodium"
+fi
+
+install_zeromq $LIBZMQ_VERSION
+
+if test $BUILD_CZMQ = "yes"
+then
+    install_czmq $CZMQ_VERSION
+else
+    echo "Not using czmq"
 fi
 
 init_build_dir $build_dir

@@ -54,8 +54,18 @@ if test "$PHP_ZMQ" != "no"; then
       export PKG_CONFIG_PATH="${PHP_CZMQ}/${PHP_LIBDIR}/pkgconfig:${PHP_ZMQ_EXPLICIT_PKG_CONFIG_PATH}"
     fi
 
-    AC_MSG_CHECKING(for CZMQ)
+    AC_MSG_CHECKING(for czmq)
     if $PKG_CONFIG --exists libczmq; then
+
+      AC_MSG_RESULT([yes])
+
+      AC_MSG_CHECKING([czmq version is below 3.0.0])
+      if $PKG_CONFIG libczmq --max-version=3.0.0; then
+        AC_MSG_RESULT([ok])
+      else
+        AC_MSG_ERROR([Only czmq 2.x is supported at the moment])
+      fi
+    
       PHP_CZMQ_VERSION=`$PKG_CONFIG libczmq --modversion`
       PHP_CZMQ_PREFIX=`$PKG_CONFIG libczmq --variable=prefix`
       AC_MSG_RESULT([found version $PHP_CZMQ_VERSION in $PHP_CZMQ_PREFIX])
@@ -66,7 +76,8 @@ if test "$PHP_ZMQ" != "no"; then
       PHP_EVAL_LIBLINE($PHP_CZMQ_LIBS, ZMQ_SHARED_LIBADD)
       PHP_EVAL_INCLINE($PHP_CZMQ_INCS)
 
-      AC_DEFINE([HAVE_CZMQ], [], [CZMQ was found])
+      AC_DEFINE([HAVE_CZMQ], [], [czmq was found])
+      AC_DEFINE([HAVE_CZMQ_2], [], [czmq was found])
     else
       AC_MSG_RESULT([no])
     fi
@@ -102,7 +113,7 @@ if test "$PHP_ZMQ" != "no"; then
     PHP_ADD_BUILD_DIR($abs_builddir/$subdir, 1)
     PHP_NEW_EXTENSION(zmq, $subdir/zmq.c $subdir/zmq_pollset.c $subdir/zmq_device.c $subdir/zmq_sockopt.c $subdir/zmq_fd_stream.c $subdir/zmq_clock.c, $ext_shared)
   else
-    PHP_NEW_EXTENSION(zmq, zmq.c zmq_pollset.c zmq_device.c zmq_sockopt.c zmq_fd_stream.c zmq_clock.c, $ext_shared)
+    PHP_NEW_EXTENSION(zmq, zmq.c zmq_pollset.c zmq_device.c zmq_sockopt.c zmq_fd_stream.c zmq_clock.c zmq_czmq.c, $ext_shared)
   fi
   PKG_CONFIG_PATH="$ORIG_PKG_CONFIG_PATH"
 fi

@@ -23,7 +23,7 @@ array(2) {
   ["bind"]=>
   array(1) {
     [0]=>
-    string(20) "tcp://127.0.0.1:5566"
+    string(22) "inproc://php-test-5566"
   }
 }
 array(2) {
@@ -33,6 +33,6 @@ array(2) {
   ["bind"]=>
   array(1) {
     [0]=>
-    string(20) "tcp://127.0.0.1:5567"
+    string(22) "inproc://php-test-5567"
   }
 }

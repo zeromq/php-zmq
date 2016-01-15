@@ -21,7 +21,7 @@ array(2) {
   ["connect"]=>
   array(1) {
     [0]=>
-    string(%d) "tcp://%d.%d.%d.%d:%d"
+    string(%d) "inproc://php-test"
   }
   ["bind"]=>
   array(0) {
@@ -34,7 +34,7 @@ array(2) {
   ["bind"]=>
   array(1) {
     [0]=>
-    string(%d) "tcp://%d.%d.%d.%d:%d"
+    string(%d) "inproc://php-test"
   }
 }
 array(2) {

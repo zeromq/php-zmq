@@ -6,10 +6,11 @@ php:
     - 7.0
 
 env:
-    - ZEROMQ_VERSION=v3.2.5
-    - ZEROMQ_VERSION=v4.0.7
-    - ZEROMQ_VERSION=v4.1.2
-    - ZEROMQ_VERSION=v4.0.7 WITH_CZMQ=true
+    - LIBZMQ_VERSION=2.2.0
+    - LIBZMQ_VERSION=3.2.5
+    - LIBZMQ_VERSION=4.0.7 LIBSODIUM_VERSION=1.0.8
+    - LIBZMQ_VERSION=4.1.4 LIBSODIUM_VERSION=1.0.8
+    - LIBZMQ_VERSION=master LIBSODIUM_VERSION=1.0.8
 addons:
     apt:
         packages:
@@ -18,8 +19,12 @@ addons:
 before_script:
   - phpenv config-rm xdebug.ini
 
-script: travis/script.sh $ZEROMQ_VERSION $WITH_CZMQ
+script: travis/script.sh $HOME/zeromq-cache $LIBZMQ_VERSION $LIBSODIUM_VERSION $CZMQ_VERSION
 #cache:
 #    directories:
 #        - travis/cache
 sudo: false
+
+cache:
+  directories:
+  - $HOME/zeromq-cache

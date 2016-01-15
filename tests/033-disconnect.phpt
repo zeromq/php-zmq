@@ -28,7 +28,7 @@ array(2) {
   ["connect"]=>
   array(1) {
     [0]=>
-    string(20) "tcp://127.0.0.1:5566"
+    string(17) "inproc://php-test"
   }
   ["bind"]=>
   array(0) {

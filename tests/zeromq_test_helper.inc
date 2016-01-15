@@ -1,7 +1,7 @@
 <?php
 
-define('ZEROMQ_TEST_DSN', 'tcp://127.0.0.1:5566');
-define('ZEROMQ_TEST_DSN2', 'tcp://127.0.0.1:6655');
+define('ZEROMQ_TEST_DSN', 'inproc://php-test');
+define('ZEROMQ_TEST_DSN2', 'inproc://php-test-second');
 
 function create_server($persistent_id = null) 
 {
@@ -24,6 +24,6 @@ function bind_callback(ZMQSocket $socket, $persistent_id = null)
 {
 	static $port = 5566;
 
-	$socket->bind("tcp://127.0.0.1:{$port}");
+	$socket->bind(ZEROMQ_TEST_DSN . "-{$port}");
 	$port++;
 }
