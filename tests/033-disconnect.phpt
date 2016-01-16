@@ -12,7 +12,8 @@ Test disconnect
 
 include dirname(__FILE__) . '/zeromq_test_helper.inc';
 
-$s = create_client();
+$s = create_server();
+$c = create_client();
 $endpoints = $s->getendpoints();
 var_dump($endpoints);
 

@@ -3,9 +3,8 @@ Test events
 --SKIPIF--
 <?php
 	require_once(dirname(__FILE__) . '/skipif.inc');
-	if (version_compare(ZMQ::LIBZMQ_VER, '4.1.0', '<')) {
-		die("skip requires libzmq 4.1+");
-	}
+	if (!in_array ('monitor', get_class_methods ('zmqsocket')))
+		die ('skip monitor not supported in libzmq or PHP version (required: libzmq 4.1.0+ / PHP7)');
 ?>
 --FILE--
 <?php
