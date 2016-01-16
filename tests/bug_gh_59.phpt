@@ -11,7 +11,7 @@ Test for Github issue #59
 <?php
 
 include dirname(__FILE__) . '/zeromq_test_helper.inc';
-$client = create_client();
+$server = create_server();
 
 // fork a child to execute cmd, in case it crashes
 $pid = pcntl_fork();
