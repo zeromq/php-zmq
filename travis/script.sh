@@ -102,7 +102,12 @@ install_zeromq() {
         fi
 
         ./autogen.sh
-        PKG_CONFIG_PATH="${LIBSODIUM_PREFIX}/lib/pkgconfig" ./configure --prefix="${LIBZMQ_PREFIX}" --with-libsodium="${LIBSODIUM_PREFIX}"
+        if test $BUILD_LIBSODIUM = "yes"
+        then
+            PKG_CONFIG_PATH="${LIBSODIUM_PREFIX}/lib/pkgconfig" ./configure --prefix="${LIBZMQ_PREFIX}" --with-libsodium="${LIBSODIUM_PREFIX}"
+        else
+            ./configure --prefix="${LIBZMQ_PREFIX}" --without-libsodium
+        fi
         make -j 8
         make install
     popd
@@ -137,7 +142,14 @@ install_czmq() {
         fi
 
         ./autogen.sh
-        PKG_CONFIG_PATH="${LIBSODIUM_PREFIX}/lib/pkgconfig" ./configure --prefix="${CZMQ_PREFIX}" --with-libzmq="${LIBZMQ_PREFIX}" --with-libsodium="${LIBSODIUM_PREFIX}"
+
+        if test $BUILD_LIBSODIUM = "yes"
+        then
+            PKG_CONFIG_PATH="${LIBSODIUM_PREFIX}/lib/pkgconfig" ./configure --prefix="${CZMQ_PREFIX}" --with-libzmq="${LIBZMQ_PREFIX}" --with-libsodium="${LIBSODIUM_PREFIX}"
+        else
+            ./configure --prefix="${CZMQ_PREFIX}" --with-libzmq="${LIBZMQ_PREFIX}" --without-libsodium
+        fi
+
         make -j 8
         make install
     popd
@@ -183,7 +195,13 @@ make_test() {
     pushd "${build_dir}"
 
         phpize
-        ./configure --with-zmq="${LIBZMQ_PREFIX}" --with-czmq="${CZMQ_PREFIX}"
+        if test "$BUILD_CZMQ" = "yes"
+        then
+            ./configure --with-zmq="${LIBZMQ_PREFIX}" --with-czmq="${CZMQ_PREFIX}"
+        else
+            echo ./configure --with-zmq="${LIBZMQ_PREFIX}"
+            ./configure --with-zmq="${LIBZMQ_PREFIX}"
+        fi
         make
 
         if test ! -e modules/zmq.so

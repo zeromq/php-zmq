@@ -32,17 +32,7 @@
 #include "php_zmq_private.h"
 #include "php_zmq_pollset.h"
 
-/* PHP 5.4 */
-#if PHP_VERSION_ID < 50399
-# define object_properties_init(zo, class_type) { \
-			zval *tmp; \
-			zend_hash_copy((*zo).properties, \
-							&class_type->default_properties, \
-							(copy_ctor_func_t) zval_add_ref, \
-							(void *) &tmp, \
-							sizeof(zval *)); \
-		 }
-#endif
+#define PHP_ZMQ_HAVE_SOCKET_MONITOR (ZMQ_VERSION_MAJOR > 4) || (ZMQ_VERSION_MAJOR == 4 && ZMQ_VERSION_MINOR >= 1)
 
 ZEND_DECLARE_MODULE_GLOBALS(php_zmq)
 
@@ -906,6 +896,83 @@ PHP_METHOD(zmqsocket, recvmulti)
 	return;
 }
 /* }}} */
+
+#if PHP_ZMQ_HAVE_SOCKET_MONITOR
+
+/* {{{ proto array ZMQ::recvevent([integer $flags = 0])
+	Receive an event from monitor endpoint
+*/
+PHP_METHOD(zmqsocket, recvevent)
+{
+	php_zmq_socket_object *intern;
+	size_t value_len;
+	zend_long flags = 0;
+	int value;
+	uint8_t *data;
+	uint16_t event;
+	zend_string *metadata, *address;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "|l", &flags) == FAILURE) {
+		return;
+	}
+
+	intern = PHP_ZMQ_SOCKET_OBJECT;
+
+	metadata = php_zmq_recv(intern, flags);
+	if (!metadata || metadata->len != sizeof (uint16_t) + sizeof (uint32_t)) {
+		if (metadata) {
+			zend_string_release(metadata);
+		}
+		zend_throw_exception_ex(php_zmq_socket_exception_sc_entry, errno, "Invalid monitor message received: %s", zmq_strerror(errno));
+		return;
+	}
+	address = php_zmq_recv(intern, flags);
+	if (!address) {
+		zend_string_release(metadata);
+		zend_throw_exception_ex(php_zmq_socket_exception_sc_entry, errno, "Invalid monitor message received: %s", zmq_strerror(errno));
+		return;
+	}
+
+	data  = (uint8_t *) metadata->val;
+	event = *(uint16_t *) (data);
+	value = *(uint32_t *) (data + sizeof(uint16_t));
+
+	array_init(return_value);
+
+	add_assoc_long(return_value, "event", event);
+	add_assoc_long(return_value, "value", value);
+	add_assoc_str(return_value, "address", address);
+
+	zend_string_release(metadata);
+	return;
+}
+/* }}} */
+
+/* {{{ proto ZMQSocket ZMQ::monitor(string $dsn[, integer $events = ZMQ::EVENTS_ALL])
+	Add a monitor
+*/
+PHP_METHOD(zmqsocket, monitor)
+{
+	php_zmq_socket_object *intern;
+
+	zend_string *dsn;
+	zend_long events = ZMQ_EVENT_ALL;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "S|l", &dsn, &events) == FAILURE) {
+		return;
+	}
+
+	intern = PHP_ZMQ_SOCKET_OBJECT;
+
+	if (zmq_socket_monitor(intern->socket->z_socket, dsn->val, events) != 0) {
+		zend_throw_exception_ex(php_zmq_socket_exception_sc_entry, errno, "Failed to add socket monitor: %s", zmq_strerror(errno));
+		return;
+	}
+	ZMQ_RETURN_THIS;
+}
+/* }}} */
+
+#endif
 
 /** {{{ string ZMQ::getPersistentId() 
 	Returns the persistent id of the object
@@ -2179,6 +2246,17 @@ ZEND_BEGIN_ARG_INFO_EX(zmq_socket_connect_args, 0, 0, 1)
 	ZEND_ARG_INFO(0, force)
 ZEND_END_ARG_INFO()
 
+#if PHP_ZMQ_HAVE_SOCKET_MONITOR
+ZEND_BEGIN_ARG_INFO_EX(zmq_socket_monitor_args, 0, 0, 1)
+	ZEND_ARG_INFO(0, dsn)
+	ZEND_ARG_INFO(0, events)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(zmq_socket_recvevent_args, 0, 0, 0)
+	ZEND_ARG_INFO(0, flags)
+ZEND_END_ARG_INFO()
+#endif
+
 #if (ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR >= 2) || ZMQ_VERSION_MAJOR > 3
 ZEND_BEGIN_ARG_INFO_EX(zmq_socket_unbind_args, 0, 0, 1)
 	ZEND_ARG_INFO(0, dsn)
@@ -2230,6 +2308,10 @@ static zend_function_entry php_zmq_socket_class_methods[] = {
 	PHP_ME(zmqsocket, recvmulti,			zmq_socket_recv_args,				ZEND_ACC_PUBLIC)
 	PHP_ME(zmqsocket, bind,					zmq_socket_bind_args,				ZEND_ACC_PUBLIC)
 	PHP_ME(zmqsocket, connect,				zmq_socket_connect_args,			ZEND_ACC_PUBLIC)
+#if PHP_ZMQ_HAVE_SOCKET_MONITOR
+	PHP_ME(zmqsocket, monitor,				zmq_socket_monitor_args,			ZEND_ACC_PUBLIC)
+	PHP_ME(zmqsocket, recvevent,			zmq_socket_recvevent_args,			ZEND_ACC_PUBLIC)
+#endif
 #if (ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR >= 2) || ZMQ_VERSION_MAJOR > 3
 	PHP_ME(zmqsocket, unbind,				zmq_socket_unbind_args,				ZEND_ACC_PUBLIC)
 	PHP_ME(zmqsocket, disconnect,			zmq_socket_disconnect_args,			ZEND_ACC_PUBLIC)
@@ -2740,6 +2822,23 @@ PHP_MINIT_FUNCTION(zmq)
 
 	zend_declare_class_constant_long(php_zmq_auth_sc_entry, "AUTH_TYPE_PLAIN", 15, (long)PHP_ZMQ_AUTH_TYPE_PLAIN);
 	zend_declare_class_constant_long(php_zmq_auth_sc_entry, "AUTH_TYPE_CURVE", 15, (long)PHP_ZMQ_AUTH_TYPE_CURVE);
+#endif
+
+#if PHP_ZMQ_HAVE_SOCKET_MONITOR
+
+	PHP_ZMQ_REGISTER_CONST_LONG("EVENT_CONNECTED",       ZMQ_EVENT_CONNECTED);
+	PHP_ZMQ_REGISTER_CONST_LONG("EVENT_CONNECT_DELAYED", ZMQ_EVENT_CONNECT_DELAYED);
+	PHP_ZMQ_REGISTER_CONST_LONG("EVENT_CONNECT_RETRIED", ZMQ_EVENT_CONNECT_RETRIED);
+	PHP_ZMQ_REGISTER_CONST_LONG("EVENT_LISTENING",       ZMQ_EVENT_LISTENING);
+	PHP_ZMQ_REGISTER_CONST_LONG("EVENT_BIND_FAILED",     ZMQ_EVENT_BIND_FAILED);
+	PHP_ZMQ_REGISTER_CONST_LONG("EVENT_ACCEPTED",        ZMQ_EVENT_ACCEPTED);
+	PHP_ZMQ_REGISTER_CONST_LONG("EVENT_ACCEPT_FAILED",   ZMQ_EVENT_ACCEPT_FAILED);
+	PHP_ZMQ_REGISTER_CONST_LONG("EVENT_CLOSED",          ZMQ_EVENT_CLOSED);
+	PHP_ZMQ_REGISTER_CONST_LONG("EVENT_CLOSE_FAILED",    ZMQ_EVENT_CLOSE_FAILED);
+	PHP_ZMQ_REGISTER_CONST_LONG("EVENT_DISCONNECTED",    ZMQ_EVENT_DISCONNECTED);
+	PHP_ZMQ_REGISTER_CONST_LONG("EVENT_MONITOR_STOPPED", ZMQ_EVENT_MONITOR_STOPPED);
+	PHP_ZMQ_REGISTER_CONST_LONG("EVENT_ALL",             ZMQ_EVENT_ALL);
+
 #endif
 
 #undef PHP_ZMQ_REGISTER_CONST_LONG

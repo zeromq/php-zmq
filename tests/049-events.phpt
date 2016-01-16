@@ -4,7 +4,7 @@ Test events
 <?php
 	require_once(dirname(__FILE__) . '/skipif.inc');
 	if (version_compare(ZMQ::LIBZMQ_VER, '4.1.0', '<')) {
-		die("skip requires libzqm 4.1+");
+		die("skip requires libzmq 4.1+");
 	}
 ?>
 --FILE--
