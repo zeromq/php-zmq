@@ -8,8 +8,9 @@ Test adding / removing items
 include dirname(__FILE__) . '/zeromq_test_helper.inc';
 
 /* Create socket, request-reply pattern (reply socket) */
-$z = create_client();
 $s = create_server();
+$z = create_client();
+
 
 /* Create PHP stream socket */
 $socket_server = stream_socket_server("tcp://127.0.0.1:5858", $errno, $errstr);

@@ -1,5 +1,4 @@
 #!/bin/bash
-set -e
 
 BUILD_DIR="/tmp"
 
@@ -199,17 +198,34 @@ make_test() {
         php run-tests.php -d extension=modules/zmq.so -n tests/*.phpt
 
         local run_tests_exit_code=$?
-
-        for failed_test in $(ls tests/*.out 2>/dev/null); do
-            echo "-- START ${failed_test}"
-            cat $failed_test
-            echo ""
-            echo "-- END"
-        done
+        print_failed_tests
 
     popd # pushd $build_dir
 
     return $run_tests_exit_code
+}
+
+print_failed_tests() {
+    local build_dir="${BUILD_DIR}/php-zmq-build"
+
+    for test in $(ls "${build_dir}/tests/"*.phpt 2>/dev/null); do
+
+        local name="${test%.*}"
+
+        if test -f "${name}.out"
+        then
+            echo "-- START ${name}.out"
+            cat "${name}.out"
+            echo ""
+            echo "-- END ${name}.out"
+            echo ""
+            echo "--- START ${name}.diff"
+            cat "${name}.diff"
+            echo "---"
+            echo "-- END ${name}.diff"
+            echo ""
+        fi
+    done
 }
 
 # First, ensure that all of the tests are included in the PEAR package

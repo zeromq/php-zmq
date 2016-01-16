@@ -12,7 +12,7 @@ Test pollset items
 
 include dirname(__FILE__) . '/zeromq_test_helper.inc';
 
-$c = create_client();
+$s = create_server();
 $poll = new ZMQPoll();
 
 /* Create PHP stream socket */

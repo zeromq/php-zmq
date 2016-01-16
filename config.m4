@@ -113,7 +113,7 @@ if test "$PHP_ZMQ" != "no"; then
     PHP_ADD_BUILD_DIR($abs_builddir/$subdir, 1)
     PHP_NEW_EXTENSION(zmq, $subdir/zmq.c $subdir/zmq_pollset.c $subdir/zmq_device.c $subdir/zmq_sockopt.c $subdir/zmq_fd_stream.c $subdir/zmq_clock.c, $ext_shared)
   else
-    PHP_NEW_EXTENSION(zmq, zmq.c zmq_pollset.c zmq_device.c zmq_sockopt.c zmq_fd_stream.c zmq_clock.c zmq_czmq.c, $ext_shared)
+    PHP_NEW_EXTENSION(zmq, zmq.c zmq_pollset.c zmq_device.c zmq_sockopt.c zmq_fd_stream.c zmq_clock.c, $ext_shared)
   fi
   PKG_CONFIG_PATH="$ORIG_PKG_CONFIG_PATH"
 fi

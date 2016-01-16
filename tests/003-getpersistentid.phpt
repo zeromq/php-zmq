@@ -7,7 +7,7 @@ Test getting persistent id
 
 include dirname(__FILE__) . '/zeromq_test_helper.inc';
 
-$client = create_client('hello');
+$client = create_server('hello');
 var_dump($client->getPersistentId());
 
 --EXPECT--
