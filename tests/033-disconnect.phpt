@@ -14,14 +14,14 @@ include dirname(__FILE__) . '/zeromq_test_helper.inc';
 
 $s = create_server();
 $c = create_client();
-$endpoints = $s->getendpoints();
+$endpoints = $c->getendpoints();
 var_dump($endpoints);
 
 foreach ($endpoints['connect'] as $dsn) {
-	$s->disconnect($dsn);
+	$c->disconnect($dsn);
 }
 
-var_dump ($s->getendpoints());
+var_dump ($c->getendpoints());
 echo "OK";
 
 --EXPECT--
