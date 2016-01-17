@@ -48,6 +48,7 @@
    <file name="zmq_sockopt.c" role="src" />
    <file name="zmq_clock.c" role="src" />
    <file name="zmq_object_access.c" role="src" />
+   <file name="zmq_helpers.c" role="src" />
    
    <!-- PHP5 legacy -->
    <dir name="php5">

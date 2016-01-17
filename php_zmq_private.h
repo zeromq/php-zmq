@@ -215,14 +215,14 @@ typedef struct _php_zmq_device_object  {
 
 PHP_METHOD(zmqsocket, getsockopt);
 PHP_METHOD(zmqsocket, setsockopt);
-zend_bool php_zmq_device(php_zmq_device_object *intern TSRMLS_DC);
+zend_bool php_zmq_device(php_zmq_device_object *intern);
 
 zend_class_entry *php_zmq_socket_exception_sc_entry_get ();
 zend_class_entry *php_zmq_device_exception_sc_entry_get ();
 
-php_stream *php_zmq_create_zmq_fd(zval *obj TSRMLS_DC);
+php_stream *php_zmq_create_zmq_fd(zval *obj);
 
-void php_zmq_register_sockopt_constants (zend_class_entry *ce TSRMLS_DC);
+void php_zmq_register_sockopt_constants (zend_class_entry *ce);
 
 typedef struct _php_zmq_clock_ctx_t php_zmq_clock_ctx_t;
 
@@ -232,7 +232,12 @@ uint64_t php_zmq_clock (php_zmq_clock_ctx_t *clock_ctx);
 
 void php_zmq_clock_destroy (php_zmq_clock_ctx_t **clock_ctx);
 
-char *php_zmq_printable_func (zend_fcall_info *fci, zend_fcall_info_cache *fci_cache TSRMLS_DC);
+char *php_zmq_get_libzmq_version();
+
+zend_long php_zmq_get_libzmq_version_id();
+
+char *php_zmq_printable_func (zend_fcall_info *fci, zend_fcall_info_cache *fci_cache);
+
 
 ZEND_BEGIN_MODULE_GLOBALS(php_zmq)
 	php_zmq_clock_ctx_t *clock_ctx;

@@ -513,7 +513,9 @@ zend_bool php_zmq_connect_callback(zval *socket, zend_fcall_info *fci, zend_fcal
 
 	if (zend_call_function(fci, fci_cache) == FAILURE) {
 		if (!EG(exception)) {
-			zend_throw_exception_ex(php_zmq_socket_exception_sc_entry, 0, "Failed to invoke 'on_new_socket' callback");
+			char *func_name = php_zmq_printable_func(fci, fci_cache);
+			zend_throw_exception_ex(php_zmq_socket_exception_sc_entry, 0, "Failed to invoke 'on_new_socket' callback %s()", func_name);
+			efree(func_name);
 		}
 		rv = 0;
 	}
@@ -2635,7 +2637,8 @@ void php_zmq_init_globals (zend_php_zmq_globals *zmq_globals)
 
 PHP_MINIT_FUNCTION(zmq)
 {
-	char version[PHP_ZMQ_VERSION_LEN];
+	zend_long version_id;
+	char *version;
 	zend_class_entry ce, ce_context, ce_socket, ce_poll, ce_device;
 	zend_class_entry ce_exception, ce_context_exception, ce_socket_exception, ce_poll_exception, ce_device_exception;
 
@@ -2807,8 +2810,12 @@ PHP_MINIT_FUNCTION(zmq)
 	PHP_ZMQ_REGISTER_CONST_LONG("ERR_EFSM", EFSM);
 	PHP_ZMQ_REGISTER_CONST_LONG("ERR_ETERM", ETERM);
 
-	php_zmq_get_lib_version(version);
-	PHP_ZMQ_REGISTER_CONST_STRING("LIBZMQ_VER", version);
+	version = php_zmq_get_libzmq_version();
+
+	PHP_ZMQ_REGISTER_CONST_STRING("LIBZMQ_VER",     version);
+	PHP_ZMQ_REGISTER_CONST_STRING("LIBZMQ_VERSION", version);
+	PHP_ZMQ_REGISTER_CONST_LONG("LIBZMQ_VERSION_ID", php_zmq_get_libzmq_version_id());
+	efree(version);
 
 	php_zmq_register_sockopt_constants (php_zmq_sc_entry);
 
@@ -2865,8 +2872,7 @@ PHP_MSHUTDOWN_FUNCTION(zmq)
 
 PHP_MINFO_FUNCTION(zmq)
 {
-	char version[PHP_ZMQ_VERSION_LEN];
-	php_zmq_get_lib_version(version);
+	char *version = php_zmq_get_libzmq_version();
 
 	php_info_print_table_start();
 
@@ -2876,6 +2882,8 @@ PHP_MINFO_FUNCTION(zmq)
 
 	php_info_print_table_end();
 	DISPLAY_INI_ENTRIES();
+
+	efree(version);
 }
 
 zend_module_entry zmq_module_entry =

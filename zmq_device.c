@@ -58,8 +58,10 @@ zend_bool s_invoke_device_cb (php_zmq_device_cb_t *cb, uint64_t current_ts TSRML
 
 	if (zend_call_function(&(cb->fci), &(cb->fci_cache)) == FAILURE) {
 		if (!EG(exception)) {
-			zend_throw_exception_ex(php_zmq_device_exception_sc_entry_get (), 0 TSRMLS_CC, "Failed to invoke device callback");
+			char *func_name = php_zmq_printable_func(&cb->fci, &cb->fci_cache);
+			zend_throw_exception_ex(php_zmq_device_exception_sc_entry_get (), 0 TSRMLS_CC, "Failed to invoke device callback %s()", func_name);
 			zval_ptr_dtor(&params[0]);
+			efree(func_name);
 		}
 	}
 	if (!Z_ISUNDEF(fc_retval)) {
