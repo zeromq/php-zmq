@@ -21,13 +21,7 @@ if test "x$4" != "x"; then
     CZMQ_VERSION=$4
 fi
 
-php -r 'die(PHP_ZTS ? 0 : 1);'
-if test $? = 0
-then
-    BUILD_PTHREADS="yes"
-else
-    BUILD_PTHREADS="no"
-fi
+BUILD_PTHREADS=`php -r 'die(PHP_ZTS == 1 && PHP_VERSION_ID >= 70000 ? "yes" : "no");'`
 
 LIBSODIUM_PREFIX="${CACHE_DIR}/libsodium-${LIBSODIUM_VERSION}"
 LIBZMQ_PREFIX="${CACHE_DIR}/libzmq-${LIBZMQ_VERSION}-libsodium-${LIBSODIUM_VERSION}"
@@ -171,6 +165,8 @@ install_czmq() {
 #
 #     1 - The build directory
 init_build_dir() {
+    set -e
+
     local build_dir="${BUILD_DIR}/php-zmq-build"
     local php_zmq_version=$(php -r '$element = simplexml_load_file("package.xml"); echo (string) $element->version->release;')
 
@@ -182,6 +178,8 @@ init_build_dir() {
         rm "${build_dir}"
     fi
     ln -s "${BUILD_DIR}/zmq-${php_zmq_version}" "${build_dir}"
+
+    set +e
 }
 
 
