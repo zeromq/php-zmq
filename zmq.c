@@ -136,12 +136,9 @@ static
 void s_shared_ctx_destroy()
 {
 	if (s_ctx && s_ctx_pid == getpid()) {
-		s_shared_ctx_lock();
-		{
-			zmq_term(s_ctx);
-			s_ctx = NULL;
-		}
-		s_shared_ctx_unlock()
+		zmq_term(s_ctx);
+		s_ctx = NULL;
+		s_shared_ctx_unlock();
 		tsrm_mutex_free(s_ctx_mutex);
 		s_ctx_mutex = NULL;
 	}
