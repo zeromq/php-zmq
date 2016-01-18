@@ -100,6 +100,9 @@ static
 static
 	zend_long s_ctx_socket_count = 0;
 
+static
+	int s_ctx_pid = 0;
+
 #ifdef ZTS
 static
 	MUTEX_T s_ctx_mutex;
@@ -109,6 +112,7 @@ int s_shared_ctx_init()
 {
 	if (!s_ctx) {
 		s_ctx_mutex = tsrm_mutex_alloc();
+		s_ctx_pid = getpid();
 		s_ctx = zmq_init(PHP_ZMQ_SHARED_CONTEXT_THREADS);
 	}
 	return (s_ctx != NULL);
@@ -131,11 +135,14 @@ void s_shared_ctx_unlock()
 static
 void s_shared_ctx_destroy()
 {
-	if (s_ctx) {
-		zmq_term(s_ctx);
+	if (s_ctx && s_ctx_pid == getpid()) {
+		s_shared_ctx_lock();
+		{
+			zmq_term(s_ctx);
+			s_ctx = NULL;
+		}
+		s_shared_ctx_unlock()
 		tsrm_mutex_free(s_ctx_mutex);
-
-		s_ctx = NULL;
 		s_ctx_mutex = NULL;
 	}
 }
@@ -144,6 +151,7 @@ static
 int s_shared_ctx_init()
 {
 	s_ctx = zmq_init(PHP_ZMQ_SHARED_CONTEXT_THREADS);
+	s_ctx_pid = getpid();
 	return (s_ctx != NULL);
 }
 
@@ -153,7 +161,9 @@ static void s_shared_ctx_unlock() {}
 static
 void s_shared_ctx_destroy() 
 {
-	zmq_term(s_ctx);
+	if (s_ctx && s_ctx_pid == getpid()) {
+		zmq_term(s_ctx);
+	}
 }
 #endif
 
