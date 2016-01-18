@@ -34,6 +34,10 @@
 
 #define PHP_ZMQ_HAVE_SOCKET_MONITOR (ZMQ_VERSION_MAJOR > 4) || (ZMQ_VERSION_MAJOR == 4 && ZMQ_VERSION_MINOR >= 1)
 
+#ifndef PHP_ZMQ_SHARED_CONTEXT_THREADS
+# define PHP_ZMQ_SHARED_CONTEXT_THREADS 1
+#endif
+
 ZEND_DECLARE_MODULE_GLOBALS(php_zmq)
 
 zend_class_entry *php_zmq_sc_entry;
@@ -64,13 +68,6 @@ static zend_object_handlers zmq_context_object_handlers;
 static zend_object_handlers zmq_poll_object_handlers;
 static zend_object_handlers zmq_device_object_handlers;
 
-#ifdef PHP_ZMQ_PTHREADS
-#include <pthread.h>
-
-static void *php_zmq_global_context = NULL;
-static pthread_mutex_t php_zmq_global_context_mutex = PTHREAD_MUTEX_INITIALIZER;
-#endif
-
 #ifdef HAVE_CZMQ_2
 static zend_object_handlers zmq_cert_object_handlers;
 static zend_object_handlers zmq_auth_object_handlers;
@@ -97,18 +94,114 @@ zend_class_entry *php_zmq_device_exception_sc_entry_get ()
 	return php_zmq_device_exception_sc_entry;
 }
 
+static
+	void *s_ctx;
+
+static
+	zend_long s_ctx_socket_count = 0;
+
+#ifdef ZTS
+static
+	MUTEX_T s_ctx_mutex;
+
+static
+int s_shared_ctx_init()
+{
+	if (!s_ctx) {
+		s_ctx_mutex = tsrm_mutex_alloc();
+		s_ctx = zmq_init(PHP_ZMQ_SHARED_CONTEXT_THREADS);
+	}
+	return (s_ctx != NULL);
+}
+
+static
+void s_shared_ctx_lock()
+{
+	int rc = tsrm_mutex_lock(s_ctx_mutex);
+	assert (rc == 0);
+}
+
+static
+void s_shared_ctx_unlock()
+{
+	int rc = tsrm_mutex_unlock(s_ctx_mutex);
+	assert (rc == 0);
+}
+
+static
+void s_shared_ctx_destroy()
+{
+	if (s_ctx) {
+		zmq_term(s_ctx);
+		tsrm_mutex_free(s_ctx_mutex);
+
+		s_ctx = NULL;
+		s_ctx_mutex = NULL;
+	}
+}
+#else
+static
+int s_shared_ctx_init()
+{
+	s_ctx = zmq_init(PHP_ZMQ_SHARED_CONTEXT_THREADS);
+	return (s_ctx != NULL);
+}
+
+static void s_shared_ctx_lock() {}
+static void s_shared_ctx_unlock() {}
+
+static
+void s_shared_ctx_destroy() 
+{
+	zmq_term(s_ctx);
+}
+#endif
+
+
+static
+zend_long php_zmq_context_socket_count_get(php_zmq_context *context) 
+{
+	zend_long value = 0;
+
+	if (context->use_shared_ctx) {
+		s_shared_ctx_lock();
+		value = s_ctx_socket_count;
+		s_shared_ctx_unlock();
+	}
+	else {
+		value = context->socket_count;
+	}
+	return value;
+}
+
+static
+void php_zmq_context_socket_count_incr(php_zmq_context *context)
+{
+	if (context->use_shared_ctx) {
+		s_shared_ctx_lock();
+		s_ctx_socket_count++;
+		s_shared_ctx_unlock();
+	}
+	else {
+		context->socket_count++;
+	}
+}
+
+static
+void php_zmq_context_socket_count_decr(php_zmq_context *context)
+{
+	if (context->use_shared_ctx) {
+		s_shared_ctx_lock();
+		s_ctx_socket_count--;
+		s_shared_ctx_unlock();
+	}
+	else {
+		context->socket_count--;
+	}
+}
+
 /* list entries */
 static int le_zmq_socket, le_zmq_context;
-
-/** {{{ static void php_zmq_get_lib_version(char buffer[PHP_ZMQ_VERSION_LEN])
-*/
-static void php_zmq_get_lib_version(char buffer[PHP_ZMQ_VERSION_LEN]) 
-{
-	int major = 0, minor = 0, patch = 0;
-	zmq_version(&major, &minor, &patch);
-	(void) snprintf(buffer, PHP_ZMQ_VERSION_LEN - 1, "%d.%d.%d", major, minor, patch);
-}
-/* }}} */
 
 /** {{{ static int php_zmq_socket_list_entry(void)
 */
@@ -131,10 +224,8 @@ static int php_zmq_context_list_entry(void)
 */
 static void php_zmq_context_destroy(php_zmq_context *context)
 {
-	if (!context->is_global) {
-		if (context->pid == getpid()) {
-			(void) zmq_term(context->z_ctx);
-		}
+	if (context->pid == getpid()) {
+		(void) zmq_term(context->z_ctx);
 	}
 	pefree(context, context->is_persistent);
 }
@@ -148,6 +239,9 @@ static void php_zmq_socket_destroy(php_zmq_socket *zmq_sock)
 	zend_hash_destroy(&(zmq_sock->connect));
 	zend_hash_destroy(&(zmq_sock->bind));
 
+	/* Decrement socket count */
+	php_zmq_context_socket_count_decr(zmq_sock->ctx);
+
 	if (zmq_sock->pid == getpid ()) {
 		(void) zmq_close(zmq_sock->z_socket);
 	}
@@ -157,28 +251,19 @@ static void php_zmq_socket_destroy(php_zmq_socket *zmq_sock)
 
 /* --- START ZMQContext --- */
 
-/* {{{ static php_zmq_context *php_zmq_context_new(zend_long io_threads, zend_bool is_persistent, zend_bool is_global)
+/* {{{ static php_zmq_context *php_zmq_context_new(zend_long io_threads, zend_bool is_persistent, zend_bool use_shared_ctx)
 	Create a new zmq context
 */
-static php_zmq_context *php_zmq_context_new(zend_long io_threads, zend_bool is_persistent, zend_bool is_global)
+static
+php_zmq_context *php_zmq_context_new(zend_long io_threads, zend_bool is_persistent, zend_bool use_shared_ctx)
 {
 	php_zmq_context *context = pecalloc(1, sizeof(php_zmq_context), is_persistent);
 
-#ifdef PHP_ZMQ_PTHREADS
-	if (is_global) {
-		/* Guard the context creation */
-		pthread_mutex_lock (&php_zmq_global_context_mutex);
-		{
-			if (!php_zmq_global_context) {
-				php_zmq_global_context = zmq_init(io_threads);
-			}
-			context->z_ctx = php_zmq_global_context;
-		}
-		pthread_mutex_unlock (&php_zmq_global_context_mutex);
+	if (use_shared_ctx) {
+		s_shared_ctx_lock();
+		context->z_ctx = s_ctx;
+		s_shared_ctx_unlock();
 	}
-#else
-	if (0) {}
-#endif
 	else {
 		context->z_ctx = zmq_init(io_threads);
 	}
@@ -188,10 +273,11 @@ static php_zmq_context *php_zmq_context_new(zend_long io_threads, zend_bool is_p
 		return NULL;
 	}
 
-	context->io_threads    = io_threads;
-	context->is_persistent = is_persistent;
-	context->is_global     = is_global;
-	context->pid           = getpid();
+	context->io_threads     = io_threads;
+	context->is_persistent  = is_persistent;
+	context->pid            = getpid();
+	context->socket_count   = 0;
+	context->use_shared_ctx = use_shared_ctx;
 	return context;
 }
 /* }}} */
@@ -294,9 +380,8 @@ PHP_METHOD(zmqcontext, __construct)
 }
 /* }}} */
 
-#ifdef PHP_ZMQ_PTHREADS
 /* {{{ proto ZMQContext ZMQContext::acquire()
-	Acquires a handle to the request global context
+	Acquires a handle to the process global context
 */
 PHP_METHOD(zmqcontext, acquire)
 {
@@ -309,11 +394,6 @@ PHP_METHOD(zmqcontext, acquire)
 
 	context = php_zmq_context_new(1, 1, 1);
 
-	if (!context) {
-		zend_throw_exception_ex(php_zmq_context_exception_sc_entry, errno, "Error creating context: %s", zmq_strerror(errno));
-		return;
-	}
-
 	// Create a global context
 	object_init_ex(return_value, php_zmq_context_sc_entry);
 	intern          = php_zmq_context_fetch_object(Z_OBJ_P(return_value));
@@ -321,7 +401,22 @@ PHP_METHOD(zmqcontext, acquire)
 	return;
 }
 /* }}} */
-#endif
+
+/* {{{ proto integer ZMQContext::getSocketCount()
+	Number of active sockets in this context
+*/
+PHP_METHOD(zmqcontext, getsocketcount)
+{
+	php_zmq_context_object *intern;
+
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
+	intern = PHP_ZMQ_CONTEXT_OBJECT;
+	RETURN_LONG(php_zmq_context_socket_count_get(intern->context));
+}
+/* }}} */
+
 
 #if (ZMQ_VERSION_MAJOR == 3 && ZMQ_VERSION_MINOR >= 2) || ZMQ_VERSION_MAJOR > 3
 /* {{{ proto ZMQContext ZMQContext::setOpt(int option, int value)
@@ -402,12 +497,15 @@ php_zmq_socket *php_zmq_socket_new(php_zmq_context *context, int type, zend_bool
 	zmq_sock           = pecalloc(1, sizeof(php_zmq_socket), is_persistent);
 	zmq_sock->z_socket = zmq_socket(context->z_ctx, type);
 	zmq_sock->pid      = getpid();
+	zmq_sock->ctx      = context;
 
 	if (!zmq_sock->z_socket) {
 		pefree(zmq_sock, is_persistent);
 		return NULL;
 	}
 
+	/* Increment socket count */
+	php_zmq_context_socket_count_incr(context);
 	zmq_sock->is_persistent = is_persistent;
 
 	zend_hash_init(&(zmq_sock->connect), 0, NULL, NULL, is_persistent);
@@ -417,13 +515,13 @@ php_zmq_socket *php_zmq_socket_new(php_zmq_context *context, int type, zend_bool
 /* }}} */
 
 static
-zend_string *php_zmq_socket_plist_key(zend_long type, zend_string *persistent_id)
+zend_string *php_zmq_socket_plist_key(zend_long type, zend_string *persistent_id, zend_bool use_shared_ctx)
 {
-	return strpprintf(0, "zmq_socket:[%ld]-[%s]", type, persistent_id->val);
+	return strpprintf(0, "zmq_socket:[%ld]-[%s]-[%d]", type, persistent_id->val, use_shared_ctx);
 }
 
 static
-void php_zmq_socket_store(php_zmq_socket *zmq_sock_p, zend_long type, zend_string *persistent_id)
+void php_zmq_socket_store(php_zmq_socket *zmq_sock_p, zend_long type, zend_string *persistent_id, zend_bool use_shared_ctx)
 {
 	zend_string *plist_key = NULL;
 
@@ -433,7 +531,7 @@ void php_zmq_socket_store(php_zmq_socket *zmq_sock_p, zend_long type, zend_strin
 
 	GC_REFCOUNT(&le) = 1;
 
-	plist_key = php_zmq_socket_plist_key(type, persistent_id);
+	plist_key = php_zmq_socket_plist_key(type, persistent_id, use_shared_ctx);
 
 	/* plist_key is not a persistent allocated key, thus we use str_update here */
 	if (zend_hash_str_update_mem(&EG(persistent_list), plist_key->val, plist_key->len, &le, sizeof(le)) == NULL) {
@@ -464,7 +562,7 @@ static php_zmq_socket *php_zmq_socket_get(php_zmq_context *context, zend_long ty
 	if (is_persistent) {
 		zend_resource *le_p = NULL;
 
-		plist_key = php_zmq_socket_plist_key(type, persistent_id);
+		plist_key = php_zmq_socket_plist_key(type, persistent_id, context->use_shared_ctx);
 
 		if ((le_p = zend_hash_find_ptr(&EG(persistent_list), plist_key)) != NULL) {
 			if (le_p->type == php_zmq_socket_list_entry()) {
@@ -588,7 +686,7 @@ PHP_METHOD(zmqcontext, getsocket)
 			}
 		}
 		if (socket->is_persistent) {
-			php_zmq_socket_store(socket, type, persistent_id);
+			php_zmq_socket_store(socket, type, persistent_id, intern->context->use_shared_ctx);
 		}
 	}
 	if (socket->is_persistent) {
@@ -679,7 +777,7 @@ PHP_METHOD(zmqsocket, __construct)
 			}
 		}
 		if (socket->is_persistent) {
-			php_zmq_socket_store(socket, type, persistent_id);
+			php_zmq_socket_store(socket, type, persistent_id, internc->context->use_shared_ctx);
 		}
 	}
 	if (socket->is_persistent) {
@@ -907,7 +1005,6 @@ PHP_METHOD(zmqsocket, recvmulti)
 PHP_METHOD(zmqsocket, recvevent)
 {
 	php_zmq_socket_object *intern;
-	size_t value_len;
 	zend_long flags = 0;
 	int value;
 	uint8_t *data;
@@ -2188,10 +2285,11 @@ ZEND_BEGIN_ARG_INFO_EX(zmq_context_construct_args, 0, 0, 0)
 	ZEND_ARG_INFO(0, persistent)
 ZEND_END_ARG_INFO()
 
-#ifdef PHP_ZMQ_PTHREADS
 ZEND_BEGIN_ARG_INFO_EX(zmq_context_acquire_args, 0, 0, 0)
 ZEND_END_ARG_INFO()
-#endif
+
+ZEND_BEGIN_ARG_INFO_EX(zmq_context_getsocketcount_args, 0, 0, 0)
+ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(zmq_context_getsocket_args, 0, 0, 2)
 	ZEND_ARG_INFO(0, type)
@@ -2218,9 +2316,8 @@ ZEND_END_ARG_INFO()
 
 static zend_function_entry php_zmq_context_class_methods[] = {
 	PHP_ME(zmqcontext, __construct,		zmq_context_construct_args,		ZEND_ACC_PUBLIC|ZEND_ACC_CTOR|ZEND_ACC_FINAL)
-#ifdef PHP_ZMQ_PTHREADS
 	PHP_ME(zmqcontext, acquire,			zmq_context_acquire_args,		ZEND_ACC_PUBLIC|ZEND_ACC_STATIC)
-#endif
+	PHP_ME(zmqcontext, getsocketcount,	zmq_context_getsocketcount_args,ZEND_ACC_PUBLIC)
 	PHP_ME(zmqcontext, getsocket,		zmq_context_getsocket_args,		ZEND_ACC_PUBLIC)
 	PHP_ME(zmqcontext, ispersistent,	zmq_context_ispersistent_args,	ZEND_ACC_PUBLIC)
 	PHP_ME(zmqcontext, __clone,			zmq_context_clone_args,			ZEND_ACC_PRIVATE|ZEND_ACC_FINAL)
@@ -2637,7 +2734,6 @@ void php_zmq_init_globals (zend_php_zmq_globals *zmq_globals)
 
 PHP_MINIT_FUNCTION(zmq)
 {
-	zend_long version_id;
 	char *version;
 	zend_class_entry ce, ce_context, ce_socket, ce_poll, ce_device;
 	zend_class_entry ce_exception, ce_context_exception, ce_socket_exception, ce_poll_exception, ce_device_exception;
@@ -2832,7 +2928,6 @@ PHP_MINIT_FUNCTION(zmq)
 #endif
 
 #if PHP_ZMQ_HAVE_SOCKET_MONITOR
-
 	PHP_ZMQ_REGISTER_CONST_LONG("EVENT_CONNECTED",       ZMQ_EVENT_CONNECTED);
 	PHP_ZMQ_REGISTER_CONST_LONG("EVENT_CONNECT_DELAYED", ZMQ_EVENT_CONNECT_DELAYED);
 	PHP_ZMQ_REGISTER_CONST_LONG("EVENT_CONNECT_RETRIED", ZMQ_EVENT_CONNECT_RETRIED);
@@ -2845,27 +2940,20 @@ PHP_MINIT_FUNCTION(zmq)
 	PHP_ZMQ_REGISTER_CONST_LONG("EVENT_DISCONNECTED",    ZMQ_EVENT_DISCONNECTED);
 	PHP_ZMQ_REGISTER_CONST_LONG("EVENT_MONITOR_STOPPED", ZMQ_EVENT_MONITOR_STOPPED);
 	PHP_ZMQ_REGISTER_CONST_LONG("EVENT_ALL",             ZMQ_EVENT_ALL);
-
 #endif
 
 #undef PHP_ZMQ_REGISTER_CONST_LONG
 #undef PHP_ZMQ_REGISTER_CONST_STRING
 
+	if (!s_shared_ctx_init()) {
+		return FAILURE;
+	}
 	return SUCCESS;
 }
 
 PHP_MSHUTDOWN_FUNCTION(zmq)
 {
-#ifdef PHP_ZMQ_PTHREADS
-	pthread_mutex_lock (&php_zmq_global_context_mutex);
-	{
-		if (php_zmq_global_context) {
-			zmq_term (php_zmq_global_context);
-			php_zmq_global_context = NULL;
-		}
-	}
-	pthread_mutex_unlock (&php_zmq_global_context_mutex);
-#endif
+	s_shared_ctx_destroy();
 	php_zmq_clock_destroy (&ZMQ_G (clock_ctx));
 	return SUCCESS;
 }

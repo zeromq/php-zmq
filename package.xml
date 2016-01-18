@@ -119,6 +119,9 @@
       <file name="047-auth-configure.phpt" role="test" />
       <file name="048-pollsetitems.phpt" role="test" />
       <file name="049-events.phpt" role="test" />
+      <file name="050-sharedcontext.phpt" role="test" />
+      <file name="051-socketcount.phpt" role="test" />
+      <file name="052-pthreads.phpt" role="test" />
       <file name="bug_gh_156.phpt" role="test" />
       <file name="bug_gh_43.phpt" role="test" />
       <file name="bug_gh_49.phpt" role="test" />

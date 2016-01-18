@@ -21,6 +21,14 @@ if test "x$4" != "x"; then
     CZMQ_VERSION=$4
 fi
 
+php -r 'die(PHP_ZTS ? 0 : 1);'
+if test $? = 0
+then
+    BUILD_PTHREADS="yes"
+else
+    BUILD_PTHREADS="no"
+fi
+
 LIBSODIUM_PREFIX="${CACHE_DIR}/libsodium-${LIBSODIUM_VERSION}"
 LIBZMQ_PREFIX="${CACHE_DIR}/libzmq-${LIBZMQ_VERSION}-libsodium-${LIBSODIUM_VERSION}"
 CZMQ_PREFIX="${CACHE_DIR}/czmq-${CZMQ_VERSION}-libzmq-${LIBZMQ_VERSION}-libsodium-${LIBSODIUM_VERSION}"
@@ -194,12 +202,19 @@ make_test() {
 
     pushd "${build_dir}"
 
+        local pthreads_flag=""
+
+        if test "${BUILD_PTHREADS}" = "yes"
+        then
+            pecl install pthreads
+            pthreads_flag="extension=pthreads.so"
+        fi
+
         phpize
         if test "$BUILD_CZMQ" = "yes"
         then
             ./configure --with-zmq="${LIBZMQ_PREFIX}" --with-czmq="${CZMQ_PREFIX}"
         else
-            echo ./configure --with-zmq="${LIBZMQ_PREFIX}"
             ./configure --with-zmq="${LIBZMQ_PREFIX}"
         fi
         make
@@ -213,7 +228,7 @@ make_test() {
         NO_INTERACTION=1 \
         REPORT_EXIT_STATUS=1 \
         TEST_PHP_EXECUTABLE=$(which php) \
-        php run-tests.php -d extension=modules/zmq.so -n tests/*.phpt
+        php run-tests.php -d extension=modules/zmq.so -d ${pthreads_flag} -n tests/*.phpt
 
         local run_tests_exit_code=$?
         print_failed_tests
@@ -259,11 +274,11 @@ for test_file in tests/*.phpt; do
     fi
 done
 
+echo "OPTS: LIBZMQ_VERSION=$LIBZMQ_VERSION BUILD_LIBSODIUM=$BUILD_LIBSODIUM BUILD_CZMQ=$BUILD_CZMQ BUILD_PTHREADS=$BUILD_PTHREADS"
+
 if test $BUILD_LIBSODIUM = "yes"
 then
     install_libsodium $LIBSODIUM_VERSION
-else
-    echo "Not using libsodium"
 fi
 
 install_zeromq $LIBZMQ_VERSION
@@ -271,8 +286,6 @@ install_zeromq $LIBZMQ_VERSION
 if test $BUILD_CZMQ = "yes"
 then
     install_czmq $CZMQ_VERSION
-else
-    echo "Not using czmq"
 fi
 
 init_build_dir $build_dir

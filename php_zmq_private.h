@@ -65,11 +65,14 @@ typedef struct _php_zmq_context {
 	/* Is this a persistent context */
 	zend_bool is_persistent;
 
-	/* Should this context live to end of request */
-    zend_bool is_global;
+	/* Should this context live to end of process */
+	zend_bool use_shared_ctx;
+
+	/* How many active sockets */
+	zend_long socket_count;
 
 	/* Who created me */
-    int pid;
+	int pid;
 } php_zmq_context;
 /* }}} */
 
@@ -85,7 +88,7 @@ typedef struct _php_zmq_socket  {
 	zend_bool is_persistent;
 
 	/* Who created me */
-    int pid;
+	int pid;
 } php_zmq_socket;
 /* }}} */
 
@@ -150,35 +153,11 @@ typedef struct _php_zmq_device_object  {
 
 #define ZMQ_RETURN_THIS RETURN_ZVAL(getThis(), 1, 0);
 
-#ifndef Z_ADDREF_P
-# define Z_ADDREF_P(pz) (pz)->refcount++
-#endif
-
-#ifndef Z_DELREF_P
-# define Z_DELREF_P(pz) (pz)->refcount--
-#endif
-
-#ifndef Z_REFCOUNT_P
-# define Z_REFCOUNT_P(pz) (pz)->refcount
-#endif
-
-#if ZEND_MODULE_API_NO > 20060613
-
 #define PHP_ZMQ_ERROR_HANDLING_INIT() zend_error_handling error_handling;
 
 #define PHP_ZMQ_ERROR_HANDLING_THROW() zend_replace_error_handling(EH_THROW, php_zmq_socket_exception_sc_entry, &error_handling TSRMLS_CC);
 
 #define PHP_ZMQ_ERROR_HANDLING_RESTORE() zend_restore_error_handling(&error_handling TSRMLS_CC);
-
-#else
-
-#define PHP_ZMQ_ERROR_HANDLING_INIT()
-
-#define PHP_ZMQ_ERROR_HANDLING_THROW() php_set_error_handling(EH_THROW, php_zmq_socket_exception_sc_entry TSRMLS_CC);
-
-#define PHP_ZMQ_ERROR_HANDLING_RESTORE() php_set_error_handling(EH_NORMAL, NULL TSRMLS_CC);
-
-#endif
 
 /* Compatibility macros between zeromq 2.x and 3.x */
 #ifndef ZMQ_DONTWAIT
@@ -237,7 +216,6 @@ char *php_zmq_get_libzmq_version();
 zend_long php_zmq_get_libzmq_version_id();
 
 char *php_zmq_printable_func (zend_fcall_info *fci, zend_fcall_info_cache *fci_cache);
-
 
 ZEND_BEGIN_MODULE_GLOBALS(php_zmq)
 	php_zmq_clock_ctx_t *clock_ctx;
