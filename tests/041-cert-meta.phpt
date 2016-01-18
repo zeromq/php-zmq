@@ -4,10 +4,7 @@ Test a ZMQCert can get and set metadata.
 <?php
 
 	require_once __DIR__ . '/skipif.inc';
-
-	if (!class_exists('ZMQCert')) {
-		die('skip');
-	}
+	require_once __DIR__ . '/skipif-czmq2.inc';
 --FILE--
 <?php
 

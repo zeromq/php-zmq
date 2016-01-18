@@ -3,7 +3,7 @@ Test send / recv with a manually created XREQ and XREP device
 --SKIPIF--
 <?php 
     require_once(dirname(__FILE__) . '/skipif.inc'); 
-    if(!defined('ZMQ::SOCKOPT_RCVLABEL')) die('skip');
+    if(!defined('ZMQ::SOCKOPT_RCVLABEL')) die('skip Only for in libzmq 3.3.0');
 ?>
 --FILE--
 <?php

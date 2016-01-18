@@ -3,10 +3,7 @@ Test a ZMQCert can be constructed.
 --SKIPIF--
 <?php
 	require_once __DIR__ . '/skipif.inc';
-
-	if (!class_exists('ZMQCert')) {
-		die('skip');
-	}
+	require_once __DIR__ . '/skipif-czmq2.inc';
 --FILE--
 <?php
 

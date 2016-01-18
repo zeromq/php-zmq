@@ -3,10 +3,7 @@ Test a ZMQAuth can be configured.
 --SKIPIF--
 <?php
 	require_once __DIR__ . '/skipif.inc';
-
-	if (!class_exists('ZMQAuth')) {
-		die('skip');
-	}
+	require_once __DIR__ . '/skipif-czmq2.inc';
 --FILE--
 <?php
 

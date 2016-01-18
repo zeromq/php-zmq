@@ -131,6 +131,7 @@
       <file name="bug_gh_165.phpt" role="test" />
       <file name="rose.jpg" role="test" />
       <file name="skipif.inc" role="test" />
+      <file name="skipif-czmq2.inc" role="test" />
       <file name="zeromq_test_helper.inc" role="test" />
    </dir>
   </dir>

@@ -4,10 +4,7 @@ Test a ZMQCert can be applied to a ZMQSocket.
 <?php
 
 	require_once __DIR__ . '/skipif.inc';
-
-	if (!class_exists('ZMQCert')) {
-		die('skip');
-	}
+	require_once __DIR__ . '/skipif-czmq2.inc';
 --FILE--
 <?php
 
