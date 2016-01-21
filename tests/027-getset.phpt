@@ -6,7 +6,7 @@ Test setting and getting values
 <?php
 
 $context = new ZMQContext();
-$socket = $context->getSocket(ZMQ::SOCKET_PUSH);
+$socket = $context->getSocket(ZMQ::SOCKET_DEALER);
 
 $socket->setSockOpt (ZMQ::SOCKOPT_IDENTITY, "Hello");
 var_dump ($socket->getSockOpt (ZMQ::SOCKOPT_IDENTITY));

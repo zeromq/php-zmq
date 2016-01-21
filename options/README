@@ -1,1 +1,4 @@
-xsltproc generate.xslt sockopts.xml > ../zmq_sockopt.c
+In order to socket options:
+
+    1. install GSL from https://github.com/imatix/gsl
+    2. run gsl -q sockopts.xml

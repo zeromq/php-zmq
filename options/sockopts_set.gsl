@@ -1,0 +1,131 @@
+.#  This is a code generator built using the iMatix GSL code generation
+.#  language. See https://github.com/imatix/gsl for details. This script 
+.#  is licensed under MIT/X11.
+.#
+.template 1
+
+/* {{{ proto ZMQSocket ZMQSocket::setSockOpt(integer $SOCKOPT, mixed $value)
+    Set a socket option
+*/
+PHP_METHOD(zmqsocket, setsockopt)
+{
+    php_zmq_socket_object *intern;
+    long key;
+    zval *zv;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "lz/", &key, &zv) == FAILURE) {
+        return;
+    }
+
+    intern = PHP_ZMQ_SOCKET_OBJECT;
+
+    if (!intern->socket || !intern->socket->z_socket) {
+        zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "The socket is not properly initialised", PHP_ZMQ_INTERNAL_ERROR);
+        return;
+    }
+
+    if (key > INT_MAX) {
+        zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), PHP_ZMQ_INTERNAL_ERROR, "The key must be smaller than %d", INT_MAX);
+        return;
+    }
+
+/* Support setting rcvhwm and sndhwm in one call for backwards compatibility */
+#if ZMQ_VERSION_MAJOR > 2
+
+        if (key == ZMQ_HWM) {
+            int snd_hwm;
+            size_t snd_hwm_len = sizeof(int);
+
+            int value = (int) zval_get_long(zv);
+
+            /* Get current value if we need to try to restore */
+            if (zmq_getsockopt(intern->socket->z_socket, ZMQ_SNDHWM, &snd_hwm, &snd_hwm_len) != 0) {
+                zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno, "Failed to set socket ZMQ::SOCKOPT_HWM option: %s", zmq_strerror(errno));
+                return;
+            }
+
+            /* First set snd hwm */
+            if (zmq_setsockopt (intern->socket->z_socket, ZMQ_SNDHWM, &value, sizeof (int)) != 0) {
+                zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno, "Failed to set socket ZMQ::SOCKOPT_HWM option: %s", zmq_strerror(errno));
+                return;
+            }
+
+            /* Next try to set rcv hwm */
+            if (zmq_setsockopt (intern->socket->z_socket, ZMQ_RCVHWM, &value, sizeof (int)) != 0) {
+                /* Setting rcv failed, try to roll back snd */
+                if (zmq_setsockopt (intern->socket->z_socket, ZMQ_SNDHWM, &snd_hwm, sizeof (int)) != 0) {
+                    zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno, "Failed to set socket ZMQ::SOCKOPT_HWM option (ZMQ::SOCKOPT_SNDHWM changed): %s", zmq_strerror(errno));
+                    return;
+                }
+                zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno, "Failed to set socket ZMQ::SOCKOPT_HWM option: %s", zmq_strerror(errno));
+                return;
+            }
+            ZMQ_RETURN_THIS;
+            return;
+        }
+
+#endif
+
+.for version
+#if ZMQ_VERSION_MAJOR == $(version.major)
+
+    switch (key) {
+
+.    for option where !defined (is_alias)
+# ifdef ZMQ_$(NAME)
+        case ZMQ_$(NAME):
+        {
+.-
+.        if mode = "rw" | mode = "w"
+.            gsl from "sockopts_restrict.gsl"
+.-
+.            if php_type = "int"
+.-
+            $(c_type) value = ($(c_type)) zval_get_long(zv);
+
+            if (zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof($(c_type))) != 0) {
+                zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno, "Failed to set socket ZMQ::SOCKOPT_$(NAME) option: %s", zmq_strerror(errno));
+                return;
+            }
+.-
+.            elsif php_type = "string"
+.-
+            int rc;
+            zend_string *str = zval_get_string(zv);
+
+            rc = zmq_setsockopt(intern->socket->z_socket, key, str->val, str->len);
+            zend_string_release(str);
+
+            if (rc != 0) {
+                zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno, "Failed to set socket ZMQ::SOCKOPT_$(NAME) option: %s", zmq_strerror(errno));
+                return;
+            }
+.-
+.            elsif php_type = "resource"
+.-
+#error "$(type) should never be rw / w"
+.            else
+#error "Unknown sockopt type $(type)"
+.            endif /* .if php_type = "int" */
+.        else
+            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Setting ZMQ::SOCKOPT_$(NAME) is not supported", PHP_ZMQ_INTERNAL_ERROR);
+            return;
+.-
+.        endif /* .if mode = "rw" | mode = "w" */
+.-
+        }
+        break;
+
+# endif /* ifdef ZMQ_$(NAME) */
+
+.    endfor /* .for option */
+
+        default:
+            zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), PHP_ZMQ_INTERNAL_ERROR, "Unknown option key %ld", key);
+            return;
+    }
+    ZMQ_RETURN_THIS;
+#endif
+.endfor /* .for version */
+}
+.endtemplate

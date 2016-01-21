@@ -1,7 +1,14 @@
+.#  This is a code generator built using the iMatix GSL code generation
+.#  language. See https://github.com/imatix/gsl for details. This script 
+.#  is licensed under MIT/X11.
+.#
+.template 1
+.output "../zmq_sockopt.c"
+.gsl from "sockopts_preprocess.gsl"
 /*
 +-----------------------------------------------------------------------------------+
 |  ZMQ extension for PHP                                                            |
-|  Copyright (c) 2010-2013, Mikko Koppanen <mkoppanen@php.net>                      |
+|  Copyright (c) 2010-2016, Mikko Koppanen <mkoppanen@php.net>                      |
 |  All rights reserved.                                                             |
 +-----------------------------------------------------------------------------------+
 |  Redistribution and use in source and binary forms, with or without               |
@@ -28,97 +35,24 @@
 +-----------------------------------------------------------------------------------+
 */
 
+/*
+    WARNING! WARNING!
+
+    This file is generated code. See README for editing
+*/
+
 #include "php_zmq.h"
 #include "php_zmq_private.h"
 #include "zmq_object_access.c"
 
-#ifndef PHP_WIN32
-	typedef int fd_t;
-#else
-	typedef SOCKET fd_t;
-#endif
+.echo "generating ../zmq_sockopt.c"
 
-typedef struct _php_zmq_stream_container {
-	zval object;
-} php_zmq_stream_container;
+.gsl from "sockopts_register.gsl"
+.gsl from "sockopts_get.gsl"
+.gsl from "sockopts_set.gsl"
 
-static
-size_t php_zmq_fd_read(php_stream *stream, char *buf, size_t count)
-{
-	return 0;
-}
+.for source
+$(string.trim(.):)
+.endfor
 
-static
-size_t php_zmq_fd_write(php_stream *stream, const char *buf, size_t count)
-{
-	return 0;
-}
-
-static
-int php_zmq_fd_close(php_stream *stream, int close_handle)
-{
-	php_zmq_stream_container *container = (php_zmq_stream_container *) stream->abstract;
-	zval_ptr_dtor(&(container->object));
-	efree (container);
-	return EOF;
-}
-
-static
-int php_zmq_fd_flush(php_stream *stream)
-{
-	return FAILURE;
-}
-
-static
-int php_zmq_fd_cast(php_stream *stream, int cast_as, void **ret)
-{
-	php_zmq_stream_container *container = (php_zmq_stream_container *) stream->abstract;
-	php_zmq_socket_object *intern = php_zmq_socket_fetch_object(Z_OBJ(container->object));
-
-	switch (cast_as)	{
-		case PHP_STREAM_AS_FD_FOR_SELECT:
-		case PHP_STREAM_AS_FD:
-		case PHP_STREAM_AS_SOCKETD:
-			if (ret) {
-				size_t optsiz = sizeof (fd_t);
-
-				if (!intern->socket) {
-					return FAILURE;
-				}
-
-				if (zmq_getsockopt(intern->socket->z_socket, ZMQ_FD, (fd_t *) ret, &optsiz) != 0) {
-					return FAILURE;
-				}
-			}
-			return SUCCESS;
-		default:
-			return FAILURE;
-	}
-}
-
-static
-php_stream_ops php_stream_zmq_fd_ops = {
-	php_zmq_fd_write, php_zmq_fd_read,
-	php_zmq_fd_close, php_zmq_fd_flush,
-	"ZMQ_FD",
-	NULL, /* seek */
-	php_zmq_fd_cast, /* cast */
-	NULL, /* stat */
-	NULL  /* set_option */
-};
-
-php_stream *php_zmq_create_zmq_fd(zval *obj)
-{
-	php_stream *stream;
-	php_zmq_stream_container *container;
-
-	container = ecalloc(1, sizeof(php_zmq_stream_container));
-	stream = php_stream_alloc(&php_stream_zmq_fd_ops, container, NULL, "r");
-
-	if (stream) {
-		ZVAL_COPY(&(container->object), obj);
-		return stream;
-	}
-	return NULL;
-}
-/* }}} */
+.endtemplate

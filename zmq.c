@@ -501,10 +501,11 @@ php_zmq_socket *php_zmq_socket_new(php_zmq_context *context, int type, zend_bool
 {
 	php_zmq_socket *zmq_sock;
 
-	zmq_sock           = pecalloc(1, sizeof(php_zmq_socket), is_persistent);
-	zmq_sock->z_socket = zmq_socket(context->z_ctx, type);
-	zmq_sock->pid      = getpid();
-	zmq_sock->ctx      = context;
+	zmq_sock              = pecalloc(1, sizeof(php_zmq_socket), is_persistent);
+	zmq_sock->z_socket    = zmq_socket(context->z_ctx, type);
+	zmq_sock->pid         = getpid();
+	zmq_sock->ctx         = context;
+    zmq_sock->socket_type = type;
 
 	if (!zmq_sock->z_socket) {
 		pefree(zmq_sock, is_persistent);
@@ -2903,10 +2904,6 @@ PHP_MINIT_FUNCTION(zmq)
 	PHP_ZMQ_REGISTER_CONST_LONG("MODE_NOBLOCK", ZMQ_DONTWAIT);
 	PHP_ZMQ_REGISTER_CONST_LONG("MODE_DONTWAIT", ZMQ_DONTWAIT);
 
-	PHP_ZMQ_REGISTER_CONST_LONG("DEVICE_FORWARDER", ZMQ_FORWARDER);
-	PHP_ZMQ_REGISTER_CONST_LONG("DEVICE_QUEUE", ZMQ_QUEUE);
-	PHP_ZMQ_REGISTER_CONST_LONG("DEVICE_STREAMER", ZMQ_STREAMER);
-
 	PHP_ZMQ_REGISTER_CONST_LONG("ERR_INTERNAL", PHP_ZMQ_INTERNAL_ERROR);
 	PHP_ZMQ_REGISTER_CONST_LONG("ERR_EAGAIN", EAGAIN);
 	PHP_ZMQ_REGISTER_CONST_LONG("ERR_ENOTSUP", ENOTSUP);
@@ -2918,6 +2915,11 @@ PHP_MINIT_FUNCTION(zmq)
 	PHP_ZMQ_REGISTER_CONST_STRING("LIBZMQ_VER",     version);
 	PHP_ZMQ_REGISTER_CONST_STRING("LIBZMQ_VERSION", version);
 	PHP_ZMQ_REGISTER_CONST_LONG("LIBZMQ_VERSION_ID", php_zmq_get_libzmq_version_id());
+
+	PHP_ZMQ_REGISTER_CONST_LONG("LIBZMQ_VERSION_MAJOR", ZMQ_VERSION_MAJOR);
+	PHP_ZMQ_REGISTER_CONST_LONG("LIBZMQ_VERSION_MINOR", ZMQ_VERSION_MINOR);
+	PHP_ZMQ_REGISTER_CONST_LONG("LIBZMQ_VERSION_PATCH", ZMQ_VERSION_PATCH);
+
 	efree(version);
 
 	php_zmq_register_sockopt_constants (php_zmq_sc_entry);

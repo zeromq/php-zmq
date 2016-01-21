@@ -1,0 +1,103 @@
+.#  This is a code generator built using the iMatix GSL code generation
+.#  language. See https://github.com/imatix/gsl for details. This script 
+.#  is licensed under MIT/X11.
+.#
+.template 1
+
+/* {{{ proto mixed ZMQSocket::getSockOpt()
+    Get a socket option
+*/
+PHP_METHOD(zmqsocket, getsockopt)
+{
+    php_zmq_socket_object *intern;
+    zend_long key;
+    size_t value_len;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), "l", &key) == FAILURE) {
+        return;
+    }
+
+    intern = PHP_ZMQ_SOCKET_OBJECT;
+
+    if (!intern->socket || !intern->socket->z_socket) {
+        zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "The socket is not properly initialised", PHP_ZMQ_INTERNAL_ERROR);
+        return;
+    }
+
+    if (key > INT_MAX) {
+        zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), PHP_ZMQ_INTERNAL_ERROR, "The key must be smaller than or equal to %d", INT_MAX);
+        return;
+    }
+
+.for version
+#if ZMQ_VERSION_MAJOR == $(version.major)
+
+    switch (key) {
+.    for option where !defined (is_alias)
+# ifdef ZMQ_$(NAME)
+
+        case ZMQ_$(NAME):
+        {
+.        if mode = "rw" | mode = "r"
+.            gsl from "sockopts_restrict.gsl"
+.-
+.            if php_type = "int"
+.-
+            $(c_type) value;
+            value_len = sizeof($(c_type));
+            if (zmq_getsockopt(intern->socket->z_socket, (int) key, &value, &value_len) != 0) {
+                zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno, "Failed to get the option ZMQ::SOCKOPT_$(NAME) value: %s", zmq_strerror(errno));
+                return;
+            }
+            RETURN_LONG(value);
+.-
+.            elsif php_type = "string"
+.-
+            $(c_type) value[$(max_length)];
+            value_len = $(max_length);
+
+            if (zmq_getsockopt(intern->socket->z_socket, (int) key, &value, &value_len) != 0) {
+                zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno, "Failed to get the option ZMQ::SOCKOPT_$(NAME) value: %s", zmq_strerror(errno));
+                return;
+            }
+.-
+.                if binary = "yes"
+            RETURN_STRINGL(value, value_len);
+.                else
+            RETURN_STRINGL(value, value_len - 1);
+.                endif /* .if binary = "yes" */
+.-
+.            elsif php_type = "resource"
+.-
+            php_stream *stream = php_zmq_create_zmq_fd(getThis());
+            if (stream) {
+                php_stream_to_zval(stream, return_value);
+                return;
+            }
+            RETURN_FALSE;
+.-
+.            else
+#error "Unknown type: ($type)"
+.            endif # /* .if php_type = "int" */
+.        else
+.-
+            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Getting ZMQ::SOCKOPT_$(NAME) is not supported", PHP_ZMQ_INTERNAL_ERROR);
+            return;
+.-
+.        endif /* .if mode = "rw" | mode = "r" */
+        }
+        break;
+
+# endif /* ZMQ_$(NAME) */
+.    endfor /* for option */
+
+        default:
+            zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), PHP_ZMQ_INTERNAL_ERROR, "Unknown option key %ld", key);
+            return;
+    }
+
+#endif /* ZMQ_VERSION_MAJOR == $(version.major) */
+.endfor /* .for version */
+}
+/* }}} */
+.endtemplate

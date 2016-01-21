@@ -1,0 +1,82 @@
+.#  This is a code generator built using the iMatix GSL code generation
+.#  language. See https://github.com/imatix/gsl for details. This script 
+.#  is licensed under MIT/X11.
+.#
+.gsl from "sockopts_preprocess.gsl"
+
+.template 1
+.for version
+
+.output "../tests/libzmq$(version.major)-sockopt.phpt"
+--TEST--
+Test setting socket options
+--SKIPIF--
+<?php
+require_once(dirname(__FILE__) . '/skipif.inc');
+if (!defined('ZMQ::LIBZMQ_VERSION_MAJOR') || ZMQ::LIBZMQ_VERSION_MAJOR != $(version.major)) {
+    die ("skip This test is for PHP7 and libzmq version $(version.major).x");
+}
+?>
+--FILE--
+<?php
+
+$tested = 0;
+
+.    for option where defined (test) & !defined(is_alias)
+/* socket option is marked mode="$(mode)" type=$(type) php_type=$(php_type) */
+if (defined ("ZMQ::SOCKOPT_$(NAME)")) {
+.        if php_type = "int"
+    $test_value = $(test_value? 1 :);
+.        elsif php_type = "string"
+    $test_value = "$(test_value? "test" :)";
+.        endif
+
+    $socket = ZMQContext::acquire()->getSocket(ZMQ::SOCKET_$(TEST));
+
+.        if mode = "rw"
+    // Test read-write
+    $socket->setSockOpt(ZMQ::SOCKOPT_$(NAME), $test_value);
+    $retval = $socket->getSockOpt(ZMQ::SOCKOPT_$(NAME));
+
+    if ($socket->getSockOpt(ZMQ::SOCKOPT_$(NAME)) !== $test_value) {
+        echo "Failed to set ZMQ::SOCKOPT_$(NAME): expected=[$test_value] actual=[$retval]" . PHP_EOL;
+    }
+.        elsif mode = "w"
+    // Test write-only
+    $socket->setSockOpt(ZMQ::SOCKOPT_$(NAME), $test_value);
+.        elsif mode = "r"
+    // Test read-only
+    $retval = $socket->getSockOpt(ZMQ::SOCKOPT_$(NAME));
+    if (is_$(php_type)($retval) === false) {
+        echo "Incorrect return type for ZMQ::SOCKOPT_$(NAME): expected=[$(php_type)] actual=[" .gettype($retval). "]" . PHP_EOL;
+    }
+.        endif
+    $tested++;
+
+.        if mode = "r"
+    try {
+        $socket->setSockOpt(ZMQ::SOCKOPT_$(NAME), 'x');
+        echo "Should not be able to set ZMQ::SOCKOPT_$(NAME)" . PHP_EOL;
+    } catch (ZMQSocketException $e) {}
+.        elsif mode = "w"
+    try {
+        $socket->getSockOpt(ZMQ::SOCKOPT_$(NAME));
+        echo "Should not be able to get ZMQ::SOCKOPT_$(NAME)" . PHP_EOL;
+    } catch (ZMQSocketException $e) {}
+.        endif
+
+}
+.   endfor
+
+if ($tested == 0) {
+    echo "Did not test any constants" . PHP_EOL;
+}
+echo "OK";
+--EXPECT--
+OK
+.endfor
+.endtemplate
+
+.for source
+$(string.trim(.):)
+.endfor

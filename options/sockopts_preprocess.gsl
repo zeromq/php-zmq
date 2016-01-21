@@ -1,0 +1,69 @@
+.#  This is a code generator built using the iMatix GSL code generation
+.#  language. See https://github.com/imatix/gsl for details. This script 
+.#  is licensed under MIT/X11.
+.#
+
+.echo "Preprocessing sockopts.xml"
+
+.template 0
+for version
+    for include
+        for options.macro where name = include.name
+            for . as child
+                copy child to version
+            endfor
+        endfor
+    endfor
+    # Preprocess options
+    for option
+        if name = "tcp_accept_filter"
+            option.mode = "w"
+        endif
+
+        if name = "delay_attach_on_connect"
+            option.is_alias = "YES"
+        endif
+
+        if type = "uint64" | type = "int64" | type = "uint32"
+
+            option.php_type = "int"
+            option.c_type   = "$(type)_t"
+            option.binary   = "no"
+
+        elsif type = "int"
+
+            option.php_type = "int"
+            option.c_type   = "$(type)"
+            option.binary   = "no"
+
+        elsif type = "string"
+
+            option.php_type   = "string"
+            option.c_type     = "char"
+            option.max_length = 255
+
+            if name = "subscribe" | name = "usubscribe" | name = "identity"
+                option.binary = "yes"
+            else
+                option.binary = "no"
+            endif
+
+        elsif type = "key"
+
+            option.php_type   = "string"
+            option.c_type     = "char"
+            option.max_length = 32
+            option.binary     = "yes"
+
+        elsif type = "socket"
+
+            option.php_type = "resource"
+            option.c_type   = "int"
+            option.binary   = "no"
+
+        else
+            echo "ERROR: Unrecognised type: $(type)"
+        endif
+    endfor
+endfor
+.endtemplate

@@ -80,6 +80,7 @@ typedef struct _php_zmq_context {
 */
 typedef struct _php_zmq_socket  {
 	void *z_socket;
+	int socket_type;
 	php_zmq_context *ctx;
 
 	HashTable connect;
@@ -164,7 +165,7 @@ typedef struct _php_zmq_device_object  {
 #	define ZMQ_DONTWAIT ZMQ_NOBLOCK
 #endif
 #ifndef ZMQ_HWM
-#   define ZMQ_HWM (ZMQ_DONTWAIT + 200)
+#   define ZMQ_HWM (ZMQ_DONTWAIT + 2000)
 #endif
 #ifndef ZMQ_FORWARDER
 #   define ZMQ_FORWARDER 0
@@ -184,13 +185,6 @@ typedef struct _php_zmq_device_object  {
 #endif
 
 #define PHP_ZMQ_INTERNAL_ERROR -99
-
-#define PHP_ZMQ_VERSION_LEN 24
-
-#ifdef HAVE_CZMQ_2
-# define PHP_ZMQ_AUTH_TYPE_PLAIN 0
-# define PHP_ZMQ_AUTH_TYPE_CURVE 1
-#endif
 
 PHP_METHOD(zmqsocket, getsockopt);
 PHP_METHOD(zmqsocket, setsockopt);
@@ -222,6 +216,10 @@ ZEND_BEGIN_MODULE_GLOBALS(php_zmq)
 ZEND_END_MODULE_GLOBALS(php_zmq)
 
 #ifdef HAVE_CZMQ_2
+
+# define PHP_ZMQ_AUTH_TYPE_PLAIN 0
+# define PHP_ZMQ_AUTH_TYPE_CURVE 1
+
 typedef struct _php_zmq_cert {
 	zcert_t *zcert;
 	zend_object zo;
