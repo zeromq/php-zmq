@@ -53,12 +53,15 @@ if test "$PHP_ZMQ" != "no"; then
   CFLAGS="$CFLAGS $PHP_ZMQ_CFLAGS"
   LDFLAGS="$LDFLAGS $PHP_ZMQ_LIBS"
 
-  AC_CHECK_LIB(
-    [zmq], [zmq_socket_monitor],
-    [AC_DEFINE(
-      [PHP_ZMQ_HAVE_SOCKET_MONITOR], [1], [Whether zmq_socket_monitor function is available]
-    )]
-  )
+  $PKG_CONFIG libzmq --atleast-version 4.0.0
+  if test $? = 0; then
+    AC_CHECK_LIB(
+      [zmq], [zmq_socket_monitor],
+      [AC_DEFINE(
+        [PHP_ZMQ_HAVE_SOCKET_MONITOR], [1], [Whether zmq_socket_monitor function is available]
+      )]
+    )
+  fi
 
   AC_CHECK_LIB(
     [zmq], [zmq_proxy_steerable],

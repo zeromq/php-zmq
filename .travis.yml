@@ -1,9 +1,9 @@
 language: php
 php:
+    - 7.0
     - 5.6
     - 5.5
     - 5.4
-    - 7.0
 
 env:
     - LIBZMQ_VERSION=2.2.0
