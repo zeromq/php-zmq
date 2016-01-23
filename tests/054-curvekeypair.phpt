@@ -14,7 +14,7 @@ function test_z85_decode_encode($input) {
 	$decoded = zmq::z85decode($input);
 	$encoded = zmq::z85encode($decoded);
 
-	if ($input !== $decoded) {
+	if ($input !== $encoded) {
 		echo "E: test_z85_decode_encode: input=[$input] encoded=[$encoded] decoded=[$decoded]" . PHP_EOL;
 	}
 }
