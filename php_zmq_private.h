@@ -211,6 +211,22 @@ zend_long php_zmq_get_libzmq_version_id();
 
 char *php_zmq_printable_func (zend_fcall_info *fci, zend_fcall_info_cache *fci_cache);
 
+
+zend_bool php_zmq_shared_ctx_init();
+
+void php_zmq_shared_ctx_assign_to(php_zmq_context *context);
+
+void php_zmq_shared_ctx_destroy();
+
+int php_zmq_shared_ctx_socket_count();
+
+void php_zmq_shared_ctx_socket_count_incr();
+
+void php_zmq_shared_ctx_socket_count_decr();
+
+
+
+
 ZEND_BEGIN_MODULE_GLOBALS(php_zmq)
 	php_zmq_clock_ctx_t *clock_ctx;
 ZEND_END_MODULE_GLOBALS(php_zmq)

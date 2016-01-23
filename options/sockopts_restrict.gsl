@@ -1,0 +1,26 @@
+.#  This is a code generator built using the iMatix GSL code generation
+.#  language. See https://github.com/imatix/gsl for details. This script 
+.#  is licensed under MIT/X11.
+.#
+.template 1
+.if count (restrict)
+{
+.    for restrict
+.        if first()
+.            .open = "if ("
+.        else
+.            .open = "    "
+.        endif
+.        if last()
+.            .close = ") {"
+.        else
+.            .close = " &&"
+.        endif
+        $(open)intern->socket->socket_type != ZMQ_$(TYPE)$(close)
+.    endfor
+            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "ZMQ::SOCKOPT_$(NAME) is not valid for this socket type", errno);
+            return;
+        }
+}
+.endif
+.endtemplate

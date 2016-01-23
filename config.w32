@@ -5,8 +5,15 @@ if (PHP_ZMQ != "no") {
 	if (CHECK_HEADER_ADD_INCLUDE("zmq.h", "CFLAGS_ZMQ", PHP_PHP_BUILD + "\\include;" + PHP_ZMQ)
         && CHECK_LIB("libzmq.lib", "zmq", PHP_PHP_BUILD + "\\lib;" + PHP_ZMQ))
 	{
-		EXTENSION('zmq', 'zmq.c zmq_pollset.c zmq_device.c zmq_sockopt.c zmq_fd_stream.c zmq_clock.c');
+		EXTENSION('zmq', 'zmq.c zmq_helpers.c zmq_pollset.c zmq_device.c zmq_sockopt.c zmq_fd_stream.c zmq_clock.c zmq_shared_ctx.c');
 		AC_DEFINE('HAVE_ZMQ', 1);
+		AC_DEFINE('PHP_ZMQ_HAVE_SOCKET_MONITOR', 1);
+		AC_DEFINE('PHP_ZMQ_HAVE_PROXY_STEERABLE', 1);
+		AC_DEFINE('PHP_ZMQ_HAVE_Z85', 1);
+		AC_DEFINE('PHP_ZMQ_HAVE_CURVE_KEYPAIR', 1);
+		AC_DEFINE('PHP_ZMQ_HAVE_CTX_OPTIONS', 1);
+		AC_DEFINE('PHP_ZMQ_HAVE_UNBIND', 1);
+		AC_DEFINE('PHP_ZMQ_HAVE_DISCONNECT', 1);
 	} else {
 		WARNING("zmq not enabled; libraries and headers not found");
 	}

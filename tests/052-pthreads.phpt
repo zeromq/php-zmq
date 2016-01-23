@@ -14,6 +14,8 @@ Test pthreads integration
 --FILE--
 <?php
 
+$threads = 10;
+
 class MyWorker extends Thread {
 	public $sendThisBack;
 
@@ -23,32 +25,41 @@ class MyWorker extends Thread {
 
 	public function run() {
 		$context = ZMQContext::acquire();
-		var_dump($context->getSocketCount());
 
-		$socket = $context->getSocket(ZMQ::SOCKET_PAIR);
+		$socket = $context->getSocket(ZMQ::SOCKET_PUSH);
 		$socket->connect ("inproc://pthreads-test");
 		$socket->send($this->sendThisBack);
+		
+		sleep(2);
 	}
 }
 
 $context = ZMQContext::acquire();
+
+
+$socket = $context->getSocket(ZMQ::SOCKET_PULL);
+$socket->bind("inproc://pthreads-test");
+$socket->setSockOpt(ZMQ::SOCKOPT_HWM, 1000);
+
+$request = array();
+
+for ($i = 0; $i < $threads; $i++) {
+	$requests[$i] = new MyWorker("thr_$i");
+	$requests[$i]->start();
+}
+
 var_dump($context->getSocketCount());
 
-$socket = $context->getSocket(ZMQ::SOCKET_PAIR);
-$socket->bind("inproc://pthreads-test");
+for ($i = 0; $i < $threads; $i++) {
+	$requests[$i]->join();
+}
 
-$payload = "Hello from the other side";
-$request = new MyWorker($payload);
- 
-if ($request->start()) {
-	$request->join();
-	var_dump ($socket->recv());
+for ($i = 0; $i < $threads; $i++) {
+	$socket->recv();
 }
 
 echo "OK";
 
 --EXPECT--
-int(0)
-int(1)
-string(25) "Hello from the other side"
+int(11)
 OK
