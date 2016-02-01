@@ -10,10 +10,10 @@
   <email>mkoppanen@php.net</email>
   <active>yes</active>
  </lead>
- <date>2016-01-21</date>
+ <date>2016-02-01</date>
  <time>17:00:00</time>
  <version>
-  <release>1.1.4</release>
+  <release>1.1.5</release>
   <api>1.1.0</api>
  </version>
  <stability>
@@ -22,8 +22,13 @@
  </stability>
  <license>BSD License</license>
  <notes>
- - Introduces PHP7 support
- - Added methods: ZMQSocket::monitor, ZMQSocket::recvEvent, ZMQ::has
+ - Introduces PHP7 support. PHP5 compilation should work but receives no updates.
+ - Added new methods:
+   * ZMQSocket::monitor (and related ZMQSocket::recvEvent)
+   * ZMQ::z85Encode/Decode
+   * ZMQ::has
+ - Socket options are now restricted to their valid socket types
+ - Usage pthreads extension is now better supported and tested
  </notes>
  <contents>
   <dir name="/">
