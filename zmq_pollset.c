@@ -38,7 +38,7 @@
 
 /* {{{ typedef struct _php_zmq_pollset 
 */
-typedef struct _php_zmq_pollset {
+struct _php_zmq_pollset {
 
 	zmq_pollitem_t *items;
 	zend_string **keys;
@@ -49,7 +49,7 @@ typedef struct _php_zmq_pollset {
 	size_t alloc_size;
 
 	zval errors;
-} php_zmq_pollset;
+};
 /* }}} */
 
 static
