@@ -37,6 +37,7 @@
 #include "main/php_ini.h"
 
 #include <zmq.h>
+#include <stdbool.h>
 
 #ifdef HAVE_CZMQ
 # include <czmq.h>
