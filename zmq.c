@@ -1426,7 +1426,7 @@ PHP_METHOD(zmqpoll, poll)
 	long timeout = -1;
 	int rc;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "a!a!|l", &r_array, &w_array, &timeout) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "a!/a!/|l", &r_array, &w_array, &timeout) == FAILURE) {
 		return;
 	}
 
