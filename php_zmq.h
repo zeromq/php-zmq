@@ -44,6 +44,12 @@
 
 #include "php.h"
 
+#if PHP_VERSION_ID < 70300
+#define GC_ADDREF(p)              ++GC_REFCOUNT(p)
+#define GC_DELREF(p)              --GC_REFCOUNT(p)
+#define GC_SET_REFCOUNT(p, rc)    GC_REFCOUNT(p) = rc
+#endif
+
 extern zend_module_entry zmq_module_entry;
 #define phpext_zmq_ptr &zmq_module_entry
 
