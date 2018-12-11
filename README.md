@@ -1,7 +1,5 @@
 PHP bindings for 0MQ. The documentation is available at http://php.net/zmq
 
-[![Build Status](https://travis-ci.org/mkoppanen/php-zmq.png?branch=master)](https://travis-ci.org/mkoppanen/php-zmq)
-
 The API is roughly as follows:
 
     <?php
