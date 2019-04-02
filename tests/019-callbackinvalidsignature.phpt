@@ -1,7 +1,8 @@
 --TEST--
 Test callback edge-cases
 --SKIPIF--
-<?php require_once(dirname(__FILE__) . '/skipif.inc'); ?>
+<?php require_once(dirname(__FILE__) . '/skipif.inc');
+if (PHP_VERSION_ID >= 70100) die("skip PHP 7.1 and higher fallback to passing argument by value even when forced to reference"); ?>
 --FILE--
 <?php
 

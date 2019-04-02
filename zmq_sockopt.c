@@ -1,5 +1,3 @@
-
-
 /*
 +-----------------------------------------------------------------------------------+
 |  ZMQ extension for PHP                                                            |
@@ -2033,7 +2031,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 PHP_METHOD(zmqsocket, setsockopt)
 {
     php_zmq_socket_object *intern;
-    long key;
+    zend_long key;
     zval *zv;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "lz/", &key, &zv) == FAILURE) {
