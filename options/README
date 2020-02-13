@@ -1,4 +1,6 @@
-In order to socket options:
+In order to autocreate the socket options:
 
     1. install GSL from https://github.com/imatix/gsl
     2. run gsl -q sockopts.xml
+
+You may also directly run the script generate.sh inside this folder.

@@ -2,9 +2,9 @@
 .#  language. See https://github.com/imatix/gsl for details. This script 
 .#  is licensed under MIT/X11.
 .#
-
+.
 .echo "Preprocessing sockopts.xml"
-
+.
 .template 0
 for version
     for include
