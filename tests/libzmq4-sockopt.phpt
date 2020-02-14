@@ -64,6 +64,174 @@ if (defined ("ZMQ::SOCKOPT_HEARTBEAT_TIMEOUT")) {
 
 }
 /* socket option is marked mode="rw" type=int php_type=int */
+if (defined ("ZMQ::SOCKOPT_USE_FD")) {
+    $test_value = 3;
+
+    $socket = ZMQContext::acquire()->getSocket(ZMQ::SOCKET_REQ);
+
+    // Test read-write
+    $socket->setSockOpt(ZMQ::SOCKOPT_USE_FD, $test_value);
+    $retval = $socket->getSockOpt(ZMQ::SOCKOPT_USE_FD);
+
+    if ($socket->getSockOpt(ZMQ::SOCKOPT_USE_FD) !== $test_value) {
+        echo "Failed to set ZMQ::SOCKOPT_USE_FD: expected=[$test_value] actual=[$retval]" . PHP_EOL;
+    }
+    $tested++;
+
+
+}
+/* socket option is marked mode="w" type=int php_type=int */
+if (defined ("ZMQ::SOCKOPT_XPUB_MANUAL")) {
+    $test_value = 1;
+
+    $socket = ZMQContext::acquire()->getSocket(ZMQ::SOCKET_XPUB);
+
+    // Test write-only
+    $socket->setSockOpt(ZMQ::SOCKOPT_XPUB_MANUAL, $test_value);
+    $tested++;
+
+    try {
+        $socket->getSockOpt(ZMQ::SOCKOPT_XPUB_MANUAL);
+        echo "Should not be able to get ZMQ::SOCKOPT_XPUB_MANUAL" . PHP_EOL;
+    } catch (ZMQSocketException $e) {}
+
+}
+/* socket option is marked mode="w" type=string php_type=string */
+if (defined ("ZMQ::SOCKOPT_XPUB_WELCOME_MSG")) {
+    $test_value = "welcome";
+
+    $socket = ZMQContext::acquire()->getSocket(ZMQ::SOCKET_XPUB);
+
+    // Test write-only
+    $socket->setSockOpt(ZMQ::SOCKOPT_XPUB_WELCOME_MSG, $test_value);
+    $tested++;
+
+    try {
+        $socket->getSockOpt(ZMQ::SOCKOPT_XPUB_WELCOME_MSG);
+        echo "Should not be able to get ZMQ::SOCKOPT_XPUB_WELCOME_MSG" . PHP_EOL;
+    } catch (ZMQSocketException $e) {}
+
+}
+/* socket option is marked mode="w" type=int php_type=int */
+if (defined ("ZMQ::SOCKOPT_STREAM_NOTIFY")) {
+    $test_value = 1;
+
+    $socket = ZMQContext::acquire()->getSocket(ZMQ::SOCKET_STREAM);
+
+    // Test write-only
+    $socket->setSockOpt(ZMQ::SOCKOPT_STREAM_NOTIFY, $test_value);
+    $tested++;
+
+    try {
+        $socket->getSockOpt(ZMQ::SOCKOPT_STREAM_NOTIFY);
+        echo "Should not be able to get ZMQ::SOCKOPT_STREAM_NOTIFY" . PHP_EOL;
+    } catch (ZMQSocketException $e) {}
+
+}
+/* socket option is marked mode="rw" type=int php_type=int */
+if (defined ("ZMQ::SOCKOPT_INVERT_MATCHING")) {
+    $test_value = 1;
+
+    $socket = ZMQContext::acquire()->getSocket(ZMQ::SOCKET_XPUB);
+
+    // Test read-write
+    $socket->setSockOpt(ZMQ::SOCKOPT_INVERT_MATCHING, $test_value);
+    $retval = $socket->getSockOpt(ZMQ::SOCKOPT_INVERT_MATCHING);
+
+    if ($socket->getSockOpt(ZMQ::SOCKOPT_INVERT_MATCHING) !== $test_value) {
+        echo "Failed to set ZMQ::SOCKOPT_INVERT_MATCHING: expected=[$test_value] actual=[$retval]" . PHP_EOL;
+    }
+    $tested++;
+
+
+}
+/* socket option is marked mode="w" type=int php_type=int */
+if (defined ("ZMQ::SOCKOPT_XPUB_VERBOSER")) {
+    $test_value = 1;
+
+    $socket = ZMQContext::acquire()->getSocket(ZMQ::SOCKET_XPUB);
+
+    // Test write-only
+    $socket->setSockOpt(ZMQ::SOCKOPT_XPUB_VERBOSER, $test_value);
+    $tested++;
+
+    try {
+        $socket->getSockOpt(ZMQ::SOCKOPT_XPUB_VERBOSER);
+        echo "Should not be able to get ZMQ::SOCKOPT_XPUB_VERBOSER" . PHP_EOL;
+    } catch (ZMQSocketException $e) {}
+
+}
+/* socket option is marked mode="rw" type=int php_type=int */
+if (defined ("ZMQ::SOCKOPT_CONNECT_TIMEOUT")) {
+    $test_value = 200;
+
+    $socket = ZMQContext::acquire()->getSocket(ZMQ::SOCKET_DEALER);
+
+    // Test read-write
+    $socket->setSockOpt(ZMQ::SOCKOPT_CONNECT_TIMEOUT, $test_value);
+    $retval = $socket->getSockOpt(ZMQ::SOCKOPT_CONNECT_TIMEOUT);
+
+    if ($socket->getSockOpt(ZMQ::SOCKOPT_CONNECT_TIMEOUT) !== $test_value) {
+        echo "Failed to set ZMQ::SOCKOPT_CONNECT_TIMEOUT: expected=[$test_value] actual=[$retval]" . PHP_EOL;
+    }
+    $tested++;
+
+
+}
+/* socket option is marked mode="rw" type=int php_type=int */
+if (defined ("ZMQ::SOCKOPT_TCP_MAXRT")) {
+    $test_value = 200;
+
+    $socket = ZMQContext::acquire()->getSocket(ZMQ::SOCKET_DEALER);
+
+    // Test read-write
+    $socket->setSockOpt(ZMQ::SOCKOPT_TCP_MAXRT, $test_value);
+    $retval = $socket->getSockOpt(ZMQ::SOCKOPT_TCP_MAXRT);
+
+    if ($socket->getSockOpt(ZMQ::SOCKOPT_TCP_MAXRT) !== $test_value) {
+        echo "Failed to set ZMQ::SOCKOPT_TCP_MAXRT: expected=[$test_value] actual=[$retval]" . PHP_EOL;
+    }
+    $tested++;
+
+
+}
+/* socket option is marked mode="r" type=int php_type=int */
+if (defined ("ZMQ::SOCKOPT_THREAD_SAFE")) {
+    $test_value = 0;
+
+    $socket = ZMQContext::acquire()->getSocket(ZMQ::SOCKET_DEALER);
+
+    // Test read-only
+    $retval = $socket->getSockOpt(ZMQ::SOCKOPT_THREAD_SAFE);
+    if (is_int($retval) === false) {
+        echo "Incorrect return type for ZMQ::SOCKOPT_THREAD_SAFE: expected=[int] actual=[" .gettype($retval). "]" . PHP_EOL;
+    }
+    $tested++;
+
+    try {
+        $socket->setSockOpt(ZMQ::SOCKOPT_THREAD_SAFE, 'x');
+        echo "Should not be able to set ZMQ::SOCKOPT_THREAD_SAFE" . PHP_EOL;
+    } catch (ZMQSocketException $e) {}
+
+}
+/* socket option is marked mode="rw" type=int php_type=int */
+if (defined ("ZMQ::SOCKOPT_MULTICAST_MAXTPDU")) {
+    $test_value = 1400;
+
+    $socket = ZMQContext::acquire()->getSocket(ZMQ::SOCKET_DEALER);
+
+    // Test read-write
+    $socket->setSockOpt(ZMQ::SOCKOPT_MULTICAST_MAXTPDU, $test_value);
+    $retval = $socket->getSockOpt(ZMQ::SOCKOPT_MULTICAST_MAXTPDU);
+
+    if ($socket->getSockOpt(ZMQ::SOCKOPT_MULTICAST_MAXTPDU) !== $test_value) {
+        echo "Failed to set ZMQ::SOCKOPT_MULTICAST_MAXTPDU: expected=[$test_value] actual=[$retval]" . PHP_EOL;
+    }
+    $tested++;
+
+
+}
+/* socket option is marked mode="rw" type=int php_type=int */
 if (defined ("ZMQ::SOCKOPT_TOS")) {
     $test_value = 1;
 
@@ -93,6 +261,72 @@ if (defined ("ZMQ::SOCKOPT_ROUTER_HANDOVER")) {
     try {
         $socket->getSockOpt(ZMQ::SOCKOPT_ROUTER_HANDOVER);
         echo "Should not be able to get ZMQ::SOCKOPT_ROUTER_HANDOVER" . PHP_EOL;
+    } catch (ZMQSocketException $e) {}
+
+}
+/* socket option is marked mode="w" type=key php_type=string */
+if (defined ("ZMQ::SOCKOPT_CONNECT_RID")) {
+    $test_value = "ABCD";
+
+    $socket = ZMQContext::acquire()->getSocket(ZMQ::SOCKET_ROUTER);
+
+    // Test write-only
+    $socket->setSockOpt(ZMQ::SOCKOPT_CONNECT_RID, $test_value);
+    $tested++;
+
+    try {
+        $socket->getSockOpt(ZMQ::SOCKOPT_CONNECT_RID);
+        echo "Should not be able to get ZMQ::SOCKOPT_CONNECT_RID" . PHP_EOL;
+    } catch (ZMQSocketException $e) {}
+
+}
+/* socket option is marked mode="rw" type=int php_type=int */
+if (defined ("ZMQ::SOCKOPT_HANDSHAKE_IVL")) {
+    $test_value = 200;
+
+    $socket = ZMQContext::acquire()->getSocket(ZMQ::SOCKET_DEALER);
+
+    // Test read-write
+    $socket->setSockOpt(ZMQ::SOCKOPT_HANDSHAKE_IVL, $test_value);
+    $retval = $socket->getSockOpt(ZMQ::SOCKOPT_HANDSHAKE_IVL);
+
+    if ($socket->getSockOpt(ZMQ::SOCKOPT_HANDSHAKE_IVL) !== $test_value) {
+        echo "Failed to set ZMQ::SOCKOPT_HANDSHAKE_IVL: expected=[$test_value] actual=[$retval]" . PHP_EOL;
+    }
+    $tested++;
+
+
+}
+/* socket option is marked mode="rw" type=string php_type=string */
+if (defined ("ZMQ::SOCKOPT_SOCKS_PROXY")) {
+    $test_value = "127.0.0.1";
+
+    $socket = ZMQContext::acquire()->getSocket(ZMQ::SOCKET_DEALER);
+
+    // Test read-write
+    $socket->setSockOpt(ZMQ::SOCKOPT_SOCKS_PROXY, $test_value);
+    $retval = $socket->getSockOpt(ZMQ::SOCKOPT_SOCKS_PROXY);
+
+    if ($socket->getSockOpt(ZMQ::SOCKOPT_SOCKS_PROXY) !== $test_value) {
+        echo "Failed to set ZMQ::SOCKOPT_SOCKS_PROXY: expected=[$test_value] actual=[$retval]" . PHP_EOL;
+    }
+    $tested++;
+
+
+}
+/* socket option is marked mode="w" type=int php_type=int */
+if (defined ("ZMQ::SOCKOPT_XPUB_NODROP")) {
+    $test_value = 1;
+
+    $socket = ZMQContext::acquire()->getSocket(ZMQ::SOCKET_XPUB);
+
+    // Test write-only
+    $socket->setSockOpt(ZMQ::SOCKOPT_XPUB_NODROP, $test_value);
+    $tested++;
+
+    try {
+        $socket->getSockOpt(ZMQ::SOCKOPT_XPUB_NODROP);
+        echo "Should not be able to get ZMQ::SOCKOPT_XPUB_NODROP" . PHP_EOL;
     } catch (ZMQSocketException $e) {}
 
 }

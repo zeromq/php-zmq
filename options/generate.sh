@@ -4,6 +4,8 @@ WGET=$(which wget)
 GSL=$(which gsl)
 GIT=$(which git)
 
+cd `dirname "$0"`
+
 if test "$WGET" = ""
 then
     echo "wget not found"
@@ -22,7 +24,12 @@ then
     exit 1
 fi
 
-$WGET https://raw.githubusercontent.com/zeromq/czmq/master/src/sockopts.xml -O sockopts.xml
+# latest version supported
+$WGET https://raw.githubusercontent.com/zeromq/czmq/v4.0.0/src/sockopts.xml -O sockopts.xml
+
+# not yet working
+# $WGET https://raw.githubusercontent.com/zeromq/czmq/master/src/sockopts.xml -O sockopts.xml
+
 git diff sockopts.xml
 
 $GSL -script:sockopts.gsl sockopts.xml
