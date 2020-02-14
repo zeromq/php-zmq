@@ -17,3 +17,5 @@ The API is roughly as follows:
 
 
 For installation instructions see http://pecl.php.net/zmq
+
+For developer instructions see DEVELOPERS.md
