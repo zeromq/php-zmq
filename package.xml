@@ -131,6 +131,7 @@
       <file name="052-pthreads.phpt" role="test" />
       <file name="053-z85.phpt" role="test" />
       <file name="054-curvekeypair.phpt" role="test" />
+      <file name="055-socks-proxy.phpt" role="test" />
       <file name="bug_gh_156.phpt" role="test" />
       <file name="bug_gh_43.phpt" role="test" />
       <file name="bug_gh_49.phpt" role="test" />
