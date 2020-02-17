@@ -1,7 +1,7 @@
 /*
 +-----------------------------------------------------------------------------------+
 |  ZMQ extension for PHP                                                            |
-|  Copyright (c) 2010-2016, Mikko Koppanen <mkoppanen@php.net>                      |
+|  Copyright (c) 2010-2020, Mikko Koppanen <mkoppanen@php.net>                      |
 |  All rights reserved.                                                             |
 +-----------------------------------------------------------------------------------+
 |  Redistribution and use in source and binary forms, with or without               |
@@ -57,11 +57,65 @@ void php_zmq_register_sockopt_constants (zend_class_entry *php_zmq_sc_entry)
 # ifdef ZMQ_HEARTBEAT_TIMEOUT
     PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_HEARTBEAT_TIMEOUT", ZMQ_HEARTBEAT_TIMEOUT);
 # endif
+# ifdef ZMQ_USE_FD
+    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_USE_FD", ZMQ_USE_FD);
+# endif
+# ifdef ZMQ_XPUB_MANUAL
+    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_XPUB_MANUAL", ZMQ_XPUB_MANUAL);
+# endif
+# ifdef ZMQ_XPUB_WELCOME_MSG
+    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_XPUB_WELCOME_MSG", ZMQ_XPUB_WELCOME_MSG);
+# endif
+# ifdef ZMQ_STREAM_NOTIFY
+    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_STREAM_NOTIFY", ZMQ_STREAM_NOTIFY);
+# endif
+# ifdef ZMQ_INVERT_MATCHING
+    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_INVERT_MATCHING", ZMQ_INVERT_MATCHING);
+# endif
+# ifdef ZMQ_XPUB_VERBOSER
+    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_XPUB_VERBOSER", ZMQ_XPUB_VERBOSER);
+# endif
+# ifdef ZMQ_CONNECT_TIMEOUT
+    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_CONNECT_TIMEOUT", ZMQ_CONNECT_TIMEOUT);
+# endif
+# ifdef ZMQ_TCP_MAXRT
+    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_TCP_MAXRT", ZMQ_TCP_MAXRT);
+# endif
+# ifdef ZMQ_THREAD_SAFE
+    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_THREAD_SAFE", ZMQ_THREAD_SAFE);
+# endif
+# ifdef ZMQ_MULTICAST_MAXTPDU
+    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_MULTICAST_MAXTPDU", ZMQ_MULTICAST_MAXTPDU);
+# endif
+# ifdef ZMQ_VMCI_BUFFER_SIZE
+    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_VMCI_BUFFER_SIZE", ZMQ_VMCI_BUFFER_SIZE);
+# endif
+# ifdef ZMQ_VMCI_BUFFER_MIN_SIZE
+    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_VMCI_BUFFER_MIN_SIZE", ZMQ_VMCI_BUFFER_MIN_SIZE);
+# endif
+# ifdef ZMQ_VMCI_BUFFER_MAX_SIZE
+    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_VMCI_BUFFER_MAX_SIZE", ZMQ_VMCI_BUFFER_MAX_SIZE);
+# endif
+# ifdef ZMQ_VMCI_CONNECT_TIMEOUT
+    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_VMCI_CONNECT_TIMEOUT", ZMQ_VMCI_CONNECT_TIMEOUT);
+# endif
 # ifdef ZMQ_TOS
     PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_TOS", ZMQ_TOS);
 # endif
 # ifdef ZMQ_ROUTER_HANDOVER
     PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_ROUTER_HANDOVER", ZMQ_ROUTER_HANDOVER);
+# endif
+# ifdef ZMQ_CONNECT_RID
+    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_CONNECT_RID", ZMQ_CONNECT_RID);
+# endif
+# ifdef ZMQ_HANDSHAKE_IVL
+    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_HANDSHAKE_IVL", ZMQ_HANDSHAKE_IVL);
+# endif
+# ifdef ZMQ_SOCKS_PROXY
+    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_SOCKS_PROXY", ZMQ_SOCKS_PROXY);
+# endif
+# ifdef ZMQ_XPUB_NODROP
+    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_XPUB_NODROP", ZMQ_XPUB_NODROP);
 # endif
 # ifdef ZMQ_ROUTER_MANDATORY
     PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_ROUTER_MANDATORY", ZMQ_ROUTER_MANDATORY);
@@ -467,6 +521,204 @@ PHP_METHOD(zmqsocket, getsockopt)
         break;
 
 # endif /* ZMQ_HEARTBEAT_TIMEOUT */
+# ifdef ZMQ_USE_FD
+
+        case ZMQ_USE_FD:
+        {
+            int value;
+            value_len = sizeof(int);
+            if (zmq_getsockopt(intern->socket->z_socket, (int) key, &value, &value_len) != 0) {
+                zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno, "Failed to get the option ZMQ::SOCKOPT_USE_FD value: %s", zmq_strerror(errno));
+                return;
+            }
+            RETURN_LONG(value);
+        }
+        break;
+
+# endif /* ZMQ_USE_FD */
+# ifdef ZMQ_XPUB_MANUAL
+
+        case ZMQ_XPUB_MANUAL:
+        {
+            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Getting ZMQ::SOCKOPT_XPUB_MANUAL is not supported", PHP_ZMQ_INTERNAL_ERROR);
+            return;
+        }
+        break;
+
+# endif /* ZMQ_XPUB_MANUAL */
+# ifdef ZMQ_XPUB_WELCOME_MSG
+
+        case ZMQ_XPUB_WELCOME_MSG:
+        {
+            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Getting ZMQ::SOCKOPT_XPUB_WELCOME_MSG is not supported", PHP_ZMQ_INTERNAL_ERROR);
+            return;
+        }
+        break;
+
+# endif /* ZMQ_XPUB_WELCOME_MSG */
+# ifdef ZMQ_STREAM_NOTIFY
+
+        case ZMQ_STREAM_NOTIFY:
+        {
+            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Getting ZMQ::SOCKOPT_STREAM_NOTIFY is not supported", PHP_ZMQ_INTERNAL_ERROR);
+            return;
+        }
+        break;
+
+# endif /* ZMQ_STREAM_NOTIFY */
+# ifdef ZMQ_INVERT_MATCHING
+
+        case ZMQ_INVERT_MATCHING:
+        {
+{
+        if (intern->socket->socket_type != ZMQ_XPUB &&
+            intern->socket->socket_type != ZMQ_PUB &&
+            intern->socket->socket_type != ZMQ_SUB) {
+            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "ZMQ::SOCKOPT_INVERT_MATCHING is not valid for this socket type", errno);
+            return;
+        }
+}
+            int value;
+            value_len = sizeof(int);
+            if (zmq_getsockopt(intern->socket->z_socket, (int) key, &value, &value_len) != 0) {
+                zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno, "Failed to get the option ZMQ::SOCKOPT_INVERT_MATCHING value: %s", zmq_strerror(errno));
+                return;
+            }
+            RETURN_LONG(value);
+        }
+        break;
+
+# endif /* ZMQ_INVERT_MATCHING */
+# ifdef ZMQ_XPUB_VERBOSER
+
+        case ZMQ_XPUB_VERBOSER:
+        {
+            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Getting ZMQ::SOCKOPT_XPUB_VERBOSER is not supported", PHP_ZMQ_INTERNAL_ERROR);
+            return;
+        }
+        break;
+
+# endif /* ZMQ_XPUB_VERBOSER */
+# ifdef ZMQ_CONNECT_TIMEOUT
+
+        case ZMQ_CONNECT_TIMEOUT:
+        {
+            int value;
+            value_len = sizeof(int);
+            if (zmq_getsockopt(intern->socket->z_socket, (int) key, &value, &value_len) != 0) {
+                zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno, "Failed to get the option ZMQ::SOCKOPT_CONNECT_TIMEOUT value: %s", zmq_strerror(errno));
+                return;
+            }
+            RETURN_LONG(value);
+        }
+        break;
+
+# endif /* ZMQ_CONNECT_TIMEOUT */
+# ifdef ZMQ_TCP_MAXRT
+
+        case ZMQ_TCP_MAXRT:
+        {
+            int value;
+            value_len = sizeof(int);
+            if (zmq_getsockopt(intern->socket->z_socket, (int) key, &value, &value_len) != 0) {
+                zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno, "Failed to get the option ZMQ::SOCKOPT_TCP_MAXRT value: %s", zmq_strerror(errno));
+                return;
+            }
+            RETURN_LONG(value);
+        }
+        break;
+
+# endif /* ZMQ_TCP_MAXRT */
+# ifdef ZMQ_THREAD_SAFE
+
+        case ZMQ_THREAD_SAFE:
+        {
+            int value;
+            value_len = sizeof(int);
+            if (zmq_getsockopt(intern->socket->z_socket, (int) key, &value, &value_len) != 0) {
+                zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno, "Failed to get the option ZMQ::SOCKOPT_THREAD_SAFE value: %s", zmq_strerror(errno));
+                return;
+            }
+            RETURN_LONG(value);
+        }
+        break;
+
+# endif /* ZMQ_THREAD_SAFE */
+# ifdef ZMQ_MULTICAST_MAXTPDU
+
+        case ZMQ_MULTICAST_MAXTPDU:
+        {
+            int value;
+            value_len = sizeof(int);
+            if (zmq_getsockopt(intern->socket->z_socket, (int) key, &value, &value_len) != 0) {
+                zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno, "Failed to get the option ZMQ::SOCKOPT_MULTICAST_MAXTPDU value: %s", zmq_strerror(errno));
+                return;
+            }
+            RETURN_LONG(value);
+        }
+        break;
+
+# endif /* ZMQ_MULTICAST_MAXTPDU */
+# ifdef ZMQ_VMCI_BUFFER_SIZE
+
+        case ZMQ_VMCI_BUFFER_SIZE:
+        {
+            uint64_t value;
+            value_len = sizeof(uint64_t);
+            if (zmq_getsockopt(intern->socket->z_socket, (int) key, &value, &value_len) != 0) {
+                zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno, "Failed to get the option ZMQ::SOCKOPT_VMCI_BUFFER_SIZE value: %s", zmq_strerror(errno));
+                return;
+            }
+            RETURN_LONG(value);
+        }
+        break;
+
+# endif /* ZMQ_VMCI_BUFFER_SIZE */
+# ifdef ZMQ_VMCI_BUFFER_MIN_SIZE
+
+        case ZMQ_VMCI_BUFFER_MIN_SIZE:
+        {
+            uint64_t value;
+            value_len = sizeof(uint64_t);
+            if (zmq_getsockopt(intern->socket->z_socket, (int) key, &value, &value_len) != 0) {
+                zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno, "Failed to get the option ZMQ::SOCKOPT_VMCI_BUFFER_MIN_SIZE value: %s", zmq_strerror(errno));
+                return;
+            }
+            RETURN_LONG(value);
+        }
+        break;
+
+# endif /* ZMQ_VMCI_BUFFER_MIN_SIZE */
+# ifdef ZMQ_VMCI_BUFFER_MAX_SIZE
+
+        case ZMQ_VMCI_BUFFER_MAX_SIZE:
+        {
+            uint64_t value;
+            value_len = sizeof(uint64_t);
+            if (zmq_getsockopt(intern->socket->z_socket, (int) key, &value, &value_len) != 0) {
+                zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno, "Failed to get the option ZMQ::SOCKOPT_VMCI_BUFFER_MAX_SIZE value: %s", zmq_strerror(errno));
+                return;
+            }
+            RETURN_LONG(value);
+        }
+        break;
+
+# endif /* ZMQ_VMCI_BUFFER_MAX_SIZE */
+# ifdef ZMQ_VMCI_CONNECT_TIMEOUT
+
+        case ZMQ_VMCI_CONNECT_TIMEOUT:
+        {
+            int value;
+            value_len = sizeof(int);
+            if (zmq_getsockopt(intern->socket->z_socket, (int) key, &value, &value_len) != 0) {
+                zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno, "Failed to get the option ZMQ::SOCKOPT_VMCI_CONNECT_TIMEOUT value: %s", zmq_strerror(errno));
+                return;
+            }
+            RETURN_LONG(value);
+        }
+        break;
+
+# endif /* ZMQ_VMCI_CONNECT_TIMEOUT */
 # ifdef ZMQ_TOS
 
         case ZMQ_TOS:
@@ -492,6 +744,57 @@ PHP_METHOD(zmqsocket, getsockopt)
         break;
 
 # endif /* ZMQ_ROUTER_HANDOVER */
+# ifdef ZMQ_CONNECT_RID
+
+        case ZMQ_CONNECT_RID:
+        {
+            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Getting ZMQ::SOCKOPT_CONNECT_RID is not supported", PHP_ZMQ_INTERNAL_ERROR);
+            return;
+        }
+        break;
+
+# endif /* ZMQ_CONNECT_RID */
+# ifdef ZMQ_HANDSHAKE_IVL
+
+        case ZMQ_HANDSHAKE_IVL:
+        {
+            int value;
+            value_len = sizeof(int);
+            if (zmq_getsockopt(intern->socket->z_socket, (int) key, &value, &value_len) != 0) {
+                zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno, "Failed to get the option ZMQ::SOCKOPT_HANDSHAKE_IVL value: %s", zmq_strerror(errno));
+                return;
+            }
+            RETURN_LONG(value);
+        }
+        break;
+
+# endif /* ZMQ_HANDSHAKE_IVL */
+# ifdef ZMQ_SOCKS_PROXY
+
+        case ZMQ_SOCKS_PROXY:
+        {
+            char value[255];
+            value_len = 255;
+
+            if (zmq_getsockopt(intern->socket->z_socket, (int) key, &value, &value_len) != 0) {
+                zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno, "Failed to get the option ZMQ::SOCKOPT_SOCKS_PROXY value: %s", zmq_strerror(errno));
+                return;
+            }
+            RETURN_STRINGL(value, value_len - 1);
+        }
+        break;
+
+# endif /* ZMQ_SOCKS_PROXY */
+# ifdef ZMQ_XPUB_NODROP
+
+        case ZMQ_XPUB_NODROP:
+        {
+            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Getting ZMQ::SOCKOPT_XPUB_NODROP is not supported", PHP_ZMQ_INTERNAL_ERROR);
+            return;
+        }
+        break;
+
+# endif /* ZMQ_XPUB_NODROP */
 # ifdef ZMQ_ROUTER_MANDATORY
 
         case ZMQ_ROUTER_MANDATORY:
@@ -2133,6 +2436,234 @@ PHP_METHOD(zmqsocket, setsockopt)
 
 # endif /* ifdef ZMQ_HEARTBEAT_TIMEOUT */
 
+# ifdef ZMQ_USE_FD
+        case ZMQ_USE_FD:
+        {
+            int value = (int) zval_get_long(zv);
+
+            if (zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int)) != 0) {
+                zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno, "Failed to set socket ZMQ::SOCKOPT_USE_FD option: %s", zmq_strerror(errno));
+                return;
+            }
+        }
+        break;
+
+# endif /* ifdef ZMQ_USE_FD */
+
+# ifdef ZMQ_XPUB_MANUAL
+        case ZMQ_XPUB_MANUAL:
+        {
+{
+        if (intern->socket->socket_type != ZMQ_XPUB) {
+            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "ZMQ::SOCKOPT_XPUB_MANUAL is not valid for this socket type", errno);
+            return;
+        }
+}
+            int value = (int) zval_get_long(zv);
+
+            if (zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int)) != 0) {
+                zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno, "Failed to set socket ZMQ::SOCKOPT_XPUB_MANUAL option: %s", zmq_strerror(errno));
+                return;
+            }
+        }
+        break;
+
+# endif /* ifdef ZMQ_XPUB_MANUAL */
+
+# ifdef ZMQ_XPUB_WELCOME_MSG
+        case ZMQ_XPUB_WELCOME_MSG:
+        {
+{
+        if (intern->socket->socket_type != ZMQ_XPUB) {
+            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "ZMQ::SOCKOPT_XPUB_WELCOME_MSG is not valid for this socket type", errno);
+            return;
+        }
+}
+            int rc;
+            zend_string *str = zval_get_string(zv);
+
+            rc = zmq_setsockopt(intern->socket->z_socket, key, str->val, str->len);
+            zend_string_release(str);
+
+            if (rc != 0) {
+                zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno, "Failed to set socket ZMQ::SOCKOPT_XPUB_WELCOME_MSG option: %s", zmq_strerror(errno));
+                return;
+            }
+        }
+        break;
+
+# endif /* ifdef ZMQ_XPUB_WELCOME_MSG */
+
+# ifdef ZMQ_STREAM_NOTIFY
+        case ZMQ_STREAM_NOTIFY:
+        {
+{
+        if (intern->socket->socket_type != ZMQ_STREAM) {
+            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "ZMQ::SOCKOPT_STREAM_NOTIFY is not valid for this socket type", errno);
+            return;
+        }
+}
+            int value = (int) zval_get_long(zv);
+
+            if (zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int)) != 0) {
+                zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno, "Failed to set socket ZMQ::SOCKOPT_STREAM_NOTIFY option: %s", zmq_strerror(errno));
+                return;
+            }
+        }
+        break;
+
+# endif /* ifdef ZMQ_STREAM_NOTIFY */
+
+# ifdef ZMQ_INVERT_MATCHING
+        case ZMQ_INVERT_MATCHING:
+        {
+{
+        if (intern->socket->socket_type != ZMQ_XPUB &&
+            intern->socket->socket_type != ZMQ_PUB &&
+            intern->socket->socket_type != ZMQ_SUB) {
+            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "ZMQ::SOCKOPT_INVERT_MATCHING is not valid for this socket type", errno);
+            return;
+        }
+}
+            int value = (int) zval_get_long(zv);
+
+            if (zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int)) != 0) {
+                zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno, "Failed to set socket ZMQ::SOCKOPT_INVERT_MATCHING option: %s", zmq_strerror(errno));
+                return;
+            }
+        }
+        break;
+
+# endif /* ifdef ZMQ_INVERT_MATCHING */
+
+# ifdef ZMQ_XPUB_VERBOSER
+        case ZMQ_XPUB_VERBOSER:
+        {
+{
+        if (intern->socket->socket_type != ZMQ_XPUB) {
+            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "ZMQ::SOCKOPT_XPUB_VERBOSER is not valid for this socket type", errno);
+            return;
+        }
+}
+            int value = (int) zval_get_long(zv);
+
+            if (zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int)) != 0) {
+                zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno, "Failed to set socket ZMQ::SOCKOPT_XPUB_VERBOSER option: %s", zmq_strerror(errno));
+                return;
+            }
+        }
+        break;
+
+# endif /* ifdef ZMQ_XPUB_VERBOSER */
+
+# ifdef ZMQ_CONNECT_TIMEOUT
+        case ZMQ_CONNECT_TIMEOUT:
+        {
+            int value = (int) zval_get_long(zv);
+
+            if (zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int)) != 0) {
+                zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno, "Failed to set socket ZMQ::SOCKOPT_CONNECT_TIMEOUT option: %s", zmq_strerror(errno));
+                return;
+            }
+        }
+        break;
+
+# endif /* ifdef ZMQ_CONNECT_TIMEOUT */
+
+# ifdef ZMQ_TCP_MAXRT
+        case ZMQ_TCP_MAXRT:
+        {
+            int value = (int) zval_get_long(zv);
+
+            if (zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int)) != 0) {
+                zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno, "Failed to set socket ZMQ::SOCKOPT_TCP_MAXRT option: %s", zmq_strerror(errno));
+                return;
+            }
+        }
+        break;
+
+# endif /* ifdef ZMQ_TCP_MAXRT */
+
+# ifdef ZMQ_THREAD_SAFE
+        case ZMQ_THREAD_SAFE:
+        {
+            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Setting ZMQ::SOCKOPT_THREAD_SAFE is not supported", PHP_ZMQ_INTERNAL_ERROR);
+            return;
+        }
+        break;
+
+# endif /* ifdef ZMQ_THREAD_SAFE */
+
+# ifdef ZMQ_MULTICAST_MAXTPDU
+        case ZMQ_MULTICAST_MAXTPDU:
+        {
+            int value = (int) zval_get_long(zv);
+
+            if (zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int)) != 0) {
+                zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno, "Failed to set socket ZMQ::SOCKOPT_MULTICAST_MAXTPDU option: %s", zmq_strerror(errno));
+                return;
+            }
+        }
+        break;
+
+# endif /* ifdef ZMQ_MULTICAST_MAXTPDU */
+
+# ifdef ZMQ_VMCI_BUFFER_SIZE
+        case ZMQ_VMCI_BUFFER_SIZE:
+        {
+            uint64_t value = (uint64_t) zval_get_long(zv);
+
+            if (zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(uint64_t)) != 0) {
+                zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno, "Failed to set socket ZMQ::SOCKOPT_VMCI_BUFFER_SIZE option: %s", zmq_strerror(errno));
+                return;
+            }
+        }
+        break;
+
+# endif /* ifdef ZMQ_VMCI_BUFFER_SIZE */
+
+# ifdef ZMQ_VMCI_BUFFER_MIN_SIZE
+        case ZMQ_VMCI_BUFFER_MIN_SIZE:
+        {
+            uint64_t value = (uint64_t) zval_get_long(zv);
+
+            if (zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(uint64_t)) != 0) {
+                zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno, "Failed to set socket ZMQ::SOCKOPT_VMCI_BUFFER_MIN_SIZE option: %s", zmq_strerror(errno));
+                return;
+            }
+        }
+        break;
+
+# endif /* ifdef ZMQ_VMCI_BUFFER_MIN_SIZE */
+
+# ifdef ZMQ_VMCI_BUFFER_MAX_SIZE
+        case ZMQ_VMCI_BUFFER_MAX_SIZE:
+        {
+            uint64_t value = (uint64_t) zval_get_long(zv);
+
+            if (zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(uint64_t)) != 0) {
+                zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno, "Failed to set socket ZMQ::SOCKOPT_VMCI_BUFFER_MAX_SIZE option: %s", zmq_strerror(errno));
+                return;
+            }
+        }
+        break;
+
+# endif /* ifdef ZMQ_VMCI_BUFFER_MAX_SIZE */
+
+# ifdef ZMQ_VMCI_CONNECT_TIMEOUT
+        case ZMQ_VMCI_CONNECT_TIMEOUT:
+        {
+            int value = (int) zval_get_long(zv);
+
+            if (zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int)) != 0) {
+                zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno, "Failed to set socket ZMQ::SOCKOPT_VMCI_CONNECT_TIMEOUT option: %s", zmq_strerror(errno));
+                return;
+            }
+        }
+        break;
+
+# endif /* ifdef ZMQ_VMCI_CONNECT_TIMEOUT */
+
 # ifdef ZMQ_TOS
         case ZMQ_TOS:
         {
@@ -2166,6 +2697,84 @@ PHP_METHOD(zmqsocket, setsockopt)
         break;
 
 # endif /* ifdef ZMQ_ROUTER_HANDOVER */
+
+# ifdef ZMQ_CONNECT_RID
+        case ZMQ_CONNECT_RID:
+        {
+{
+        if (intern->socket->socket_type != ZMQ_ROUTER &&
+            intern->socket->socket_type != ZMQ_STREAM) {
+            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "ZMQ::SOCKOPT_CONNECT_RID is not valid for this socket type", errno);
+            return;
+        }
+}
+            int rc;
+            zend_string *str = zval_get_string(zv);
+
+            rc = zmq_setsockopt(intern->socket->z_socket, key, str->val, str->len);
+            zend_string_release(str);
+
+            if (rc != 0) {
+                zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno, "Failed to set socket ZMQ::SOCKOPT_CONNECT_RID option: %s", zmq_strerror(errno));
+                return;
+            }
+        }
+        break;
+
+# endif /* ifdef ZMQ_CONNECT_RID */
+
+# ifdef ZMQ_HANDSHAKE_IVL
+        case ZMQ_HANDSHAKE_IVL:
+        {
+            int value = (int) zval_get_long(zv);
+
+            if (zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int)) != 0) {
+                zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno, "Failed to set socket ZMQ::SOCKOPT_HANDSHAKE_IVL option: %s", zmq_strerror(errno));
+                return;
+            }
+        }
+        break;
+
+# endif /* ifdef ZMQ_HANDSHAKE_IVL */
+
+# ifdef ZMQ_SOCKS_PROXY
+        case ZMQ_SOCKS_PROXY:
+        {
+            int rc;
+            zend_string *str = zval_get_string(zv);
+
+            rc = zmq_setsockopt(intern->socket->z_socket, key, str->val, str->len);
+            zend_string_release(str);
+
+            if (rc != 0) {
+                zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno, "Failed to set socket ZMQ::SOCKOPT_SOCKS_PROXY option: %s", zmq_strerror(errno));
+                return;
+            }
+        }
+        break;
+
+# endif /* ifdef ZMQ_SOCKS_PROXY */
+
+# ifdef ZMQ_XPUB_NODROP
+        case ZMQ_XPUB_NODROP:
+        {
+{
+        if (intern->socket->socket_type != ZMQ_XPUB &&
+            intern->socket->socket_type != ZMQ_PUB) {
+            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "ZMQ::SOCKOPT_XPUB_NODROP is not valid for this socket type", errno);
+            return;
+        }
+}
+            int value = (int) zval_get_long(zv);
+
+            if (zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(int)) != 0) {
+                zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno, "Failed to set socket ZMQ::SOCKOPT_XPUB_NODROP option: %s", zmq_strerror(errno));
+                return;
+            }
+        }
+        break;
+
+# endif /* ifdef ZMQ_XPUB_NODROP */
 
 # ifdef ZMQ_ROUTER_MANDATORY
         case ZMQ_ROUTER_MANDATORY:

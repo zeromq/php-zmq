@@ -1,6 +1,6 @@
 <?php
 /**
- * zmq-API v@PACKAGE_VERSION@ Docs build by DocThor [2016-02-01]
+ * zmq-API v@PACKAGE_VERSION@ Docs build by DocThor [2020-02-16]
  * @package zmq
  */
 
@@ -30,18 +30,22 @@ class ZMQ {
 	const MODE_NOBLOCK = 1;
 	const MODE_DONTWAIT = 1;
 	const ERR_INTERNAL = -99;
-	const ERR_EAGAIN = 35;
-	const ERR_ENOTSUP = 45;
+	const ERR_EAGAIN = 11;
+	const ERR_ENOTSUP = 95;
 	const ERR_EFSM = 156384763;
 	const ERR_ETERM = 156384765;
-	const LIBZMQ_VER = '4.1.4';
-	const LIBZMQ_VERSION = '4.1.4';
-	const LIBZMQ_VERSION_ID = 40104;
+	const LIBZMQ_VER = '4.1.7';
+	const LIBZMQ_VERSION = '4.1.7';
+	const LIBZMQ_VERSION_ID = 40107;
 	const LIBZMQ_VERSION_MAJOR = 4;
 	const LIBZMQ_VERSION_MINOR = 1;
-	const LIBZMQ_VERSION_PATCH = 4;
+	const LIBZMQ_VERSION_PATCH = 7;
 	const SOCKOPT_TOS = 57;
 	const SOCKOPT_ROUTER_HANDOVER = 56;
+	const SOCKOPT_CONNECT_RID = 61;
+	const SOCKOPT_HANDSHAKE_IVL = 66;
+	const SOCKOPT_SOCKS_PROXY = 68;
+	const SOCKOPT_XPUB_NODROP = 69;
 	const SOCKOPT_ROUTER_MANDATORY = 33;
 	const SOCKOPT_PROBE_ROUTER = 51;
 	const SOCKOPT_REQ_RELAXED = 53;
@@ -109,6 +113,11 @@ class ZMQ {
 	const EVENT_DISCONNECTED = 512;
 	const EVENT_MONITOR_STOPPED = 1024;
 	const EVENT_ALL = 65535;
+	/**
+	 * A monotonic clock
+	 * 
+	 * @return integer
+	 */
 	public function clock() {}
 	public function z85encode($data) {}
 	public function z85decode($data) {}
@@ -118,28 +127,102 @@ class ZMQ {
  * @package zmq
  */
 class ZMQContext {
-	public function __construct($io_threads = 1, $persistent = true) {}
+	/**
+	 * Build a new ZMQContext object
+	 * 
+	 * @param integer $io_threads
+	 * @param boolean $is_persistent
+	 * @return ZMQContext
+	 */
+	public function __construct($io_threads="", $persistent="") {}
+	/**
+	 * Acquires a handle to the request global context
+	 * 
+	 * @return ZMQContext
+	 */
 	public function acquire() {}
 	public function getsocketcount() {}
 	public function getsocket($type, $dsn, $on_new_socket="") {}
 	public function ispersistent() {}
+	/**
+	 * Set a context option
+	 * 
+	 * @param int $option
+	 * @param int $value
+	 * @return ZMQContext
+	 */
 	public function setOpt($option, $value) {}
+	/**
+	 * Set a context option
+	 * 
+	 * @param int $option
+	 * @return ZMQContext
+	 */
 	public function getOpt($option) {}
 }
 /**
  * @package zmq
  */
 class ZMQSocket {
-	public function __construct(ZMQContext $ZMQContext, $type, $persistent_id=null, $on_new_socket=null) {}
-	public function send($message, $mode=0) {}
+	/**
+	 * Build a new ZMQSocket object
+	 * 
+	 * @param ZMQContext $context
+	 * @param integer $type
+	 * @param string $persistent_id
+	 * @param callback $on_new_socket
+	 * @return ZMQSocket
+	 */
+	public function __construct(ZMQContext $ZMQContext, $type, $persistent_id="", $on_new_socket="") {}
+	/**
+	 * Send a message. Return true if message was sent and false on EAGAIN
+	 * 
+	 * @param string $message
+	 * @param integer $flags
+	 * @return ZMQSocket
+	 */
+	public function send($message, $mode="") {}
 	public function recv($mode="") {}
-	public function sendmulti($message, $mode=0) {}
-	public function recvmulti($mode=0) {}
-	public function bind($dsn, $force=false) {}
-	public function connect($dsn, $force=false) {}
-	public function monitor($dsn, $events=ZMQ::EVENT_ALL) {}
-	public function recvevent($flags=0) {}
+	/**
+	 * Send a multipart message. Return true if message was sent and false on EAGAIN
+	 * 
+	 * @param arrays $messages
+	 * @param integer $flags
+	 * @return ZMQSocket
+	 */
+	public function sendmulti($message, $mode="") {}
+	public function recvmulti($mode="") {}
+	/**
+	 * Bind the socket to an endpoint
+	 * 
+	 * @param string $dsn
+	 * @param boolean $force
+	 * @return ZMQSocket
+	 */
+	public function bind($dsn, $force="") {}
+	/**
+	 * Connect the socket to an endpoint
+	 * 
+	 * @param string $dsn
+	 * @param boolean $force
+	 * @return ZMQSocket
+	 */
+	public function connect($dsn, $force="") {}
+	public function monitor($dsn, $events="") {}
+	public function recvevent($flags="") {}
+	/**
+	 * Unbind the socket from an endpoint
+	 * 
+	 * @param string $dsn
+	 * @return ZMQSocket
+	 */
 	public function unbind($dsn) {}
+	/**
+	 * Disconnect the socket from an endpoint
+	 * 
+	 * @param string $dsn
+	 * @return ZMQSocket
+	 */
 	public function disconnect($dsn) {}
 	public function setsockopt($key, $value) {}
 	public function getendpoints() {}
@@ -147,26 +230,74 @@ class ZMQSocket {
 	public function ispersistent() {}
 	public function getpersistentid() {}
 	public function getsockopt($key) {}
-	public function sendmsg($message, $mode=0) {}
-	public function recvmsg($mode=0) {}
+	public function sendmsg($message, $mode="") {}
+	public function recvmsg($mode="") {}
 }
 /**
  * @package zmq
  */
 class ZMQPoll {
+	/**
+	 * Add a ZMQSocket object into the pollset
+	 * 
+	 * @param ZMQSocket $object
+	 * @param integer $events
+	 * @return integer
+	 */
 	public function add($entry, $type) {}
+	/**
+	 * Poll the sockets
+	 * 
+	 * @param array $readable
+	 * @param array $writable
+	 * @param integer $timeout
+	 * @return integer
+	 */
 	public function poll(&$readable, &$writable, $timeout="") {}
 	public function getlasterrors() {}
+	/**
+	 * Remove item from poll set
+	 * 
+	 * @param mixed $item
+	 * @return boolean
+	 */
 	public function remove($remove) {}
+	/**
+	 * Returns the number of items in the set
+	 * 
+	 * @return integer
+	 */
 	public function count() {}
+	/**
+	 * Clear the pollset
+	 * 
+	 * @return ZMQPoll
+	 */
 	public function clear() {}
+	/**
+	 * Clear the pollset
+	 * 
+	 * @return array
+	 */
 	public function items() {}
 }
 /**
  * @package zmq
  */
 class ZMQDevice {
-	public function __construct(ZMQSocket $frontend, ZMQSocket $backend, ZMQSocket $capture=null) {}
+	/**
+	 * Construct a device
+	 * 
+	 * @param ZMQSocket $frontend
+	 * @param ZMQSocket $backend
+	 * @return void
+	 */
+	public function __construct(ZMQSocket $frontend, ZMQSocket $backend, ZMQSocket $capture="") {}
+	/**
+	 * Start a device
+	 * 
+	 * @return void
+	 */
 	public function run() {}
 	public function setidlecallback($idle_callback, $timeout, $user_data="") {}
 	public function setidletimeout($timeout) {}
