@@ -74,32 +74,18 @@ PHP_METHOD(zmqsocket, setsockopt)
 .    for option where !defined (is_alias)
 # ifdef ZMQ_$(NAME)
         case ZMQ_$(NAME):
-        {
 .-
 .        if mode = "rw" | mode = "w"
 .            gsl from "sockopts_restrict.gsl"
 .-
 .            if php_type = "int"
 .-
-            $(c_type) value = ($(c_type)) zval_get_long(zv);
-
-            if (zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof($(c_type))) != 0) {
-                zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno, "Failed to set socket ZMQ::SOCKOPT_$(NAME) option: %s", zmq_strerror(errno));
-                return;
-            }
+                SOCKOPTS_SET_INT($(NAME), $(c_type))
 .-
 .            elsif php_type = "string"
 .-
-            int rc;
-            zend_string *str = zval_get_string(zv);
+                SOCKOPTS_SET_STRING($(NAME))
 
-            rc = zmq_setsockopt(intern->socket->z_socket, key, str->val, str->len);
-            zend_string_release(str);
-
-            if (rc != 0) {
-                zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno, "Failed to set socket ZMQ::SOCKOPT_$(NAME) option: %s", zmq_strerror(errno));
-                return;
-            }
 .-
 .            elsif php_type = "resource"
 .-
@@ -113,7 +99,6 @@ PHP_METHOD(zmqsocket, setsockopt)
 .-
 .        endif /* .if mode = "rw" | mode = "w" */
 .-
-        }
         break;
 
 # endif /* ifdef ZMQ_$(NAME) */
