@@ -1,10 +1,3 @@
-.#  This is a code generator built using the iMatix GSL code generation
-.#  language. See https://github.com/imatix/gsl for details. This script 
-.#  is licensed under MIT/X11.
-.#
-.template 1
-.output "../zmq_sockopt.c"
-.gsl from "sockopts_preprocess.gsl"
 /*
 +-----------------------------------------------------------------------------------+
 |  ZMQ extension for PHP                                                            |
@@ -35,25 +28,54 @@
 +-----------------------------------------------------------------------------------+
 */
 
-/*
-    WARNING! WARNING!
+#define SOCKOPTS_GET_INT(NAME, TYPE) \
+{ \
+  TYPE value; \
+  value_len = sizeof(TYPE); \
+  if (zmq_getsockopt(intern->socket->z_socket, (int) key, &value, &value_len) != 0) { \
+    zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno, \
+            "Failed to get the option ZMQ::SOCKOPT_" #NAME" value: %s", zmq_strerror(errno)); \
+    return; \
+  } \
+  RETURN_LONG(value); \
+}
 
-    This file is generated code. See README for editing
-*/
+#define SOCKOPTS_GET_STRING(NAME, LEN, BINARY) \
+{ \
+  char value[LEN]; \
+  value_len = LEN; \
+  if (zmq_getsockopt(intern->socket->z_socket, (int) key, &value, &value_len) != 0) { \
+    zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno, \
+            "Failed to get the option ZMQ::SOCKOPT_" #NAME " value: %s", zmq_strerror(errno)); \
+    return; \
+  } \
+  if(BINARY == 1){ \
+    RETURN_STRINGL(value, value_len); \
+  } \
+  else { \
+    RETURN_STRINGL(value, value_len - 1); \
+  } \
+}
 
-#include "php_zmq.h"
-#include "php_zmq_private.h"
-#include "zmq_object_access.c"
-#include "zmq_sockopts_makros.h"
+#define SOCKOPTS_SET_INT(NAME, TYPE) \
+{ \
+  TYPE value = (TYPE) zval_get_long(zv); \
+  if (zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(TYPE)) != 0) { \
+    zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno, \
+            "Failed to set socket ZMQ::" #NAME " option: %s", zmq_strerror(errno)); \
+    return; \
+  } \
+}
 
-.echo "generating ../zmq_sockopt.c"
-
-.gsl from "sockopts_register.gsl"
-.gsl from "sockopts_get.gsl"
-.gsl from "sockopts_set.gsl"
-
-.for source
-$(string.trim(.):)
-.endfor
-
-.endtemplate
+#define SOCKOPTS_SET_STRING(NAME) \
+{ \
+  int rc; \
+  zend_string *str = zval_get_string(zv); \
+  rc = zmq_setsockopt(intern->socket->z_socket, key, str->val, str->len); \
+  zend_string_release(str); \
+  if (rc != 0) { \
+    zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno, \
+            "Failed to set socket ZMQ::SOCKOPT_" #NAME " option: %s", zmq_strerror(errno)); \
+    return; \
+  } \
+}
