@@ -45,6 +45,7 @@
    </file>
    <file name="php_zmq_private.h" role="src" />
    <file name="php_zmq_pollset.h" role="src" />
+   <file name="zmq_sockopts_makros.h" role="src" />
 
    <!-- Source files -->
    <file name="zmq.c" role="src" />
