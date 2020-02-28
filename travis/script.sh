@@ -21,7 +21,9 @@ if test "x$4" != "x"; then
     CZMQ_VERSION=$4
 fi
 
-BUILD_PTHREADS=`php -r 'die(PHP_ZTS == 1 && PHP_VERSION_ID >= 70000 ? "yes" : "no");'`
+# pthreads only available for php7.0 and php7.2 (2020-02)
+# 7.1 and 7.3 is not compiling, no more support for php7.4 and up, package is discontinued
+BUILD_PTHREADS=`php -r 'die(PHP_ZTS == 1 && ((PHP_VERSION_ID >= 70000 && PHP_VERSION_ID < 70100) || (PHP_VERSION_ID >= 70200 && PHP_VERSION_ID < 70300)) ? "yes" : "no");'`
 
 LIBSODIUM_PREFIX="${CACHE_DIR}/libsodium-${LIBSODIUM_VERSION}"
 LIBZMQ_PREFIX="${CACHE_DIR}/libzmq-${LIBZMQ_VERSION}-libsodium-${LIBSODIUM_VERSION}"
@@ -204,7 +206,26 @@ make_test() {
 
         if test "${BUILD_PTHREADS}" = "yes"
         then
-            pecl install pthreads
+
+            PHP_VERSION_MAJOR_MINOR=`php -r 'die(PHP_MAJOR_VERSION . "." . PHP_MINOR_VERSION);'`
+            echo "PHP Version is: $PHP_VERSION_MAJOR_MINOR"
+
+            if test "$PHP_VERSION_MAJOR_MINOR" = "7.3"
+            then
+                # pthreads from from github master branch (not "yet" released) ->  is broken for php7.3
+                pecl install --ignore-errors https://github.com/krakjoe/pthreads/archive/master.tar.gz
+            elif test "$PHP_VERSION_MAJOR_MINOR" = "7.2"
+            then
+                # pthreads from from github release directly
+                pecl install --ignore-errors https://github.com/krakjoe/pthreads/archive/v3.2.0.tar.gz
+            elif test "$PHP_VERSION_MAJOR_MINOR" = "7.1"
+            then
+                # pthreads from from github release directly -> is broken for php7.1
+                pecl install --ignore-errors https://github.com/krakjoe/pthreads/archive/v3.1.6.tar.gz
+            else
+                # pthreads from pear release till 7.0
+                pecl install pthreads
+            fi
             pthreads_flag="extension=pthreads.so"
         fi
 

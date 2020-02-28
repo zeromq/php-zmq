@@ -4,6 +4,9 @@ Test send / recv with XPUB and XSUB sockets
 <?php 
     require_once(dirname(__FILE__) . '/skipif.inc'); 
     if(!defined('ZMQ::SOCKET_XPUB')) die('skip');
+    if (!defined('ZMQ::LIBZMQ_VERSION_MAJOR') || ZMQ::LIBZMQ_VERSION_MAJOR < 3) {
+         die ("skip This test is for libzmq version 3.x and up");
+    }
 ?>
 --FILE--
 <?php
