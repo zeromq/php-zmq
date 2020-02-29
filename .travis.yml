@@ -2,8 +2,8 @@ dist: trusty
 
 language: php
 php:
-    #- nightly requires more changes
-    #- 7.4 requires more changes
+    - nightly requires more changes
+    - 7.4 requires more changes
     - 7.3
     - 7.2
     - 7.1
