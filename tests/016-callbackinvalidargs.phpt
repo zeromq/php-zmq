@@ -10,6 +10,8 @@ try {
 	echo "Fail\n";
 } catch (ZMQSocketException $e) {
 	echo "OK\n";
+} catch (TypeError $e) {
+ 	echo "OK\n"; // on PHP8
 }
 
 try {
@@ -18,6 +20,8 @@ try {
 	echo "Fail\n";
 } catch (ZMQSocketException $e) {
 	echo "OK\n";
+} catch (TypeError $e) {
+ 	echo "OK\n"; // on PHP8
 }
 
 --EXPECT--
