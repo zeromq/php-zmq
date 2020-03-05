@@ -3,7 +3,7 @@ Test socks proxy
 --SKIPIF--
 <?php
 require_once(dirname(__FILE__) . '/skipif.inc');
-if(!fsockopen('127.0.0.1', 5557, $errCode, $errStr, 0.1))
+if(!@fsockopen('127.0.0.1', 5557, $errCode, $errStr, 0.1))
     die ('skip test requires local SOCKS5 proxy on port 5557');
 ?>
 --FILE--

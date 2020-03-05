@@ -13,7 +13,7 @@ PHP_METHOD(zmqsocket, setsockopt)
     zend_long key;
     zval *zv;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "lz/", &key, &zv) == FAILURE) {
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), "lz/", &key, &zv) == FAILURE) {
         return;
     }
 

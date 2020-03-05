@@ -687,7 +687,6 @@ PHP_METHOD(zmqcontext, getsocket)
 			if (!php_zmq_connect_callback(return_value, &fci, &fci_cache, persistent_id)) {
 				php_zmq_socket_destroy(socket);
 				interns->socket = NULL;
-				zval_dtor(return_value);
 				return;
 			}
 		}
