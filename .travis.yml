@@ -23,7 +23,6 @@ addons:
         packages:
             - uuid-dev
             - libtool
-            - valgrind
 
 before_script:
   - phpenv config-rm xdebug.ini || true
