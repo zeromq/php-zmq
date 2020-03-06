@@ -207,7 +207,7 @@ php_zmq_context *php_zmq_context_get(zend_long io_threads, zend_bool is_persiste
 
 	if (is_persistent) {
 		zend_resource *le_p = NULL;
-		plist_key = strpprintf(0, "zmq_context=[%ld]", io_threads);
+		plist_key = strpprintf(0, "zmq_context=[%ld]", (long)io_threads);
 
 		if ((le_p = zend_hash_find_ptr(&EG(persistent_list), plist_key)) != NULL) {
 			if (le_p->type == php_zmq_context_list_entry()) {
@@ -523,7 +523,7 @@ php_zmq_socket *php_zmq_socket_new(php_zmq_context *context, zend_long type, zen
 static
 zend_string *php_zmq_socket_plist_key(zend_long type, zend_string *persistent_id, zend_bool use_shared_ctx)
 {
-	return strpprintf(0, "zmq_socket:[%ld]-[%s]-[%d]", type, persistent_id->val, use_shared_ctx);
+	return strpprintf(0, "zmq_socket:[%ld]-[%s]-[%d]", (long)type, persistent_id->val, use_shared_ctx);
 }
 
 static
