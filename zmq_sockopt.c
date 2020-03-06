@@ -1038,7 +1038,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 # endif /* ZMQ_LAST_ENDPOINT */
 
         default:
-            zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), PHP_ZMQ_INTERNAL_ERROR, "Unknown option key %ld", key);
+            zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), PHP_ZMQ_INTERNAL_ERROR, "Unknown option key %ld", (long)key);
             return;
     }
 
@@ -2196,7 +2196,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 
 
         default:
-            zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), PHP_ZMQ_INTERNAL_ERROR, "Unknown option key %ld", key);
+            zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), PHP_ZMQ_INTERNAL_ERROR, "Unknown option key %ld", (long)key);
             return;
     }
     ZMQ_RETURN_THIS;
