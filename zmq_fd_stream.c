@@ -43,13 +43,23 @@ typedef struct _php_zmq_stream_container {
 } php_zmq_stream_container;
 
 static
-size_t php_zmq_fd_read(php_stream *stream, char *buf, size_t count)
+#if PHP_VERSION_ID < 70400
+size_t
+#else
+ssize_t
+#endif
+php_zmq_fd_read(php_stream *stream, char *buf, size_t count)
 {
 	return 0;
 }
 
 static
-size_t php_zmq_fd_write(php_stream *stream, const char *buf, size_t count)
+#if PHP_VERSION_ID < 70400
+size_t
+#else
+ssize_t
+#endif
+php_zmq_fd_write(php_stream *stream, const char *buf, size_t count)
 {
 	return 0;
 }
