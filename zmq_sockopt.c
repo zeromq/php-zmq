@@ -48,7 +48,69 @@ void php_zmq_register_sockopt_constants (zend_class_entry *php_zmq_sc_entry)
 {
 #define PHP_ZMQ_REGISTER_SOCKOPT(const_name, value) zend_declare_class_constant_long(php_zmq_sc_entry, const_name, sizeof(const_name) - 1, value);
 
-#if ZMQ_VERSION_MAJOR == 4
+#if (ZMQ_VERSION_MAJOR >= 4)
+#   if (ZMQ_VERSION_MINOR >= 3)
+# ifdef ZMQ_ONLY_FIRST_SUBSCRIBE
+    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_ONLY_FIRST_SUBSCRIBE", ZMQ_ONLY_FIRST_SUBSCRIBE);
+# endif
+# ifdef ZMQ_WSS_TRUST_SYSTEM
+    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_WSS_TRUST_SYSTEM", ZMQ_WSS_TRUST_SYSTEM);
+# endif
+# ifdef ZMQ_WSS_HOSTNAME
+    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_WSS_HOSTNAME", ZMQ_WSS_HOSTNAME);
+# endif
+# ifdef ZMQ_WSS_TRUST_PEM
+    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_WSS_TRUST_PEM", ZMQ_WSS_TRUST_PEM);
+# endif
+# ifdef ZMQ_WSS_CERT_PEM
+    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_WSS_CERT_PEM", ZMQ_WSS_CERT_PEM);
+# endif
+# ifdef ZMQ_WSS_KEY_PEM
+    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_WSS_KEY_PEM", ZMQ_WSS_KEY_PEM);
+# endif
+# ifdef ZMQ_OUT_BATCH_SIZE
+    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_OUT_BATCH_SIZE", ZMQ_OUT_BATCH_SIZE);
+# endif
+# ifdef ZMQ_IN_BATCH_SIZE
+    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_IN_BATCH_SIZE", ZMQ_IN_BATCH_SIZE);
+# endif
+# ifdef ZMQ_SOCKS_PASSWORD
+    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_SOCKS_PASSWORD", ZMQ_SOCKS_PASSWORD);
+# endif
+# ifdef ZMQ_SOCKS_USERNAME
+    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_SOCKS_USERNAME", ZMQ_SOCKS_USERNAME);
+# endif
+# ifdef ZMQ_XPUB_MANUAL_LAST_VALUE
+    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_XPUB_MANUAL_LAST_VALUE", ZMQ_XPUB_MANUAL_LAST_VALUE);
+# endif
+# ifdef ZMQ_ROUTER_NOTIFY
+    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_ROUTER_NOTIFY", ZMQ_ROUTER_NOTIFY);
+# endif
+# ifdef ZMQ_MULTICAST_LOOP
+    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_MULTICAST_LOOP", ZMQ_MULTICAST_LOOP);
+# endif
+# ifdef ZMQ_METADATA
+    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_METADATA", ZMQ_METADATA);
+# endif
+# ifdef ZMQ_LOOPBACK_FASTPATH
+    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_LOOPBACK_FASTPATH", ZMQ_LOOPBACK_FASTPATH);
+# endif
+# ifdef ZMQ_ZAP_ENFORCE_DOMAIN
+    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_ZAP_ENFORCE_DOMAIN", ZMQ_ZAP_ENFORCE_DOMAIN);
+# endif
+# ifdef ZMQ_GSSAPI_PRINCIPAL_NAMETYPE
+    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_GSSAPI_PRINCIPAL_NAMETYPE", ZMQ_GSSAPI_PRINCIPAL_NAMETYPE);
+# endif
+# ifdef ZMQ_GSSAPI_SERVICE_PRINCIPAL_NAMETYPE
+    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_GSSAPI_SERVICE_PRINCIPAL_NAMETYPE", ZMQ_GSSAPI_SERVICE_PRINCIPAL_NAMETYPE);
+# endif
+# ifdef ZMQ_BINDTODEVICE
+    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_BINDTODEVICE", ZMQ_BINDTODEVICE);
+# endif
+# endif
+#endif /* ZMQ_MAJOR_VERSION == 4 */
+#if (ZMQ_VERSION_MAJOR >= 4)
+#   if (ZMQ_VERSION_MINOR >= 2)
 # ifdef ZMQ_HEARTBEAT_IVL
     PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_HEARTBEAT_IVL", ZMQ_HEARTBEAT_IVL);
 # endif
@@ -100,6 +162,10 @@ void php_zmq_register_sockopt_constants (zend_class_entry *php_zmq_sc_entry)
 # ifdef ZMQ_VMCI_CONNECT_TIMEOUT
     PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_VMCI_CONNECT_TIMEOUT", ZMQ_VMCI_CONNECT_TIMEOUT);
 # endif
+# endif
+#endif /* ZMQ_MAJOR_VERSION == 4 */
+#if (ZMQ_VERSION_MAJOR >= 4)
+#   if (ZMQ_VERSION_MINOR >= 1)
 # ifdef ZMQ_TOS
     PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_TOS", ZMQ_TOS);
 # endif
@@ -118,6 +184,9 @@ void php_zmq_register_sockopt_constants (zend_class_entry *php_zmq_sc_entry)
 # ifdef ZMQ_XPUB_NODROP
     PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_XPUB_NODROP", ZMQ_XPUB_NODROP);
 # endif
+# endif
+#endif /* ZMQ_MAJOR_VERSION == 4 */
+#if (ZMQ_VERSION_MAJOR >= 4)
 # ifdef ZMQ_ROUTER_MANDATORY
     PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_ROUTER_MANDATORY", ZMQ_ROUTER_MANDATORY);
 # endif
@@ -178,169 +247,19 @@ void php_zmq_register_sockopt_constants (zend_class_entry *php_zmq_sc_entry)
 # ifdef ZMQ_IMMEDIATE
     PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_IMMEDIATE", ZMQ_IMMEDIATE);
 # endif
-# ifdef ZMQ_ROUTER_RAW
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_ROUTER_RAW", ZMQ_ROUTER_RAW);
-# endif
-# ifdef ZMQ_IPV4ONLY
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_IPV4ONLY", ZMQ_IPV4ONLY);
-# endif
-# ifdef ZMQ_DELAY_ATTACH_ON_CONNECT
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_DELAY_ATTACH_ON_CONNECT", ZMQ_DELAY_ATTACH_ON_CONNECT);
-# endif
-# ifdef ZMQ_TYPE
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_TYPE", ZMQ_TYPE);
-# endif
-# ifdef ZMQ_SNDHWM
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_SNDHWM", ZMQ_SNDHWM);
-# endif
-# ifdef ZMQ_RCVHWM
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RCVHWM", ZMQ_RCVHWM);
-# endif
-# ifdef ZMQ_AFFINITY
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_AFFINITY", ZMQ_AFFINITY);
-# endif
-# ifdef ZMQ_SUBSCRIBE
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_SUBSCRIBE", ZMQ_SUBSCRIBE);
-# endif
-# ifdef ZMQ_UNSUBSCRIBE
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_UNSUBSCRIBE", ZMQ_UNSUBSCRIBE);
-# endif
-# ifdef ZMQ_IDENTITY
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_IDENTITY", ZMQ_IDENTITY);
-# endif
-# ifdef ZMQ_RATE
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RATE", ZMQ_RATE);
-# endif
-# ifdef ZMQ_RECOVERY_IVL
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RECOVERY_IVL", ZMQ_RECOVERY_IVL);
-# endif
-# ifdef ZMQ_SNDBUF
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_SNDBUF", ZMQ_SNDBUF);
-# endif
-# ifdef ZMQ_RCVBUF
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RCVBUF", ZMQ_RCVBUF);
-# endif
-# ifdef ZMQ_LINGER
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_LINGER", ZMQ_LINGER);
-# endif
-# ifdef ZMQ_RECONNECT_IVL
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RECONNECT_IVL", ZMQ_RECONNECT_IVL);
-# endif
-# ifdef ZMQ_RECONNECT_IVL_MAX
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RECONNECT_IVL_MAX", ZMQ_RECONNECT_IVL_MAX);
-# endif
-# ifdef ZMQ_BACKLOG
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_BACKLOG", ZMQ_BACKLOG);
-# endif
-# ifdef ZMQ_MAXMSGSIZE
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_MAXMSGSIZE", ZMQ_MAXMSGSIZE);
-# endif
-# ifdef ZMQ_MULTICAST_HOPS
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_MULTICAST_HOPS", ZMQ_MULTICAST_HOPS);
-# endif
-# ifdef ZMQ_RCVTIMEO
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RCVTIMEO", ZMQ_RCVTIMEO);
-# endif
-# ifdef ZMQ_SNDTIMEO
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_SNDTIMEO", ZMQ_SNDTIMEO);
-# endif
-# ifdef ZMQ_XPUB_VERBOSE
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_XPUB_VERBOSE", ZMQ_XPUB_VERBOSE);
-# endif
-# ifdef ZMQ_TCP_KEEPALIVE
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_TCP_KEEPALIVE", ZMQ_TCP_KEEPALIVE);
-# endif
-# ifdef ZMQ_TCP_KEEPALIVE_IDLE
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_TCP_KEEPALIVE_IDLE", ZMQ_TCP_KEEPALIVE_IDLE);
-# endif
-# ifdef ZMQ_TCP_KEEPALIVE_CNT
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_TCP_KEEPALIVE_CNT", ZMQ_TCP_KEEPALIVE_CNT);
-# endif
-# ifdef ZMQ_TCP_KEEPALIVE_INTVL
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_TCP_KEEPALIVE_INTVL", ZMQ_TCP_KEEPALIVE_INTVL);
-# endif
-# ifdef ZMQ_TCP_ACCEPT_FILTER
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_TCP_ACCEPT_FILTER", ZMQ_TCP_ACCEPT_FILTER);
-# endif
-# ifdef ZMQ_RCVMORE
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RCVMORE", ZMQ_RCVMORE);
-# endif
-# ifdef ZMQ_FD
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_FD", ZMQ_FD);
-# endif
-# ifdef ZMQ_EVENTS
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_EVENTS", ZMQ_EVENTS);
-# endif
-# ifdef ZMQ_LAST_ENDPOINT
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_LAST_ENDPOINT", ZMQ_LAST_ENDPOINT);
-# endif
 #endif /* ZMQ_MAJOR_VERSION == 4 */
-#if ZMQ_VERSION_MAJOR == 3
-# ifdef ZMQ_ROUTER_RAW
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_ROUTER_RAW", ZMQ_ROUTER_RAW);
-# endif
-# ifdef ZMQ_IPV4ONLY
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_IPV4ONLY", ZMQ_IPV4ONLY);
-# endif
-# ifdef ZMQ_DELAY_ATTACH_ON_CONNECT
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_DELAY_ATTACH_ON_CONNECT", ZMQ_DELAY_ATTACH_ON_CONNECT);
-# endif
-# ifdef ZMQ_TYPE
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_TYPE", ZMQ_TYPE);
-# endif
+#if (ZMQ_VERSION_MAJOR >= 3)
 # ifdef ZMQ_SNDHWM
     PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_SNDHWM", ZMQ_SNDHWM);
 # endif
 # ifdef ZMQ_RCVHWM
     PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RCVHWM", ZMQ_RCVHWM);
 # endif
-# ifdef ZMQ_AFFINITY
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_AFFINITY", ZMQ_AFFINITY);
-# endif
-# ifdef ZMQ_SUBSCRIBE
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_SUBSCRIBE", ZMQ_SUBSCRIBE);
-# endif
-# ifdef ZMQ_UNSUBSCRIBE
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_UNSUBSCRIBE", ZMQ_UNSUBSCRIBE);
-# endif
-# ifdef ZMQ_IDENTITY
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_IDENTITY", ZMQ_IDENTITY);
-# endif
-# ifdef ZMQ_RATE
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RATE", ZMQ_RATE);
-# endif
-# ifdef ZMQ_RECOVERY_IVL
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RECOVERY_IVL", ZMQ_RECOVERY_IVL);
-# endif
-# ifdef ZMQ_SNDBUF
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_SNDBUF", ZMQ_SNDBUF);
-# endif
-# ifdef ZMQ_RCVBUF
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RCVBUF", ZMQ_RCVBUF);
-# endif
-# ifdef ZMQ_LINGER
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_LINGER", ZMQ_LINGER);
-# endif
-# ifdef ZMQ_RECONNECT_IVL
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RECONNECT_IVL", ZMQ_RECONNECT_IVL);
-# endif
-# ifdef ZMQ_RECONNECT_IVL_MAX
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RECONNECT_IVL_MAX", ZMQ_RECONNECT_IVL_MAX);
-# endif
-# ifdef ZMQ_BACKLOG
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_BACKLOG", ZMQ_BACKLOG);
-# endif
 # ifdef ZMQ_MAXMSGSIZE
     PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_MAXMSGSIZE", ZMQ_MAXMSGSIZE);
 # endif
 # ifdef ZMQ_MULTICAST_HOPS
     PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_MULTICAST_HOPS", ZMQ_MULTICAST_HOPS);
-# endif
-# ifdef ZMQ_RCVTIMEO
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RCVTIMEO", ZMQ_RCVTIMEO);
-# endif
-# ifdef ZMQ_SNDTIMEO
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_SNDTIMEO", ZMQ_SNDTIMEO);
 # endif
 # ifdef ZMQ_XPUB_VERBOSE
     PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_XPUB_VERBOSE", ZMQ_XPUB_VERBOSE);
@@ -360,20 +279,20 @@ void php_zmq_register_sockopt_constants (zend_class_entry *php_zmq_sc_entry)
 # ifdef ZMQ_TCP_ACCEPT_FILTER
     PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_TCP_ACCEPT_FILTER", ZMQ_TCP_ACCEPT_FILTER);
 # endif
-# ifdef ZMQ_RCVMORE
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_RCVMORE", ZMQ_RCVMORE);
-# endif
-# ifdef ZMQ_FD
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_FD", ZMQ_FD);
-# endif
-# ifdef ZMQ_EVENTS
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_EVENTS", ZMQ_EVENTS);
-# endif
 # ifdef ZMQ_LAST_ENDPOINT
     PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_LAST_ENDPOINT", ZMQ_LAST_ENDPOINT);
+# endif
+# ifdef ZMQ_ROUTER_RAW
+    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_ROUTER_RAW", ZMQ_ROUTER_RAW);
+# endif
+# ifdef ZMQ_IPV4ONLY
+    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_IPV4ONLY", ZMQ_IPV4ONLY);
+# endif
+# ifdef ZMQ_DELAY_ATTACH_ON_CONNECT
+    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_DELAY_ATTACH_ON_CONNECT", ZMQ_DELAY_ATTACH_ON_CONNECT);
 # endif
 #endif /* ZMQ_MAJOR_VERSION == 3 */
-#if ZMQ_VERSION_MAJOR == 2
+#if (ZMQ_VERSION_MAJOR >= 2)
 # ifdef ZMQ_HWM
     PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_HWM", ZMQ_HWM);
 # endif
@@ -443,7 +362,7 @@ void php_zmq_register_sockopt_constants (zend_class_entry *php_zmq_sc_entry)
 #endif /* ZMQ_MAJOR_VERSION == 2 */
 
 #if ZMQ_VERSION_MAJOR > 2
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_HWM", ZMQ_HWM);
+    // PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_HWM", ZMQ_HWM); // already present
 #endif
 
 #undef PHP_ZMQ_REGISTER_SOCKOPT
@@ -474,7 +393,157 @@ PHP_METHOD(zmqsocket, getsockopt)
         return;
     }
 
-#if ZMQ_VERSION_MAJOR == 4
+#if (ZMQ_VERSION_MAJOR >= 4)
+#   if (ZMQ_VERSION_MINOR >= 3)
+
+    switch (key) {
+# ifdef ZMQ_ONLY_FIRST_SUBSCRIBE
+
+        case ZMQ_ONLY_FIRST_SUBSCRIBE:
+            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Getting ZMQ::SOCKOPT_ONLY_FIRST_SUBSCRIBE is not supported", PHP_ZMQ_INTERNAL_ERROR);
+            return;
+        break;
+
+# endif /* ZMQ_ONLY_FIRST_SUBSCRIBE */
+# ifdef ZMQ_WSS_TRUST_SYSTEM
+
+        case ZMQ_WSS_TRUST_SYSTEM:
+            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Getting ZMQ::SOCKOPT_WSS_TRUST_SYSTEM is not supported", PHP_ZMQ_INTERNAL_ERROR);
+            return;
+        break;
+
+# endif /* ZMQ_WSS_TRUST_SYSTEM */
+# ifdef ZMQ_WSS_HOSTNAME
+
+        case ZMQ_WSS_HOSTNAME:
+            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Getting ZMQ::SOCKOPT_WSS_HOSTNAME is not supported", PHP_ZMQ_INTERNAL_ERROR);
+            return;
+        break;
+
+# endif /* ZMQ_WSS_HOSTNAME */
+# ifdef ZMQ_WSS_TRUST_PEM
+
+        case ZMQ_WSS_TRUST_PEM:
+            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Getting ZMQ::SOCKOPT_WSS_TRUST_PEM is not supported", PHP_ZMQ_INTERNAL_ERROR);
+            return;
+        break;
+
+# endif /* ZMQ_WSS_TRUST_PEM */
+# ifdef ZMQ_WSS_CERT_PEM
+
+        case ZMQ_WSS_CERT_PEM:
+            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Getting ZMQ::SOCKOPT_WSS_CERT_PEM is not supported", PHP_ZMQ_INTERNAL_ERROR);
+            return;
+        break;
+
+# endif /* ZMQ_WSS_CERT_PEM */
+# ifdef ZMQ_WSS_KEY_PEM
+
+        case ZMQ_WSS_KEY_PEM:
+            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Getting ZMQ::SOCKOPT_WSS_KEY_PEM is not supported", PHP_ZMQ_INTERNAL_ERROR);
+            return;
+        break;
+
+# endif /* ZMQ_WSS_KEY_PEM */
+# ifdef ZMQ_OUT_BATCH_SIZE
+
+        case ZMQ_OUT_BATCH_SIZE:
+	        SOCKOPTS_GET_INT(OUT_BATCH_SIZE, int);
+        break;
+
+# endif /* ZMQ_OUT_BATCH_SIZE */
+# ifdef ZMQ_IN_BATCH_SIZE
+
+        case ZMQ_IN_BATCH_SIZE:
+	        SOCKOPTS_GET_INT(IN_BATCH_SIZE, int);
+        break;
+
+# endif /* ZMQ_IN_BATCH_SIZE */
+# ifdef ZMQ_SOCKS_PASSWORD
+
+        case ZMQ_SOCKS_PASSWORD:
+	        SOCKOPTS_GET_STRING(SOCKS_PASSWORD, 255, 0)
+        break;
+
+# endif /* ZMQ_SOCKS_PASSWORD */
+# ifdef ZMQ_SOCKS_USERNAME
+
+        case ZMQ_SOCKS_USERNAME:
+	        SOCKOPTS_GET_STRING(SOCKS_USERNAME, 255, 0)
+        break;
+
+# endif /* ZMQ_SOCKS_USERNAME */
+# ifdef ZMQ_XPUB_MANUAL_LAST_VALUE
+
+        case ZMQ_XPUB_MANUAL_LAST_VALUE:
+            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Getting ZMQ::SOCKOPT_XPUB_MANUAL_LAST_VALUE is not supported", PHP_ZMQ_INTERNAL_ERROR);
+            return;
+        break;
+
+# endif /* ZMQ_XPUB_MANUAL_LAST_VALUE */
+# ifdef ZMQ_ROUTER_NOTIFY
+
+        case ZMQ_ROUTER_NOTIFY:
+	        SOCKOPTS_GET_INT(ROUTER_NOTIFY, int);
+        break;
+
+# endif /* ZMQ_ROUTER_NOTIFY */
+# ifdef ZMQ_MULTICAST_LOOP
+
+        case ZMQ_MULTICAST_LOOP:
+	        SOCKOPTS_GET_INT(MULTICAST_LOOP, int);
+        break;
+
+# endif /* ZMQ_MULTICAST_LOOP */
+# ifdef ZMQ_METADATA
+
+        case ZMQ_METADATA:
+	        SOCKOPTS_GET_STRING(METADATA, 255, 0)
+        break;
+
+# endif /* ZMQ_METADATA */
+# ifdef ZMQ_LOOPBACK_FASTPATH
+
+        case ZMQ_LOOPBACK_FASTPATH:
+	        SOCKOPTS_GET_INT(LOOPBACK_FASTPATH, int);
+        break;
+
+# endif /* ZMQ_LOOPBACK_FASTPATH */
+# ifdef ZMQ_ZAP_ENFORCE_DOMAIN
+
+        case ZMQ_ZAP_ENFORCE_DOMAIN:
+	        SOCKOPTS_GET_INT(ZAP_ENFORCE_DOMAIN, int);
+        break;
+
+# endif /* ZMQ_ZAP_ENFORCE_DOMAIN */
+# ifdef ZMQ_GSSAPI_PRINCIPAL_NAMETYPE
+
+        case ZMQ_GSSAPI_PRINCIPAL_NAMETYPE:
+	        SOCKOPTS_GET_INT(GSSAPI_PRINCIPAL_NAMETYPE, int);
+        break;
+
+# endif /* ZMQ_GSSAPI_PRINCIPAL_NAMETYPE */
+# ifdef ZMQ_GSSAPI_SERVICE_PRINCIPAL_NAMETYPE
+
+        case ZMQ_GSSAPI_SERVICE_PRINCIPAL_NAMETYPE:
+	        SOCKOPTS_GET_INT(GSSAPI_SERVICE_PRINCIPAL_NAMETYPE, int);
+        break;
+
+# endif /* ZMQ_GSSAPI_SERVICE_PRINCIPAL_NAMETYPE */
+# ifdef ZMQ_BINDTODEVICE
+
+        case ZMQ_BINDTODEVICE:
+	        SOCKOPTS_GET_STRING(BINDTODEVICE, 255, 0)
+        break;
+
+# endif /* ZMQ_BINDTODEVICE */
+    }
+
+# endif
+
+#endif /* ZMQ_VERSION_MAJOR == 4 */
+#if (ZMQ_VERSION_MAJOR >= 4)
+#   if (ZMQ_VERSION_MINOR >= 2)
 
     switch (key) {
 # ifdef ZMQ_HEARTBEAT_IVL
@@ -608,6 +677,15 @@ PHP_METHOD(zmqsocket, getsockopt)
         break;
 
 # endif /* ZMQ_VMCI_CONNECT_TIMEOUT */
+    }
+
+# endif
+
+#endif /* ZMQ_VERSION_MAJOR == 4 */
+#if (ZMQ_VERSION_MAJOR >= 4)
+#   if (ZMQ_VERSION_MINOR >= 1)
+
+    switch (key) {
 # ifdef ZMQ_TOS
 
         case ZMQ_TOS:
@@ -653,6 +731,14 @@ PHP_METHOD(zmqsocket, getsockopt)
         break;
 
 # endif /* ZMQ_XPUB_NODROP */
+    }
+
+# endif
+
+#endif /* ZMQ_VERSION_MAJOR == 4 */
+#if (ZMQ_VERSION_MAJOR >= 4)
+
+    switch (key) {
 # ifdef ZMQ_ROUTER_MANDATORY
 
         case ZMQ_ROUTER_MANDATORY:
@@ -798,276 +884,13 @@ PHP_METHOD(zmqsocket, getsockopt)
         break;
 
 # endif /* ZMQ_IMMEDIATE */
-# ifdef ZMQ_ROUTER_RAW
-
-        case ZMQ_ROUTER_RAW:
-            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Getting ZMQ::SOCKOPT_ROUTER_RAW is not supported", PHP_ZMQ_INTERNAL_ERROR);
-            return;
-        break;
-
-# endif /* ZMQ_ROUTER_RAW */
-# ifdef ZMQ_IPV4ONLY
-
-        case ZMQ_IPV4ONLY:
-	        SOCKOPTS_GET_INT(IPV4ONLY, int);
-        break;
-
-# endif /* ZMQ_IPV4ONLY */
-# ifdef ZMQ_TYPE
-
-        case ZMQ_TYPE:
-	        SOCKOPTS_GET_INT(TYPE, int);
-        break;
-
-# endif /* ZMQ_TYPE */
-# ifdef ZMQ_SNDHWM
-
-        case ZMQ_SNDHWM:
-	        SOCKOPTS_GET_INT(SNDHWM, int);
-        break;
-
-# endif /* ZMQ_SNDHWM */
-# ifdef ZMQ_RCVHWM
-
-        case ZMQ_RCVHWM:
-	        SOCKOPTS_GET_INT(RCVHWM, int);
-        break;
-
-# endif /* ZMQ_RCVHWM */
-# ifdef ZMQ_AFFINITY
-
-        case ZMQ_AFFINITY:
-	        SOCKOPTS_GET_INT(AFFINITY, uint64_t);
-        break;
-
-# endif /* ZMQ_AFFINITY */
-# ifdef ZMQ_SUBSCRIBE
-
-        case ZMQ_SUBSCRIBE:
-            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Getting ZMQ::SOCKOPT_SUBSCRIBE is not supported", PHP_ZMQ_INTERNAL_ERROR);
-            return;
-        break;
-
-# endif /* ZMQ_SUBSCRIBE */
-# ifdef ZMQ_UNSUBSCRIBE
-
-        case ZMQ_UNSUBSCRIBE:
-            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Getting ZMQ::SOCKOPT_UNSUBSCRIBE is not supported", PHP_ZMQ_INTERNAL_ERROR);
-            return;
-        break;
-
-# endif /* ZMQ_UNSUBSCRIBE */
-# ifdef ZMQ_IDENTITY
-
-        case ZMQ_IDENTITY:
-{
-        if (intern->socket->socket_type != ZMQ_REQ &&
-            intern->socket->socket_type != ZMQ_REP &&
-            intern->socket->socket_type != ZMQ_DEALER &&
-            intern->socket->socket_type != ZMQ_ROUTER) {
-            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "ZMQ::SOCKOPT_IDENTITY is not valid for this socket type", errno);
-            return;
-        }
-}
-	        SOCKOPTS_GET_STRING(IDENTITY, 255, 1)
-        break;
-
-# endif /* ZMQ_IDENTITY */
-# ifdef ZMQ_RATE
-
-        case ZMQ_RATE:
-	        SOCKOPTS_GET_INT(RATE, int);
-        break;
-
-# endif /* ZMQ_RATE */
-# ifdef ZMQ_RECOVERY_IVL
-
-        case ZMQ_RECOVERY_IVL:
-	        SOCKOPTS_GET_INT(RECOVERY_IVL, int);
-        break;
-
-# endif /* ZMQ_RECOVERY_IVL */
-# ifdef ZMQ_SNDBUF
-
-        case ZMQ_SNDBUF:
-	        SOCKOPTS_GET_INT(SNDBUF, int);
-        break;
-
-# endif /* ZMQ_SNDBUF */
-# ifdef ZMQ_RCVBUF
-
-        case ZMQ_RCVBUF:
-	        SOCKOPTS_GET_INT(RCVBUF, int);
-        break;
-
-# endif /* ZMQ_RCVBUF */
-# ifdef ZMQ_LINGER
-
-        case ZMQ_LINGER:
-	        SOCKOPTS_GET_INT(LINGER, int);
-        break;
-
-# endif /* ZMQ_LINGER */
-# ifdef ZMQ_RECONNECT_IVL
-
-        case ZMQ_RECONNECT_IVL:
-	        SOCKOPTS_GET_INT(RECONNECT_IVL, int);
-        break;
-
-# endif /* ZMQ_RECONNECT_IVL */
-# ifdef ZMQ_RECONNECT_IVL_MAX
-
-        case ZMQ_RECONNECT_IVL_MAX:
-	        SOCKOPTS_GET_INT(RECONNECT_IVL_MAX, int);
-        break;
-
-# endif /* ZMQ_RECONNECT_IVL_MAX */
-# ifdef ZMQ_BACKLOG
-
-        case ZMQ_BACKLOG:
-	        SOCKOPTS_GET_INT(BACKLOG, int);
-        break;
-
-# endif /* ZMQ_BACKLOG */
-# ifdef ZMQ_MAXMSGSIZE
-
-        case ZMQ_MAXMSGSIZE:
-	        SOCKOPTS_GET_INT(MAXMSGSIZE, int64_t);
-        break;
-
-# endif /* ZMQ_MAXMSGSIZE */
-# ifdef ZMQ_MULTICAST_HOPS
-
-        case ZMQ_MULTICAST_HOPS:
-	        SOCKOPTS_GET_INT(MULTICAST_HOPS, int);
-        break;
-
-# endif /* ZMQ_MULTICAST_HOPS */
-# ifdef ZMQ_RCVTIMEO
-
-        case ZMQ_RCVTIMEO:
-	        SOCKOPTS_GET_INT(RCVTIMEO, int);
-        break;
-
-# endif /* ZMQ_RCVTIMEO */
-# ifdef ZMQ_SNDTIMEO
-
-        case ZMQ_SNDTIMEO:
-	        SOCKOPTS_GET_INT(SNDTIMEO, int);
-        break;
-
-# endif /* ZMQ_SNDTIMEO */
-# ifdef ZMQ_XPUB_VERBOSE
-
-        case ZMQ_XPUB_VERBOSE:
-            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Getting ZMQ::SOCKOPT_XPUB_VERBOSE is not supported", PHP_ZMQ_INTERNAL_ERROR);
-            return;
-        break;
-
-# endif /* ZMQ_XPUB_VERBOSE */
-# ifdef ZMQ_TCP_KEEPALIVE
-
-        case ZMQ_TCP_KEEPALIVE:
-	        SOCKOPTS_GET_INT(TCP_KEEPALIVE, int);
-        break;
-
-# endif /* ZMQ_TCP_KEEPALIVE */
-# ifdef ZMQ_TCP_KEEPALIVE_IDLE
-
-        case ZMQ_TCP_KEEPALIVE_IDLE:
-	        SOCKOPTS_GET_INT(TCP_KEEPALIVE_IDLE, int);
-        break;
-
-# endif /* ZMQ_TCP_KEEPALIVE_IDLE */
-# ifdef ZMQ_TCP_KEEPALIVE_CNT
-
-        case ZMQ_TCP_KEEPALIVE_CNT:
-	        SOCKOPTS_GET_INT(TCP_KEEPALIVE_CNT, int);
-        break;
-
-# endif /* ZMQ_TCP_KEEPALIVE_CNT */
-# ifdef ZMQ_TCP_KEEPALIVE_INTVL
-
-        case ZMQ_TCP_KEEPALIVE_INTVL:
-	        SOCKOPTS_GET_INT(TCP_KEEPALIVE_INTVL, int);
-        break;
-
-# endif /* ZMQ_TCP_KEEPALIVE_INTVL */
-# ifdef ZMQ_TCP_ACCEPT_FILTER
-
-        case ZMQ_TCP_ACCEPT_FILTER:
-            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Getting ZMQ::SOCKOPT_TCP_ACCEPT_FILTER is not supported", PHP_ZMQ_INTERNAL_ERROR);
-            return;
-        break;
-
-# endif /* ZMQ_TCP_ACCEPT_FILTER */
-# ifdef ZMQ_RCVMORE
-
-        case ZMQ_RCVMORE:
-	        SOCKOPTS_GET_INT(RCVMORE, int);
-        break;
-
-# endif /* ZMQ_RCVMORE */
-# ifdef ZMQ_FD
-
-        case ZMQ_FD:
-        {
-            php_stream *stream = php_zmq_create_zmq_fd(getThis());
-            if (stream) {
-                php_stream_to_zval(stream, return_value);
-                return;
-            }
-            RETURN_FALSE;
-        }
-        break;
-
-# endif /* ZMQ_FD */
-# ifdef ZMQ_EVENTS
-
-        case ZMQ_EVENTS:
-	        SOCKOPTS_GET_INT(EVENTS, int);
-        break;
-
-# endif /* ZMQ_EVENTS */
-# ifdef ZMQ_LAST_ENDPOINT
-
-        case ZMQ_LAST_ENDPOINT:
-	        SOCKOPTS_GET_STRING(LAST_ENDPOINT, 255, 0)
-        break;
-
-# endif /* ZMQ_LAST_ENDPOINT */
-
-        default:
-            zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), PHP_ZMQ_INTERNAL_ERROR, "Unknown option key %ld", (long)key);
-            return;
     }
+
 
 #endif /* ZMQ_VERSION_MAJOR == 4 */
-#if ZMQ_VERSION_MAJOR == 3
+#if (ZMQ_VERSION_MAJOR >= 3)
 
     switch (key) {
-# ifdef ZMQ_ROUTER_RAW
-
-        case ZMQ_ROUTER_RAW:
-            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Getting ZMQ::SOCKOPT_ROUTER_RAW is not supported", PHP_ZMQ_INTERNAL_ERROR);
-            return;
-        break;
-
-# endif /* ZMQ_ROUTER_RAW */
-# ifdef ZMQ_IPV4ONLY
-
-        case ZMQ_IPV4ONLY:
-	        SOCKOPTS_GET_INT(IPV4ONLY, int);
-        break;
-
-# endif /* ZMQ_IPV4ONLY */
-# ifdef ZMQ_TYPE
-
-        case ZMQ_TYPE:
-	        SOCKOPTS_GET_INT(TYPE, int);
-        break;
-
-# endif /* ZMQ_TYPE */
 # ifdef ZMQ_SNDHWM
 
         case ZMQ_SNDHWM:
@@ -1082,101 +905,6 @@ PHP_METHOD(zmqsocket, getsockopt)
         break;
 
 # endif /* ZMQ_RCVHWM */
-# ifdef ZMQ_AFFINITY
-
-        case ZMQ_AFFINITY:
-	        SOCKOPTS_GET_INT(AFFINITY, uint64_t);
-        break;
-
-# endif /* ZMQ_AFFINITY */
-# ifdef ZMQ_SUBSCRIBE
-
-        case ZMQ_SUBSCRIBE:
-            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Getting ZMQ::SOCKOPT_SUBSCRIBE is not supported", PHP_ZMQ_INTERNAL_ERROR);
-            return;
-        break;
-
-# endif /* ZMQ_SUBSCRIBE */
-# ifdef ZMQ_UNSUBSCRIBE
-
-        case ZMQ_UNSUBSCRIBE:
-            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Getting ZMQ::SOCKOPT_UNSUBSCRIBE is not supported", PHP_ZMQ_INTERNAL_ERROR);
-            return;
-        break;
-
-# endif /* ZMQ_UNSUBSCRIBE */
-# ifdef ZMQ_IDENTITY
-
-        case ZMQ_IDENTITY:
-{
-        if (intern->socket->socket_type != ZMQ_REQ &&
-            intern->socket->socket_type != ZMQ_REP &&
-            intern->socket->socket_type != ZMQ_DEALER &&
-            intern->socket->socket_type != ZMQ_ROUTER) {
-            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "ZMQ::SOCKOPT_IDENTITY is not valid for this socket type", errno);
-            return;
-        }
-}
-	        SOCKOPTS_GET_STRING(IDENTITY, 255, 1)
-        break;
-
-# endif /* ZMQ_IDENTITY */
-# ifdef ZMQ_RATE
-
-        case ZMQ_RATE:
-	        SOCKOPTS_GET_INT(RATE, int);
-        break;
-
-# endif /* ZMQ_RATE */
-# ifdef ZMQ_RECOVERY_IVL
-
-        case ZMQ_RECOVERY_IVL:
-	        SOCKOPTS_GET_INT(RECOVERY_IVL, int);
-        break;
-
-# endif /* ZMQ_RECOVERY_IVL */
-# ifdef ZMQ_SNDBUF
-
-        case ZMQ_SNDBUF:
-	        SOCKOPTS_GET_INT(SNDBUF, int);
-        break;
-
-# endif /* ZMQ_SNDBUF */
-# ifdef ZMQ_RCVBUF
-
-        case ZMQ_RCVBUF:
-	        SOCKOPTS_GET_INT(RCVBUF, int);
-        break;
-
-# endif /* ZMQ_RCVBUF */
-# ifdef ZMQ_LINGER
-
-        case ZMQ_LINGER:
-	        SOCKOPTS_GET_INT(LINGER, int);
-        break;
-
-# endif /* ZMQ_LINGER */
-# ifdef ZMQ_RECONNECT_IVL
-
-        case ZMQ_RECONNECT_IVL:
-	        SOCKOPTS_GET_INT(RECONNECT_IVL, int);
-        break;
-
-# endif /* ZMQ_RECONNECT_IVL */
-# ifdef ZMQ_RECONNECT_IVL_MAX
-
-        case ZMQ_RECONNECT_IVL_MAX:
-	        SOCKOPTS_GET_INT(RECONNECT_IVL_MAX, int);
-        break;
-
-# endif /* ZMQ_RECONNECT_IVL_MAX */
-# ifdef ZMQ_BACKLOG
-
-        case ZMQ_BACKLOG:
-	        SOCKOPTS_GET_INT(BACKLOG, int);
-        break;
-
-# endif /* ZMQ_BACKLOG */
 # ifdef ZMQ_MAXMSGSIZE
 
         case ZMQ_MAXMSGSIZE:
@@ -1191,20 +919,6 @@ PHP_METHOD(zmqsocket, getsockopt)
         break;
 
 # endif /* ZMQ_MULTICAST_HOPS */
-# ifdef ZMQ_RCVTIMEO
-
-        case ZMQ_RCVTIMEO:
-	        SOCKOPTS_GET_INT(RCVTIMEO, int);
-        break;
-
-# endif /* ZMQ_RCVTIMEO */
-# ifdef ZMQ_SNDTIMEO
-
-        case ZMQ_SNDTIMEO:
-	        SOCKOPTS_GET_INT(SNDTIMEO, int);
-        break;
-
-# endif /* ZMQ_SNDTIMEO */
 # ifdef ZMQ_XPUB_VERBOSE
 
         case ZMQ_XPUB_VERBOSE:
@@ -1249,34 +963,6 @@ PHP_METHOD(zmqsocket, getsockopt)
         break;
 
 # endif /* ZMQ_TCP_ACCEPT_FILTER */
-# ifdef ZMQ_RCVMORE
-
-        case ZMQ_RCVMORE:
-	        SOCKOPTS_GET_INT(RCVMORE, int);
-        break;
-
-# endif /* ZMQ_RCVMORE */
-# ifdef ZMQ_FD
-
-        case ZMQ_FD:
-        {
-            php_stream *stream = php_zmq_create_zmq_fd(getThis());
-            if (stream) {
-                php_stream_to_zval(stream, return_value);
-                return;
-            }
-            RETURN_FALSE;
-        }
-        break;
-
-# endif /* ZMQ_FD */
-# ifdef ZMQ_EVENTS
-
-        case ZMQ_EVENTS:
-	        SOCKOPTS_GET_INT(EVENTS, int);
-        break;
-
-# endif /* ZMQ_EVENTS */
 # ifdef ZMQ_LAST_ENDPOINT
 
         case ZMQ_LAST_ENDPOINT:
@@ -1284,14 +970,26 @@ PHP_METHOD(zmqsocket, getsockopt)
         break;
 
 # endif /* ZMQ_LAST_ENDPOINT */
+# ifdef ZMQ_ROUTER_RAW
 
-        default:
-            zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), PHP_ZMQ_INTERNAL_ERROR, "Unknown option key %ld", key);
+        case ZMQ_ROUTER_RAW:
+            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Getting ZMQ::SOCKOPT_ROUTER_RAW is not supported", PHP_ZMQ_INTERNAL_ERROR);
             return;
+        break;
+
+# endif /* ZMQ_ROUTER_RAW */
+# ifdef ZMQ_IPV4ONLY
+
+        case ZMQ_IPV4ONLY:
+	        SOCKOPTS_GET_INT(IPV4ONLY, int);
+        break;
+
+# endif /* ZMQ_IPV4ONLY */
     }
 
+
 #endif /* ZMQ_VERSION_MAJOR == 3 */
-#if ZMQ_VERSION_MAJOR == 2
+#if (ZMQ_VERSION_MAJOR >= 2)
 
     switch (key) {
 # ifdef ZMQ_HWM
@@ -1318,6 +1016,15 @@ PHP_METHOD(zmqsocket, getsockopt)
 # ifdef ZMQ_IDENTITY
 
         case ZMQ_IDENTITY:
+{
+        if (intern->socket->socket_type != ZMQ_REQ &&
+            intern->socket->socket_type != ZMQ_REP &&
+            intern->socket->socket_type != ZMQ_DEALER &&
+            intern->socket->socket_type != ZMQ_ROUTER) {
+            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "ZMQ::SOCKOPT_IDENTITY is not valid for this socket type", errno);
+            return;
+        }
+}
 	        SOCKOPTS_GET_STRING(IDENTITY, 255, 1)
         break;
 
@@ -1325,14 +1032,14 @@ PHP_METHOD(zmqsocket, getsockopt)
 # ifdef ZMQ_RATE
 
         case ZMQ_RATE:
-	        SOCKOPTS_GET_INT(RATE, int64_t);
+	        SOCKOPTS_GET_INT(RATE, int);
         break;
 
 # endif /* ZMQ_RATE */
 # ifdef ZMQ_RECOVERY_IVL
 
         case ZMQ_RECOVERY_IVL:
-	        SOCKOPTS_GET_INT(RECOVERY_IVL, int64_t);
+	        SOCKOPTS_GET_INT(RECOVERY_IVL, int);
         break;
 
 # endif /* ZMQ_RECOVERY_IVL */
@@ -1367,14 +1074,14 @@ PHP_METHOD(zmqsocket, getsockopt)
 # ifdef ZMQ_SNDBUF
 
         case ZMQ_SNDBUF:
-	        SOCKOPTS_GET_INT(SNDBUF, uint64_t);
+	        SOCKOPTS_GET_INT(SNDBUF, int);
         break;
 
 # endif /* ZMQ_SNDBUF */
 # ifdef ZMQ_RCVBUF
 
         case ZMQ_RCVBUF:
-	        SOCKOPTS_GET_INT(RCVBUF, uint64_t);
+	        SOCKOPTS_GET_INT(RCVBUF, int);
         break;
 
 # endif /* ZMQ_RCVBUF */
@@ -1432,7 +1139,7 @@ PHP_METHOD(zmqsocket, getsockopt)
 # ifdef ZMQ_RCVMORE
 
         case ZMQ_RCVMORE:
-	        SOCKOPTS_GET_INT(RCVMORE, int64_t);
+	        SOCKOPTS_GET_INT(RCVMORE, int);
         break;
 
 # endif /* ZMQ_RCVMORE */
@@ -1453,17 +1160,17 @@ PHP_METHOD(zmqsocket, getsockopt)
 # ifdef ZMQ_EVENTS
 
         case ZMQ_EVENTS:
-	        SOCKOPTS_GET_INT(EVENTS, uint32_t);
+	        SOCKOPTS_GET_INT(EVENTS, int);
         break;
 
 # endif /* ZMQ_EVENTS */
-
-        default:
-            zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), PHP_ZMQ_INTERNAL_ERROR, "Unknown option key %ld", key);
-            return;
     }
 
+
 #endif /* ZMQ_VERSION_MAJOR == 2 */
+
+    zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), PHP_ZMQ_INTERNAL_ERROR, "Unknown option key %ld", key);
+    return;
 }
 /* }}} */
 
@@ -1529,7 +1236,171 @@ PHP_METHOD(zmqsocket, setsockopt)
 
 #endif
 
-#if ZMQ_VERSION_MAJOR == 4
+#if (ZMQ_VERSION_MAJOR >= 4)
+#   if (ZMQ_VERSION_MINOR >= 3)
+
+    switch (key) {
+
+# ifdef ZMQ_ONLY_FIRST_SUBSCRIBE
+        case ZMQ_ONLY_FIRST_SUBSCRIBE:
+{
+        if (intern->socket->socket_type != ZMQ_XPUB &&
+            intern->socket->socket_type != ZMQ_XSUB) {
+            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "ZMQ::SOCKOPT_ONLY_FIRST_SUBSCRIBE is not valid for this socket type", errno);
+            return;
+        }
+}
+                SOCKOPTS_SET_INT(ONLY_FIRST_SUBSCRIBE, int)
+        break;
+
+# endif /* ifdef ZMQ_ONLY_FIRST_SUBSCRIBE */
+
+# ifdef ZMQ_WSS_TRUST_SYSTEM
+        case ZMQ_WSS_TRUST_SYSTEM:
+                SOCKOPTS_SET_INT(WSS_TRUST_SYSTEM, int)
+        break;
+
+# endif /* ifdef ZMQ_WSS_TRUST_SYSTEM */
+
+# ifdef ZMQ_WSS_HOSTNAME
+        case ZMQ_WSS_HOSTNAME:
+                SOCKOPTS_SET_STRING(WSS_HOSTNAME)
+
+        break;
+
+# endif /* ifdef ZMQ_WSS_HOSTNAME */
+
+# ifdef ZMQ_WSS_TRUST_PEM
+        case ZMQ_WSS_TRUST_PEM:
+                SOCKOPTS_SET_STRING(WSS_TRUST_PEM)
+
+        break;
+
+# endif /* ifdef ZMQ_WSS_TRUST_PEM */
+
+# ifdef ZMQ_WSS_CERT_PEM
+        case ZMQ_WSS_CERT_PEM:
+                SOCKOPTS_SET_STRING(WSS_CERT_PEM)
+
+        break;
+
+# endif /* ifdef ZMQ_WSS_CERT_PEM */
+
+# ifdef ZMQ_WSS_KEY_PEM
+        case ZMQ_WSS_KEY_PEM:
+                SOCKOPTS_SET_STRING(WSS_KEY_PEM)
+
+        break;
+
+# endif /* ifdef ZMQ_WSS_KEY_PEM */
+
+# ifdef ZMQ_OUT_BATCH_SIZE
+        case ZMQ_OUT_BATCH_SIZE:
+                SOCKOPTS_SET_INT(OUT_BATCH_SIZE, int)
+        break;
+
+# endif /* ifdef ZMQ_OUT_BATCH_SIZE */
+
+# ifdef ZMQ_IN_BATCH_SIZE
+        case ZMQ_IN_BATCH_SIZE:
+                SOCKOPTS_SET_INT(IN_BATCH_SIZE, int)
+        break;
+
+# endif /* ifdef ZMQ_IN_BATCH_SIZE */
+
+# ifdef ZMQ_SOCKS_PASSWORD
+        case ZMQ_SOCKS_PASSWORD:
+                SOCKOPTS_SET_STRING(SOCKS_PASSWORD)
+
+        break;
+
+# endif /* ifdef ZMQ_SOCKS_PASSWORD */
+
+# ifdef ZMQ_SOCKS_USERNAME
+        case ZMQ_SOCKS_USERNAME:
+                SOCKOPTS_SET_STRING(SOCKS_USERNAME)
+
+        break;
+
+# endif /* ifdef ZMQ_SOCKS_USERNAME */
+
+# ifdef ZMQ_XPUB_MANUAL_LAST_VALUE
+        case ZMQ_XPUB_MANUAL_LAST_VALUE:
+{
+        if (intern->socket->socket_type != ZMQ_XPUB) {
+            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "ZMQ::SOCKOPT_XPUB_MANUAL_LAST_VALUE is not valid for this socket type", errno);
+            return;
+        }
+}
+                SOCKOPTS_SET_INT(XPUB_MANUAL_LAST_VALUE, int)
+        break;
+
+# endif /* ifdef ZMQ_XPUB_MANUAL_LAST_VALUE */
+
+# ifdef ZMQ_ROUTER_NOTIFY
+        case ZMQ_ROUTER_NOTIFY:
+                SOCKOPTS_SET_INT(ROUTER_NOTIFY, int)
+        break;
+
+# endif /* ifdef ZMQ_ROUTER_NOTIFY */
+
+# ifdef ZMQ_MULTICAST_LOOP
+        case ZMQ_MULTICAST_LOOP:
+                SOCKOPTS_SET_INT(MULTICAST_LOOP, int)
+        break;
+
+# endif /* ifdef ZMQ_MULTICAST_LOOP */
+
+# ifdef ZMQ_METADATA
+        case ZMQ_METADATA:
+                SOCKOPTS_SET_STRING(METADATA)
+
+        break;
+
+# endif /* ifdef ZMQ_METADATA */
+
+# ifdef ZMQ_LOOPBACK_FASTPATH
+        case ZMQ_LOOPBACK_FASTPATH:
+                SOCKOPTS_SET_INT(LOOPBACK_FASTPATH, int)
+        break;
+
+# endif /* ifdef ZMQ_LOOPBACK_FASTPATH */
+
+# ifdef ZMQ_ZAP_ENFORCE_DOMAIN
+        case ZMQ_ZAP_ENFORCE_DOMAIN:
+                SOCKOPTS_SET_INT(ZAP_ENFORCE_DOMAIN, int)
+        break;
+
+# endif /* ifdef ZMQ_ZAP_ENFORCE_DOMAIN */
+
+# ifdef ZMQ_GSSAPI_PRINCIPAL_NAMETYPE
+        case ZMQ_GSSAPI_PRINCIPAL_NAMETYPE:
+                SOCKOPTS_SET_INT(GSSAPI_PRINCIPAL_NAMETYPE, int)
+        break;
+
+# endif /* ifdef ZMQ_GSSAPI_PRINCIPAL_NAMETYPE */
+
+# ifdef ZMQ_GSSAPI_SERVICE_PRINCIPAL_NAMETYPE
+        case ZMQ_GSSAPI_SERVICE_PRINCIPAL_NAMETYPE:
+                SOCKOPTS_SET_INT(GSSAPI_SERVICE_PRINCIPAL_NAMETYPE, int)
+        break;
+
+# endif /* ifdef ZMQ_GSSAPI_SERVICE_PRINCIPAL_NAMETYPE */
+
+# ifdef ZMQ_BINDTODEVICE
+        case ZMQ_BINDTODEVICE:
+                SOCKOPTS_SET_STRING(BINDTODEVICE)
+
+        break;
+
+# endif /* ifdef ZMQ_BINDTODEVICE */
+
+    }
+# endif
+
+#endif /* ZMQ_VERSION_MAJOR == 4 */
+#if (ZMQ_VERSION_MAJOR >= 4)
+#   if (ZMQ_VERSION_MINOR >= 2)
 
     switch (key) {
 
@@ -1686,6 +1557,15 @@ PHP_METHOD(zmqsocket, setsockopt)
 
 # endif /* ifdef ZMQ_VMCI_CONNECT_TIMEOUT */
 
+    }
+# endif
+
+#endif /* ZMQ_VERSION_MAJOR == 4 */
+#if (ZMQ_VERSION_MAJOR >= 4)
+#   if (ZMQ_VERSION_MINOR >= 1)
+
+    switch (key) {
+
 # ifdef ZMQ_TOS
         case ZMQ_TOS:
                 SOCKOPTS_SET_INT(TOS, int)
@@ -1749,6 +1629,14 @@ PHP_METHOD(zmqsocket, setsockopt)
         break;
 
 # endif /* ifdef ZMQ_XPUB_NODROP */
+
+    }
+# endif
+
+#endif /* ZMQ_VERSION_MAJOR == 4 */
+#if (ZMQ_VERSION_MAJOR >= 4)
+
+    switch (key) {
 
 # ifdef ZMQ_ROUTER_MANDATORY
         case ZMQ_ROUTER_MANDATORY:
@@ -1935,304 +1823,13 @@ PHP_METHOD(zmqsocket, setsockopt)
 
 # endif /* ifdef ZMQ_IMMEDIATE */
 
-# ifdef ZMQ_ROUTER_RAW
-        case ZMQ_ROUTER_RAW:
-{
-        if (intern->socket->socket_type != ZMQ_ROUTER) {
-            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "ZMQ::SOCKOPT_ROUTER_RAW is not valid for this socket type", errno);
-            return;
-        }
-}
-                SOCKOPTS_SET_INT(ROUTER_RAW, int)
-        break;
-
-# endif /* ifdef ZMQ_ROUTER_RAW */
-
-# ifdef ZMQ_IPV4ONLY
-        case ZMQ_IPV4ONLY:
-                SOCKOPTS_SET_INT(IPV4ONLY, int)
-        break;
-
-# endif /* ifdef ZMQ_IPV4ONLY */
-
-# ifdef ZMQ_TYPE
-        case ZMQ_TYPE:
-            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Setting ZMQ::SOCKOPT_TYPE is not supported", PHP_ZMQ_INTERNAL_ERROR);
-            return;
-        break;
-
-# endif /* ifdef ZMQ_TYPE */
-
-# ifdef ZMQ_SNDHWM
-        case ZMQ_SNDHWM:
-                SOCKOPTS_SET_INT(SNDHWM, int)
-        break;
-
-# endif /* ifdef ZMQ_SNDHWM */
-
-# ifdef ZMQ_RCVHWM
-        case ZMQ_RCVHWM:
-                SOCKOPTS_SET_INT(RCVHWM, int)
-        break;
-
-# endif /* ifdef ZMQ_RCVHWM */
-
-# ifdef ZMQ_AFFINITY
-        case ZMQ_AFFINITY:
-                SOCKOPTS_SET_INT(AFFINITY, uint64_t)
-        break;
-
-# endif /* ifdef ZMQ_AFFINITY */
-
-# ifdef ZMQ_SUBSCRIBE
-        case ZMQ_SUBSCRIBE:
-{
-        if (intern->socket->socket_type != ZMQ_SUB) {
-            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "ZMQ::SOCKOPT_SUBSCRIBE is not valid for this socket type", errno);
-            return;
-        }
-}
-                SOCKOPTS_SET_STRING(SUBSCRIBE)
-
-        break;
-
-# endif /* ifdef ZMQ_SUBSCRIBE */
-
-# ifdef ZMQ_UNSUBSCRIBE
-        case ZMQ_UNSUBSCRIBE:
-{
-        if (intern->socket->socket_type != ZMQ_SUB) {
-            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "ZMQ::SOCKOPT_UNSUBSCRIBE is not valid for this socket type", errno);
-            return;
-        }
-}
-                SOCKOPTS_SET_STRING(UNSUBSCRIBE)
-
-        break;
-
-# endif /* ifdef ZMQ_UNSUBSCRIBE */
-
-# ifdef ZMQ_IDENTITY
-        case ZMQ_IDENTITY:
-{
-        if (intern->socket->socket_type != ZMQ_REQ &&
-            intern->socket->socket_type != ZMQ_REP &&
-            intern->socket->socket_type != ZMQ_DEALER &&
-            intern->socket->socket_type != ZMQ_ROUTER) {
-            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "ZMQ::SOCKOPT_IDENTITY is not valid for this socket type", errno);
-            return;
-        }
-}
-                SOCKOPTS_SET_STRING(IDENTITY)
-
-        break;
-
-# endif /* ifdef ZMQ_IDENTITY */
-
-# ifdef ZMQ_RATE
-        case ZMQ_RATE:
-                SOCKOPTS_SET_INT(RATE, int)
-        break;
-
-# endif /* ifdef ZMQ_RATE */
-
-# ifdef ZMQ_RECOVERY_IVL
-        case ZMQ_RECOVERY_IVL:
-                SOCKOPTS_SET_INT(RECOVERY_IVL, int)
-        break;
-
-# endif /* ifdef ZMQ_RECOVERY_IVL */
-
-# ifdef ZMQ_SNDBUF
-        case ZMQ_SNDBUF:
-                SOCKOPTS_SET_INT(SNDBUF, int)
-        break;
-
-# endif /* ifdef ZMQ_SNDBUF */
-
-# ifdef ZMQ_RCVBUF
-        case ZMQ_RCVBUF:
-                SOCKOPTS_SET_INT(RCVBUF, int)
-        break;
-
-# endif /* ifdef ZMQ_RCVBUF */
-
-# ifdef ZMQ_LINGER
-        case ZMQ_LINGER:
-                SOCKOPTS_SET_INT(LINGER, int)
-        break;
-
-# endif /* ifdef ZMQ_LINGER */
-
-# ifdef ZMQ_RECONNECT_IVL
-        case ZMQ_RECONNECT_IVL:
-                SOCKOPTS_SET_INT(RECONNECT_IVL, int)
-        break;
-
-# endif /* ifdef ZMQ_RECONNECT_IVL */
-
-# ifdef ZMQ_RECONNECT_IVL_MAX
-        case ZMQ_RECONNECT_IVL_MAX:
-                SOCKOPTS_SET_INT(RECONNECT_IVL_MAX, int)
-        break;
-
-# endif /* ifdef ZMQ_RECONNECT_IVL_MAX */
-
-# ifdef ZMQ_BACKLOG
-        case ZMQ_BACKLOG:
-                SOCKOPTS_SET_INT(BACKLOG, int)
-        break;
-
-# endif /* ifdef ZMQ_BACKLOG */
-
-# ifdef ZMQ_MAXMSGSIZE
-        case ZMQ_MAXMSGSIZE:
-                SOCKOPTS_SET_INT(MAXMSGSIZE, int64_t)
-        break;
-
-# endif /* ifdef ZMQ_MAXMSGSIZE */
-
-# ifdef ZMQ_MULTICAST_HOPS
-        case ZMQ_MULTICAST_HOPS:
-                SOCKOPTS_SET_INT(MULTICAST_HOPS, int)
-        break;
-
-# endif /* ifdef ZMQ_MULTICAST_HOPS */
-
-# ifdef ZMQ_RCVTIMEO
-        case ZMQ_RCVTIMEO:
-                SOCKOPTS_SET_INT(RCVTIMEO, int)
-        break;
-
-# endif /* ifdef ZMQ_RCVTIMEO */
-
-# ifdef ZMQ_SNDTIMEO
-        case ZMQ_SNDTIMEO:
-                SOCKOPTS_SET_INT(SNDTIMEO, int)
-        break;
-
-# endif /* ifdef ZMQ_SNDTIMEO */
-
-# ifdef ZMQ_XPUB_VERBOSE
-        case ZMQ_XPUB_VERBOSE:
-{
-        if (intern->socket->socket_type != ZMQ_XPUB) {
-            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "ZMQ::SOCKOPT_XPUB_VERBOSE is not valid for this socket type", errno);
-            return;
-        }
-}
-                SOCKOPTS_SET_INT(XPUB_VERBOSE, int)
-        break;
-
-# endif /* ifdef ZMQ_XPUB_VERBOSE */
-
-# ifdef ZMQ_TCP_KEEPALIVE
-        case ZMQ_TCP_KEEPALIVE:
-                SOCKOPTS_SET_INT(TCP_KEEPALIVE, int)
-        break;
-
-# endif /* ifdef ZMQ_TCP_KEEPALIVE */
-
-# ifdef ZMQ_TCP_KEEPALIVE_IDLE
-        case ZMQ_TCP_KEEPALIVE_IDLE:
-                SOCKOPTS_SET_INT(TCP_KEEPALIVE_IDLE, int)
-        break;
-
-# endif /* ifdef ZMQ_TCP_KEEPALIVE_IDLE */
-
-# ifdef ZMQ_TCP_KEEPALIVE_CNT
-        case ZMQ_TCP_KEEPALIVE_CNT:
-                SOCKOPTS_SET_INT(TCP_KEEPALIVE_CNT, int)
-        break;
-
-# endif /* ifdef ZMQ_TCP_KEEPALIVE_CNT */
-
-# ifdef ZMQ_TCP_KEEPALIVE_INTVL
-        case ZMQ_TCP_KEEPALIVE_INTVL:
-                SOCKOPTS_SET_INT(TCP_KEEPALIVE_INTVL, int)
-        break;
-
-# endif /* ifdef ZMQ_TCP_KEEPALIVE_INTVL */
-
-# ifdef ZMQ_TCP_ACCEPT_FILTER
-        case ZMQ_TCP_ACCEPT_FILTER:
-                SOCKOPTS_SET_STRING(TCP_ACCEPT_FILTER)
-
-        break;
-
-# endif /* ifdef ZMQ_TCP_ACCEPT_FILTER */
-
-# ifdef ZMQ_RCVMORE
-        case ZMQ_RCVMORE:
-            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Setting ZMQ::SOCKOPT_RCVMORE is not supported", PHP_ZMQ_INTERNAL_ERROR);
-            return;
-        break;
-
-# endif /* ifdef ZMQ_RCVMORE */
-
-# ifdef ZMQ_FD
-        case ZMQ_FD:
-            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Setting ZMQ::SOCKOPT_FD is not supported", PHP_ZMQ_INTERNAL_ERROR);
-            return;
-        break;
-
-# endif /* ifdef ZMQ_FD */
-
-# ifdef ZMQ_EVENTS
-        case ZMQ_EVENTS:
-            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Setting ZMQ::SOCKOPT_EVENTS is not supported", PHP_ZMQ_INTERNAL_ERROR);
-            return;
-        break;
-
-# endif /* ifdef ZMQ_EVENTS */
-
-# ifdef ZMQ_LAST_ENDPOINT
-        case ZMQ_LAST_ENDPOINT:
-            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Setting ZMQ::SOCKOPT_LAST_ENDPOINT is not supported", PHP_ZMQ_INTERNAL_ERROR);
-            return;
-        break;
-
-# endif /* ifdef ZMQ_LAST_ENDPOINT */
-
-
-        default:
-            zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), PHP_ZMQ_INTERNAL_ERROR, "Unknown option key %ld", (long)key);
-            return;
     }
-    ZMQ_RETURN_THIS;
-#endif
-#if ZMQ_VERSION_MAJOR == 3
+
+#endif /* ZMQ_VERSION_MAJOR == 4 */
+#if (ZMQ_VERSION_MAJOR >= 3)
 
     switch (key) {
 
-# ifdef ZMQ_ROUTER_RAW
-        case ZMQ_ROUTER_RAW:
-{
-        if (intern->socket->socket_type != ZMQ_ROUTER) {
-            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "ZMQ::SOCKOPT_ROUTER_RAW is not valid for this socket type", errno);
-            return;
-        }
-}
-                SOCKOPTS_SET_INT(ROUTER_RAW, int)
-        break;
-
-# endif /* ifdef ZMQ_ROUTER_RAW */
-
-# ifdef ZMQ_IPV4ONLY
-        case ZMQ_IPV4ONLY:
-                SOCKOPTS_SET_INT(IPV4ONLY, int)
-        break;
-
-# endif /* ifdef ZMQ_IPV4ONLY */
-
-# ifdef ZMQ_TYPE
-        case ZMQ_TYPE:
-            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Setting ZMQ::SOCKOPT_TYPE is not supported", PHP_ZMQ_INTERNAL_ERROR);
-            return;
-        break;
-
-# endif /* ifdef ZMQ_TYPE */
-
 # ifdef ZMQ_SNDHWM
         case ZMQ_SNDHWM:
                 SOCKOPTS_SET_INT(SNDHWM, int)
@@ -2247,114 +1844,6 @@ PHP_METHOD(zmqsocket, setsockopt)
 
 # endif /* ifdef ZMQ_RCVHWM */
 
-# ifdef ZMQ_AFFINITY
-        case ZMQ_AFFINITY:
-                SOCKOPTS_SET_INT(AFFINITY, uint64_t)
-        break;
-
-# endif /* ifdef ZMQ_AFFINITY */
-
-# ifdef ZMQ_SUBSCRIBE
-        case ZMQ_SUBSCRIBE:
-{
-        if (intern->socket->socket_type != ZMQ_SUB) {
-            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "ZMQ::SOCKOPT_SUBSCRIBE is not valid for this socket type", errno);
-            return;
-        }
-}
-                SOCKOPTS_SET_STRING(SUBSCRIBE)
-
-        break;
-
-# endif /* ifdef ZMQ_SUBSCRIBE */
-
-# ifdef ZMQ_UNSUBSCRIBE
-        case ZMQ_UNSUBSCRIBE:
-{
-        if (intern->socket->socket_type != ZMQ_SUB) {
-            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "ZMQ::SOCKOPT_UNSUBSCRIBE is not valid for this socket type", errno);
-            return;
-        }
-}
-                SOCKOPTS_SET_STRING(UNSUBSCRIBE)
-
-        break;
-
-# endif /* ifdef ZMQ_UNSUBSCRIBE */
-
-# ifdef ZMQ_IDENTITY
-        case ZMQ_IDENTITY:
-{
-        if (intern->socket->socket_type != ZMQ_REQ &&
-            intern->socket->socket_type != ZMQ_REP &&
-            intern->socket->socket_type != ZMQ_DEALER &&
-            intern->socket->socket_type != ZMQ_ROUTER) {
-            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "ZMQ::SOCKOPT_IDENTITY is not valid for this socket type", errno);
-            return;
-        }
-}
-                SOCKOPTS_SET_STRING(IDENTITY)
-
-        break;
-
-# endif /* ifdef ZMQ_IDENTITY */
-
-# ifdef ZMQ_RATE
-        case ZMQ_RATE:
-                SOCKOPTS_SET_INT(RATE, int)
-        break;
-
-# endif /* ifdef ZMQ_RATE */
-
-# ifdef ZMQ_RECOVERY_IVL
-        case ZMQ_RECOVERY_IVL:
-                SOCKOPTS_SET_INT(RECOVERY_IVL, int)
-        break;
-
-# endif /* ifdef ZMQ_RECOVERY_IVL */
-
-# ifdef ZMQ_SNDBUF
-        case ZMQ_SNDBUF:
-                SOCKOPTS_SET_INT(SNDBUF, int)
-        break;
-
-# endif /* ifdef ZMQ_SNDBUF */
-
-# ifdef ZMQ_RCVBUF
-        case ZMQ_RCVBUF:
-                SOCKOPTS_SET_INT(RCVBUF, int)
-        break;
-
-# endif /* ifdef ZMQ_RCVBUF */
-
-# ifdef ZMQ_LINGER
-        case ZMQ_LINGER:
-                SOCKOPTS_SET_INT(LINGER, int)
-        break;
-
-# endif /* ifdef ZMQ_LINGER */
-
-# ifdef ZMQ_RECONNECT_IVL
-        case ZMQ_RECONNECT_IVL:
-                SOCKOPTS_SET_INT(RECONNECT_IVL, int)
-        break;
-
-# endif /* ifdef ZMQ_RECONNECT_IVL */
-
-# ifdef ZMQ_RECONNECT_IVL_MAX
-        case ZMQ_RECONNECT_IVL_MAX:
-                SOCKOPTS_SET_INT(RECONNECT_IVL_MAX, int)
-        break;
-
-# endif /* ifdef ZMQ_RECONNECT_IVL_MAX */
-
-# ifdef ZMQ_BACKLOG
-        case ZMQ_BACKLOG:
-                SOCKOPTS_SET_INT(BACKLOG, int)
-        break;
-
-# endif /* ifdef ZMQ_BACKLOG */
-
 # ifdef ZMQ_MAXMSGSIZE
         case ZMQ_MAXMSGSIZE:
                 SOCKOPTS_SET_INT(MAXMSGSIZE, int64_t)
@@ -2368,20 +1857,6 @@ PHP_METHOD(zmqsocket, setsockopt)
         break;
 
 # endif /* ifdef ZMQ_MULTICAST_HOPS */
-
-# ifdef ZMQ_RCVTIMEO
-        case ZMQ_RCVTIMEO:
-                SOCKOPTS_SET_INT(RCVTIMEO, int)
-        break;
-
-# endif /* ifdef ZMQ_RCVTIMEO */
-
-# ifdef ZMQ_SNDTIMEO
-        case ZMQ_SNDTIMEO:
-                SOCKOPTS_SET_INT(SNDTIMEO, int)
-        break;
-
-# endif /* ifdef ZMQ_SNDTIMEO */
 
 # ifdef ZMQ_XPUB_VERBOSE
         case ZMQ_XPUB_VERBOSE:
@@ -2432,30 +1907,6 @@ PHP_METHOD(zmqsocket, setsockopt)
 
 # endif /* ifdef ZMQ_TCP_ACCEPT_FILTER */
 
-# ifdef ZMQ_RCVMORE
-        case ZMQ_RCVMORE:
-            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Setting ZMQ::SOCKOPT_RCVMORE is not supported", PHP_ZMQ_INTERNAL_ERROR);
-            return;
-        break;
-
-# endif /* ifdef ZMQ_RCVMORE */
-
-# ifdef ZMQ_FD
-        case ZMQ_FD:
-            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Setting ZMQ::SOCKOPT_FD is not supported", PHP_ZMQ_INTERNAL_ERROR);
-            return;
-        break;
-
-# endif /* ifdef ZMQ_FD */
-
-# ifdef ZMQ_EVENTS
-        case ZMQ_EVENTS:
-            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Setting ZMQ::SOCKOPT_EVENTS is not supported", PHP_ZMQ_INTERNAL_ERROR);
-            return;
-        break;
-
-# endif /* ifdef ZMQ_EVENTS */
-
 # ifdef ZMQ_LAST_ENDPOINT
         case ZMQ_LAST_ENDPOINT:
             zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "Setting ZMQ::SOCKOPT_LAST_ENDPOINT is not supported", PHP_ZMQ_INTERNAL_ERROR);
@@ -2464,14 +1915,30 @@ PHP_METHOD(zmqsocket, setsockopt)
 
 # endif /* ifdef ZMQ_LAST_ENDPOINT */
 
-
-        default:
-            zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), PHP_ZMQ_INTERNAL_ERROR, "Unknown option key %ld", key);
+# ifdef ZMQ_ROUTER_RAW
+        case ZMQ_ROUTER_RAW:
+{
+        if (intern->socket->socket_type != ZMQ_ROUTER) {
+            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "ZMQ::SOCKOPT_ROUTER_RAW is not valid for this socket type", errno);
             return;
+        }
+}
+                SOCKOPTS_SET_INT(ROUTER_RAW, int)
+        break;
+
+# endif /* ifdef ZMQ_ROUTER_RAW */
+
+# ifdef ZMQ_IPV4ONLY
+        case ZMQ_IPV4ONLY:
+                SOCKOPTS_SET_INT(IPV4ONLY, int)
+        break;
+
+# endif /* ifdef ZMQ_IPV4ONLY */
+
     }
-    ZMQ_RETURN_THIS;
-#endif
-#if ZMQ_VERSION_MAJOR == 2
+
+#endif /* ZMQ_VERSION_MAJOR == 3 */
+#if (ZMQ_VERSION_MAJOR >= 2)
 
     switch (key) {
 
@@ -2498,6 +1965,15 @@ PHP_METHOD(zmqsocket, setsockopt)
 
 # ifdef ZMQ_IDENTITY
         case ZMQ_IDENTITY:
+{
+        if (intern->socket->socket_type != ZMQ_REQ &&
+            intern->socket->socket_type != ZMQ_REP &&
+            intern->socket->socket_type != ZMQ_DEALER &&
+            intern->socket->socket_type != ZMQ_ROUTER) {
+            zend_throw_exception(php_zmq_socket_exception_sc_entry_get (), "ZMQ::SOCKOPT_IDENTITY is not valid for this socket type", errno);
+            return;
+        }
+}
                 SOCKOPTS_SET_STRING(IDENTITY)
 
         break;
@@ -2506,14 +1982,14 @@ PHP_METHOD(zmqsocket, setsockopt)
 
 # ifdef ZMQ_RATE
         case ZMQ_RATE:
-                SOCKOPTS_SET_INT(RATE, int64_t)
+                SOCKOPTS_SET_INT(RATE, int)
         break;
 
 # endif /* ifdef ZMQ_RATE */
 
 # ifdef ZMQ_RECOVERY_IVL
         case ZMQ_RECOVERY_IVL:
-                SOCKOPTS_SET_INT(RECOVERY_IVL, int64_t)
+                SOCKOPTS_SET_INT(RECOVERY_IVL, int)
         break;
 
 # endif /* ifdef ZMQ_RECOVERY_IVL */
@@ -2548,14 +2024,14 @@ PHP_METHOD(zmqsocket, setsockopt)
 
 # ifdef ZMQ_SNDBUF
         case ZMQ_SNDBUF:
-                SOCKOPTS_SET_INT(SNDBUF, uint64_t)
+                SOCKOPTS_SET_INT(SNDBUF, int)
         break;
 
 # endif /* ifdef ZMQ_SNDBUF */
 
 # ifdef ZMQ_RCVBUF
         case ZMQ_RCVBUF:
-                SOCKOPTS_SET_INT(RCVBUF, uint64_t)
+                SOCKOPTS_SET_INT(RCVBUF, int)
         break;
 
 # endif /* ifdef ZMQ_RCVBUF */
@@ -2648,13 +2124,13 @@ PHP_METHOD(zmqsocket, setsockopt)
 
 # endif /* ifdef ZMQ_EVENTS */
 
-
-        default:
-            zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), PHP_ZMQ_INTERNAL_ERROR, "Unknown option key %ld", key);
-            return;
     }
-    ZMQ_RETURN_THIS;
-#endif
+
+#endif /* ZMQ_VERSION_MAJOR == 2 */
+
+    zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), PHP_ZMQ_INTERNAL_ERROR, "Unknown option key %ld", key);
+    return;
 }
+/* }}} */
 
 

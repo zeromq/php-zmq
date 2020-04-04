@@ -36,5 +36,5 @@ line.
 
 ```shell
 git clone https://github.com/SegFaulty/DocThor
-php -d extension=modules/zmq.so DocThor.php --sourceDir=./ zmq
+php -d extension=modules/zmq.so DocThor/DocThor.php --sourceDir=./ zmq
 ```

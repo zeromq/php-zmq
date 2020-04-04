@@ -30,7 +30,14 @@ PHP_METHOD(zmqsocket, getsockopt)
     }
 
 .for version
-#if ZMQ_VERSION_MAJOR == $(version.major)
+.   if defined (version.major_removed)
+#if (ZMQ_VERSION_MAJOR >= $(version.major)) && (ZMQ_VERSION_MAJOR < $(version.major_removed))
+.   else
+#if (ZMQ_VERSION_MAJOR >= $(version.major))
+.   endif
+.   if defined (version.minor)
+#   if (ZMQ_VERSION_MINOR >= $(version.minor))
+.   endif
 
     switch (key) {
 .    for option where !defined (is_alias)
@@ -72,14 +79,17 @@ PHP_METHOD(zmqsocket, getsockopt)
 
 # endif /* ZMQ_$(NAME) */
 .    endfor /* for option */
-
-        default:
-            zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), PHP_ZMQ_INTERNAL_ERROR, "Unknown option key %ld", key);
-            return;
     }
+
+.   if defined (version.minor)
+# endif
+.   endif
 
 #endif /* ZMQ_VERSION_MAJOR == $(version.major) */
 .endfor /* .for version */
+
+    zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), PHP_ZMQ_INTERNAL_ERROR, "Unknown option key %ld", key);
+    return;
 }
 /* }}} */
 .endtemplate

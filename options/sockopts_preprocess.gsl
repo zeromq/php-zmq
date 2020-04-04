@@ -24,45 +24,88 @@ for version
             option.is_alias = "YES"
         endif
 
-        if type = "uint64" | type = "int64" | type = "uint32"
+       if defined (major_changed)
+            if type_new = "uint64" | type_new = "int64" | type_new = "uint32"
 
-            option.php_type = "int"
-            option.c_type   = "$(type)_t"
-            option.binary   = "no"
+                option.php_type = "int"
+                option.c_type   = "$(type_new)_t"
+                option.binary   = "no"
 
-        elsif type = "int"
+            elsif type_new = "int"
 
-            option.php_type = "int"
-            option.c_type   = "$(type)"
-            option.binary   = "no"
+                option.php_type = "int"
+                option.c_type   = "$(type_new)"
+                option.binary   = "no"
 
-        elsif type = "string"
+            elsif type_new = "string"
 
-            option.php_type   = "string"
-            option.c_type     = "char"
-            option.max_length = 255
+                option.php_type   = "string"
+                option.c_type     = "char"
+                option.max_length = 255
 
-            if name = "subscribe" | name = "usubscribe" | name = "identity"
-                option.binary = "yes"
+                if name = "subscribe" | name = "usubscribe" | name = "identity"
+                    option.binary = "yes"
+                else
+                    option.binary = "no"
+                endif
+
+            elsif type_new = "key"
+
+                option.php_type   = "string"
+                option.c_type     = "char"
+                option.max_length = 32
+                option.binary     = "yes"
+
+            elsif type_new = "socket"
+
+                option.php_type = "resource"
+                option.c_type   = "int"
+                option.binary   = "no"
+
             else
-                option.binary = "no"
+                echo "ERROR: Unrecognised type: $(type_new)"
             endif
-
-        elsif type = "key"
-
-            option.php_type   = "string"
-            option.c_type     = "char"
-            option.max_length = 32
-            option.binary     = "yes"
-
-        elsif type = "socket"
-
-            option.php_type = "resource"
-            option.c_type   = "int"
-            option.binary   = "no"
-
         else
-            echo "ERROR: Unrecognised type: $(type)"
+            if type = "uint64" | type = "int64" | type = "uint32"
+
+                option.php_type = "int"
+                option.c_type   = "$(type)_t"
+                option.binary   = "no"
+
+            elsif type = "int"
+
+                option.php_type = "int"
+                option.c_type   = "$(type)"
+                option.binary   = "no"
+
+            elsif type = "string"
+
+                option.php_type   = "string"
+                option.c_type     = "char"
+                option.max_length = 255
+
+                if name = "subscribe" | name = "usubscribe" | name = "identity"
+                    option.binary = "yes"
+                else
+                    option.binary = "no"
+                endif
+
+            elsif type = "key"
+
+                option.php_type   = "string"
+                option.c_type     = "char"
+                option.max_length = 32
+                option.binary     = "yes"
+
+            elsif type = "socket"
+
+                option.php_type = "resource"
+                option.c_type   = "int"
+                option.binary   = "no"
+
+            else
+                echo "ERROR: Unrecognised type: $(type)"
+            endif
         endif
     endfor
 endfor

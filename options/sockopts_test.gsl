@@ -13,8 +13,8 @@ Test setting socket options
 --SKIPIF--
 <?php
 require_once(dirname(__FILE__) . '/skipif.inc');
-if (!defined('ZMQ::LIBZMQ_VERSION_MAJOR') || ZMQ::LIBZMQ_VERSION_MAJOR != $(version.major)) {
-    die ("skip This test is for PHP7 and libzmq version $(version.major).x");
+if (!defined('ZMQ::LIBZMQ_VERSION_MAJOR') || ZMQ::LIBZMQ_VERSION_MAJOR < $(version.major)) {
+    die ("skip This test is for PHP7 and libzmq version $(version.major).x and up");
 }
 ?>
 --FILE--
@@ -22,9 +22,10 @@ if (!defined('ZMQ::LIBZMQ_VERSION_MAJOR') || ZMQ::LIBZMQ_VERSION_MAJOR != $(vers
 
 $tested = 0;
 
-.    for option where defined (test) & !defined(is_alias)
+.    for option where defined(test) & !defined(is_alias)
+$removedVersion = $(major_removed? "false" :);
 /* socket option is marked mode="$(mode)" type=$(type) php_type=$(php_type) */
-if (defined ("ZMQ::SOCKOPT_$(NAME)")) {
+if (defined ("ZMQ::SOCKOPT_$(NAME)") && ($removedVersion === false || ZMQ::LIBZMQ_VERSION_MAJOR < $removedVersion)) {
 .        if php_type = "int"
     $test_value = $(test_value? 1 :);
 .        elsif php_type = "string"

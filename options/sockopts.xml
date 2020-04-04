@@ -8,7 +8,53 @@
     License, v. 2.0. If a copy of the MPL was not distributed with this
     file, You can obtain one at http://mozilla.org/MPL/2.0/.
     -->
-    <version major = "4" style = "macro">
+    <version major = "4" minor = "3" style = "macro">
+        <!-- Options that are new in 4.3 -->
+        <option name = "only_first_subscribe" type = "int" mode = "w"  test = "XPUB"
+            test_value = "1" >
+            <restrict type = "XPUB" />
+            <restrict type = "XSUB" />
+        </option>
+
+        <!-- We don't test these as libzmq doesn't always support WSS -->
+        <option name = "wss_trust_system"  type = "int"    mode = "w" />
+        <option name = "wss_hostname"      type = "string" mode = "w" />
+        <option name = "wss_trust_pem"     type = "string" mode = "w" />
+        <option name = "wss_cert_pem"      type = "string" mode = "w" />
+        <option name = "wss_key_pem"       type = "string" mode = "w" />
+
+        <option name = "out_batch_size"    type = "int"    mode = "rw" test = "ROUTER"
+            test_value = "16384" />
+        <option name = "in_batch_size"     type = "int"    mode = "rw" test = "ROUTER"
+            test_value = "16384" />
+        <option name = "socks_password"    type = "string" mode = "rw" test = "ROUTER"
+            test_value = "password" />
+        <option name = "socks_username"    type = "string" mode = "rw" test = "ROUTER"
+            test_value = "username" />
+        <option name = "xpub_manual_last_value" type = "int" mode = "w" test = "XPUB"
+            test_value = "1" >
+            <restrict type = "XPUB" />
+        </option>
+        <option name = "router_notify"     type = "int"    mode = "rw" test = "ROUTER"
+            test_value = "3" />
+        <option name = "multicast_loop"    type = "int"    mode = "rw" test = "RADIO"
+            test_value = "1" />
+        <option name = "metadata"          type = "string" mode = "rw" test = "DEALER"
+            test_value = "X-testkey:testvalue" />
+        <option name = "loopback_fastpath" type = "int"    mode = "rw" test = "DEALER"
+            test_value = "1" />
+        <option name = "zap_enforce_domain" type = "int"   mode = "rw" test = "DEALER"
+            test_value = "1" />
+
+        <!-- We don't test these as libzmq doesn't always support GSSAPI -->
+        <option name = "gssapi_principal_nametype"  type = "int" mode = "rw" />
+        <option name = "gssapi_service_principal_nametype" type = "int" mode = "rw" />
+
+        <!-- We don't test this as it requires CAP_NET_RAW or root -->
+        <option name = "bindtodevice"      type = "string" mode = "rw" />
+    </version>
+
+    <version major = "4" minor = "2" style = "macro">
         <!-- Options that are new in 4.2 -->
         <option name = "heartbeat_ivl"     type = "int"    mode = "rw" test = "DEALER"
             test_value = "2000" />
@@ -54,7 +100,9 @@
         <option name = "vmci_buffer_min_size" type = "uint64" mode = "rw" />
         <option name = "vmci_buffer_max_size" type = "uint64" mode = "rw" />
         <option name = "vmci_connect_timeout" type = "int" mode = "rw" />
+    </version>
 
+    <version major = "4" minor = "1" style = "macro">
         <!-- Options that are new in 4.1 -->
         <option name = "tos"               type = "int"    mode = "rw" test = "DEALER" />
         <option name = "router_handover"   type = "int"    mode = "w"  test = "ROUTER">
@@ -74,7 +122,9 @@
             <restrict type = "XPUB" />
             <restrict type = "PUB" />
         </option>
-        
+    </version>
+
+    <version major = "4" style = "macro">
         <!-- Options that are new in 4.0 -->
         <option name = "router_mandatory"  type = "int"    mode = "w"  test = "ROUTER">
             <restrict type = "ROUTER" />
@@ -122,91 +172,14 @@
         <!-- New names for deprecated 3.x options -->
         <option name = "ipv6"              type = "int"    mode = "rw" test = "SUB" />
         <option name = "immediate"         type = "int"    mode = "rw" test = "DEALER" />
-
-        <!-- Deprecated 3.x options -->
-        <option name = "router_raw"        type = "int"    mode = "w"  test = "ROUTER">
-            <restrict type = "ROUTER" />
-        </option>
-        <option name = "ipv4only"          type = "int"    mode = "rw" test = "SUB" />
-        <option name = "delay_attach_on_connect"
-                                           type = "int"    mode = "w"  test = "PUB" />
-
-        <!-- Options that are the same in 3.x -->
-        <include name = "3-x options" />
     </version>
     
     <version major = "3" style = "macro">
         <!-- Options that are carried forward to 4.0 -->
-        <include name = "3-x options" />
-        
-        <!-- Options that are deprecated in 4.0 -->
-        <option name = "router_raw"        type = "int"    mode = "w"  test = "ROUTER">
-            <restrict type = "ROUTER" />
-        </option>
-        <option name = "ipv4only"          type = "int"    mode = "rw" test = "SUB" />
-        <option name = "delay_attach_on_connect"
-                                           type = "int"    mode = "w"  test = "PUB" />
-    </version>
-
-    <!-- Legacy version 2 -->
-    <version major = "2" style = "macro">
-        <option name = "hwm"               type = "uint64" mode = "rw" test = "SUB" />
-        <option name = "swap"              type = "int64"  mode = "rw" test = "SUB" />
-        <option name = "affinity"          type = "uint64" mode = "rw" test = "SUB" />
-        <option name = "identity"          type = "string" mode = "rw" test = "SUB" />
-        <option name = "rate"              type = "int64"  mode = "rw" test = "SUB" />
-        <option name = "recovery_ivl"      type = "int64"  mode = "rw" test = "SUB" />
-        <option name = "recovery_ivl_msec" type = "int64"  mode = "rw" test = "SUB" />
-        <option name = "mcast_loop"        type = "int64"  mode = "rw" test = "SUB" />
-        <option name = "rcvtimeo"          type = "int"    mode = "rw" test = "SUB" minor = "2" />
-        <option name = "sndtimeo"          type = "int"    mode = "rw" test = "SUB" minor = "2" />
-        <option name = "sndbuf"            type = "uint64" mode = "rw" test = "SUB" />
-        <option name = "rcvbuf"            type = "uint64" mode = "rw" test = "SUB" />
-        <option name = "linger"            type = "int"    mode = "rw" test = "SUB" />
-        <option name = "reconnect_ivl"     type = "int"    mode = "rw" test = "SUB" />
-        <option name = "reconnect_ivl_max" type = "int"    mode = "rw" test = "SUB" />
-        <option name = "backlog"           type = "int"    mode = "rw" test = "SUB" />
-        <option name = "subscribe"         type = "string" mode = "w"  test = "SUB">
-            <restrict type = "SUB" />
-        </option>
-        <option name = "unsubscribe"       type = "string" mode = "w"  test = "SUB">
-            <restrict type = "SUB" />
-        </option>
-        <option name = "type"              type = "int"    mode = "r"  test = "SUB" />
-        <option name = "rcvmore"           type = "int64"  mode = "r"  test = "SUB" />
-        <option name = "fd"                type = "socket" mode = "r"  test = "SUB" />
-        <option name = "events"            type = "uint32" mode = "r"  test = "SUB" />
-    </version>
-    
-    <macro name = "3-x options">
-        <option name = "type"              type = "int"    mode = "r"  test = "SUB" />
         <option name = "sndhwm"            type = "int"    mode = "rw" test = "PUB" />
         <option name = "rcvhwm"            type = "int"    mode = "rw" test = "SUB" />
-        <option name = "affinity"          type = "uint64" mode = "rw" test = "SUB" />
-        <option name = "subscribe"         type = "string" mode = "w"  test = "SUB">
-            <restrict type = "SUB" />
-        </option>
-        <option name = "unsubscribe"       type = "string" mode = "w"  test = "SUB">
-            <restrict type = "SUB" />
-        </option>
-        <option name = "identity"          type = "string" mode = "rw" test = "DEALER">
-            <restrict type = "REQ" />
-            <restrict type = "REP" />
-            <restrict type = "DEALER" />
-            <restrict type = "ROUTER" />
-        </option>
-        <option name = "rate"              type = "int"    mode = "rw" test = "SUB" />
-        <option name = "recovery_ivl"      type = "int"    mode = "rw" test = "SUB" />
-        <option name = "sndbuf"            type = "int"    mode = "rw" test = "PUB" />
-        <option name = "rcvbuf"            type = "int"    mode = "rw" test = "SUB" />
-        <option name = "linger"            type = "int"    mode = "rw" test = "SUB" />
-        <option name = "reconnect_ivl"     type = "int"    mode = "rw" test = "SUB" />
-        <option name = "reconnect_ivl_max" type = "int"    mode = "rw" test = "SUB" />
-        <option name = "backlog"           type = "int"    mode = "rw" test = "SUB" />
         <option name = "maxmsgsize"        type = "int64"  mode = "rw" test = "SUB" />
         <option name = "multicast_hops"    type = "int"    mode = "rw" test = "SUB" />
-        <option name = "rcvtimeo"          type = "int"    mode = "rw" test = "SUB" />
-        <option name = "sndtimeo"          type = "int"    mode = "rw" test = "SUB" />
         <option name = "xpub_verbose"      type = "int"    mode = "w"  test = "XPUB">
             <restrict type = "XPUB" />
         </option>
@@ -218,9 +191,49 @@
                                            type = "int"    mode = "rw" test = "SUB" />
         <option name = "tcp_accept_filter" type = "string" mode = "rw" test = "SUB"
                 test_value = "127.0.0.1" />
-        <option name = "rcvmore"           type = "int"    mode = "r"  test = "SUB" />
-        <option name = "fd"                type = "socket" mode = "r"  test = "SUB" />
-        <option name = "events"            type = "int"    mode = "r"  test = "SUB" />
         <option name = "last_endpoint"     type = "string" mode = "r"  test = "SUB" />
-    </macro>
+
+        <!-- Options that are deprecated in 4.0 -->
+        <option name = "router_raw"        type = "int"    mode = "w"  test = "ROUTER" >
+            <restrict type = "ROUTER" />
+        </option>
+        <option name = "ipv4only"          type = "int"    mode = "rw" test = "SUB" />
+        <option name = "delay_attach_on_connect"
+                                           type = "int"    mode = "w"  test = "PUB" />
+    </version>
+
+    <!-- Legacy version 2 -->
+    <version major = "2" style = "macro">
+        <option name = "hwm"               type = "uint64" mode = "rw" test = "SUB" major_removed = "3" />
+        <option name = "swap"              type = "int64"  mode = "rw" test = "SUB" major_removed = "3" />
+        <option name = "affinity"          type = "uint64" mode = "rw" test = "SUB" />
+        <option name = "identity"          type = "string" mode = "rw" test = "DEALER">
+            <restrict type = "REQ" />
+            <restrict type = "REP" />
+            <restrict type = "DEALER" />
+            <restrict type = "ROUTER" />
+        </option>
+        <option name = "rate"              type = "int64"  mode = "rw" test = "SUB" major_changed = "3" type_new = "int" />
+        <option name = "recovery_ivl"      type = "int64"  mode = "rw" test = "SUB" major_changed = "3" type_new = "int" />
+        <option name = "recovery_ivl_msec" type = "int64"  mode = "rw" test = "SUB" major_removed = "3" />
+        <option name = "mcast_loop"        type = "int64"  mode = "rw" test = "SUB" major_removed = "3" />
+        <option name = "rcvtimeo"          type = "int"    mode = "rw" test = "SUB" minor = "2" />
+        <option name = "sndtimeo"          type = "int"    mode = "rw" test = "SUB" minor = "2" />
+        <option name = "sndbuf"            type = "uint64" mode = "rw" test = "SUB" major_changed = "3" type_new = "int" />
+        <option name = "rcvbuf"            type = "uint64" mode = "rw" test = "SUB" major_changed = "3" type_new = "int" />
+        <option name = "linger"            type = "int"    mode = "rw" test = "SUB" />
+        <option name = "reconnect_ivl"     type = "int"    mode = "rw" test = "SUB" />
+        <option name = "reconnect_ivl_max" type = "int"    mode = "rw" test = "SUB" />
+        <option name = "backlog"           type = "int"    mode = "rw" test = "SUB" />
+        <option name = "subscribe"         type = "string" mode = "w"  test = "SUB">
+            <restrict type = "SUB" />
+        </option>
+        <option name = "unsubscribe"       type = "string" mode = "w"  test = "SUB">
+            <restrict type = "SUB" />
+        </option>
+        <option name = "type"              type = "int"    mode = "r"  test = "SUB" />
+        <option name = "rcvmore"           type = "int64"  mode = "r"  test = "SUB" major_changed = "3" type_new = "int" />
+        <option name = "fd"                type = "socket" mode = "r"  test = "SUB" />
+        <option name = "events"            type = "uint32" mode = "r"  test = "SUB" major_changed = "3" type_new = "int" />
+    </version>
 </options>
