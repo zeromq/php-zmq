@@ -25,10 +25,10 @@ then
 fi
 
 # latest version supported
-$WGET https://raw.githubusercontent.com/zeromq/czmq/v4.0.0/src/sockopts.xml -O sockopts.xml
+# $WGET https://raw.githubusercontent.com/zeromq/czmq/v4.0.0/src/sockopts.xml -O sockopts.xml
 
 # not yet working
-# $WGET https://raw.githubusercontent.com/zeromq/czmq/master/src/sockopts.xml -O sockopts.xml
+$WGET https://raw.githubusercontent.com/zeromq/czmq/master/src/sockopts.xml -O sockopts.xml
 
 git diff sockopts.xml
 

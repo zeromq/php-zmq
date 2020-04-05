@@ -24,16 +24,20 @@ for version
             option.is_alias = "YES"
         endif
 
-        if type = "uint64" | type = "int64" | type = "uint32"
+        if type = "uint64" | type = "int64" | type = "uint32" | type = "int"
 
             option.php_type = "int"
             option.c_type   = "$(type)_t"
-            option.binary   = "no"
-
-        elsif type = "int"
-
-            option.php_type = "int"
-            option.c_type   = "$(type)"
+            if(option.c_type = "int_t")
+                option.c_type = "int"
+            endif
+            if defined (major_changed)
+                option.c_type_new = "$(type_new)_t"
+                if(option.c_type_new = "int_t")
+                    option.c_type_new = "int"
+                endif
+                option.major_changed = major_changed
+            endif
             option.binary   = "no"
 
         elsif type = "string"

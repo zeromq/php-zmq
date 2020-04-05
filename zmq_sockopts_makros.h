@@ -63,8 +63,8 @@
   if (zmq_setsockopt(intern->socket->z_socket, key, &value, sizeof(TYPE)) != 0) { \
     zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno, \
             "Failed to set socket ZMQ::" #NAME " option: %s", zmq_strerror(errno)); \
-    return; \
   } \
+  return; \
 }
 
 #define SOCKOPTS_SET_STRING(NAME) \
@@ -76,6 +76,6 @@
   if (rc != 0) { \
     zend_throw_exception_ex(php_zmq_socket_exception_sc_entry_get (), errno, \
             "Failed to set socket ZMQ::SOCKOPT_" #NAME " option: %s", zmq_strerror(errno)); \
-    return; \
   } \
+  return; \
 }

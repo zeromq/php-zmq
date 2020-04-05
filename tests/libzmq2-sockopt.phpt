@@ -3,8 +3,8 @@ Test setting socket options
 --SKIPIF--
 <?php
 require_once(dirname(__FILE__) . '/skipif.inc');
-if (!defined('ZMQ::LIBZMQ_VERSION_MAJOR') || ZMQ::LIBZMQ_VERSION_MAJOR != 2) {
-    die ("skip This test is for PHP7 and libzmq version 2.x");
+if (!defined('ZMQ::LIBZMQ_VERSION_MAJOR') || ZMQ::LIBZMQ_VERSION_MAJOR < 2) {
+    die ("skip This test is for PHP7 and libzmq version 2.x and up");
 }
 ?>
 --FILE--
@@ -12,8 +12,9 @@ if (!defined('ZMQ::LIBZMQ_VERSION_MAJOR') || ZMQ::LIBZMQ_VERSION_MAJOR != 2) {
 
 $tested = 0;
 
+$removedVersion = 3;
 /* socket option is marked mode="rw" type=uint64 php_type=int */
-if (defined ("ZMQ::SOCKOPT_HWM")) {
+if (defined ("ZMQ::SOCKOPT_HWM") && ($removedVersion === false || ZMQ::LIBZMQ_VERSION_MAJOR < $removedVersion)) {
     $test_value = 1;
 
     $socket = ZMQContext::acquire()->getSocket(ZMQ::SOCKET_SUB);
@@ -29,8 +30,9 @@ if (defined ("ZMQ::SOCKOPT_HWM")) {
 
 
 }
+$removedVersion = 3;
 /* socket option is marked mode="rw" type=int64 php_type=int */
-if (defined ("ZMQ::SOCKOPT_SWAP")) {
+if (defined ("ZMQ::SOCKOPT_SWAP") && ($removedVersion === false || ZMQ::LIBZMQ_VERSION_MAJOR < $removedVersion)) {
     $test_value = 1;
 
     $socket = ZMQContext::acquire()->getSocket(ZMQ::SOCKET_SUB);
@@ -46,8 +48,9 @@ if (defined ("ZMQ::SOCKOPT_SWAP")) {
 
 
 }
+$removedVersion = false;
 /* socket option is marked mode="rw" type=uint64 php_type=int */
-if (defined ("ZMQ::SOCKOPT_AFFINITY")) {
+if (defined ("ZMQ::SOCKOPT_AFFINITY") && ($removedVersion === false || ZMQ::LIBZMQ_VERSION_MAJOR < $removedVersion)) {
     $test_value = 1;
 
     $socket = ZMQContext::acquire()->getSocket(ZMQ::SOCKET_SUB);
@@ -63,11 +66,12 @@ if (defined ("ZMQ::SOCKOPT_AFFINITY")) {
 
 
 }
+$removedVersion = false;
 /* socket option is marked mode="rw" type=string php_type=string */
-if (defined ("ZMQ::SOCKOPT_IDENTITY")) {
+if (defined ("ZMQ::SOCKOPT_IDENTITY") && ($removedVersion === false || ZMQ::LIBZMQ_VERSION_MAJOR < $removedVersion)) {
     $test_value = "test";
 
-    $socket = ZMQContext::acquire()->getSocket(ZMQ::SOCKET_SUB);
+    $socket = ZMQContext::acquire()->getSocket(ZMQ::SOCKET_DEALER);
 
     // Test read-write
     $socket->setSockOpt(ZMQ::SOCKOPT_IDENTITY, $test_value);
@@ -80,8 +84,9 @@ if (defined ("ZMQ::SOCKOPT_IDENTITY")) {
 
 
 }
+$removedVersion = false;
 /* socket option is marked mode="rw" type=int64 php_type=int */
-if (defined ("ZMQ::SOCKOPT_RATE")) {
+if (defined ("ZMQ::SOCKOPT_RATE") && ($removedVersion === false || ZMQ::LIBZMQ_VERSION_MAJOR < $removedVersion)) {
     $test_value = 1;
 
     $socket = ZMQContext::acquire()->getSocket(ZMQ::SOCKET_SUB);
@@ -97,8 +102,9 @@ if (defined ("ZMQ::SOCKOPT_RATE")) {
 
 
 }
+$removedVersion = false;
 /* socket option is marked mode="rw" type=int64 php_type=int */
-if (defined ("ZMQ::SOCKOPT_RECOVERY_IVL")) {
+if (defined ("ZMQ::SOCKOPT_RECOVERY_IVL") && ($removedVersion === false || ZMQ::LIBZMQ_VERSION_MAJOR < $removedVersion)) {
     $test_value = 1;
 
     $socket = ZMQContext::acquire()->getSocket(ZMQ::SOCKET_SUB);
@@ -114,8 +120,9 @@ if (defined ("ZMQ::SOCKOPT_RECOVERY_IVL")) {
 
 
 }
+$removedVersion = 3;
 /* socket option is marked mode="rw" type=int64 php_type=int */
-if (defined ("ZMQ::SOCKOPT_RECOVERY_IVL_MSEC")) {
+if (defined ("ZMQ::SOCKOPT_RECOVERY_IVL_MSEC") && ($removedVersion === false || ZMQ::LIBZMQ_VERSION_MAJOR < $removedVersion)) {
     $test_value = 1;
 
     $socket = ZMQContext::acquire()->getSocket(ZMQ::SOCKET_SUB);
@@ -131,8 +138,9 @@ if (defined ("ZMQ::SOCKOPT_RECOVERY_IVL_MSEC")) {
 
 
 }
+$removedVersion = 3;
 /* socket option is marked mode="rw" type=int64 php_type=int */
-if (defined ("ZMQ::SOCKOPT_MCAST_LOOP")) {
+if (defined ("ZMQ::SOCKOPT_MCAST_LOOP") && ($removedVersion === false || ZMQ::LIBZMQ_VERSION_MAJOR < $removedVersion)) {
     $test_value = 1;
 
     $socket = ZMQContext::acquire()->getSocket(ZMQ::SOCKET_SUB);
@@ -148,8 +156,9 @@ if (defined ("ZMQ::SOCKOPT_MCAST_LOOP")) {
 
 
 }
+$removedVersion = false;
 /* socket option is marked mode="rw" type=int php_type=int */
-if (defined ("ZMQ::SOCKOPT_RCVTIMEO")) {
+if (defined ("ZMQ::SOCKOPT_RCVTIMEO") && ($removedVersion === false || ZMQ::LIBZMQ_VERSION_MAJOR < $removedVersion)) {
     $test_value = 1;
 
     $socket = ZMQContext::acquire()->getSocket(ZMQ::SOCKET_SUB);
@@ -165,8 +174,9 @@ if (defined ("ZMQ::SOCKOPT_RCVTIMEO")) {
 
 
 }
+$removedVersion = false;
 /* socket option is marked mode="rw" type=int php_type=int */
-if (defined ("ZMQ::SOCKOPT_SNDTIMEO")) {
+if (defined ("ZMQ::SOCKOPT_SNDTIMEO") && ($removedVersion === false || ZMQ::LIBZMQ_VERSION_MAJOR < $removedVersion)) {
     $test_value = 1;
 
     $socket = ZMQContext::acquire()->getSocket(ZMQ::SOCKET_SUB);
@@ -182,8 +192,9 @@ if (defined ("ZMQ::SOCKOPT_SNDTIMEO")) {
 
 
 }
+$removedVersion = false;
 /* socket option is marked mode="rw" type=uint64 php_type=int */
-if (defined ("ZMQ::SOCKOPT_SNDBUF")) {
+if (defined ("ZMQ::SOCKOPT_SNDBUF") && ($removedVersion === false || ZMQ::LIBZMQ_VERSION_MAJOR < $removedVersion)) {
     $test_value = 1;
 
     $socket = ZMQContext::acquire()->getSocket(ZMQ::SOCKET_SUB);
@@ -199,8 +210,9 @@ if (defined ("ZMQ::SOCKOPT_SNDBUF")) {
 
 
 }
+$removedVersion = false;
 /* socket option is marked mode="rw" type=uint64 php_type=int */
-if (defined ("ZMQ::SOCKOPT_RCVBUF")) {
+if (defined ("ZMQ::SOCKOPT_RCVBUF") && ($removedVersion === false || ZMQ::LIBZMQ_VERSION_MAJOR < $removedVersion)) {
     $test_value = 1;
 
     $socket = ZMQContext::acquire()->getSocket(ZMQ::SOCKET_SUB);
@@ -216,8 +228,9 @@ if (defined ("ZMQ::SOCKOPT_RCVBUF")) {
 
 
 }
+$removedVersion = false;
 /* socket option is marked mode="rw" type=int php_type=int */
-if (defined ("ZMQ::SOCKOPT_LINGER")) {
+if (defined ("ZMQ::SOCKOPT_LINGER") && ($removedVersion === false || ZMQ::LIBZMQ_VERSION_MAJOR < $removedVersion)) {
     $test_value = 1;
 
     $socket = ZMQContext::acquire()->getSocket(ZMQ::SOCKET_SUB);
@@ -233,8 +246,9 @@ if (defined ("ZMQ::SOCKOPT_LINGER")) {
 
 
 }
+$removedVersion = false;
 /* socket option is marked mode="rw" type=int php_type=int */
-if (defined ("ZMQ::SOCKOPT_RECONNECT_IVL")) {
+if (defined ("ZMQ::SOCKOPT_RECONNECT_IVL") && ($removedVersion === false || ZMQ::LIBZMQ_VERSION_MAJOR < $removedVersion)) {
     $test_value = 1;
 
     $socket = ZMQContext::acquire()->getSocket(ZMQ::SOCKET_SUB);
@@ -250,8 +264,9 @@ if (defined ("ZMQ::SOCKOPT_RECONNECT_IVL")) {
 
 
 }
+$removedVersion = false;
 /* socket option is marked mode="rw" type=int php_type=int */
-if (defined ("ZMQ::SOCKOPT_RECONNECT_IVL_MAX")) {
+if (defined ("ZMQ::SOCKOPT_RECONNECT_IVL_MAX") && ($removedVersion === false || ZMQ::LIBZMQ_VERSION_MAJOR < $removedVersion)) {
     $test_value = 1;
 
     $socket = ZMQContext::acquire()->getSocket(ZMQ::SOCKET_SUB);
@@ -267,8 +282,9 @@ if (defined ("ZMQ::SOCKOPT_RECONNECT_IVL_MAX")) {
 
 
 }
+$removedVersion = false;
 /* socket option is marked mode="rw" type=int php_type=int */
-if (defined ("ZMQ::SOCKOPT_BACKLOG")) {
+if (defined ("ZMQ::SOCKOPT_BACKLOG") && ($removedVersion === false || ZMQ::LIBZMQ_VERSION_MAJOR < $removedVersion)) {
     $test_value = 1;
 
     $socket = ZMQContext::acquire()->getSocket(ZMQ::SOCKET_SUB);
@@ -284,8 +300,9 @@ if (defined ("ZMQ::SOCKOPT_BACKLOG")) {
 
 
 }
+$removedVersion = false;
 /* socket option is marked mode="w" type=string php_type=string */
-if (defined ("ZMQ::SOCKOPT_SUBSCRIBE")) {
+if (defined ("ZMQ::SOCKOPT_SUBSCRIBE") && ($removedVersion === false || ZMQ::LIBZMQ_VERSION_MAJOR < $removedVersion)) {
     $test_value = "test";
 
     $socket = ZMQContext::acquire()->getSocket(ZMQ::SOCKET_SUB);
@@ -300,8 +317,9 @@ if (defined ("ZMQ::SOCKOPT_SUBSCRIBE")) {
     } catch (ZMQSocketException $e) {}
 
 }
+$removedVersion = false;
 /* socket option is marked mode="w" type=string php_type=string */
-if (defined ("ZMQ::SOCKOPT_UNSUBSCRIBE")) {
+if (defined ("ZMQ::SOCKOPT_UNSUBSCRIBE") && ($removedVersion === false || ZMQ::LIBZMQ_VERSION_MAJOR < $removedVersion)) {
     $test_value = "test";
 
     $socket = ZMQContext::acquire()->getSocket(ZMQ::SOCKET_SUB);
@@ -316,8 +334,9 @@ if (defined ("ZMQ::SOCKOPT_UNSUBSCRIBE")) {
     } catch (ZMQSocketException $e) {}
 
 }
+$removedVersion = false;
 /* socket option is marked mode="r" type=int php_type=int */
-if (defined ("ZMQ::SOCKOPT_TYPE")) {
+if (defined ("ZMQ::SOCKOPT_TYPE") && ($removedVersion === false || ZMQ::LIBZMQ_VERSION_MAJOR < $removedVersion)) {
     $test_value = 1;
 
     $socket = ZMQContext::acquire()->getSocket(ZMQ::SOCKET_SUB);
@@ -335,8 +354,9 @@ if (defined ("ZMQ::SOCKOPT_TYPE")) {
     } catch (ZMQSocketException $e) {}
 
 }
+$removedVersion = false;
 /* socket option is marked mode="r" type=int64 php_type=int */
-if (defined ("ZMQ::SOCKOPT_RCVMORE")) {
+if (defined ("ZMQ::SOCKOPT_RCVMORE") && ($removedVersion === false || ZMQ::LIBZMQ_VERSION_MAJOR < $removedVersion)) {
     $test_value = 1;
 
     $socket = ZMQContext::acquire()->getSocket(ZMQ::SOCKET_SUB);
@@ -354,8 +374,9 @@ if (defined ("ZMQ::SOCKOPT_RCVMORE")) {
     } catch (ZMQSocketException $e) {}
 
 }
+$removedVersion = false;
 /* socket option is marked mode="r" type=socket php_type=resource */
-if (defined ("ZMQ::SOCKOPT_FD")) {
+if (defined ("ZMQ::SOCKOPT_FD") && ($removedVersion === false || ZMQ::LIBZMQ_VERSION_MAJOR < $removedVersion)) {
 
     $socket = ZMQContext::acquire()->getSocket(ZMQ::SOCKET_SUB);
 
@@ -372,8 +393,9 @@ if (defined ("ZMQ::SOCKOPT_FD")) {
     } catch (ZMQSocketException $e) {}
 
 }
+$removedVersion = false;
 /* socket option is marked mode="r" type=uint32 php_type=int */
-if (defined ("ZMQ::SOCKOPT_EVENTS")) {
+if (defined ("ZMQ::SOCKOPT_EVENTS") && ($removedVersion === false || ZMQ::LIBZMQ_VERSION_MAJOR < $removedVersion)) {
     $test_value = 1;
 
     $socket = ZMQContext::acquire()->getSocket(ZMQ::SOCKET_SUB);

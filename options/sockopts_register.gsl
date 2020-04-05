@@ -12,17 +12,27 @@ void php_zmq_register_sockopt_constants (zend_class_entry *php_zmq_sc_entry)
 #define PHP_ZMQ_REGISTER_SOCKOPT(const_name, value) zend_declare_class_constant_long(php_zmq_sc_entry, const_name, sizeof(const_name) - 1, value);
 
 .for version
-#if ZMQ_VERSION_MAJOR == $(version.major)
+.   if defined (version.major_removed)
+#if (ZMQ_VERSION_MAJOR >= $(version.major)) && (ZMQ_VERSION_MAJOR < $(version.major_removed))
+.   else
+#if (ZMQ_VERSION_MAJOR >= $(version.major))
+.   endif
+.   if defined (version.minor)
+#   if (ZMQ_VERSION_MINOR >= $(version.minor))
+.   endif
 .    for option
 # ifdef ZMQ_$(NAME)
     PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_$(NAME)", ZMQ_$(NAME));
 # endif
 .    endfor
+.   if defined (version.minor)
+# endif
+.   endif
 #endif /* ZMQ_MAJOR_VERSION == $(version.major) */
 .endfor
 
 #if ZMQ_VERSION_MAJOR > 2
-    PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_HWM", ZMQ_HWM);
+    // PHP_ZMQ_REGISTER_SOCKOPT("SOCKOPT_HWM", ZMQ_HWM); // already present
 #endif
 
 #undef PHP_ZMQ_REGISTER_SOCKOPT
