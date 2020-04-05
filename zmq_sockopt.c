@@ -1032,14 +1032,22 @@ PHP_METHOD(zmqsocket, getsockopt)
 # ifdef ZMQ_RATE
 
         case ZMQ_RATE:
+# if ZMQ_VERSION_MAJOR < 3
+	        SOCKOPTS_GET_INT(RATE, int64_t);
+# else
 	        SOCKOPTS_GET_INT(RATE, int);
+# endif
         break;
 
 # endif /* ZMQ_RATE */
 # ifdef ZMQ_RECOVERY_IVL
 
         case ZMQ_RECOVERY_IVL:
+# if ZMQ_VERSION_MAJOR < 3
+	        SOCKOPTS_GET_INT(RECOVERY_IVL, int64_t);
+# else
 	        SOCKOPTS_GET_INT(RECOVERY_IVL, int);
+# endif
         break;
 
 # endif /* ZMQ_RECOVERY_IVL */
@@ -1074,14 +1082,22 @@ PHP_METHOD(zmqsocket, getsockopt)
 # ifdef ZMQ_SNDBUF
 
         case ZMQ_SNDBUF:
+# if ZMQ_VERSION_MAJOR < 3
+	        SOCKOPTS_GET_INT(SNDBUF, uint64_t);
+# else
 	        SOCKOPTS_GET_INT(SNDBUF, int);
+# endif
         break;
 
 # endif /* ZMQ_SNDBUF */
 # ifdef ZMQ_RCVBUF
 
         case ZMQ_RCVBUF:
+# if ZMQ_VERSION_MAJOR < 3
+	        SOCKOPTS_GET_INT(RCVBUF, uint64_t);
+# else
 	        SOCKOPTS_GET_INT(RCVBUF, int);
+# endif
         break;
 
 # endif /* ZMQ_RCVBUF */
@@ -1139,7 +1155,11 @@ PHP_METHOD(zmqsocket, getsockopt)
 # ifdef ZMQ_RCVMORE
 
         case ZMQ_RCVMORE:
+# if ZMQ_VERSION_MAJOR < 3
+	        SOCKOPTS_GET_INT(RCVMORE, int64_t);
+# else
 	        SOCKOPTS_GET_INT(RCVMORE, int);
+# endif
         break;
 
 # endif /* ZMQ_RCVMORE */
@@ -1160,7 +1180,11 @@ PHP_METHOD(zmqsocket, getsockopt)
 # ifdef ZMQ_EVENTS
 
         case ZMQ_EVENTS:
+# if ZMQ_VERSION_MAJOR < 3
+	        SOCKOPTS_GET_INT(EVENTS, uint32_t);
+# else
 	        SOCKOPTS_GET_INT(EVENTS, int);
+# endif
         break;
 
 # endif /* ZMQ_EVENTS */
@@ -1250,14 +1274,14 @@ PHP_METHOD(zmqsocket, setsockopt)
             return;
         }
 }
-                SOCKOPTS_SET_INT(ONLY_FIRST_SUBSCRIBE, int)
+			SOCKOPTS_SET_INT(ONLY_FIRST_SUBSCRIBE, int)
         break;
 
 # endif /* ifdef ZMQ_ONLY_FIRST_SUBSCRIBE */
 
 # ifdef ZMQ_WSS_TRUST_SYSTEM
         case ZMQ_WSS_TRUST_SYSTEM:
-                SOCKOPTS_SET_INT(WSS_TRUST_SYSTEM, int)
+			SOCKOPTS_SET_INT(WSS_TRUST_SYSTEM, int)
         break;
 
 # endif /* ifdef ZMQ_WSS_TRUST_SYSTEM */
@@ -1296,14 +1320,14 @@ PHP_METHOD(zmqsocket, setsockopt)
 
 # ifdef ZMQ_OUT_BATCH_SIZE
         case ZMQ_OUT_BATCH_SIZE:
-                SOCKOPTS_SET_INT(OUT_BATCH_SIZE, int)
+			SOCKOPTS_SET_INT(OUT_BATCH_SIZE, int)
         break;
 
 # endif /* ifdef ZMQ_OUT_BATCH_SIZE */
 
 # ifdef ZMQ_IN_BATCH_SIZE
         case ZMQ_IN_BATCH_SIZE:
-                SOCKOPTS_SET_INT(IN_BATCH_SIZE, int)
+			SOCKOPTS_SET_INT(IN_BATCH_SIZE, int)
         break;
 
 # endif /* ifdef ZMQ_IN_BATCH_SIZE */
@@ -1332,21 +1356,21 @@ PHP_METHOD(zmqsocket, setsockopt)
             return;
         }
 }
-                SOCKOPTS_SET_INT(XPUB_MANUAL_LAST_VALUE, int)
+			SOCKOPTS_SET_INT(XPUB_MANUAL_LAST_VALUE, int)
         break;
 
 # endif /* ifdef ZMQ_XPUB_MANUAL_LAST_VALUE */
 
 # ifdef ZMQ_ROUTER_NOTIFY
         case ZMQ_ROUTER_NOTIFY:
-                SOCKOPTS_SET_INT(ROUTER_NOTIFY, int)
+			SOCKOPTS_SET_INT(ROUTER_NOTIFY, int)
         break;
 
 # endif /* ifdef ZMQ_ROUTER_NOTIFY */
 
 # ifdef ZMQ_MULTICAST_LOOP
         case ZMQ_MULTICAST_LOOP:
-                SOCKOPTS_SET_INT(MULTICAST_LOOP, int)
+			SOCKOPTS_SET_INT(MULTICAST_LOOP, int)
         break;
 
 # endif /* ifdef ZMQ_MULTICAST_LOOP */
@@ -1361,28 +1385,28 @@ PHP_METHOD(zmqsocket, setsockopt)
 
 # ifdef ZMQ_LOOPBACK_FASTPATH
         case ZMQ_LOOPBACK_FASTPATH:
-                SOCKOPTS_SET_INT(LOOPBACK_FASTPATH, int)
+			SOCKOPTS_SET_INT(LOOPBACK_FASTPATH, int)
         break;
 
 # endif /* ifdef ZMQ_LOOPBACK_FASTPATH */
 
 # ifdef ZMQ_ZAP_ENFORCE_DOMAIN
         case ZMQ_ZAP_ENFORCE_DOMAIN:
-                SOCKOPTS_SET_INT(ZAP_ENFORCE_DOMAIN, int)
+			SOCKOPTS_SET_INT(ZAP_ENFORCE_DOMAIN, int)
         break;
 
 # endif /* ifdef ZMQ_ZAP_ENFORCE_DOMAIN */
 
 # ifdef ZMQ_GSSAPI_PRINCIPAL_NAMETYPE
         case ZMQ_GSSAPI_PRINCIPAL_NAMETYPE:
-                SOCKOPTS_SET_INT(GSSAPI_PRINCIPAL_NAMETYPE, int)
+			SOCKOPTS_SET_INT(GSSAPI_PRINCIPAL_NAMETYPE, int)
         break;
 
 # endif /* ifdef ZMQ_GSSAPI_PRINCIPAL_NAMETYPE */
 
 # ifdef ZMQ_GSSAPI_SERVICE_PRINCIPAL_NAMETYPE
         case ZMQ_GSSAPI_SERVICE_PRINCIPAL_NAMETYPE:
-                SOCKOPTS_SET_INT(GSSAPI_SERVICE_PRINCIPAL_NAMETYPE, int)
+			SOCKOPTS_SET_INT(GSSAPI_SERVICE_PRINCIPAL_NAMETYPE, int)
         break;
 
 # endif /* ifdef ZMQ_GSSAPI_SERVICE_PRINCIPAL_NAMETYPE */
@@ -1406,28 +1430,28 @@ PHP_METHOD(zmqsocket, setsockopt)
 
 # ifdef ZMQ_HEARTBEAT_IVL
         case ZMQ_HEARTBEAT_IVL:
-                SOCKOPTS_SET_INT(HEARTBEAT_IVL, int)
+			SOCKOPTS_SET_INT(HEARTBEAT_IVL, int)
         break;
 
 # endif /* ifdef ZMQ_HEARTBEAT_IVL */
 
 # ifdef ZMQ_HEARTBEAT_TTL
         case ZMQ_HEARTBEAT_TTL:
-                SOCKOPTS_SET_INT(HEARTBEAT_TTL, int)
+			SOCKOPTS_SET_INT(HEARTBEAT_TTL, int)
         break;
 
 # endif /* ifdef ZMQ_HEARTBEAT_TTL */
 
 # ifdef ZMQ_HEARTBEAT_TIMEOUT
         case ZMQ_HEARTBEAT_TIMEOUT:
-                SOCKOPTS_SET_INT(HEARTBEAT_TIMEOUT, int)
+			SOCKOPTS_SET_INT(HEARTBEAT_TIMEOUT, int)
         break;
 
 # endif /* ifdef ZMQ_HEARTBEAT_TIMEOUT */
 
 # ifdef ZMQ_USE_FD
         case ZMQ_USE_FD:
-                SOCKOPTS_SET_INT(USE_FD, int)
+			SOCKOPTS_SET_INT(USE_FD, int)
         break;
 
 # endif /* ifdef ZMQ_USE_FD */
@@ -1440,7 +1464,7 @@ PHP_METHOD(zmqsocket, setsockopt)
             return;
         }
 }
-                SOCKOPTS_SET_INT(XPUB_MANUAL, int)
+			SOCKOPTS_SET_INT(XPUB_MANUAL, int)
         break;
 
 # endif /* ifdef ZMQ_XPUB_MANUAL */
@@ -1467,7 +1491,7 @@ PHP_METHOD(zmqsocket, setsockopt)
             return;
         }
 }
-                SOCKOPTS_SET_INT(STREAM_NOTIFY, int)
+			SOCKOPTS_SET_INT(STREAM_NOTIFY, int)
         break;
 
 # endif /* ifdef ZMQ_STREAM_NOTIFY */
@@ -1482,7 +1506,7 @@ PHP_METHOD(zmqsocket, setsockopt)
             return;
         }
 }
-                SOCKOPTS_SET_INT(INVERT_MATCHING, int)
+			SOCKOPTS_SET_INT(INVERT_MATCHING, int)
         break;
 
 # endif /* ifdef ZMQ_INVERT_MATCHING */
@@ -1495,21 +1519,21 @@ PHP_METHOD(zmqsocket, setsockopt)
             return;
         }
 }
-                SOCKOPTS_SET_INT(XPUB_VERBOSER, int)
+			SOCKOPTS_SET_INT(XPUB_VERBOSER, int)
         break;
 
 # endif /* ifdef ZMQ_XPUB_VERBOSER */
 
 # ifdef ZMQ_CONNECT_TIMEOUT
         case ZMQ_CONNECT_TIMEOUT:
-                SOCKOPTS_SET_INT(CONNECT_TIMEOUT, int)
+			SOCKOPTS_SET_INT(CONNECT_TIMEOUT, int)
         break;
 
 # endif /* ifdef ZMQ_CONNECT_TIMEOUT */
 
 # ifdef ZMQ_TCP_MAXRT
         case ZMQ_TCP_MAXRT:
-                SOCKOPTS_SET_INT(TCP_MAXRT, int)
+			SOCKOPTS_SET_INT(TCP_MAXRT, int)
         break;
 
 # endif /* ifdef ZMQ_TCP_MAXRT */
@@ -1524,35 +1548,35 @@ PHP_METHOD(zmqsocket, setsockopt)
 
 # ifdef ZMQ_MULTICAST_MAXTPDU
         case ZMQ_MULTICAST_MAXTPDU:
-                SOCKOPTS_SET_INT(MULTICAST_MAXTPDU, int)
+			SOCKOPTS_SET_INT(MULTICAST_MAXTPDU, int)
         break;
 
 # endif /* ifdef ZMQ_MULTICAST_MAXTPDU */
 
 # ifdef ZMQ_VMCI_BUFFER_SIZE
         case ZMQ_VMCI_BUFFER_SIZE:
-                SOCKOPTS_SET_INT(VMCI_BUFFER_SIZE, uint64_t)
+			SOCKOPTS_SET_INT(VMCI_BUFFER_SIZE, uint64_t)
         break;
 
 # endif /* ifdef ZMQ_VMCI_BUFFER_SIZE */
 
 # ifdef ZMQ_VMCI_BUFFER_MIN_SIZE
         case ZMQ_VMCI_BUFFER_MIN_SIZE:
-                SOCKOPTS_SET_INT(VMCI_BUFFER_MIN_SIZE, uint64_t)
+			SOCKOPTS_SET_INT(VMCI_BUFFER_MIN_SIZE, uint64_t)
         break;
 
 # endif /* ifdef ZMQ_VMCI_BUFFER_MIN_SIZE */
 
 # ifdef ZMQ_VMCI_BUFFER_MAX_SIZE
         case ZMQ_VMCI_BUFFER_MAX_SIZE:
-                SOCKOPTS_SET_INT(VMCI_BUFFER_MAX_SIZE, uint64_t)
+			SOCKOPTS_SET_INT(VMCI_BUFFER_MAX_SIZE, uint64_t)
         break;
 
 # endif /* ifdef ZMQ_VMCI_BUFFER_MAX_SIZE */
 
 # ifdef ZMQ_VMCI_CONNECT_TIMEOUT
         case ZMQ_VMCI_CONNECT_TIMEOUT:
-                SOCKOPTS_SET_INT(VMCI_CONNECT_TIMEOUT, int)
+			SOCKOPTS_SET_INT(VMCI_CONNECT_TIMEOUT, int)
         break;
 
 # endif /* ifdef ZMQ_VMCI_CONNECT_TIMEOUT */
@@ -1568,7 +1592,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 
 # ifdef ZMQ_TOS
         case ZMQ_TOS:
-                SOCKOPTS_SET_INT(TOS, int)
+			SOCKOPTS_SET_INT(TOS, int)
         break;
 
 # endif /* ifdef ZMQ_TOS */
@@ -1581,7 +1605,7 @@ PHP_METHOD(zmqsocket, setsockopt)
             return;
         }
 }
-                SOCKOPTS_SET_INT(ROUTER_HANDOVER, int)
+			SOCKOPTS_SET_INT(ROUTER_HANDOVER, int)
         break;
 
 # endif /* ifdef ZMQ_ROUTER_HANDOVER */
@@ -1603,7 +1627,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 
 # ifdef ZMQ_HANDSHAKE_IVL
         case ZMQ_HANDSHAKE_IVL:
-                SOCKOPTS_SET_INT(HANDSHAKE_IVL, int)
+			SOCKOPTS_SET_INT(HANDSHAKE_IVL, int)
         break;
 
 # endif /* ifdef ZMQ_HANDSHAKE_IVL */
@@ -1625,7 +1649,7 @@ PHP_METHOD(zmqsocket, setsockopt)
             return;
         }
 }
-                SOCKOPTS_SET_INT(XPUB_NODROP, int)
+			SOCKOPTS_SET_INT(XPUB_NODROP, int)
         break;
 
 # endif /* ifdef ZMQ_XPUB_NODROP */
@@ -1646,7 +1670,7 @@ PHP_METHOD(zmqsocket, setsockopt)
             return;
         }
 }
-                SOCKOPTS_SET_INT(ROUTER_MANDATORY, int)
+			SOCKOPTS_SET_INT(ROUTER_MANDATORY, int)
         break;
 
 # endif /* ifdef ZMQ_ROUTER_MANDATORY */
@@ -1661,7 +1685,7 @@ PHP_METHOD(zmqsocket, setsockopt)
             return;
         }
 }
-                SOCKOPTS_SET_INT(PROBE_ROUTER, int)
+			SOCKOPTS_SET_INT(PROBE_ROUTER, int)
         break;
 
 # endif /* ifdef ZMQ_PROBE_ROUTER */
@@ -1674,7 +1698,7 @@ PHP_METHOD(zmqsocket, setsockopt)
             return;
         }
 }
-                SOCKOPTS_SET_INT(REQ_RELAXED, int)
+			SOCKOPTS_SET_INT(REQ_RELAXED, int)
         break;
 
 # endif /* ifdef ZMQ_REQ_RELAXED */
@@ -1687,7 +1711,7 @@ PHP_METHOD(zmqsocket, setsockopt)
             return;
         }
 }
-                SOCKOPTS_SET_INT(REQ_CORRELATE, int)
+			SOCKOPTS_SET_INT(REQ_CORRELATE, int)
         break;
 
 # endif /* ifdef ZMQ_REQ_CORRELATE */
@@ -1704,7 +1728,7 @@ PHP_METHOD(zmqsocket, setsockopt)
             return;
         }
 }
-                SOCKOPTS_SET_INT(CONFLATE, int)
+			SOCKOPTS_SET_INT(CONFLATE, int)
         break;
 
 # endif /* ifdef ZMQ_CONFLATE */
@@ -1727,7 +1751,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 
 # ifdef ZMQ_PLAIN_SERVER
         case ZMQ_PLAIN_SERVER:
-                SOCKOPTS_SET_INT(PLAIN_SERVER, int)
+			SOCKOPTS_SET_INT(PLAIN_SERVER, int)
         break;
 
 # endif /* ifdef ZMQ_PLAIN_SERVER */
@@ -1750,7 +1774,7 @@ PHP_METHOD(zmqsocket, setsockopt)
 
 # ifdef ZMQ_CURVE_SERVER
         case ZMQ_CURVE_SERVER:
-                SOCKOPTS_SET_INT(CURVE_SERVER, int)
+			SOCKOPTS_SET_INT(CURVE_SERVER, int)
         break;
 
 # endif /* ifdef ZMQ_CURVE_SERVER */
@@ -1781,14 +1805,14 @@ PHP_METHOD(zmqsocket, setsockopt)
 
 # ifdef ZMQ_GSSAPI_SERVER
         case ZMQ_GSSAPI_SERVER:
-                SOCKOPTS_SET_INT(GSSAPI_SERVER, int)
+			SOCKOPTS_SET_INT(GSSAPI_SERVER, int)
         break;
 
 # endif /* ifdef ZMQ_GSSAPI_SERVER */
 
 # ifdef ZMQ_GSSAPI_PLAINTEXT
         case ZMQ_GSSAPI_PLAINTEXT:
-                SOCKOPTS_SET_INT(GSSAPI_PLAINTEXT, int)
+			SOCKOPTS_SET_INT(GSSAPI_PLAINTEXT, int)
         break;
 
 # endif /* ifdef ZMQ_GSSAPI_PLAINTEXT */
@@ -1811,14 +1835,14 @@ PHP_METHOD(zmqsocket, setsockopt)
 
 # ifdef ZMQ_IPV6
         case ZMQ_IPV6:
-                SOCKOPTS_SET_INT(IPV6, int)
+			SOCKOPTS_SET_INT(IPV6, int)
         break;
 
 # endif /* ifdef ZMQ_IPV6 */
 
 # ifdef ZMQ_IMMEDIATE
         case ZMQ_IMMEDIATE:
-                SOCKOPTS_SET_INT(IMMEDIATE, int)
+			SOCKOPTS_SET_INT(IMMEDIATE, int)
         break;
 
 # endif /* ifdef ZMQ_IMMEDIATE */
@@ -1832,28 +1856,28 @@ PHP_METHOD(zmqsocket, setsockopt)
 
 # ifdef ZMQ_SNDHWM
         case ZMQ_SNDHWM:
-                SOCKOPTS_SET_INT(SNDHWM, int)
+			SOCKOPTS_SET_INT(SNDHWM, int)
         break;
 
 # endif /* ifdef ZMQ_SNDHWM */
 
 # ifdef ZMQ_RCVHWM
         case ZMQ_RCVHWM:
-                SOCKOPTS_SET_INT(RCVHWM, int)
+			SOCKOPTS_SET_INT(RCVHWM, int)
         break;
 
 # endif /* ifdef ZMQ_RCVHWM */
 
 # ifdef ZMQ_MAXMSGSIZE
         case ZMQ_MAXMSGSIZE:
-                SOCKOPTS_SET_INT(MAXMSGSIZE, int64_t)
+			SOCKOPTS_SET_INT(MAXMSGSIZE, int64_t)
         break;
 
 # endif /* ifdef ZMQ_MAXMSGSIZE */
 
 # ifdef ZMQ_MULTICAST_HOPS
         case ZMQ_MULTICAST_HOPS:
-                SOCKOPTS_SET_INT(MULTICAST_HOPS, int)
+			SOCKOPTS_SET_INT(MULTICAST_HOPS, int)
         break;
 
 # endif /* ifdef ZMQ_MULTICAST_HOPS */
@@ -1866,35 +1890,35 @@ PHP_METHOD(zmqsocket, setsockopt)
             return;
         }
 }
-                SOCKOPTS_SET_INT(XPUB_VERBOSE, int)
+			SOCKOPTS_SET_INT(XPUB_VERBOSE, int)
         break;
 
 # endif /* ifdef ZMQ_XPUB_VERBOSE */
 
 # ifdef ZMQ_TCP_KEEPALIVE
         case ZMQ_TCP_KEEPALIVE:
-                SOCKOPTS_SET_INT(TCP_KEEPALIVE, int)
+			SOCKOPTS_SET_INT(TCP_KEEPALIVE, int)
         break;
 
 # endif /* ifdef ZMQ_TCP_KEEPALIVE */
 
 # ifdef ZMQ_TCP_KEEPALIVE_IDLE
         case ZMQ_TCP_KEEPALIVE_IDLE:
-                SOCKOPTS_SET_INT(TCP_KEEPALIVE_IDLE, int)
+			SOCKOPTS_SET_INT(TCP_KEEPALIVE_IDLE, int)
         break;
 
 # endif /* ifdef ZMQ_TCP_KEEPALIVE_IDLE */
 
 # ifdef ZMQ_TCP_KEEPALIVE_CNT
         case ZMQ_TCP_KEEPALIVE_CNT:
-                SOCKOPTS_SET_INT(TCP_KEEPALIVE_CNT, int)
+			SOCKOPTS_SET_INT(TCP_KEEPALIVE_CNT, int)
         break;
 
 # endif /* ifdef ZMQ_TCP_KEEPALIVE_CNT */
 
 # ifdef ZMQ_TCP_KEEPALIVE_INTVL
         case ZMQ_TCP_KEEPALIVE_INTVL:
-                SOCKOPTS_SET_INT(TCP_KEEPALIVE_INTVL, int)
+			SOCKOPTS_SET_INT(TCP_KEEPALIVE_INTVL, int)
         break;
 
 # endif /* ifdef ZMQ_TCP_KEEPALIVE_INTVL */
@@ -1923,14 +1947,14 @@ PHP_METHOD(zmqsocket, setsockopt)
             return;
         }
 }
-                SOCKOPTS_SET_INT(ROUTER_RAW, int)
+			SOCKOPTS_SET_INT(ROUTER_RAW, int)
         break;
 
 # endif /* ifdef ZMQ_ROUTER_RAW */
 
 # ifdef ZMQ_IPV4ONLY
         case ZMQ_IPV4ONLY:
-                SOCKOPTS_SET_INT(IPV4ONLY, int)
+			SOCKOPTS_SET_INT(IPV4ONLY, int)
         break;
 
 # endif /* ifdef ZMQ_IPV4ONLY */
@@ -1944,21 +1968,21 @@ PHP_METHOD(zmqsocket, setsockopt)
 
 # ifdef ZMQ_HWM
         case ZMQ_HWM:
-                SOCKOPTS_SET_INT(HWM, uint64_t)
+			SOCKOPTS_SET_INT(HWM, uint64_t)
         break;
 
 # endif /* ifdef ZMQ_HWM */
 
 # ifdef ZMQ_SWAP
         case ZMQ_SWAP:
-                SOCKOPTS_SET_INT(SWAP, int64_t)
+			SOCKOPTS_SET_INT(SWAP, int64_t)
         break;
 
 # endif /* ifdef ZMQ_SWAP */
 
 # ifdef ZMQ_AFFINITY
         case ZMQ_AFFINITY:
-                SOCKOPTS_SET_INT(AFFINITY, uint64_t)
+			SOCKOPTS_SET_INT(AFFINITY, uint64_t)
         break;
 
 # endif /* ifdef ZMQ_AFFINITY */
@@ -1982,84 +2006,100 @@ PHP_METHOD(zmqsocket, setsockopt)
 
 # ifdef ZMQ_RATE
         case ZMQ_RATE:
-                SOCKOPTS_SET_INT(RATE, int)
+# if ZMQ_VERSION_MAJOR < 3
+			SOCKOPTS_SET_INT(RATE, int64_t)
+# else
+			SOCKOPTS_SET_INT(RATE, int)
+# endif
         break;
 
 # endif /* ifdef ZMQ_RATE */
 
 # ifdef ZMQ_RECOVERY_IVL
         case ZMQ_RECOVERY_IVL:
-                SOCKOPTS_SET_INT(RECOVERY_IVL, int)
+# if ZMQ_VERSION_MAJOR < 3
+			SOCKOPTS_SET_INT(RECOVERY_IVL, int64_t)
+# else
+			SOCKOPTS_SET_INT(RECOVERY_IVL, int)
+# endif
         break;
 
 # endif /* ifdef ZMQ_RECOVERY_IVL */
 
 # ifdef ZMQ_RECOVERY_IVL_MSEC
         case ZMQ_RECOVERY_IVL_MSEC:
-                SOCKOPTS_SET_INT(RECOVERY_IVL_MSEC, int64_t)
+			SOCKOPTS_SET_INT(RECOVERY_IVL_MSEC, int64_t)
         break;
 
 # endif /* ifdef ZMQ_RECOVERY_IVL_MSEC */
 
 # ifdef ZMQ_MCAST_LOOP
         case ZMQ_MCAST_LOOP:
-                SOCKOPTS_SET_INT(MCAST_LOOP, int64_t)
+			SOCKOPTS_SET_INT(MCAST_LOOP, int64_t)
         break;
 
 # endif /* ifdef ZMQ_MCAST_LOOP */
 
 # ifdef ZMQ_RCVTIMEO
         case ZMQ_RCVTIMEO:
-                SOCKOPTS_SET_INT(RCVTIMEO, int)
+			SOCKOPTS_SET_INT(RCVTIMEO, int)
         break;
 
 # endif /* ifdef ZMQ_RCVTIMEO */
 
 # ifdef ZMQ_SNDTIMEO
         case ZMQ_SNDTIMEO:
-                SOCKOPTS_SET_INT(SNDTIMEO, int)
+			SOCKOPTS_SET_INT(SNDTIMEO, int)
         break;
 
 # endif /* ifdef ZMQ_SNDTIMEO */
 
 # ifdef ZMQ_SNDBUF
         case ZMQ_SNDBUF:
-                SOCKOPTS_SET_INT(SNDBUF, int)
+# if ZMQ_VERSION_MAJOR < 3
+			SOCKOPTS_SET_INT(SNDBUF, uint64_t)
+# else
+			SOCKOPTS_SET_INT(SNDBUF, int)
+# endif
         break;
 
 # endif /* ifdef ZMQ_SNDBUF */
 
 # ifdef ZMQ_RCVBUF
         case ZMQ_RCVBUF:
-                SOCKOPTS_SET_INT(RCVBUF, int)
+# if ZMQ_VERSION_MAJOR < 3
+			SOCKOPTS_SET_INT(RCVBUF, uint64_t)
+# else
+			SOCKOPTS_SET_INT(RCVBUF, int)
+# endif
         break;
 
 # endif /* ifdef ZMQ_RCVBUF */
 
 # ifdef ZMQ_LINGER
         case ZMQ_LINGER:
-                SOCKOPTS_SET_INT(LINGER, int)
+			SOCKOPTS_SET_INT(LINGER, int)
         break;
 
 # endif /* ifdef ZMQ_LINGER */
 
 # ifdef ZMQ_RECONNECT_IVL
         case ZMQ_RECONNECT_IVL:
-                SOCKOPTS_SET_INT(RECONNECT_IVL, int)
+			SOCKOPTS_SET_INT(RECONNECT_IVL, int)
         break;
 
 # endif /* ifdef ZMQ_RECONNECT_IVL */
 
 # ifdef ZMQ_RECONNECT_IVL_MAX
         case ZMQ_RECONNECT_IVL_MAX:
-                SOCKOPTS_SET_INT(RECONNECT_IVL_MAX, int)
+			SOCKOPTS_SET_INT(RECONNECT_IVL_MAX, int)
         break;
 
 # endif /* ifdef ZMQ_RECONNECT_IVL_MAX */
 
 # ifdef ZMQ_BACKLOG
         case ZMQ_BACKLOG:
-                SOCKOPTS_SET_INT(BACKLOG, int)
+			SOCKOPTS_SET_INT(BACKLOG, int)
         break;
 
 # endif /* ifdef ZMQ_BACKLOG */

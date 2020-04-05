@@ -87,7 +87,15 @@ PHP_METHOD(zmqsocket, setsockopt)
 .-
 .            if php_type = "int"
 .-
-                SOCKOPTS_SET_INT($(NAME), $(c_type))
+.               if defined (major_changed)
+# if ZMQ_VERSION_MAJOR < $(major_changed)
+			SOCKOPTS_SET_INT($(NAME), $(c_type))
+# else
+			SOCKOPTS_SET_INT($(NAME), $(c_type_new))
+# endif
+.               else
+			SOCKOPTS_SET_INT($(NAME), $(c_type))
+.               endif
 .-
 .            elsif php_type = "string"
 .-
