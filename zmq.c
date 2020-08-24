@@ -621,7 +621,9 @@ zend_bool php_zmq_connect_callback(zval *socket, zend_fcall_info *fci, zend_fcal
 	fci->params         = params;
 	fci->param_count    = 2;
 	fci->retval         = &retval;
+#if PHP_VERSION_ID < 80000
 	fci->no_separation  = 1;
+#endif
 
 	if (zend_call_function(fci, fci_cache) == FAILURE) {
 		if (!EG(exception)) {
