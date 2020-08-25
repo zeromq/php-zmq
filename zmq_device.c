@@ -53,7 +53,9 @@ zend_bool s_invoke_device_cb (php_zmq_device_cb_t *cb, uint64_t current_ts)
 	cb->fci.param_count = 1;
 
 	/* Call the cb */
+#if PHP_VERSION_ID < 80000
 	cb->fci.no_separation  = 1;
+#endif
 	cb->fci.retval         = &fc_retval;
 
 	if (zend_call_function(&(cb->fci), &(cb->fci_cache)) == FAILURE) {
