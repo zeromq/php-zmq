@@ -169,10 +169,15 @@ static
 zend_string *s_create_key(zval *entry)
 {
 	if (Z_TYPE_P(entry) == IS_RESOURCE) {
-		return strpprintf(0, "r:%d", Z_RES_P(entry)->handle);
+		/* zend_long since 8.1.0 */
+		return strpprintf(0, "r:%ld", (long)Z_RES_P(entry)->handle);
 	}
 	else {
+#if PHP_VERSION_ID >= 80100
+		zend_string *hash = php_spl_object_hash(Z_OBJ_P(entry));
+#else
 		zend_string *hash = php_spl_object_hash(entry);
+#endif
 		zend_string *key = strpprintf(0, "o:%s", hash->val);
 		zend_string_release(hash);
 		return key;

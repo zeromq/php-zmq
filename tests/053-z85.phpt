@@ -41,10 +41,10 @@ for ($i = 4; $i <= 256; $i += 4) {
 
 // Incorrect length
 test_z85_encode('1234567', null);
-test_z85_encode(null, null);
+test_z85_encode('', null);
 
 test_z85_decode('1234567', null);
-test_z85_decode(null, null);
+test_z85_decode('', null);
 
 echo "OK";
 
