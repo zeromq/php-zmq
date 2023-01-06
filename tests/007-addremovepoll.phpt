@@ -16,14 +16,14 @@ $z = create_client();
 $socket_server = stream_socket_server("tcp://127.0.0.1:5858", $errno, $errstr);
 
 if (!$socket_server) {
-	echo "Failed to create socket server: ${errstr}" . PHP_EOL;
+	echo "Failed to create socket server: {$errstr}" . PHP_EOL;
 	exit (1);
 }
 
 $socket_client = stream_socket_client("tcp://127.0.0.1:5858", $errno, $errstr);
 
 if (!$socket_client) {
-	echo "Failed to create socket client: ${errstr}" . PHP_EOL;
+	echo "Failed to create socket client: {$errstr}" . PHP_EOL;
 	exit (1);
 }
 
