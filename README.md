@@ -19,6 +19,6 @@ var_dump($queue->send("hello there, using socket 1")->recv());
 ?>
 ```
 
-For installation instructions see http://pecl.php.net/zmq
+For installation instructions see https://pecl.php.net/zmq
 
 For developer instructions see DEVELOPERS.md
