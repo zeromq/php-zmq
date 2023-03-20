@@ -50,6 +50,7 @@ php -d extension=modules/zmq.so DocThor/DocThor.php --sourceDir=./ zmq
 * Download libzmq: https://github.com/zeromq/libzmq/releases (eg. libzmq-v142-x64-4_3_4.zip)
 * Extract under `<php-sdk-binary-tools>/phpdev/vs16/x64/zmq`
 * In that folder, rename libzmq-v142-mt-4_3_4.lib to libzmq.lib
+* Clone this repo into  `<php-sdk-binary-tools>/phpdev/vs16/x64/php-8.2.4-src/ext/zmq`
 * `cd <php-sdk-binary-tools>/phpdev/vs16/x64/php-8.2.4-src`
 * `buildconf`
 * `configure --with-zmq="<php-sdk-binary-tools>/phpdev/vs16/x64/zmq,shared"`
