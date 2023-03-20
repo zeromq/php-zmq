@@ -45,7 +45,7 @@
 # endif
 #endif
 
-#ifdef PHP_WIN32
+#if (PHP_VERSION_ID < 80000) && defined(PHP_WIN32)
 # include "win32/php_stdint.h"
 #else
 # include <stdint.h>

@@ -38,3 +38,20 @@ line.
 git clone https://github.com/SegFaulty/DocThor
 php -d extension=modules/zmq.so DocThor/DocThor.php --sourceDir=./ zmq
 ```
+
+## Windows Build Instructions (PHP 8.x)
+* `git clone https://github.com/Microsoft/php-sdk-binary-tools`
+* Open "Developer Command Prompt for VS2019" 
+* All commands listed below must be run using the VS2019 command prompt you just opened:
+* cd into the directory you just cloned, and run `phpsdk-vs16-x64.bat`
+* `phpsdk_buildtree phpdev`
+* Download source code of the PHP version you're building for: https://windows.php.net/download/
+* Extract the source code under `<php-sdk-binary-tools>/phpdev/vs16/x64/php-8.2.4-src` (replace php version with whatever version you downloaded)
+* Download libzmq: https://github.com/zeromq/libzmq/releases (eg. libzmq-v142-x64-4_3_4.zip)
+* Extract under `<php-sdk-binary-tools>/phpdev/vs16/x64/zmq`
+* In that folder, rename libzmq-v142-mt-4_3_4.lib to libzmq.lib
+* Clone this repo into  `<php-sdk-binary-tools>/phpdev/vs16/x64/php-8.2.4-src/ext/zmq`
+* `cd <php-sdk-binary-tools>/phpdev/vs16/x64/php-8.2.4-src`
+* `buildconf`
+* `configure --with-zmq="<php-sdk-binary-tools>/phpdev/vs16/x64/zmq,shared"`
+* `nmake`
