@@ -184,7 +184,7 @@ zend_string *s_create_key(zval *entry)
 	}
 }
 
-php_zmq_pollset *php_zmq_pollset_init()
+php_zmq_pollset *php_zmq_pollset_init(void)
 {
 	php_zmq_pollset *set = ecalloc (1, sizeof(php_zmq_pollset));
 

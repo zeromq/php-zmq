@@ -40,9 +40,9 @@
 #define PHP_ZMQ_POLLSET_ERR_INVALID_TYPE -7
 
 
-/** {{{ php_zmq_pollset *php_zmq_pollset_init();
+/** {{{ php_zmq_pollset *php_zmq_pollset_init(void);
 */
-php_zmq_pollset *php_zmq_pollset_init();
+php_zmq_pollset *php_zmq_pollset_init(void);
 /* }}} */
 
 /** {{{ zend_bool php_zmq_pollset_items(php_zmq_pollset *set, zval *return_value);
@@ -83,7 +83,7 @@ size_t php_zmq_pollset_num_items(php_zmq_pollset *set);
 
 /** {{{ void php_zmq_pollset_delete_all(php_zmq_pollset *set);
 */
-zval *php_zmq_pollset_errors();
+zval *php_zmq_pollset_errors(php_zmq_pollset *set);
 /* }}} */
 
 /** {{{ void php_zmq_pollset_deinit(php_zmq_pollset **set);

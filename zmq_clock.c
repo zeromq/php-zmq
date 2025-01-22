@@ -73,7 +73,7 @@ uint64_t s_backup_clock ()
 
 struct _php_zmq_clock_ctx_t {};
 
-php_zmq_clock_ctx_t *php_zmq_clock_init ()
+php_zmq_clock_ctx_t *php_zmq_clock_init (void)
 {
 	return
 		malloc (sizeof (php_zmq_clock_ctx_t));

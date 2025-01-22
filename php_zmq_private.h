@@ -190,8 +190,8 @@ PHP_METHOD(zmqsocket, getsockopt);
 PHP_METHOD(zmqsocket, setsockopt);
 zend_bool php_zmq_device(php_zmq_device_object *intern);
 
-zend_class_entry *php_zmq_socket_exception_sc_entry_get ();
-zend_class_entry *php_zmq_device_exception_sc_entry_get ();
+zend_class_entry *php_zmq_socket_exception_sc_entry_get (void);
+zend_class_entry *php_zmq_device_exception_sc_entry_get (void);
 
 php_stream *php_zmq_create_zmq_fd(zval *obj);
 
@@ -199,30 +199,30 @@ void php_zmq_register_sockopt_constants (zend_class_entry *ce);
 
 typedef struct _php_zmq_clock_ctx_t php_zmq_clock_ctx_t;
 
-php_zmq_clock_ctx_t *php_zmq_clock_init ();
+php_zmq_clock_ctx_t *php_zmq_clock_init (void);
 
 uint64_t php_zmq_clock (php_zmq_clock_ctx_t *clock_ctx);
 
 void php_zmq_clock_destroy (php_zmq_clock_ctx_t **clock_ctx);
 
-char *php_zmq_get_libzmq_version();
+char *php_zmq_get_libzmq_version(void);
 
-zend_long php_zmq_get_libzmq_version_id();
+zend_long php_zmq_get_libzmq_version_id(void);
 
 char *php_zmq_printable_func (zend_fcall_info *fci, zend_fcall_info_cache *fci_cache);
 
 
-zend_bool php_zmq_shared_ctx_init();
+zend_bool php_zmq_shared_ctx_init(void);
 
 void php_zmq_shared_ctx_assign_to(php_zmq_context *context);
 
-void php_zmq_shared_ctx_destroy();
+void php_zmq_shared_ctx_destroy(void);
 
-int php_zmq_shared_ctx_socket_count();
+int php_zmq_shared_ctx_socket_count(void);
 
-void php_zmq_shared_ctx_socket_count_incr();
+void php_zmq_shared_ctx_socket_count_incr(void);
 
-void php_zmq_shared_ctx_socket_count_decr();
+void php_zmq_shared_ctx_socket_count_decr(void);
 
 
 
