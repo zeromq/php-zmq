@@ -33,7 +33,7 @@
 
 /** {{{ char *php_zmq_libzmq_version()
 */
-char *php_zmq_get_libzmq_version() 
+char *php_zmq_get_libzmq_version(void)
 {
 	char *buffer = NULL;
 
@@ -47,7 +47,7 @@ char *php_zmq_get_libzmq_version()
 
 /** {{{ zend_long php_zmq_libzmq_version_id()
 */
-zend_long php_zmq_get_libzmq_version_id() 
+zend_long php_zmq_get_libzmq_version_id(void)
 {
 	int major = 0, minor = 0, patch = 0;
 

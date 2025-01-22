@@ -71,12 +71,12 @@ zend_class_entry *php_zmq_context_exception_sc_entry_get ()
 	return php_zmq_context_exception_sc_entry;
 }
 
-zend_class_entry *php_zmq_socket_exception_sc_entry_get ()
+zend_class_entry *php_zmq_socket_exception_sc_entry_get (void)
 {
 	return php_zmq_socket_exception_sc_entry;
 }
 
-zend_class_entry *php_zmq_device_exception_sc_entry_get ()
+zend_class_entry *php_zmq_device_exception_sc_entry_get (void)
 {
 	return php_zmq_device_exception_sc_entry;
 }

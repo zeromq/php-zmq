@@ -136,7 +136,7 @@ void s_shared_ctx_destroy()
 }
 #endif
 
-zend_bool php_zmq_shared_ctx_init()
+zend_bool php_zmq_shared_ctx_init(void)
 {
 	return
 		s_shared_ctx_init();
@@ -150,7 +150,7 @@ void php_zmq_shared_ctx_assign_to(php_zmq_context *context)
 	}
 }
 
-void php_zmq_shared_ctx_destroy()
+void php_zmq_shared_ctx_destroy(void)
 {
 	if (php_zmq_shared_ctx_socket_count() > 0) {
 		php_error_docref(NULL, E_WARNING, "php_zmq_shared_ctx_socket_count() > 0, please report a bug");
@@ -158,7 +158,7 @@ void php_zmq_shared_ctx_destroy()
 	s_shared_ctx_destroy();
 }
 
-int php_zmq_shared_ctx_socket_count()
+int php_zmq_shared_ctx_socket_count(void)
 {
 	int value = 0;
 
@@ -169,7 +169,7 @@ int php_zmq_shared_ctx_socket_count()
 	return value;
 }
 
-void php_zmq_shared_ctx_socket_count_incr()
+void php_zmq_shared_ctx_socket_count_incr(void)
 {
 	if (s_shared_ctx_lock()) {
 		s_ctx_socket_count++;
@@ -177,7 +177,7 @@ void php_zmq_shared_ctx_socket_count_incr()
 	}
 }
 
-void php_zmq_shared_ctx_socket_count_decr()
+void php_zmq_shared_ctx_socket_count_decr(void)
 {
 	if (s_shared_ctx_lock()) {
 		s_ctx_socket_count--;
